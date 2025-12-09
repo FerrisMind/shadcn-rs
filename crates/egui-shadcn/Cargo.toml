@@ -1,0 +1,16 @@
+[package]
+name = "egui-shadcn"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+description = "Shadcn-inspired component kit for egui."
+repository = "https://example.com/egui-shadcn"
+homepage = "https://example.com/egui-shadcn"
+
+[dependencies]
+egui = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]
+env_logger = { workspace = true }
+

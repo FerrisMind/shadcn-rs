@@ -1,0 +1,18 @@
+[workspace]
+members = ["crates/egui-shadcn"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+version = "0.1.0"
+authors = ["egui-shadcn contributors"]
+homepage = "https://example.com/egui-shadcn"
+repository = "https://example.com/egui-shadcn"
+description = "Shadcn-inspired component kit for egui."
+
+[workspace.dependencies]
+egui = "0.27"
+log = "0.4"
+env_logger = "0.11"
+
