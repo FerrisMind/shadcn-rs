@@ -1,0 +1,17 @@
+# Rust
+/target
+**/*.rs.bk
+
+# Cargo
+/Cargo.lock
+
+# Node/Next reference app
+reference/
+
+# Editor/OS
+/.vscode
+/.idea
+/.cursor
+/.context
+**/*.log
+
