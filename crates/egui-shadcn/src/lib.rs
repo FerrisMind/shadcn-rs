@@ -1,6 +1,15 @@
 //! Библиотека компонентов для egui по мотивам shadcn/ui.
 //! В первой версии включены базовые элементы форм.
 
+pub mod theme;
+pub mod tokens;
+
+pub use theme::{ControlVisuals, InputVisuals, Theme};
+pub use tokens::{
+    input_tokens, mix, variant_tokens, ColorPalette, ControlSize, ControlVariant, InputTokens,
+    StateColors, VariantTokens,
+};
+
 /// Общее состояние библиотеки.
 #[cfg(test)]
 mod tests {
