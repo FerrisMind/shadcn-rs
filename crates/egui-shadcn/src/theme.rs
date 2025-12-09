@@ -39,10 +39,6 @@ impl Theme {
         Self { palette }
     }
 
-    pub fn default() -> Self {
-        Self::new(ColorPalette::default())
-    }
-
     pub fn control(&self, variant: ControlVariant, size: ControlSize) -> ControlVisuals {
         trace!("Формируем стиль для варианта {:?} размера {:?}", variant, size);
         let tokens = variant_tokens(&self.palette, variant);
