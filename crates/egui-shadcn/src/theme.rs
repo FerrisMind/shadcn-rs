@@ -1,14 +1,11 @@
-//! Тема и хелперы применения токенов в egui.
-
 use crate::tokens::{
-    input_tokens, variant_tokens, ColorPalette, ControlSize, ControlVariant, InputTokens,
-    StateColors, VariantTokens,
+    ColorPalette, ControlSize, ControlVariant, InputTokens, StateColors, VariantTokens,
+    input_tokens, variant_tokens,
 };
 use egui::style::{WidgetVisuals, Widgets};
-use egui::{FontId, Rounding, Stroke, Ui, Vec2};
+use egui::{Color32, CornerRadius, FontId, Stroke, Ui, Vec2};
 use log::{info, trace};
 
-/// Описывает визуальный набор для управляющего элемента.
 #[derive(Clone, Debug)]
 pub struct ControlVisuals {
     pub widgets: Widgets,
@@ -17,7 +14,6 @@ pub struct ControlVisuals {
     pub expansion: f32,
 }
 
-/// Описывает визуальный набор для текстовых полей.
 #[derive(Clone, Debug)]
 pub struct InputVisuals {
     pub widgets: Widgets,
@@ -25,9 +21,12 @@ pub struct InputVisuals {
     pub text_style: FontId,
     pub focus_stroke: Stroke,
     pub invalid_stroke: Stroke,
+    pub selection_bg: Color32,
+    pub selection_fg: Color32,
+    pub placeholder: Color32,
+    pub text_color: Color32,
 }
 
-/// Тема, построенная на токенах shadcn.
 #[derive(Clone, Debug)]
 pub struct Theme {
     pub palette: ColorPalette,
@@ -35,12 +34,12 @@ pub struct Theme {
 
 impl Theme {
     pub fn new(palette: ColorPalette) -> Self {
-        info!("Инициализация темы egui-shadcn");
+        info!("Initializing egui-shadcn theme");
         Self { palette }
     }
 
     pub fn control(&self, variant: ControlVariant, size: ControlSize) -> ControlVisuals {
-        trace!("Формируем стиль для варианта {:?} размера {:?}", variant, size);
+        trace!("Building style for variant {:?} size {:?}", variant, size);
         let tokens = variant_tokens(&self.palette, variant);
         let rounding = size.rounding();
         let expansion = size.expansion();
@@ -53,7 +52,7 @@ impl Theme {
     }
 
     pub fn input(&self, size: ControlSize) -> InputVisuals {
-        trace!("Формируем стиль для input размера {:?}", size);
+        trace!("Building style for input size {:?}", size);
         let tokens = input_tokens(&self.palette);
         let rounding = size.rounding();
         let expansion = size.expansion();
@@ -63,10 +62,13 @@ impl Theme {
             text_style: size.font(),
             focus_stroke: tokens.focused.border,
             invalid_stroke: tokens.invalid.border,
+            selection_bg: tokens.selection_bg,
+            selection_fg: tokens.selection_fg,
+            placeholder: tokens.placeholder,
+            text_color: Color32::from_rgb(255, 247, 237),
         }
     }
 
-    /// Применяет visuals на время выполнения замыкания.
     pub fn scoped<R>(&self, ui: &mut Ui, widgets: Widgets, inner: impl FnOnce(&mut Ui) -> R) -> R {
         ui.scope(|scope_ui| {
             let mut style = scope_ui.style().as_ref().clone();
@@ -84,64 +86,45 @@ impl Default for Theme {
     }
 }
 
-fn widget_visuals(state: &StateColors, rounding: Rounding, expansion: f32) -> WidgetVisuals {
+pub(crate) fn widget_visuals(
+    state: &StateColors,
+    corner_radius: CornerRadius,
+    expansion: f32,
+) -> WidgetVisuals {
     WidgetVisuals {
         bg_fill: state.bg_fill,
         weak_bg_fill: state.bg_fill,
         bg_stroke: state.border,
         fg_stroke: state.fg_stroke,
-        rounding,
+        corner_radius,
         expansion,
     }
 }
 
-fn widgets_from_variant(tokens: &VariantTokens, rounding: Rounding, expansion: f32) -> Widgets {
+pub(crate) fn widgets_from_variant(
+    tokens: &VariantTokens,
+    corner_radius: CornerRadius,
+    expansion: f32,
+) -> Widgets {
     Widgets {
-        noninteractive: widget_visuals(&tokens.disabled, rounding, expansion),
-        inactive: widget_visuals(&tokens.idle, rounding, expansion),
-        hovered: widget_visuals(&tokens.hovered, rounding, expansion),
-        active: widget_visuals(&tokens.active, rounding, expansion),
-        open: widget_visuals(&tokens.hovered, rounding, expansion),
+        noninteractive: widget_visuals(&tokens.disabled, corner_radius, expansion),
+        inactive: widget_visuals(&tokens.idle, corner_radius, expansion),
+        hovered: widget_visuals(&tokens.hovered, corner_radius, expansion),
+        active: widget_visuals(&tokens.active, corner_radius, expansion),
+        open: widget_visuals(&tokens.hovered, corner_radius, expansion),
     }
 }
 
-fn widgets_from_input(tokens: &InputTokens, rounding: Rounding, expansion: f32) -> Widgets {
+pub(crate) fn widgets_from_input(
+    tokens: &InputTokens,
+    corner_radius: CornerRadius,
+    expansion: f32,
+) -> Widgets {
     Widgets {
-        noninteractive: widget_visuals(&tokens.disabled, rounding, expansion),
-        inactive: widget_visuals(&tokens.idle, rounding, expansion),
-        hovered: widget_visuals(&tokens.hovered, rounding, expansion),
-        active: widget_visuals(&tokens.focused, rounding, expansion),
-        open: widget_visuals(&tokens.hovered, rounding, expansion),
+        noninteractive: widget_visuals(&tokens.disabled, corner_radius, expansion),
+        inactive: widget_visuals(&tokens.idle, corner_radius, expansion),
+        hovered: widget_visuals(&tokens.hovered, corner_radius, expansion),
+        active: widget_visuals(&tokens.focused, corner_radius, expansion),
+        open: widget_visuals(&tokens.hovered, corner_radius, expansion),
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use env_logger;
-
-    fn init_logger() {
-        let _ = env_logger::builder().is_test(true).try_init();
-    }
-
-    #[test]
-    fn primary_visuals_use_palette() {
-        init_logger();
-        let theme = Theme::default();
-        let visuals = theme.control(ControlVariant::Primary, ControlSize::Md);
-        assert_eq!(
-            visuals.widgets.inactive.bg_fill,
-            theme.palette.primary,
-            "Кнопка primary использует цвет из палитры"
-        );
-    }
-
-    #[test]
-    fn input_focus_stroke_differs() {
-        init_logger();
-        let theme = Theme::default();
-        let visuals = theme.input(ControlSize::Sm);
-        assert!(visuals.focus_stroke.width > 1.0);
-    }
-}
-

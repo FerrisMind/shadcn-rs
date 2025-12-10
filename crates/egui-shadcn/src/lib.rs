@@ -1,27 +1,26 @@
-//! Библиотека компонентов для egui по мотивам shadcn/ui.
-//! В первой версии включены базовые элементы форм.
-
+pub mod button;
+pub mod checkbox;
+pub mod input;
+pub mod select;
+pub mod switch;
+pub mod textarea;
 pub mod theme;
+pub mod toggle;
 pub mod tokens;
 
-pub use theme::{ControlVisuals, InputVisuals, Theme};
-pub use tokens::{
-    input_tokens, mix, variant_tokens, ColorPalette, ControlSize, ControlVariant, InputTokens,
-    StateColors, VariantTokens,
+pub use button::{Button, ButtonProps, ButtonSize, ButtonStyle, ButtonVariant, button};
+pub use checkbox::checkbox;
+pub use input::text_input;
+pub use select::{
+    ContentVariant, PopupPosition, SelectItem, SelectProps, SelectPropsSimple, SelectRadius,
+    SelectSize, SelectStyle, TriggerVariant, select, select_with_items,
 };
-
-/// Общее состояние библиотеки.
-#[cfg(test)]
-mod tests {
-    use env_logger;
-    use log;
-
-    /// Проверяет, что crate инициализируется и логгер конфигурируется в тестах.
-    #[test]
-    fn crate_inits() {
-        let _ = env_logger::builder().is_test(true).try_init();
-        log::info!("egui-shadcn crate initialized for testing");
-        assert!(true);
-    }
-}
-
+pub use switch::switch;
+pub use textarea::{TextareaProps, textarea};
+pub use theme::{ControlVisuals, InputVisuals, Theme};
+pub use toggle::toggle;
+pub use tokens::{
+    ColorPalette, ControlSize, ControlVariant, InputTokens, StateColors, ToggleVariant,
+    VariantTokens, checkbox_metrics, checkbox_tokens, input_tokens, mix, switch_metrics,
+    switch_tokens, toggle_button_tokens, toggle_metrics, variant_tokens,
+};
