@@ -319,14 +319,27 @@ pub fn input_tokens(palette: &ColorPalette) -> InputTokens {
 }
 
 pub fn checkbox_tokens(palette: &ColorPalette, variant: ControlVariant) -> ToggleTokens {
-    let input = input_tokens(palette);
+    let fg_off = mix(palette.foreground, palette.muted_foreground, 0.4);
+    let off_idle =
+        StateColors::with_border(palette.input, fg_off, Stroke::new(1.0, palette.border));
+    let off_hovered = StateColors::with_border(
+        mix(palette.input, Color32::WHITE, 0.04),
+        fg_off,
+        Stroke::new(1.0, mix(palette.border, palette.foreground, 0.1)),
+    );
+    let off_active = StateColors::with_border(
+        mix(palette.input, Color32::WHITE, 0.08),
+        fg_off,
+        Stroke::new(1.5, mix(palette.border, palette.primary, 0.25)),
+    );
+
     let on = variant_tokens(palette, variant);
     let disabled = disabled_state(palette);
     ToggleTokens {
         off: ToggleState {
-            idle: input.idle,
-            hovered: input.hovered,
-            active: input.focused,
+            idle: off_idle,
+            hovered: off_hovered,
+            active: off_active,
         },
         on: ToggleState {
             idle: on.idle,
@@ -335,7 +348,7 @@ pub fn checkbox_tokens(palette: &ColorPalette, variant: ControlVariant) -> Toggl
         },
         disabled,
         thumb_on: on.idle.fg_stroke.color,
-        thumb_off: input.idle.fg_stroke.color,
+        thumb_off: fg_off,
     }
 }
 

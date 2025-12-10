@@ -11,6 +11,14 @@ pub enum ButtonVariant {
     #[default]
     Default,
 
+    Solid,
+
+    Classic,
+
+    Soft,
+
+    Surface,
+
     Destructive,
 
     Outline,
@@ -31,6 +39,32 @@ impl From<ControlVariant> for ButtonVariant {
             ControlVariant::Secondary => ButtonVariant::Secondary,
             ControlVariant::Ghost => ButtonVariant::Ghost,
             ControlVariant::Link => ButtonVariant::Link,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ButtonRadius {
+    None,
+
+    Small,
+
+    #[default]
+    Medium,
+
+    Large,
+
+    Full,
+}
+
+impl ButtonRadius {
+    pub fn corner_radius(self) -> CornerRadius {
+        match self {
+            ButtonRadius::None => CornerRadius::same(0),
+            ButtonRadius::Small => CornerRadius::same(4),
+            ButtonRadius::Medium => CornerRadius::same(8),
+            ButtonRadius::Large => CornerRadius::same(12),
+            ButtonRadius::Full => CornerRadius::same(255),
         }
     }
 }
@@ -167,9 +201,8 @@ pub struct ButtonStyle {
 impl ButtonStyle {
     pub fn from_variant(palette: &ColorPalette, variant: ButtonVariant) -> Self {
         match variant {
-            ButtonVariant::Default => Self {
+            ButtonVariant::Default | ButtonVariant::Solid => Self {
                 bg: palette.primary,
-
                 bg_hover: Color32::from_rgb(207, 207, 207),
                 bg_active: Color32::from_rgb(229, 229, 229),
                 text: palette.primary_foreground,
@@ -179,6 +212,95 @@ impl ButtonStyle {
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(8),
             },
+            ButtonVariant::Classic => Self {
+                bg: palette.primary,
+                bg_hover: mix(palette.primary, Color32::BLACK, 0.08),
+                bg_active: mix(palette.primary, Color32::BLACK, 0.15),
+                text: palette.primary_foreground,
+                border: mix(palette.primary, Color32::BLACK, 0.2),
+                border_hover: mix(palette.primary, Color32::BLACK, 0.25),
+                focus_ring: mix(palette.primary, Color32::from_rgb(150, 150, 150), 0.4),
+                disabled_opacity: 0.5,
+                rounding: CornerRadius::same(8),
+            },
+            ButtonVariant::Soft => {
+                let soft_bg = Color32::from_rgba_unmultiplied(
+                    palette.primary.r(),
+                    palette.primary.g(),
+                    palette.primary.b(),
+                    30,
+                );
+                Self {
+                    bg: soft_bg,
+                    bg_hover: Color32::from_rgba_unmultiplied(
+                        palette.primary.r(),
+                        palette.primary.g(),
+                        palette.primary.b(),
+                        45,
+                    ),
+                    bg_active: Color32::from_rgba_unmultiplied(
+                        palette.primary.r(),
+                        palette.primary.g(),
+                        palette.primary.b(),
+                        60,
+                    ),
+                    text: palette.foreground,
+                    border: Color32::TRANSPARENT,
+                    border_hover: Color32::TRANSPARENT,
+                    focus_ring: Color32::from_rgba_unmultiplied(
+                        palette.primary.r(),
+                        palette.primary.g(),
+                        palette.primary.b(),
+                        100,
+                    ),
+                    disabled_opacity: 0.5,
+                    rounding: CornerRadius::same(8),
+                }
+            }
+            ButtonVariant::Surface => {
+                let surface_bg = Color32::from_rgba_unmultiplied(
+                    palette.primary.r(),
+                    palette.primary.g(),
+                    palette.primary.b(),
+                    20,
+                );
+                Self {
+                    bg: surface_bg,
+                    bg_hover: Color32::from_rgba_unmultiplied(
+                        palette.primary.r(),
+                        palette.primary.g(),
+                        palette.primary.b(),
+                        30,
+                    ),
+                    bg_active: Color32::from_rgba_unmultiplied(
+                        palette.primary.r(),
+                        palette.primary.g(),
+                        palette.primary.b(),
+                        45,
+                    ),
+                    text: palette.foreground,
+                    border: Color32::from_rgba_unmultiplied(
+                        palette.primary.r(),
+                        palette.primary.g(),
+                        palette.primary.b(),
+                        100,
+                    ),
+                    border_hover: Color32::from_rgba_unmultiplied(
+                        palette.primary.r(),
+                        palette.primary.g(),
+                        palette.primary.b(),
+                        130,
+                    ),
+                    focus_ring: Color32::from_rgba_unmultiplied(
+                        palette.primary.r(),
+                        palette.primary.g(),
+                        palette.primary.b(),
+                        100,
+                    ),
+                    disabled_opacity: 0.5,
+                    rounding: CornerRadius::same(8),
+                }
+            }
             ButtonVariant::Destructive => Self {
                 bg: palette.destructive,
                 bg_hover: mix(palette.destructive, Color32::WHITE, 0.1),
@@ -257,11 +379,87 @@ impl ButtonStyle {
         }
     }
 
+    pub fn from_variant_with_accent(
+        palette: &ColorPalette,
+        variant: ButtonVariant,
+        accent: Color32,
+    ) -> Self {
+        let mut style = Self::from_variant(palette, variant);
+        match variant {
+            ButtonVariant::Default | ButtonVariant::Solid => {
+                style.bg = accent;
+                style.bg_hover = mix(accent, Color32::WHITE, 0.1);
+                style.bg_active = mix(accent, Color32::WHITE, 0.15);
+                style.text = compute_contrast_color(accent);
+                style.focus_ring = mix(accent, Color32::from_rgb(150, 150, 150), 0.3);
+            }
+            ButtonVariant::Classic => {
+                style.bg = accent;
+                style.bg_hover = mix(accent, Color32::BLACK, 0.08);
+                style.bg_active = mix(accent, Color32::BLACK, 0.15);
+                style.text = compute_contrast_color(accent);
+                style.border = mix(accent, Color32::BLACK, 0.2);
+                style.border_hover = mix(accent, Color32::BLACK, 0.25);
+                style.focus_ring = mix(accent, Color32::from_rgb(150, 150, 150), 0.4);
+            }
+            ButtonVariant::Soft => {
+                style.bg = Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 30);
+                style.bg_hover =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 45);
+                style.bg_active =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 60);
+                style.text = accent;
+                style.focus_ring =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 100);
+            }
+            ButtonVariant::Surface => {
+                style.bg = Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 20);
+                style.bg_hover =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 30);
+                style.bg_active =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 45);
+                style.text = accent;
+                style.border =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 100);
+                style.border_hover =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 130);
+                style.focus_ring =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 100);
+            }
+            ButtonVariant::Destructive => {}
+            ButtonVariant::Outline => {
+                style.text = accent;
+                style.border =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 180);
+                style.border_hover = accent;
+            }
+            ButtonVariant::Secondary => {}
+            ButtonVariant::Ghost => {
+                style.text = accent;
+            }
+            ButtonVariant::Link => {
+                style.text = accent;
+                style.focus_ring =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 128);
+            }
+        }
+        style
+    }
+
     pub fn with_high_contrast(mut self) -> Self {
         self.bg = mix(self.bg, Color32::WHITE, 0.15);
         self.bg_hover = mix(self.bg_hover, Color32::WHITE, 0.15);
         self.text = Color32::WHITE;
         self
+    }
+}
+
+fn compute_contrast_color(bg: Color32) -> Color32 {
+    let luminance = 0.299 * bg.r() as f32 + 0.587 * bg.g() as f32 + 0.114 * bg.b() as f32;
+    if luminance > 128.0 {
+        Color32::from_rgb(15, 15, 15)
+    } else {
+        Color32::from_rgb(250, 250, 250)
     }
 }
 
@@ -273,11 +471,15 @@ pub struct ButtonProps<'a> {
 
     pub size: ButtonSize,
 
+    pub radius: ButtonRadius,
+
     pub enabled: bool,
 
     pub loading: bool,
 
     pub high_contrast: bool,
+
+    pub accent_color: Option<Color32>,
 
     pub style: Option<ButtonStyle>,
 
@@ -291,9 +493,11 @@ impl<'a> std::fmt::Debug for ButtonProps<'a> {
             .field("label", &self.label)
             .field("variant", &self.variant)
             .field("size", &self.size)
+            .field("radius", &self.radius)
             .field("enabled", &self.enabled)
             .field("loading", &self.loading)
             .field("high_contrast", &self.high_contrast)
+            .field("accent_color", &self.accent_color)
             .field("style", &self.style)
             .field("icon", &self.icon.as_ref().map(|_| "<fn>"))
             .finish()
@@ -306,9 +510,11 @@ impl<'a> ButtonProps<'a> {
             label: label.into(),
             variant: ButtonVariant::Default,
             size: ButtonSize::Default,
+            radius: ButtonRadius::default(),
             enabled: true,
             loading: false,
             high_contrast: false,
+            accent_color: None,
             style: None,
             icon: None,
         }
@@ -324,6 +530,11 @@ impl<'a> ButtonProps<'a> {
         self
     }
 
+    pub fn radius(mut self, radius: ButtonRadius) -> Self {
+        self.radius = radius;
+        self
+    }
+
     pub fn enabled(mut self, enabled: bool) -> Self {
         self.enabled = enabled;
         self
@@ -336,6 +547,11 @@ impl<'a> ButtonProps<'a> {
 
     pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.high_contrast = high_contrast;
+        self
+    }
+
+    pub fn accent_color(mut self, color: Color32) -> Self {
+        self.accent_color = Some(color);
         self
     }
 
@@ -376,6 +592,11 @@ impl<'a> Button<'a> {
         self
     }
 
+    pub fn radius(mut self, radius: ButtonRadius) -> Self {
+        self.props.radius = radius;
+        self
+    }
+
     pub fn enabled(mut self, enabled: bool) -> Self {
         self.props.enabled = enabled;
         self
@@ -388,6 +609,11 @@ impl<'a> Button<'a> {
 
     pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.props.high_contrast = high_contrast;
+        self
+    }
+
+    pub fn accent_color(mut self, color: Color32) -> Self {
+        self.props.accent_color = Some(color);
         self
     }
 
@@ -437,12 +663,15 @@ fn button_with_props(ui: &mut Ui, theme: &Theme, props: ButtonProps<'_>) -> Resp
         props.variant, props.size, props.enabled, props.loading
     );
 
-    let mut style = props
-        .style
-        .clone()
-        .unwrap_or_else(|| ButtonStyle::from_variant(&theme.palette, props.variant));
+    let mut style = props.style.clone().unwrap_or_else(|| {
+        if let Some(accent) = props.accent_color {
+            ButtonStyle::from_variant_with_accent(&theme.palette, props.variant, accent)
+        } else {
+            ButtonStyle::from_variant(&theme.palette, props.variant)
+        }
+    });
 
-    style.rounding = props.size.rounding();
+    style.rounding = props.radius.corner_radius();
 
     if props.high_contrast {
         style = style.with_high_contrast();
