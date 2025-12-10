@@ -1,6 +1,5 @@
 use egui_shadcn::{
-    ControlSize, ControlVariant, Theme, ToggleVariant, button, checkbox, select, switch,
-    toggle,
+    ControlSize, ControlVariant, Theme, ToggleVariant, button, checkbox, select, switch, toggle,
 };
 use env_logger;
 
