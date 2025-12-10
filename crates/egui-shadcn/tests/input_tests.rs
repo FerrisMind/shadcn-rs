@@ -1,8 +1,6 @@
 use egui::Color32;
 use egui_shadcn::tokens::ColorPalette;
-use egui_shadcn::{
-    Input, InputProps, InputRadius, InputSize, InputStyle, InputType, InputVariant,
-};
+use egui_shadcn::{Input, InputProps, InputRadius, InputSize, InputStyle, InputType, InputVariant};
 
 #[test]
 fn input_size_height() {
@@ -228,20 +226,14 @@ fn input_builder_chain() {
 #[test]
 fn input_with_left_slot() {
     let mut value = String::new();
-    let props = InputProps::new("test_id", &mut value)
-        .left_slot(|_painter, _rect, _color| {
-
-        });
+    let props = InputProps::new("test_id", &mut value).left_slot(|_painter, _rect, _color| {});
     assert!(props.left_slot.is_some());
 }
 
 #[test]
 fn input_with_right_slot() {
     let mut value = String::new();
-    let props = InputProps::new("test_id", &mut value)
-        .right_slot(|_painter, _rect, _color| {
-
-        });
+    let props = InputProps::new("test_id", &mut value).right_slot(|_painter, _rect, _color| {});
     assert!(props.right_slot.is_some());
 }
 
