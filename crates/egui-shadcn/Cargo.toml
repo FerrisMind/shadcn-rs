@@ -10,7 +10,9 @@ homepage = "https://example.com/egui-shadcn"
 [dependencies]
 egui = { workspace = true }
 log = { workspace = true }
+lucide-icons = "0.555.0"
 
 [dev-dependencies]
 env_logger = { workspace = true }
+eframe = "0.33"
 
