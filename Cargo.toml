@@ -12,7 +12,9 @@ repository = "https://example.com/egui-shadcn"
 description = "Shadcn-inspired component kit for egui."
 
 [workspace.dependencies]
-egui = "0.27"
+egui = "0.33"
 log = "0.4"
 env_logger = "0.11"
 
+[profile.release]
+debug = true
