@@ -14,16 +14,38 @@ cargo add egui-shadcn --path crates/egui-shadcn
 - `button` — variants `Primary|Secondary|Ghost|Outline|Destructive|Link`; sizes `Sm|Md|Lg|IconSm|Icon|IconLg`; supports `enabled`.
 - `text_input` — custom placeholder color, `is_invalid`, `enabled`, 3px ring, selection colors.
 - `select` — placeholder, options list, `enabled`, `is_invalid` (via `SelectProps`), arrow in text.
-- `checkbox` — variant and size controls.
+– `checkbox` — variants/sizes, три-стейт через `CheckboxState`, кольцо фокуса/invalid и анимации.
 - `toggle` — button-like toggle (default/outline), accent colors, sizes `Sm|Md|Lg`.
 - `switch` — track toggle with shadcn-aligned track/thumb sizes (32×18.4).
 - `textarea` — focus ring, `is_invalid` fill, optional counter and `max_len`.
+
+Tri-state checkbox with invalid ring:
+```rust
+use egui_shadcn::{
+    checkbox_state, CheckboxCycle, CheckboxOptions, CheckboxState, ControlSize, ControlVariant,
+};
+
+let mut state = CheckboxState::Indeterminate;
+checkbox_state(
+    ui,
+    &theme,
+    &mut state,
+    "Notifications",
+    CheckboxOptions {
+        variant: ControlVariant::Secondary,
+        size: ControlSize::Md,
+        cycle: CheckboxCycle::TriState,
+        invalid: true,
+        ..CheckboxOptions::default()
+    },
+);
+```
 
 ## Examples
 - `cargo run --example button` — variants `Primary|Secondary|Ghost|Outline|Destructive|Link` and all icon sizes.
 - `cargo run --example text_input` — sizes `Sm|Md|Lg`, `invalid` and `disabled` states.
 - `cargo run --example select` — legacy API (`SelectPropsSimple`), grouped lists, `invalid`, `disabled`, custom `SelectStyle`, size `Sm`.
-- `cargo run --example checkbox` — all variants and sizes, including `disabled`.
+- `cargo run --example checkbox` — variants/sizes, tri-state/invalid ring, `disabled`.
 - `cargo run --example toggle` — variants `Default|Outline`, icon sizes, `disabled`.
 - `cargo run --example switch` — color variants, sizes `Sm|Md|Lg`, `disabled`.
 - `cargo run --example textarea` — counter and limit, `invalid`, `disabled`.
