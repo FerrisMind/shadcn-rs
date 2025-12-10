@@ -12,12 +12,15 @@ cargo add egui-shadcn --path crates/egui-shadcn
 
 ## Components
 - `button` — variants `Primary|Secondary|Ghost|Outline|Destructive|Link`; sizes `Sm|Md|Lg|IconSm|Icon|IconLg`; supports `enabled`.
+- `label` — `for_id` to focus inputs, variants `Default|Secondary|Muted|Destructive`, optional description, required marker.
 - `text_input` — `text_input` wrapper + `text_input_with_config`/`InputConfig`: variants `Surface|Classic|Soft`, leading/trailing slots, password/read-only, fill width, invalid/disabled, 3px ring, selection colors, accent override, radius/padding overrides, slot gap/padding, `resolve_input_style` for parity checks.
 - `select` — placeholder, options list, `enabled`, `is_invalid` (via `SelectProps`), arrow in text.
 – `checkbox` — variants/sizes, три-стейт через `CheckboxState`, кольцо фокуса/invalid и анимации.
+- `radio_group` — vertical/horizontal layouts, option descriptions, accent override, disabled options, high-contrast mode.
 - `toggle` — button-like toggle (default/outline) с hover/bg/fg как в shadcn, анимация on/off через `animate_bool`, размеры `Sm|Md|Lg|IconSm|Icon|IconLg`.
 - `switch` — варианты `surface|classic|soft`, размеры `1|2|3` (map с `ControlSize`), `high_contrast`, кастом accent/thumb через `SwitchOptions`.
 - `textarea` — focus ring, `is_invalid` fill, optional counter and `max_len`.
+- `tooltip` — delayed hover/focus helper with positions and high-contrast styling.
 
 Tri-state checkbox with invalid ring:
 ```rust
@@ -43,12 +46,15 @@ checkbox_state(
 
 ## Examples
 - `cargo run --example button` — variants `Primary|Secondary|Ghost|Outline|Destructive|Link` and all icon sizes.
+- `cargo run --example label` — linking labels to inputs with required markers and variants.
 - `cargo run --example text_input` — sizes `Sm|Md|Lg`, `invalid`/`disabled`, slots, variants, password/read-only, accent/radius/padding overrides.
 - `cargo run --example select` — legacy API (`SelectPropsSimple`), grouped lists, `invalid`, `disabled`, custom `SelectStyle`, size `Sm`.
 - `cargo run --example checkbox` — variants/sizes, tri-state/invalid ring, `disabled`.
+- `cargo run --example radio` — vertical/horizontal radio groups with descriptions and disabled options.
 - `cargo run --example toggle` — variants `Default|Outline`, icon sizes, `disabled`.
 - `cargo run --example switch` — color variants, sizes `Sm|Md|Lg` → `SwitchSize 1|2|3`, variants `surface|classic|soft`, `high_contrast`, `disabled`.
 - `cargo run --example textarea` — counter and limit, `invalid`, `disabled`.
+- `cargo run --example tooltip` — delayed hover/focus tooltip with positioning and high-contrast.
 - `cargo run --example basic` — combined demo of all components.
 
 Combined screen (`basic.rs`):

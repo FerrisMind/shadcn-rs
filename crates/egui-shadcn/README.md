@@ -16,12 +16,15 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 
 ## Components
 - `button` — variants `Primary|Secondary|Ghost|Outline|Destructive|Link`; sizes `Sm|Md|Lg|IconSm|Icon|IconLg`.
+- `label` — `for_id` to focus linked inputs, variants `Default|Secondary|Muted|Destructive`, descriptions, required marker.
 - `text_input` — `text_input` wrapper + `text_input_with_config`/`InputConfig` (variants `Surface|Classic|Soft`, leading/trailing slots, password/read-only, fill width, invalid/disabled, selection colors) + accent override, radius/padding tweaks, slot gap/padding, `resolve_input_style` helper.
 - `select` — options via `SelectProps`, placeholder, `is_invalid`, arrow glyph, disabled state.
 - `checkbox` — sizes/variants, tri-state (`CheckboxState`), focus/invalid ring.
+- `radio_group` — descriptions, vertical/horizontal layout, accent override, disabled options, high-contrast mode.
 - `toggle` — default/outline variants с hover/bg/fg как в shadcn, on-state accent, размеры `Sm|Md|Lg|IconSm|Icon|IconLg`.
 - `switch` — варианты `surface|classic|soft`, размеры `1|2|3` (map с `ControlSize`), `high_contrast`, кастом accent/thumb через `SwitchOptions`.
 - `textarea` — focus ring, invalid fill, optional counter.
+- `tooltip` — delayed hover/focus helper with positions and high-contrast styling.
 
 Input config with slots and variant:
 ```rust
@@ -137,12 +140,15 @@ checkbox_state(
 
 ## Examples
 - `cargo run --example button` — all variants and sizes.
+- `cargo run --example label` — `Label` with descriptions, required marks, variants.
 - `cargo run --example text_input` — sizes `Sm|Md|Lg`, invalid/disabled, slots, variants, password/read-only.
 - `cargo run --example select` — grouped options, `SelectProps`, invalid/disabled, custom `SelectStyle`.
 - `cargo run --example checkbox` — variants/sizes, tri-state + invalid ring, disabled.
+- `cargo run --example radio` — vertical/horizontal groups, descriptions, disabled options.
 - `cargo run --example toggle` — default/outline, icon sizes, disabled.
 - `cargo run --example switch` — color variants, sizes `Sm|Md|Lg` → `SwitchSize 1|2|3`, variants `surface|classic|soft`, high-contrast/disabled.
 - `cargo run --example textarea` — counter/limit, invalid, disabled, all sizes.
+- `cargo run --example tooltip` — positioning, delay, high-contrast tooltip helper.
 - `cargo run --example basic` — all components on one screen.
 
 ## Tests
