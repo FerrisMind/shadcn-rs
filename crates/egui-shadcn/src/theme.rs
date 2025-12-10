@@ -1,6 +1,6 @@
 use crate::tokens::{
-    ColorPalette, ControlSize, ControlVariant, InputTokens, StateColors, VariantTokens,
-    input_tokens, variant_tokens,
+    ColorPalette, ControlSize, ControlVariant, InputTokens, InputVariant, StateColors,
+    VariantTokens, input_tokens, variant_tokens,
 };
 use egui::style::{WidgetVisuals, Widgets};
 use egui::{Color32, CornerRadius, FontId, Stroke, Ui, Vec2};
@@ -25,6 +25,8 @@ pub struct InputVisuals {
     pub selection_fg: Color32,
     pub placeholder: Color32,
     pub text_color: Color32,
+    pub rounding: CornerRadius,
+    pub expansion: f32,
 }
 
 #[derive(Clone, Debug)]
@@ -52,8 +54,15 @@ impl Theme {
     }
 
     pub fn input(&self, size: ControlSize) -> InputVisuals {
-        trace!("Building style for input size {:?}", size);
-        let tokens = input_tokens(&self.palette);
+        self.input_variant(size, InputVariant::Surface)
+    }
+
+    pub fn input_variant(&self, size: ControlSize, variant: InputVariant) -> InputVisuals {
+        trace!(
+            "Building style for input size {:?} variant {:?}",
+            size, variant
+        );
+        let tokens = input_tokens(&self.palette, variant);
         let rounding = size.rounding();
         let expansion = size.expansion();
         InputVisuals {
@@ -65,7 +74,9 @@ impl Theme {
             selection_bg: tokens.selection_bg,
             selection_fg: tokens.selection_fg,
             placeholder: tokens.placeholder,
-            text_color: Color32::from_rgb(255, 247, 237),
+            text_color: tokens.idle.fg_stroke.color,
+            rounding,
+            expansion,
         }
     }
 

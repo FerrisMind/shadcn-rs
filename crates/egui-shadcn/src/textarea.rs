@@ -1,5 +1,5 @@
 use crate::theme::Theme;
-use crate::tokens::{ColorPalette, ControlSize, input_tokens, mix};
+use crate::tokens::{ColorPalette, ControlSize, InputVariant, input_tokens, mix};
 use egui::{
     Color32, CornerRadius, FontId, Rect, Response, Sense, Stroke, StrokeKind, TextEdit, TextStyle,
     Ui, UiBuilder, Vec2, WidgetText, pos2, vec2,
@@ -164,8 +164,13 @@ impl TextareaStyle {
                 border_focus: mix(palette.border, palette.foreground, 0.2),
                 text_color: palette.foreground,
                 placeholder_color: palette.muted_foreground,
-                selection_bg: palette.primary,
-                selection_fg: palette.primary_foreground,
+                selection_bg: Color32::from_rgba_unmultiplied(
+                    palette.primary.r(),
+                    palette.primary.g(),
+                    palette.primary.b(),
+                    64,
+                ),
+                selection_fg: palette.foreground,
                 focus_ring: Color32::from_rgba_unmultiplied(
                     palette.border.r(),
                     palette.border.g(),
@@ -192,8 +197,13 @@ impl TextareaStyle {
                 border_focus: palette.border,
                 text_color: palette.foreground,
                 placeholder_color: palette.muted_foreground,
-                selection_bg: palette.primary,
-                selection_fg: palette.primary_foreground,
+                selection_bg: Color32::from_rgba_unmultiplied(
+                    palette.primary.r(),
+                    palette.primary.g(),
+                    palette.primary.b(),
+                    64,
+                ),
+                selection_fg: palette.foreground,
                 focus_ring: Color32::from_rgba_unmultiplied(
                     palette.border.r(),
                     palette.border.g(),
@@ -288,7 +298,8 @@ impl TextareaStyle {
             TextareaVariant::Surface | TextareaVariant::Classic => {
                 style.focus_ring =
                     Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 100);
-                style.selection_bg = mix(accent, Color32::WHITE, 0.12);
+                style.selection_bg =
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 64);
             }
         }
         style
@@ -731,7 +742,7 @@ where
     let placeholder_colored: WidgetText = props.placeholder.into();
     let placeholder_colored = placeholder_colored.color(style.placeholder_color);
 
-    let tokens = input_tokens(&theme.palette);
+    let tokens = input_tokens(&theme.palette, InputVariant::Surface);
 
     let response = ui.scope_builder(UiBuilder::new().max_rect(inner_rect), |inner_ui| {
         inner_ui.set_clip_rect(inner_rect);

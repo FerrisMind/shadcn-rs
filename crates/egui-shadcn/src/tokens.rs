@@ -20,6 +20,33 @@ pub enum ControlSize {
     IconLg,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SwitchSize {
+    One,
+    Two,
+    Three,
+}
+
+impl From<ControlSize> for SwitchSize {
+    fn from(size: ControlSize) -> Self {
+        match size {
+            ControlSize::Sm => SwitchSize::One,
+            ControlSize::Md | ControlSize::IconSm => SwitchSize::Two,
+            ControlSize::Lg | ControlSize::Icon | ControlSize::IconLg => SwitchSize::Three,
+        }
+    }
+}
+
+impl From<SwitchSize> for ControlSize {
+    fn from(size: SwitchSize) -> Self {
+        match size {
+            SwitchSize::One => ControlSize::Sm,
+            SwitchSize::Two => ControlSize::Md,
+            SwitchSize::Three => ControlSize::Lg,
+        }
+    }
+}
+
 impl ControlSize {
     pub fn padding(self) -> Vec2 {
         match self {
@@ -105,6 +132,20 @@ impl Default for ColorPalette {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SwitchVariant {
+    Surface,
+    Classic,
+    Soft,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum InputVariant {
+    Surface,
+    Classic,
+    Soft,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct StateColors {
     pub bg_fill: Color32,
@@ -167,6 +208,20 @@ pub struct ToggleTokens {
     pub disabled: StateColors,
     pub thumb_on: Color32,
     pub thumb_off: Color32,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SwitchTokens {
+    pub toggle: ToggleTokens,
+    pub focus_ring: Stroke,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SwitchTokenOptions {
+    pub variant: SwitchVariant,
+    pub high_contrast: bool,
+    pub accent: Color32,
+    pub thumb_color: Option<Color32>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -291,30 +346,104 @@ pub fn variant_tokens(palette: &ColorPalette, variant: ControlVariant) -> Varian
     }
 }
 
-pub fn input_tokens(palette: &ColorPalette) -> InputTokens {
+pub fn input_tokens(palette: &ColorPalette, variant: InputVariant) -> InputTokens {
     let disabled = disabled_state(palette);
-    let selection_bg = mix(palette.primary, Color32::WHITE, 0.12);
-    InputTokens {
-        idle: StateColors::new(palette.primary, palette.foreground, palette.border),
-        hovered: StateColors::new(
-            mix(palette.primary, Color32::WHITE, 0.06),
-            palette.foreground,
-            palette.border,
-        ),
-        focused: StateColors::with_border(
-            mix(palette.primary, Color32::WHITE, 0.1),
-            palette.foreground,
-            Stroke::new(2.0, palette.border),
-        ),
-        disabled,
-        invalid: StateColors::new(
-            mix(palette.primary, palette.destructive, 0.12),
-            palette.foreground,
-            palette.destructive,
-        ),
-        selection_bg,
-        selection_fg: palette.foreground,
-        placeholder: mix(palette.foreground, palette.muted_foreground, 0.65),
+
+    match variant {
+        InputVariant::Surface => {
+            let base_bg = palette.input;
+            let border = mix(palette.border, palette.foreground, 0.08);
+            let hover_border = mix(border, palette.primary, 0.15);
+            let focus_color = mix(palette.primary, palette.foreground, 0.35);
+            InputTokens {
+                idle: StateColors::with_border(
+                    base_bg,
+                    palette.foreground,
+                    Stroke::new(1.0, border),
+                ),
+                hovered: StateColors::with_border(
+                    mix(base_bg, Color32::WHITE, 0.06),
+                    palette.foreground,
+                    Stroke::new(1.0, hover_border),
+                ),
+                focused: StateColors::with_border(
+                    mix(base_bg, focus_color, 0.14),
+                    palette.foreground,
+                    Stroke::new(3.0, focus_color),
+                ),
+                disabled,
+                invalid: StateColors::with_border(
+                    mix(base_bg, palette.destructive, 0.18),
+                    palette.foreground,
+                    Stroke::new(3.0, palette.destructive),
+                ),
+                selection_bg: palette.primary,
+                selection_fg: palette.primary_foreground,
+                placeholder: mix(palette.muted_foreground, palette.foreground, 0.35),
+            }
+        }
+        InputVariant::Classic => {
+            let base_bg = mix(palette.input, palette.background, 0.1);
+            let border = mix(palette.border, palette.foreground, 0.25);
+            let focus_color = mix(palette.primary, palette.border, 0.3);
+            InputTokens {
+                idle: StateColors::with_border(
+                    base_bg,
+                    palette.foreground,
+                    Stroke::new(1.0, border),
+                ),
+                hovered: StateColors::with_border(
+                    mix(base_bg, Color32::WHITE, 0.08),
+                    palette.foreground,
+                    Stroke::new(1.0, mix(border, palette.primary, 0.12)),
+                ),
+                focused: StateColors::with_border(
+                    mix(base_bg, Color32::WHITE, 0.12),
+                    palette.foreground,
+                    Stroke::new(3.0, focus_color),
+                ),
+                disabled,
+                invalid: StateColors::with_border(
+                    mix(base_bg, palette.destructive, 0.16),
+                    palette.foreground,
+                    Stroke::new(3.0, palette.destructive),
+                ),
+                selection_bg: palette.primary,
+                selection_fg: palette.primary_foreground,
+                placeholder: mix(palette.foreground, palette.muted_foreground, 0.55),
+            }
+        }
+        InputVariant::Soft => {
+            let base_bg = mix(palette.accent, palette.background, 0.4);
+            let border = mix(palette.accent, palette.foreground, 0.12);
+            let focus_color = mix(palette.accent, palette.foreground, 0.25);
+            InputTokens {
+                idle: StateColors::with_border(
+                    base_bg,
+                    palette.accent_foreground,
+                    Stroke::new(0.0, Color32::TRANSPARENT),
+                ),
+                hovered: StateColors::with_border(
+                    mix(base_bg, Color32::WHITE, 0.12),
+                    palette.accent_foreground,
+                    Stroke::new(1.0, border),
+                ),
+                focused: StateColors::with_border(
+                    mix(base_bg, focus_color, 0.2),
+                    palette.accent_foreground,
+                    Stroke::new(3.0, focus_color),
+                ),
+                disabled,
+                invalid: StateColors::with_border(
+                    mix(base_bg, palette.destructive, 0.2),
+                    palette.accent_foreground,
+                    Stroke::new(3.0, palette.destructive),
+                ),
+                selection_bg: mix(palette.accent, Color32::WHITE, 0.12),
+                selection_fg: palette.accent_foreground,
+                placeholder: mix(palette.accent_foreground, palette.background, 0.45),
+            }
+        }
     }
 }
 
@@ -352,64 +481,147 @@ pub fn checkbox_tokens(palette: &ColorPalette, variant: ControlVariant) -> Toggl
     }
 }
 
-pub fn switch_tokens(palette: &ColorPalette, _variant: ControlVariant) -> ToggleTokens {
-    let off_bg = Color32::from_rgb(0x28, 0x28, 0x28);
-    let on_bg = Color32::from_rgb(0xE5, 0xE5, 0xE5);
-    let thumb_off = Color32::from_rgb(0xFA, 0xFA, 0xFA);
-    let thumb_on = Color32::from_rgb(0x17, 0x17, 0x17);
+pub fn switch_tokens(palette: &ColorPalette, variant: ControlVariant) -> SwitchTokens {
+    let accent = match variant {
+        ControlVariant::Primary | ControlVariant::Link => palette.primary,
+        ControlVariant::Destructive => palette.destructive,
+        ControlVariant::Secondary => palette.secondary,
+        ControlVariant::Ghost | ControlVariant::Outline => palette.accent,
+    };
+    switch_tokens_with_options(
+        palette,
+        SwitchTokenOptions {
+            variant: SwitchVariant::Surface,
+            high_contrast: false,
+            accent,
+            thumb_color: None,
+        },
+    )
+}
 
-    let off = InputTokens {
-        idle: StateColors::new(off_bg, palette.foreground, Color32::TRANSPARENT),
-        hovered: StateColors::new(
-            mix(off_bg, Color32::WHITE, 0.06),
-            palette.foreground,
-            Color32::TRANSPARENT,
-        ),
-        focused: StateColors::new(
-            mix(off_bg, Color32::WHITE, 0.1),
-            palette.foreground,
-            Color32::TRANSPARENT,
-        ),
-        disabled: disabled_state(palette),
-        invalid: StateColors::new(
-            mix(off_bg, palette.destructive, 0.1),
-            palette.destructive_foreground,
-            Color32::TRANSPARENT,
-        ),
-        selection_bg: palette.primary,
-        selection_fg: palette.primary_foreground,
-        placeholder: palette.muted_foreground,
-    };
-    let on = VariantTokens {
-        idle: StateColors::new(on_bg, palette.foreground, Color32::TRANSPARENT),
-        hovered: StateColors::new(
-            mix(on_bg, palette.foreground, 0.08),
-            palette.foreground,
-            Color32::TRANSPARENT,
-        ),
-        active: StateColors::new(
-            mix(on_bg, palette.foreground, 0.14),
-            palette.foreground,
-            Color32::TRANSPARENT,
-        ),
-        disabled: disabled_state(palette),
-    };
+pub fn switch_tokens_with_options(
+    palette: &ColorPalette,
+    options: SwitchTokenOptions,
+) -> SwitchTokens {
     let disabled = disabled_state(palette);
-    ToggleTokens {
+
+    let thumb_base = options.thumb_color.unwrap_or_else(|| {
+        mix(
+            palette.background,
+            mix(palette.foreground, Color32::WHITE, 0.15),
+            0.9,
+        )
+    });
+    let thumb_on = if options.high_contrast {
+        mix(options.accent, palette.foreground, 0.65)
+    } else {
+        thumb_base
+    };
+    let thumb_off = if options.high_contrast {
+        mix(thumb_base, palette.background, 0.25)
+    } else {
+        thumb_base
+    };
+
+    let off_fg = mix(palette.foreground, palette.muted_foreground, 0.35);
+    let (off_idle, off_hovered, off_active) = match options.variant {
+        SwitchVariant::Soft => {
+            let base = mix(
+                palette.background,
+                palette.accent,
+                if options.high_contrast { 0.35 } else { 0.25 },
+            );
+            let border = Stroke::new(1.0, mix(palette.accent, palette.foreground, 0.18));
+            let idle = StateColors::with_border(base, off_fg, border);
+            let hovered = StateColors::with_border(
+                mix(base, Color32::WHITE, 0.08),
+                off_fg,
+                Stroke::new(1.0, mix(border.color, palette.foreground, 0.15)),
+            );
+            let active = StateColors::with_border(
+                mix(base, options.accent, 0.2),
+                off_fg,
+                Stroke::new(1.2, mix(border.color, options.accent, 0.25)),
+            );
+            (idle, hovered, active)
+        }
+        _ => {
+            let off_bg = palette.input;
+            let off_border = Stroke::new(1.0, mix(palette.border, palette.input, 0.4));
+            let idle = StateColors::with_border(off_bg, off_fg, off_border);
+            let hovered = StateColors::with_border(
+                mix(off_bg, Color32::WHITE, 0.06),
+                off_fg,
+                Stroke::new(1.0, mix(off_border.color, palette.foreground, 0.1)),
+            );
+            let active = StateColors::with_border(
+                mix(off_bg, Color32::WHITE, 0.12),
+                off_fg,
+                Stroke::new(1.2, mix(off_border.color, options.accent, 0.2)),
+            );
+            (idle, hovered, active)
+        }
+    };
+
+    let (on_idle_bg, on_hover_bg, on_active_bg, on_border) = match options.variant {
+        SwitchVariant::Surface => (
+            options.accent,
+            mix(options.accent, Color32::WHITE, 0.08),
+            mix(options.accent, Color32::WHITE, 0.14),
+            Stroke::new(1.0, mix(options.accent, palette.foreground, 0.08)),
+        ),
+        SwitchVariant::Classic => (
+            mix(options.accent, palette.background, 0.06),
+            mix(options.accent, Color32::WHITE, 0.12),
+            mix(options.accent, Color32::WHITE, 0.2),
+            Stroke::new(1.0, mix(options.accent, palette.foreground, 0.18)),
+        ),
+        SwitchVariant::Soft => (
+            mix(options.accent, palette.background, 0.45),
+            mix(options.accent, Color32::WHITE, 0.16),
+            mix(options.accent, Color32::WHITE, 0.22),
+            Stroke::new(1.0, mix(options.accent, palette.foreground, 0.12)),
+        ),
+    };
+
+    let on_idle = StateColors::with_border(on_idle_bg, palette.foreground, on_border);
+    let on_hovered = StateColors::with_border(
+        on_hover_bg,
+        palette.foreground,
+        Stroke::new(on_border.width, on_border.color),
+    );
+    let on_active = StateColors::with_border(
+        on_active_bg,
+        palette.foreground,
+        Stroke::new(on_border.width * 1.05, on_border.color),
+    );
+
+    let toggle = ToggleTokens {
         off: ToggleState {
-            idle: off.idle,
-            hovered: off.hovered,
-            active: off.focused,
+            idle: off_idle,
+            hovered: off_hovered,
+            active: off_active,
         },
         on: ToggleState {
-            idle: on.idle,
-            hovered: on.hovered,
-            active: on.active,
+            idle: on_idle,
+            hovered: on_hovered,
+            active: on_active,
         },
         disabled,
         thumb_on,
         thumb_off,
-    }
+    };
+
+    let focus_ring = Stroke::new(
+        2.0,
+        if options.high_contrast {
+            mix(options.accent, palette.foreground, 0.35)
+        } else {
+            mix(options.accent, palette.foreground, 0.15)
+        },
+    );
+
+    SwitchTokens { toggle, focus_ring }
 }
 
 pub fn checkbox_metrics(size: ControlSize) -> ToggleMetrics {
@@ -437,13 +649,22 @@ pub fn toggle_metrics(size: ControlSize) -> ToggleMetrics {
     }
 }
 
-pub fn switch_metrics(_size: ControlSize) -> ToggleMetrics {
-    let (track_w, track_h): (f32, f32) = (32.0, 18.4);
-    let thumb = 16.0_f32;
+pub fn switch_metrics(size: SwitchSize) -> ToggleMetrics {
+    let (height, thumb_inset): (f32, f32) = match size {
+        SwitchSize::One => (16.0, 1.0),
+        SwitchSize::Two => (20.0, 1.0),
+        SwitchSize::Three => (24.0, 1.0),
+    };
+    let track_w = height * 1.75;
+    let thumb = (height - thumb_inset * 2.0).max(12.0);
     ToggleMetrics {
-        track_size: Vec2::new(track_w, track_h),
+        track_size: Vec2::new(track_w, height),
         thumb_size: Vec2::splat(thumb),
     }
+}
+
+pub fn switch_metrics_for_control_size(size: ControlSize) -> ToggleMetrics {
+    switch_metrics(SwitchSize::from(size))
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -460,17 +681,18 @@ pub struct ToggleButtonTokens {
 
 fn accent_tokens(palette: &ColorPalette) -> VariantTokens {
     let disabled = disabled_state(palette);
+    let border = Stroke::new(1.0, palette.accent);
     VariantTokens {
-        idle: StateColors::new(palette.accent, palette.accent_foreground, palette.accent),
-        hovered: StateColors::new(
+        idle: StateColors::with_border(palette.accent, palette.accent_foreground, border),
+        hovered: StateColors::with_border(
             mix(palette.accent, Color32::WHITE, 0.08),
             palette.accent_foreground,
-            mix(palette.accent, Color32::WHITE, 0.1),
+            Stroke::new(border.width, mix(palette.accent, Color32::WHITE, 0.1)),
         ),
-        active: StateColors::new(
-            mix(palette.accent, Color32::from_rgb(136, 19, 55), 0.15),
+        active: StateColors::with_border(
+            mix(palette.accent, palette.foreground, 0.14),
             palette.accent_foreground,
-            mix(palette.accent, Color32::from_rgb(136, 19, 55), 0.2),
+            Stroke::new(border.width, mix(palette.accent, palette.foreground, 0.14)),
         ),
         disabled,
     }
@@ -480,33 +702,40 @@ pub fn toggle_button_tokens(palette: &ColorPalette, variant: ToggleVariant) -> T
     let disabled = disabled_state(palette);
     let off = match variant {
         ToggleVariant::Default => VariantTokens {
-            idle: StateColors::new(palette.primary, palette.foreground, palette.border),
-            hovered: StateColors::new(
-                mix(palette.primary, Color32::WHITE, 0.06),
+            idle: StateColors::with_border(
+                Color32::TRANSPARENT,
                 palette.foreground,
-                palette.border,
+                Stroke::new(0.0, Color32::TRANSPARENT),
             ),
-            active: StateColors::new(
-                mix(palette.primary, Color32::from_rgb(30, 58, 138), 0.12),
-                palette.foreground,
-                palette.border,
+            hovered: StateColors::with_border(
+                palette.muted,
+                palette.muted_foreground,
+                Stroke::new(0.0, Color32::TRANSPARENT),
             ),
-            disabled,
-        },
-        ToggleVariant::Outline => VariantTokens {
-            idle: StateColors::new(palette.primary, palette.foreground, palette.border),
-            hovered: StateColors::new(
-                mix(palette.primary, Color32::WHITE, 0.06),
-                palette.foreground,
-                palette.border,
-            ),
-            active: StateColors::new(
-                mix(palette.primary, Color32::from_rgb(30, 58, 138), 0.12),
-                palette.foreground,
-                palette.border,
+            active: StateColors::with_border(
+                mix(palette.muted, palette.foreground, 0.12),
+                palette.muted_foreground,
+                Stroke::new(0.0, Color32::TRANSPARENT),
             ),
             disabled,
         },
+        ToggleVariant::Outline => {
+            let border = Stroke::new(1.0, palette.border);
+            VariantTokens {
+                idle: StateColors::with_border(Color32::TRANSPARENT, palette.foreground, border),
+                hovered: StateColors::with_border(
+                    palette.accent,
+                    palette.accent_foreground,
+                    Stroke::new(border.width, palette.accent),
+                ),
+                active: StateColors::with_border(
+                    mix(palette.accent, palette.foreground, 0.12),
+                    palette.accent_foreground,
+                    Stroke::new(border.width, mix(palette.accent, palette.foreground, 0.12)),
+                ),
+                disabled,
+            }
+        }
     };
     let on = accent_tokens(palette);
     ToggleButtonTokens { off, on }
