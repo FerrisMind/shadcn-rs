@@ -82,180 +82,187 @@ impl App for DemoApp {
         ctx.set_style(style);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("egui-shadcn Components Demo");
-            ui.add_space(16.0);
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.heading("egui-shadcn Components Demo");
+                    ui.add_space(16.0);
 
-            ui.label("Button:");
-            button(
-                ui,
-                &self.theme,
-                "Button",
-                ControlVariant::Primary,
-                ControlSize::Md,
-                true,
-            );
-            ui.add_space(12.0);
+                    ui.label("Button:");
+                    button(
+                        ui,
+                        &self.theme,
+                        "Button",
+                        ControlVariant::Primary,
+                        ControlSize::Md,
+                        true,
+                    );
+                    ui.add_space(12.0);
 
-            ui.label("Text Input:");
-            egui_shadcn::Input::new("basic_input")
-                .placeholder("Enter text")
-                .size(egui_shadcn::InputSize::Size2)
-                .invalid(false)
-                .enabled(true)
-                .show(ui, &self.theme, &mut self.value);
-            ui.add_space(12.0);
+                    ui.label("Text Input:");
+                    egui_shadcn::Input::new("basic_input")
+                        .placeholder("Enter text")
+                        .size(egui_shadcn::InputSize::Size2)
+                        .invalid(false)
+                        .enabled(true)
+                        .show(ui, &self.theme, &mut self.value);
+                    ui.add_space(12.0);
 
-            ui.label("Select (legacy API):");
-            select(
-                ui,
-                &self.theme,
-                SelectPropsSimple {
-                    id_source: "legacy_select",
-                    selected: &mut self.selected_legacy,
-                    options: &self.options_legacy,
-                    placeholder: "Select",
-                    size: ControlSize::Md,
-                    enabled: true,
-                    is_invalid: false,
-                },
-            );
-            ui.add_space(12.0);
+                    ui.label("Select (legacy API):");
+                    select(
+                        ui,
+                        &self.theme,
+                        SelectPropsSimple {
+                            id_source: "legacy_select",
+                            selected: &mut self.selected_legacy,
+                            options: &self.options_legacy,
+                            placeholder: "Select",
+                            size: ControlSize::Md,
+                            enabled: true,
+                            is_invalid: false,
+                        },
+                    );
+                    ui.add_space(12.0);
 
-            ui.label("Select with Groups (shadcn API):");
-            let fruit_items = vec![
-                SelectItem::group(
-                    "Fruits",
-                    vec![
-                        SelectItem::option("apple", icon_label(Icon::Apple, "Apple")),
-                        SelectItem::option("banana", icon_label(Icon::Banana, "Banana")),
-                        SelectItem::option("grape", icon_label(Icon::Grape, "Orange")),
-                        SelectItem::option_disabled(
-                            "mango",
-                            icon_label(Icon::Salad, "Mango (out of stock)"),
+                    ui.label("Select with Groups (shadcn API):");
+                    let fruit_items = vec![
+                        SelectItem::group(
+                            "Fruits",
+                            vec![
+                                SelectItem::option("apple", icon_label(Icon::Apple, "Apple")),
+                                SelectItem::option("banana", icon_label(Icon::Banana, "Banana")),
+                                SelectItem::option("grape", icon_label(Icon::Grape, "Orange")),
+                                SelectItem::option_disabled(
+                                    "mango",
+                                    icon_label(Icon::Salad, "Mango (out of stock)"),
+                                ),
+                            ],
                         ),
-                    ],
-                ),
-                SelectItem::separator(),
-                SelectItem::group(
-                    "Vegetables",
-                    vec![
-                        SelectItem::option("carrot", icon_label(Icon::Carrot, "Carrot")),
-                        SelectItem::option("broccoli", icon_label(Icon::LeafyGreen, "Broccoli")),
-                    ],
-                ),
-            ];
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("fruit_select", &mut self.selected_fruit)
-                    .placeholder("Select food...")
-                    .size(SelectSize::Default)
-                    .width(220.0),
-                &fruit_items,
-            );
-            if let Some(fruit) = &self.selected_fruit {
-                ui.label(format!("Selected: {}", fruit));
-            }
-            ui.add_space(12.0);
+                        SelectItem::separator(),
+                        SelectItem::group(
+                            "Vegetables",
+                            vec![
+                                SelectItem::option("carrot", icon_label(Icon::Carrot, "Carrot")),
+                                SelectItem::option(
+                                    "broccoli",
+                                    icon_label(Icon::LeafyGreen, "Broccoli"),
+                                ),
+                            ],
+                        ),
+                    ];
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("fruit_select", &mut self.selected_fruit)
+                            .placeholder("Select food...")
+                            .size(SelectSize::Default)
+                            .width(220.0),
+                        &fruit_items,
+                    );
+                    if let Some(fruit) = &self.selected_fruit {
+                        ui.label(format!("Selected: {}", fruit));
+                    }
+                    ui.add_space(12.0);
 
-            ui.label("Select (size: Sm):");
-            let timezone_items = vec![
-                SelectItem::label("North America"),
-                SelectItem::option("est", "Eastern Standard Time (EST)"),
-                SelectItem::option("cst", "Central Standard Time (CST)"),
-                SelectItem::option("pst", "Pacific Standard Time (PST)"),
-                SelectItem::separator(),
-                SelectItem::label("Europe"),
-                SelectItem::option("gmt", "Greenwich Mean Time (GMT)"),
-                SelectItem::option("cet", "Central European Time (CET)"),
-                SelectItem::separator(),
-                SelectItem::label("Asia"),
-                SelectItem::option("ist", "India Standard Time (IST)"),
-                SelectItem::option("jst", "Japan Standard Time (JST)"),
-            ];
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("timezone_select", &mut self.selected_timezone)
-                    .placeholder("Select timezone...")
-                    .size(SelectSize::Sm)
-                    .width(280.0),
-                &timezone_items,
-            );
-            ui.add_space(12.0);
+                    ui.label("Select (size: Sm):");
+                    let timezone_items = vec![
+                        SelectItem::label("North America"),
+                        SelectItem::option("est", "Eastern Standard Time (EST)"),
+                        SelectItem::option("cst", "Central Standard Time (CST)"),
+                        SelectItem::option("pst", "Pacific Standard Time (PST)"),
+                        SelectItem::separator(),
+                        SelectItem::label("Europe"),
+                        SelectItem::option("gmt", "Greenwich Mean Time (GMT)"),
+                        SelectItem::option("cet", "Central European Time (CET)"),
+                        SelectItem::separator(),
+                        SelectItem::label("Asia"),
+                        SelectItem::option("ist", "India Standard Time (IST)"),
+                        SelectItem::option("jst", "Japan Standard Time (JST)"),
+                    ];
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("timezone_select", &mut self.selected_timezone)
+                            .placeholder("Select timezone...")
+                            .size(SelectSize::Sm)
+                            .width(280.0),
+                        &timezone_items,
+                    );
+                    ui.add_space(12.0);
 
-            ui.label("Select (invalid state):");
-            let mut invalid_selected: Option<String> = None;
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("invalid_select", &mut invalid_selected)
-                    .placeholder("Required field")
-                    .invalid(true)
-                    .width(180.0),
-                &vec![
-                    SelectItem::option("one", "One"),
-                    SelectItem::option("two", "Two"),
-                ],
-            );
-            ui.add_space(12.0);
+                    ui.label("Select (invalid state):");
+                    let mut invalid_selected: Option<String> = None;
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("invalid_select", &mut invalid_selected)
+                            .placeholder("Required field")
+                            .invalid(true)
+                            .width(180.0),
+                        &vec![
+                            SelectItem::option("one", "One"),
+                            SelectItem::option("two", "Two"),
+                        ],
+                    );
+                    ui.add_space(12.0);
 
-            ui.label("Select (disabled):");
-            let mut disabled_selected = Some("locked".to_string());
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("disabled_select", &mut disabled_selected)
-                    .placeholder("Disabled")
-                    .enabled(false)
-                    .width(180.0),
-                &vec![SelectItem::option("locked", "Locked Value")],
-            );
-            ui.add_space(12.0);
+                    ui.label("Select (disabled):");
+                    let mut disabled_selected = Some("locked".to_string());
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("disabled_select", &mut disabled_selected)
+                            .placeholder("Disabled")
+                            .enabled(false)
+                            .width(180.0),
+                        &vec![SelectItem::option("locked", "Locked Value")],
+                    );
+                    ui.add_space(12.0);
 
-            ui.label("Checkbox:");
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.checked,
-                "I agree",
-                ControlVariant::Secondary,
-                ControlSize::Sm,
-                true,
-            );
-            ui.add_space(12.0);
+                    ui.label("Checkbox:");
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.checked,
+                        "I agree",
+                        ControlVariant::Secondary,
+                        ControlSize::Sm,
+                        true,
+                    );
+                    ui.add_space(12.0);
 
-            ui.label("Toggle:");
-            toggle(
-                ui,
-                &self.theme,
-                &mut self.toggle_on,
-                "Toggle (button)",
-                ToggleVariant::Outline,
-                ControlSize::Md,
-                true,
-            );
-            ui.add_space(12.0);
+                    ui.label("Toggle:");
+                    toggle(
+                        ui,
+                        &self.theme,
+                        &mut self.toggle_on,
+                        "Toggle (button)",
+                        ToggleVariant::Outline,
+                        ControlSize::Md,
+                        true,
+                    );
+                    ui.add_space(12.0);
 
-            ui.label("Switch:");
-            switch(
-                ui,
-                &self.theme,
-                &mut self.switch_on,
-                "Switch (shadcn size)",
-                ControlVariant::Primary,
-                ControlSize::Sm,
-                true,
-            );
-            ui.add_space(12.0);
+                    ui.label("Switch:");
+                    switch(
+                        ui,
+                        &self.theme,
+                        &mut self.switch_on,
+                        "Switch (shadcn size)",
+                        ControlVariant::Primary,
+                        ControlSize::Sm,
+                        true,
+                    );
+                    ui.add_space(12.0);
 
-            ui.label("Textarea:");
-            Textarea::new("basic-textarea")
-                .placeholder("Multiline input")
-                .size(TextareaSize::from(ControlSize::Lg))
-                .show_counter(true)
-                .max_len(120)
-                .show(ui, &self.theme, &mut self.value);
+                    ui.label("Textarea:");
+                    Textarea::new("basic-textarea")
+                        .placeholder("Multiline input")
+                        .size(TextareaSize::from(ControlSize::Lg))
+                        .show_counter(true)
+                        .max_len(120)
+                        .show(ui, &self.theme, &mut self.value);
+                });
         });
     }
 }

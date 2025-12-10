@@ -66,161 +66,165 @@ impl App for ButtonDemo {
         apply_dark_background(ctx);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Button — Variants");
-            ui.label("Primary and Destructive increment click counters");
-            ui.add_space(6.0);
-            ui.horizontal(|ui| {
-                let primary = button(
-                    ui,
-                    &self.theme,
-                    "Primary",
-                    ControlVariant::Primary,
-                    ControlSize::Md,
-                    true,
-                );
-                let secondary = button(
-                    ui,
-                    &self.theme,
-                    "Secondary",
-                    ControlVariant::Secondary,
-                    ControlSize::Md,
-                    true,
-                );
-                let ghost = button(
-                    ui,
-                    &self.theme,
-                    "Ghost",
-                    ControlVariant::Ghost,
-                    ControlSize::Md,
-                    true,
-                );
-                let outline = button(
-                    ui,
-                    &self.theme,
-                    "Outline",
-                    ControlVariant::Outline,
-                    ControlSize::Md,
-                    true,
-                );
-                let destructive = button(
-                    ui,
-                    &self.theme,
-                    "Destructive",
-                    ControlVariant::Destructive,
-                    ControlSize::Md,
-                    true,
-                );
-                let link = button(
-                    ui,
-                    &self.theme,
-                    "Link",
-                    ControlVariant::Link,
-                    ControlSize::Md,
-                    true,
-                );
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.heading("Button — Variants");
+                    ui.label("Primary and Destructive increment click counters");
+                    ui.add_space(6.0);
+                    ui.horizontal(|ui| {
+                        let primary = button(
+                            ui,
+                            &self.theme,
+                            "Primary",
+                            ControlVariant::Primary,
+                            ControlSize::Md,
+                            true,
+                        );
+                        let secondary = button(
+                            ui,
+                            &self.theme,
+                            "Secondary",
+                            ControlVariant::Secondary,
+                            ControlSize::Md,
+                            true,
+                        );
+                        let ghost = button(
+                            ui,
+                            &self.theme,
+                            "Ghost",
+                            ControlVariant::Ghost,
+                            ControlSize::Md,
+                            true,
+                        );
+                        let outline = button(
+                            ui,
+                            &self.theme,
+                            "Outline",
+                            ControlVariant::Outline,
+                            ControlSize::Md,
+                            true,
+                        );
+                        let destructive = button(
+                            ui,
+                            &self.theme,
+                            "Destructive",
+                            ControlVariant::Destructive,
+                            ControlSize::Md,
+                            true,
+                        );
+                        let link = button(
+                            ui,
+                            &self.theme,
+                            "Link",
+                            ControlVariant::Link,
+                            ControlSize::Md,
+                            true,
+                        );
 
-                if primary.clicked() {
-                    self.primary_clicks += 1;
-                }
-                if destructive.clicked() {
-                    self.destructive_clicks += 1;
-                }
+                        if primary.clicked() {
+                            self.primary_clicks += 1;
+                        }
+                        if destructive.clicked() {
+                            self.destructive_clicks += 1;
+                        }
 
-                let _ = secondary;
-                let _ = ghost;
-                let _ = outline;
-                let _ = link;
-            });
-            ui.label(format!(
-                "Clicks: primary = {}, destructive = {}",
-                self.primary_clicks, self.destructive_clicks
-            ));
-            ui.add_space(12.0);
+                        let _ = secondary;
+                        let _ = ghost;
+                        let _ = outline;
+                        let _ = link;
+                    });
+                    ui.label(format!(
+                        "Clicks: primary = {}, destructive = {}",
+                        self.primary_clicks, self.destructive_clicks
+                    ));
+                    ui.add_space(12.0);
 
-            ui.heading("Button — Sizes");
-            ui.horizontal(|ui| {
-                button(
-                    ui,
-                    &self.theme,
-                    "Small",
-                    ControlVariant::Primary,
-                    ControlSize::Sm,
-                    true,
-                );
-                button(
-                    ui,
-                    &self.theme,
-                    "Medium",
-                    ControlVariant::Primary,
-                    ControlSize::Md,
-                    true,
-                );
-                button(
-                    ui,
-                    &self.theme,
-                    "Large",
-                    ControlVariant::Primary,
-                    ControlSize::Lg,
-                    true,
-                );
-            });
-            ui.add_space(8.0);
-            ui.label("Icon sizes (lucide):");
-            ui.horizontal(|ui| {
-                button(
-                    ui,
-                    &self.theme,
-                    lucide_icon(Icon::Bell, 18.0),
-                    ControlVariant::Secondary,
-                    ControlSize::IconSm,
-                    true,
-                );
-                button(
-                    ui,
-                    &self.theme,
-                    lucide_icon(Icon::Star, 18.0),
-                    ControlVariant::Secondary,
-                    ControlSize::Icon,
-                    true,
-                );
-                button(
-                    ui,
-                    &self.theme,
-                    lucide_icon(Icon::Bolt, 18.0),
-                    ControlVariant::Secondary,
-                    ControlSize::IconLg,
-                    true,
-                );
-            });
-            ui.add_space(12.0);
+                    ui.heading("Button — Sizes");
+                    ui.horizontal(|ui| {
+                        button(
+                            ui,
+                            &self.theme,
+                            "Small",
+                            ControlVariant::Primary,
+                            ControlSize::Sm,
+                            true,
+                        );
+                        button(
+                            ui,
+                            &self.theme,
+                            "Medium",
+                            ControlVariant::Primary,
+                            ControlSize::Md,
+                            true,
+                        );
+                        button(
+                            ui,
+                            &self.theme,
+                            "Large",
+                            ControlVariant::Primary,
+                            ControlSize::Lg,
+                            true,
+                        );
+                    });
+                    ui.add_space(8.0);
+                    ui.label("Icon sizes (lucide):");
+                    ui.horizontal(|ui| {
+                        button(
+                            ui,
+                            &self.theme,
+                            lucide_icon(Icon::Bell, 18.0),
+                            ControlVariant::Secondary,
+                            ControlSize::IconSm,
+                            true,
+                        );
+                        button(
+                            ui,
+                            &self.theme,
+                            lucide_icon(Icon::Star, 18.0),
+                            ControlVariant::Secondary,
+                            ControlSize::Icon,
+                            true,
+                        );
+                        button(
+                            ui,
+                            &self.theme,
+                            lucide_icon(Icon::Bolt, 18.0),
+                            ControlVariant::Secondary,
+                            ControlSize::IconLg,
+                            true,
+                        );
+                    });
+                    ui.add_space(12.0);
 
-            ui.heading("Button — Disabled States");
-            ui.horizontal(|ui| {
-                button(
-                    ui,
-                    &self.theme,
-                    "Primary disabled",
-                    ControlVariant::Primary,
-                    ControlSize::Md,
-                    false,
-                );
-                button(
-                    ui,
-                    &self.theme,
-                    "Outline disabled",
-                    ControlVariant::Outline,
-                    ControlSize::Md,
-                    false,
-                );
-                button(
-                    ui,
-                    &self.theme,
-                    "Link disabled",
-                    ControlVariant::Link,
-                    ControlSize::Md,
-                    false,
-                );
-            });
+                    ui.heading("Button — Disabled States");
+                    ui.horizontal(|ui| {
+                        button(
+                            ui,
+                            &self.theme,
+                            "Primary disabled",
+                            ControlVariant::Primary,
+                            ControlSize::Md,
+                            false,
+                        );
+                        button(
+                            ui,
+                            &self.theme,
+                            "Outline disabled",
+                            ControlVariant::Outline,
+                            ControlSize::Md,
+                            false,
+                        );
+                        button(
+                            ui,
+                            &self.theme,
+                            "Link disabled",
+                            ControlVariant::Link,
+                            ControlSize::Md,
+                            false,
+                        );
+                    });
+                });
         });
     }
 }

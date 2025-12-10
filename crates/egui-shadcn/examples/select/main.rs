@@ -132,157 +132,173 @@ impl App for SelectDemo {
         apply_dark_background(ctx);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Select — legacy API");
-            select(
-                ui,
-                &self.theme,
-                SelectPropsSimple {
-                    id_source: "legacy",
-                    selected: &mut self.legacy_selected,
-                    options: &self.legacy_options,
-                    placeholder: "Select an option",
-                    size: ControlSize::Md,
-                    enabled: true,
-                    is_invalid: false,
-                },
-            );
-            if let Some(value) = &self.legacy_selected {
-                ui.label(format!("legacy selected: {value}"));
-            }
-            ui.add_space(12.0);
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.heading("Select — legacy API");
+                    select(
+                        ui,
+                        &self.theme,
+                        SelectPropsSimple {
+                            id_source: "legacy",
+                            selected: &mut self.legacy_selected,
+                            options: &self.legacy_options,
+                            placeholder: "Select an option",
+                            size: ControlSize::Md,
+                            enabled: true,
+                            is_invalid: false,
+                        },
+                    );
+                    if let Some(value) = &self.legacy_selected {
+                        ui.label(format!("legacy selected: {value}"));
+                    }
+                    ui.add_space(12.0);
 
-            ui.heading("Select — Groups, Disabled and Icons");
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("grouped", &mut self.grouped_selected)
-                    .placeholder("Categories with groups")
-                    .width(240.0),
-                &self.grouped_items,
-            );
-            if let Some(value) = &self.grouped_selected {
-                ui.label(format!("grouped selected: {value}"));
-            }
-            ui.add_space(12.0);
+                    ui.heading("Select — Groups, Disabled and Icons");
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("grouped", &mut self.grouped_selected)
+                            .placeholder("Categories with groups")
+                            .width(240.0),
+                        &self.grouped_items,
+                    );
+                    if let Some(value) = &self.grouped_selected {
+                        ui.label(format!("grouped selected: {value}"));
+                    }
+                    ui.add_space(12.0);
 
-            ui.heading("Select — Size Sm");
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("small", &mut self.sm_selected)
-                    .placeholder("Compact select")
-                    .size(SelectSize::Sm)
-                    .width(260.0),
-                &self.sm_items,
-            );
-            ui.add_space(12.0);
+                    ui.heading("Select — Size Sm");
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("small", &mut self.sm_selected)
+                            .placeholder("Compact select")
+                            .size(SelectSize::Sm)
+                            .width(260.0),
+                        &self.sm_items,
+                    );
+                    ui.add_space(12.0);
 
-            ui.heading("Select — Invalid and Disabled");
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("invalid", &mut self.invalid_selected)
-                    .placeholder("Required field")
-                    .invalid(true)
-                    .width(200.0),
-                &[
-                    SelectItem::option("one", "One"),
-                    SelectItem::option("two", "Two"),
-                ],
-            );
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("disabled", &mut self.disabled_selected)
-                    .placeholder("Disabled select")
-                    .enabled(false)
-                    .width(200.0),
-                &[SelectItem::option("locked", "Locked")],
-            );
-            ui.add_space(12.0);
+                    ui.heading("Select — Invalid and Disabled");
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("invalid", &mut self.invalid_selected)
+                            .placeholder("Required field")
+                            .invalid(true)
+                            .width(200.0),
+                        &[
+                            SelectItem::option("one", "One"),
+                            SelectItem::option("two", "Two"),
+                        ],
+                    );
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("disabled", &mut self.disabled_selected)
+                            .placeholder("Disabled select")
+                            .enabled(false)
+                            .width(200.0),
+                        &[SelectItem::option("locked", "Locked")],
+                    );
+                    ui.add_space(12.0);
 
-            ui.heading("Select — Custom Style");
-            let style = custom_style(&self.theme);
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("custom", &mut self.custom_selected)
-                    .placeholder("Custom bg and border")
-                    .width(260.0)
-                    .style(style),
-                &self.custom_items,
-            );
-            if let Some(value) = &self.custom_selected {
-                ui.label(format!("custom selected: {value}"));
-            }
-            ui.add_space(12.0);
+                    ui.heading("Select — Custom Style");
+                    let style = custom_style(&self.theme);
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("custom", &mut self.custom_selected)
+                            .placeholder("Custom bg and border")
+                            .width(260.0)
+                            .style(style),
+                        &self.custom_items,
+                    );
+                    if let Some(value) = &self.custom_selected {
+                        ui.label(format!("custom selected: {value}"));
+                    }
+                    ui.add_space(12.0);
 
-            ui.heading("Select — scrollable (timezones)");
-            let scroll_items = vec![
-                SelectItem::group(
-                    "North America",
-                    vec![
-                        SelectItem::option("est", "Eastern Standard Time (EST)"),
-                        SelectItem::option("cst", "Central Standard Time (CST)"),
-                        SelectItem::option("mst", "Mountain Standard Time (MST)"),
-                        SelectItem::option("pst", "Pacific Standard Time (PST)"),
-                        SelectItem::option("akst", "Alaska Standard Time (AKST)"),
-                        SelectItem::option("hst", "Hawaii Standard Time (HST)"),
-                    ],
-                ),
-                SelectItem::group(
-                    "Europe & Africa",
-                    vec![
-                        SelectItem::option("gmt", "Greenwich Mean Time (GMT)"),
-                        SelectItem::option("cet", "Central European Time (CET)"),
-                        SelectItem::option("eet", "Eastern European Time (EET)"),
-                        SelectItem::option("west", "Western European Summer Time (WEST)"),
-                        SelectItem::option("cat", "Central Africa Time (CAT)"),
-                        SelectItem::option("eat", "East Africa Time (EAT)"),
-                    ],
-                ),
-                SelectItem::group(
-                    "Asia",
-                    vec![
-                        SelectItem::option("msk", "Moscow Time (MSK)"),
-                        SelectItem::option("ist", "India Standard Time (IST)"),
-                        SelectItem::option("cst_china", "China Standard Time (CST)"),
-                        SelectItem::option("jst", "Japan Standard Time (JST)"),
-                        SelectItem::option("kst", "Korea Standard Time (KST)"),
-                        SelectItem::option("wita", "Indonesia Central Standard Time (WITA)"),
-                    ],
-                ),
-                SelectItem::group(
-                    "Australia & Pacific",
-                    vec![
-                        SelectItem::option("awst", "Australian Western Standard Time (AWST)"),
-                        SelectItem::option("acst", "Australian Central Standard Time (ACST)"),
-                        SelectItem::option("aest", "Australian Eastern Standard Time (AEST)"),
-                        SelectItem::option("nzst", "New Zealand Standard Time (NZST)"),
-                        SelectItem::option("fjt", "Fiji Time (FJT)"),
-                    ],
-                ),
-                SelectItem::group(
-                    "South America",
-                    vec![
-                        SelectItem::option("art", "Argentina Time (ART)"),
-                        SelectItem::option("bot", "Bolivia Time (BOT)"),
-                        SelectItem::option("brt", "Brasilia Time (BRT)"),
-                        SelectItem::option("clt", "Chile Standard Time (CLT)"),
-                    ],
-                ),
-            ];
-            select_with_items(
-                ui,
-                &self.theme,
-                SelectProps::new("scrollable_select", &mut self.scroll_selected)
-                    .placeholder("Select a timezone")
-                    .width(280.0),
-                &scroll_items,
-            );
-            if let Some(val) = &self.scroll_selected {
-                ui.label(format!("scrollable selected: {val}"));
-            }
+                    ui.heading("Select — scrollable (timezones)");
+                    let scroll_items = vec![
+                        SelectItem::group(
+                            "North America",
+                            vec![
+                                SelectItem::option("est", "Eastern Standard Time (EST)"),
+                                SelectItem::option("cst", "Central Standard Time (CST)"),
+                                SelectItem::option("mst", "Mountain Standard Time (MST)"),
+                                SelectItem::option("pst", "Pacific Standard Time (PST)"),
+                                SelectItem::option("akst", "Alaska Standard Time (AKST)"),
+                                SelectItem::option("hst", "Hawaii Standard Time (HST)"),
+                            ],
+                        ),
+                        SelectItem::group(
+                            "Europe & Africa",
+                            vec![
+                                SelectItem::option("gmt", "Greenwich Mean Time (GMT)"),
+                                SelectItem::option("cet", "Central European Time (CET)"),
+                                SelectItem::option("eet", "Eastern European Time (EET)"),
+                                SelectItem::option("west", "Western European Summer Time (WEST)"),
+                                SelectItem::option("cat", "Central Africa Time (CAT)"),
+                                SelectItem::option("eat", "East Africa Time (EAT)"),
+                            ],
+                        ),
+                        SelectItem::group(
+                            "Asia",
+                            vec![
+                                SelectItem::option("msk", "Moscow Time (MSK)"),
+                                SelectItem::option("ist", "India Standard Time (IST)"),
+                                SelectItem::option("cst_china", "China Standard Time (CST)"),
+                                SelectItem::option("jst", "Japan Standard Time (JST)"),
+                                SelectItem::option("kst", "Korea Standard Time (KST)"),
+                                SelectItem::option(
+                                    "wita",
+                                    "Indonesia Central Standard Time (WITA)",
+                                ),
+                            ],
+                        ),
+                        SelectItem::group(
+                            "Australia & Pacific",
+                            vec![
+                                SelectItem::option(
+                                    "awst",
+                                    "Australian Western Standard Time (AWST)",
+                                ),
+                                SelectItem::option(
+                                    "acst",
+                                    "Australian Central Standard Time (ACST)",
+                                ),
+                                SelectItem::option(
+                                    "aest",
+                                    "Australian Eastern Standard Time (AEST)",
+                                ),
+                                SelectItem::option("nzst", "New Zealand Standard Time (NZST)"),
+                                SelectItem::option("fjt", "Fiji Time (FJT)"),
+                            ],
+                        ),
+                        SelectItem::group(
+                            "South America",
+                            vec![
+                                SelectItem::option("art", "Argentina Time (ART)"),
+                                SelectItem::option("bot", "Bolivia Time (BOT)"),
+                                SelectItem::option("brt", "Brasilia Time (BRT)"),
+                                SelectItem::option("clt", "Chile Standard Time (CLT)"),
+                            ],
+                        ),
+                    ];
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("scrollable_select", &mut self.scroll_selected)
+                            .placeholder("Select a timezone")
+                            .width(280.0),
+                        &scroll_items,
+                    );
+                    if let Some(val) = &self.scroll_selected {
+                        ui.label(format!("scrollable selected: {val}"));
+                    }
+                });
         });
     }
 }
