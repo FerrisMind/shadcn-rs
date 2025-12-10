@@ -1,5 +1,8 @@
 use eframe::{App, Frame, NativeOptions, egui};
-use egui_shadcn::{ControlSize, ControlVariant, Theme, checkbox};
+use egui_shadcn::{
+    CheckboxCycle, CheckboxOptions, CheckboxState, ControlSize, ControlVariant, Theme, checkbox,
+    checkbox_state,
+};
 use log::{error, info};
 
 struct CheckboxDemo {
@@ -13,6 +16,8 @@ struct CheckboxDemo {
     md_checked: bool,
     lg_checked: bool,
     disabled_checked: bool,
+    tri_state: CheckboxState,
+    invalid_state: CheckboxState,
 }
 
 impl CheckboxDemo {
@@ -28,6 +33,8 @@ impl CheckboxDemo {
             md_checked: true,
             lg_checked: false,
             disabled_checked: true,
+            tri_state: CheckboxState::Indeterminate,
+            invalid_state: CheckboxState::Checked,
         }
     }
 }
@@ -95,6 +102,48 @@ impl App for CheckboxDemo {
                 ControlSize::Md,
                 true,
             );
+            ui.add_space(12.0);
+            ui.heading("Checkbox — Tri-state & invalid");
+            checkbox_state(
+                ui,
+                &self.theme,
+                &mut self.tri_state,
+                "Tri-state (unchecked → checked → indeterminate)",
+                CheckboxOptions {
+                    variant: ControlVariant::Secondary,
+                    size: ControlSize::Md,
+                    enabled: true,
+                    cycle: CheckboxCycle::TriState,
+                    ..CheckboxOptions::default()
+                },
+            );
+            checkbox_state(
+                ui,
+                &self.theme,
+                &mut self.tri_state,
+                "Tri-state (reusable state)",
+                CheckboxOptions {
+                    variant: ControlVariant::Ghost,
+                    size: ControlSize::Sm,
+                    enabled: true,
+                    cycle: CheckboxCycle::TriState,
+                    ..CheckboxOptions::default()
+                },
+            );
+            checkbox_state(
+                ui,
+                &self.theme,
+                &mut self.invalid_state,
+                "Invalid ring",
+                CheckboxOptions {
+                    variant: ControlVariant::Secondary,
+                    size: ControlSize::Md,
+                    enabled: true,
+                    invalid: true,
+                    ..CheckboxOptions::default()
+                },
+            )
+            .on_hover_text("Invalid state mirrors shadcn ring color");
             ui.add_space(12.0);
 
             ui.heading("Checkbox — Sizes");
