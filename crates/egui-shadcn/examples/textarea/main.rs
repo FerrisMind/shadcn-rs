@@ -1,5 +1,5 @@
 use eframe::{App, Frame, NativeOptions, egui};
-use egui_shadcn::{ControlSize, TextareaProps, Theme, textarea};
+use egui_shadcn::{ControlSize, Theme};
 use log::{error, info};
 
 struct TextareaDemo {
@@ -40,83 +40,48 @@ impl App for TextareaDemo {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.heading("Textarea — Basic Field");
-            textarea(
-                ui,
-                &self.theme,
-                TextareaProps {
-                    value: &mut self.basic_text,
-                    placeholder: "Enter text".into(),
-                    size: ControlSize::Md,
-                    is_invalid: false,
-                    show_counter: false,
-                    max_len: None,
-                    enabled: true,
-                },
-            );
-            ui.add_space(12.0);
+            egui_shadcn::Textarea::new("basic_textarea")
+                .placeholder("Enter text")
+                .size(ControlSize::Md.into())
+                .show(ui, &self.theme, &mut self.basic_text);
+
+            ui.add_space(32.0);
 
             ui.heading("Textarea — Counter and Limit");
-            textarea(
-                ui,
-                &self.theme,
-                TextareaProps {
-                    value: &mut self.limited_text,
-                    placeholder: "Max 120 characters".into(),
-                    size: ControlSize::Lg,
-                    is_invalid: false,
-                    show_counter: true,
-                    max_len: Some(120),
-                    enabled: true,
-                },
-            );
-            ui.add_space(12.0);
+            egui_shadcn::Textarea::new("limited_textarea")
+                .placeholder("Max 120 characters")
+                .size(ControlSize::Lg.into())
+                .show_counter(true)
+                .max_len(120)
+                .show(ui, &self.theme, &mut self.limited_text);
+
+            ui.add_space(32.0);
 
             ui.heading("Textarea — invalid");
-            textarea(
-                ui,
-                &self.theme,
-                TextareaProps {
-                    value: &mut self.invalid_text,
-                    placeholder: "Required field".into(),
-                    size: ControlSize::Md,
-                    is_invalid: true,
-                    show_counter: true,
-                    max_len: Some(60),
-                    enabled: true,
-                },
-            );
-            ui.add_space(12.0);
+            egui_shadcn::Textarea::new("invalid_textarea")
+                .placeholder("Required field")
+                .size(ControlSize::Md.into())
+                .invalid(true)
+                .show_counter(true)
+                .max_len(60)
+                .show(ui, &self.theme, &mut self.invalid_text);
+
+            ui.add_space(32.0);
 
             ui.heading("Textarea — No Counter (Sm)");
-            textarea(
-                ui,
-                &self.theme,
-                TextareaProps {
-                    value: &mut self.no_counter_text,
-                    placeholder: "Compact input".into(),
-                    size: ControlSize::Sm,
-                    is_invalid: false,
-                    show_counter: false,
-                    max_len: None,
-                    enabled: true,
-                },
-            );
-            ui.add_space(12.0);
+            egui_shadcn::Textarea::new("sm_textarea")
+                .placeholder("Compact input")
+                .size(ControlSize::Sm.into())
+                .show(ui, &self.theme, &mut self.no_counter_text);
+
+            ui.add_space(32.0);
 
             ui.heading("Textarea — Disabled");
-            textarea(
-                ui,
-                &self.theme,
-                TextareaProps {
-                    value: &mut self.disabled_text,
-                    placeholder: "Disabled".into(),
-                    size: ControlSize::Md,
-                    is_invalid: false,
-                    show_counter: false,
-                    max_len: None,
-                    enabled: false,
-                },
-            );
+            egui_shadcn::Textarea::new("disabled_textarea")
+                .placeholder("Disabled")
+                .size(ControlSize::Md.into())
+                .enabled(false)
+                .show(ui, &self.theme, &mut self.disabled_text);
         });
     }
 }

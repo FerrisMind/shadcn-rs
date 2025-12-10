@@ -1,9 +1,9 @@
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{
-    ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple, SelectSize,
-    TextareaProps, Theme, ToggleVariant, button, checkbox, select, select_with_items, switch,
-    text_input, textarea, toggle,
+    ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple, SelectSize, Textarea,
+    TextareaSize, Theme, ToggleVariant, button, checkbox, select, select_with_items, switch,
+    text_input, toggle,
 };
 use log::{error, info};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
@@ -253,19 +253,12 @@ impl App for DemoApp {
             ui.add_space(12.0);
 
             ui.label("Textarea:");
-            textarea(
-                ui,
-                &self.theme,
-                TextareaProps {
-                    value: &mut self.value,
-                    placeholder: "Multiline input".into(),
-                    size: ControlSize::Lg,
-                    is_invalid: false,
-                    show_counter: true,
-                    max_len: Some(120),
-                    enabled: true,
-                },
-            );
+            Textarea::new("basic-textarea")
+                .placeholder("Multiline input")
+                .size(TextareaSize::from(ControlSize::Lg))
+                .show_counter(true)
+                .max_len(120)
+                .show(ui, &self.theme, &mut self.value);
         });
     }
 }
