@@ -3,7 +3,7 @@ use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{
     ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple, SelectSize, Textarea,
     TextareaSize, Theme, ToggleVariant, button, checkbox, select, select_with_items, switch,
-    text_input, toggle,
+    toggle,
 };
 use log::{error, info};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
@@ -97,15 +97,12 @@ impl App for DemoApp {
             ui.add_space(12.0);
 
             ui.label("Text Input:");
-            text_input(
-                ui,
-                &self.theme,
-                &mut self.value,
-                "Enter text",
-                ControlSize::Md,
-                false,
-                true,
-            );
+            egui_shadcn::Input::new("basic_input")
+                .placeholder("Enter text")
+                .size(egui_shadcn::InputSize::Size2)
+                .invalid(false)
+                .enabled(true)
+                .show(ui, &self.theme, &mut self.value);
             ui.add_space(12.0);
 
             ui.label("Select (legacy API):");
