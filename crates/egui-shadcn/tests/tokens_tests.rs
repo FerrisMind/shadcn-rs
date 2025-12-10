@@ -45,11 +45,11 @@ fn control_size_padding_grows() {
 }
 
 #[test]
-fn checkbox_tokens_use_primary_bg() {
+fn checkbox_tokens_use_input_and_variant_bg() {
     init_logger();
     let palette = ColorPalette::default();
     let tokens = checkbox_tokens(&palette, ControlVariant::Primary);
-    assert_eq!(tokens.off.idle.bg_fill, palette.primary);
+    assert_eq!(tokens.off.idle.bg_fill, palette.input);
     assert_eq!(tokens.on.idle.bg_fill, palette.primary);
 }
 

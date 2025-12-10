@@ -1,6 +1,6 @@
 use egui_shadcn::{
-    ControlSize, ControlVariant, TextareaProps, Theme, ToggleVariant, button, checkbox, select,
-    switch, text_input, textarea, toggle,
+    ControlSize, ControlVariant, Theme, ToggleVariant, button, checkbox, select, switch,
+    text_input, toggle,
 };
 use env_logger;
 
@@ -119,19 +119,14 @@ fn inputs_render_and_keep_text() {
                 false,
                 true,
             );
-            let textarea_resp = textarea(
-                ui,
-                &theme,
-                TextareaProps {
-                    value: &mut long_text,
-                    placeholder: "placeholder".into(),
-                    size: ControlSize::Lg,
-                    is_invalid: false,
-                    show_counter: true,
-                    max_len: Some(10),
-                    enabled: true,
-                },
-            );
+            let textarea_resp = egui_shadcn::Textarea::new("textarea_comp")
+                .placeholder("placeholder")
+                .size(ControlSize::Lg.into())
+                .invalid(false)
+                .show_counter(true)
+                .max_len(10)
+                .enabled(true)
+                .show(ui, &theme, &mut long_text);
             (input_resp, textarea_resp)
         })
         .inner;
