@@ -1,5 +1,7 @@
 use crate::theme::Theme;
-use crate::tokens::{ColorPalette, ControlSize, InputVariant as TokenInputVariant, input_tokens, mix};
+use crate::tokens::{
+    ColorPalette, ControlSize, InputVariant as TokenInputVariant, input_tokens, mix,
+};
 use egui::{
     Color32, CornerRadius, FontId, Painter, Rect, Response, Sense, Stroke, StrokeKind, TextEdit,
     TextStyle, Ui, UiBuilder, Vec2, WidgetText, pos2, vec2,
@@ -10,7 +12,6 @@ use std::hash::Hash;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum InputVariant {
-
     Classic,
 
     #[default]
@@ -19,9 +20,18 @@ pub enum InputVariant {
     Soft,
 }
 
+impl From<InputVariant> for TokenInputVariant {
+    fn from(variant: InputVariant) -> Self {
+        match variant {
+            InputVariant::Surface => TokenInputVariant::Surface,
+            InputVariant::Classic => TokenInputVariant::Classic,
+            InputVariant::Soft => TokenInputVariant::Soft,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum InputSize {
-
     Size1,
 
     #[default]
@@ -31,7 +41,6 @@ pub enum InputSize {
 }
 
 impl InputSize {
-
     pub fn height(self) -> f32 {
         match self {
             InputSize::Size1 => 24.0,
@@ -97,7 +106,6 @@ impl From<ControlSize> for InputSize {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum InputRadius {
-
     None,
 
     Small,
@@ -111,7 +119,6 @@ pub enum InputRadius {
 }
 
 impl InputRadius {
-
     pub fn corner_radius(self) -> CornerRadius {
         match self {
             InputRadius::None => CornerRadius::same(0),
@@ -125,7 +132,6 @@ impl InputRadius {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum InputType {
-
     #[default]
     Text,
 
@@ -143,7 +149,6 @@ pub enum InputType {
 }
 
 impl InputType {
-
     pub fn is_password(self) -> bool {
         matches!(self, InputType::Password)
     }
@@ -151,7 +156,6 @@ impl InputType {
 
 #[derive(Clone, Debug)]
 pub struct InputStyle {
-
     pub bg: Color32,
 
     pub bg_hover: Color32,
@@ -188,11 +192,9 @@ pub struct InputStyle {
 }
 
 impl InputStyle {
-
     pub fn from_palette(palette: &ColorPalette, variant: InputVariant) -> Self {
         match variant {
             InputVariant::Surface => Self {
-
                 bg: Color32::from_rgba_unmultiplied(
                     palette.input.r(),
                     palette.input.g(),
@@ -243,7 +245,6 @@ impl InputStyle {
                 slot_color: palette.muted_foreground,
             },
             InputVariant::Classic => Self {
-
                 bg: palette.input,
                 bg_hover: mix(palette.input, Color32::WHITE, 0.04),
                 bg_focus: mix(palette.input, Color32::WHITE, 0.08),
@@ -278,7 +279,6 @@ impl InputStyle {
                 slot_color: palette.muted_foreground,
             },
             InputVariant::Soft => Self {
-
                 bg: Color32::from_rgba_unmultiplied(
                     palette.primary.r(),
                     palette.primary.g(),
@@ -385,7 +385,6 @@ pub struct InputProps<'a, Id>
 where
     Id: Hash + Debug,
 {
-
     pub id_source: Id,
 
     pub value: &'a mut String,
@@ -424,7 +423,6 @@ where
 }
 
 impl<'a, Id: Hash + Debug> InputProps<'a, Id> {
-
     pub fn new(id_source: Id, value: &'a mut String) -> Self {
         Self {
             id_source,
@@ -554,7 +552,6 @@ where
 }
 
 impl<'a, Id: Hash + Debug> Input<'a, Id> {
-
     pub fn new(id_source: Id) -> Input<'static, Id> {
         Input {
             id_source,
@@ -820,7 +817,10 @@ where
 
     if let Some(ref slot_fn) = props.left_slot {
         let slot_rect = Rect::from_min_size(
-            pos2(rect.left() + slot_gap, rect.top() + (height - slot_icon_size) / 2.0),
+            pos2(
+                rect.left() + slot_gap,
+                rect.top() + (height - slot_icon_size) / 2.0,
+            ),
             vec2(slot_icon_size, slot_icon_size),
         );
         let slot_color = if effectively_disabled {
@@ -882,7 +882,8 @@ where
     let placeholder_colored: WidgetText = props.placeholder.into();
     let placeholder_colored = placeholder_colored.color(style.placeholder_color);
 
-    let tokens = input_tokens(&theme.palette, TokenInputVariant::Surface);
+    let token_variant = TokenInputVariant::from(props.variant);
+    let tokens = input_tokens(&theme.palette, token_variant);
 
     let response = ui.scope_builder(UiBuilder::new().max_rect(inner_rect), |inner_ui| {
         inner_ui.set_clip_rect(inner_rect);
@@ -932,7 +933,9 @@ where
         inner_ui.add_enabled(props.enabled, edit)
     });
 
-    if response.inner.clicked_elsewhere() && rect.contains(ui.ctx().pointer_hover_pos().unwrap_or_default()) {
+    if response.inner.clicked_elsewhere()
+        && rect.contains(ui.ctx().pointer_hover_pos().unwrap_or_default())
+    {
         ui.memory_mut(|m| m.request_focus(edit_id));
     }
 
