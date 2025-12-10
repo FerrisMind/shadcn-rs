@@ -5,9 +5,11 @@ use log::trace;
 
 fn min_size(size: ControlSize) -> Vec2 {
     match size {
-        ControlSize::Sm => Vec2::new(32.0, 32.0),
-        ControlSize::Md | ControlSize::IconSm => Vec2::new(36.0, 36.0),
-        ControlSize::Lg | ControlSize::Icon => Vec2::new(40.0, 40.0),
+        ControlSize::Sm => Vec2::new(36.0, 36.0),
+        ControlSize::Md => Vec2::new(40.0, 40.0),
+        ControlSize::Lg => Vec2::new(44.0, 44.0),
+        ControlSize::IconSm => Vec2::new(36.0, 36.0),
+        ControlSize::Icon => Vec2::new(40.0, 40.0),
         ControlSize::IconLg => Vec2::new(44.0, 44.0),
     }
 }
@@ -50,11 +52,12 @@ pub fn toggle(
             },
         }
     };
+    let disabled_blended = lerp_state(&tokens.off.disabled, &tokens.on.idle);
     let blended = crate::tokens::VariantTokens {
         idle: lerp_state(&tokens.off.idle, &tokens.on.idle),
         hovered: lerp_state(&tokens.off.hovered, &tokens.on.hovered),
         active: lerp_state(&tokens.off.active, &tokens.on.active),
-        disabled: tokens.off.disabled,
+        disabled: disabled_blended,
     };
     let widgets = crate::theme::widgets_from_variant(&blended, size.rounding(), size.expansion());
 
@@ -71,10 +74,9 @@ pub fn toggle(
             .insert(TextStyle::Button, visuals.text_style.clone());
         style.visuals.selection.bg_fill = tokens.on.idle.bg_fill;
         style.visuals.selection.stroke = tokens.on.idle.fg_stroke;
-        style.visuals.override_text_color = Some(theme.palette.foreground);
         scoped_ui.set_style(style);
 
-        let label_colored: WidgetText = label.into().color(theme.palette.foreground);
+        let label_text: WidgetText = label.into();
         let is_icon_size = matches!(
             size,
             ControlSize::IconSm | ControlSize::Icon | ControlSize::IconLg
@@ -91,24 +93,30 @@ pub fn toggle(
                 *on = !*on;
             }
 
-            let icon_color = if enabled {
-                theme.palette.foreground
+            let current_colors = if !enabled {
+                disabled_blended
+            } else if resp.is_pointer_button_down_on() {
+                blended.active
+            } else if resp.hovered() {
+                blended.hovered
             } else {
-                tokens.off.disabled.fg_stroke.color
+                blended.idle
             };
-            let galley = label_colored.clone().into_galley(
+            let galley = label_text.clone().into_galley(
                 scoped_ui,
                 Some(TextWrapMode::Extend),
                 f32::INFINITY,
                 TextStyle::Button,
             );
             let icon_pos = resp.rect.center() - 0.5 * galley.size();
-            scoped_ui.painter().galley(icon_pos, galley, icon_color);
+            scoped_ui
+                .painter()
+                .galley(icon_pos, galley, current_colors.fg_stroke.color);
             resp
         } else {
             let resp = scoped_ui.add_enabled(
                 enabled,
-                Button::new(label_colored)
+                Button::new(label_text.clone())
                     .min_size(min_size(size))
                     .sense(egui::Sense::click()),
             );
