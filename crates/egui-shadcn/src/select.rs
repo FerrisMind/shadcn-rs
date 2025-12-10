@@ -754,15 +754,14 @@ where
             if input.1 {
                 state.focused_index = state.focused_index.map(|i| i.saturating_sub(1)).or(Some(0));
             }
-            if input.2 {
-                if let Some(idx) = state.focused_index
-                    && let Some((value, _, disabled)) = flat_options.get(idx)
-                    && !disabled
-                {
-                    *props.selected = Some(value.clone());
-                    state.is_open = false;
-                    response.mark_changed();
-                }
+            if input.2
+                && let Some(idx) = state.focused_index
+                && let Some((value, _, disabled)) = flat_options.get(idx)
+                && !disabled
+            {
+                *props.selected = Some(value.clone());
+                state.is_open = false;
+                response.mark_changed();
             }
             if input.3 {
                 state.is_open = false;
