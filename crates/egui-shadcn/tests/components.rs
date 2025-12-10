@@ -1,6 +1,6 @@
 use egui_shadcn::{
     ControlSize, ControlVariant, Theme, ToggleVariant, button, checkbox, select, switch,
-    text_input, toggle,
+    toggle,
 };
 use env_logger;
 
@@ -110,15 +110,12 @@ fn inputs_render_and_keep_text() {
     let mut long_text = "def".to_string();
     let inner = egui::CentralPanel::default()
         .show(&ctx, |ui| {
-            let input_resp = text_input(
-                ui,
-                &theme,
-                &mut text,
-                "placeholder",
-                ControlSize::Sm,
-                false,
-                true,
-            );
+            let input_resp = egui_shadcn::Input::new("input_comp")
+                .placeholder("placeholder")
+                .size(egui_shadcn::InputSize::Size1)
+                .invalid(false)
+                .enabled(true)
+                .show(ui, &theme, &mut text);
             let textarea_resp = egui_shadcn::Textarea::new("textarea_comp")
                 .placeholder("placeholder")
                 .size(ControlSize::Lg.into())
