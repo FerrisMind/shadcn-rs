@@ -72,58 +72,62 @@ impl App for ToggleDemo {
         apply_dark_background(ctx);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Toggle — Variants");
-            toggle(
-                ui,
-                &self.theme,
-                &mut self.default_on,
-                "Default",
-                ToggleVariant::Default,
-                ControlSize::Md,
-                true,
-            );
-            toggle(
-                ui,
-                &self.theme,
-                &mut self.outline_on,
-                "Outline",
-                ToggleVariant::Outline,
-                ControlSize::Md,
-                true,
-            );
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.heading("Toggle — Variants");
+                    toggle(
+                        ui,
+                        &self.theme,
+                        &mut self.default_on,
+                        "Default",
+                        ToggleVariant::Default,
+                        ControlSize::Md,
+                        true,
+                    );
+                    toggle(
+                        ui,
+                        &self.theme,
+                        &mut self.outline_on,
+                        "Outline",
+                        ToggleVariant::Outline,
+                        ControlSize::Md,
+                        true,
+                    );
 
-            ui.add_space(12.0);
-            ui.heading("Toggle — Icon Sizes");
-            toggle(
-                ui,
-                &self.theme,
-                &mut self.icon_on,
-                lucide_icon(Icon::Star, 18.0),
-                ToggleVariant::Outline,
-                ControlSize::IconSm,
-                true,
-            );
-            toggle(
-                ui,
-                &self.theme,
-                &mut self.icon_lg_on,
-                lucide_icon(Icon::LockKeyhole, 20.0),
-                ToggleVariant::Default,
-                ControlSize::IconLg,
-                true,
-            );
+                    ui.add_space(12.0);
+                    ui.heading("Toggle — Icon Sizes");
+                    toggle(
+                        ui,
+                        &self.theme,
+                        &mut self.icon_on,
+                        lucide_icon(Icon::Star, 18.0),
+                        ToggleVariant::Outline,
+                        ControlSize::IconSm,
+                        true,
+                    );
+                    toggle(
+                        ui,
+                        &self.theme,
+                        &mut self.icon_lg_on,
+                        lucide_icon(Icon::LockKeyhole, 20.0),
+                        ToggleVariant::Default,
+                        ControlSize::IconLg,
+                        true,
+                    );
 
-            ui.add_space(12.0);
-            ui.heading("Toggle — Disabled");
-            toggle(
-                ui,
-                &self.theme,
-                &mut self.disabled_on,
-                "Disabled",
-                ToggleVariant::Outline,
-                ControlSize::Md,
-                false,
-            );
+                    ui.add_space(12.0);
+                    ui.heading("Toggle — Disabled");
+                    toggle(
+                        ui,
+                        &self.theme,
+                        &mut self.disabled_on,
+                        "Disabled",
+                        ToggleVariant::Outline,
+                        ControlSize::Md,
+                        false,
+                    );
+                });
         });
     }
 }

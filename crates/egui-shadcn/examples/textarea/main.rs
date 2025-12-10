@@ -39,49 +39,53 @@ impl App for TextareaDemo {
         apply_dark_background(ctx);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Textarea — Basic Field");
-            egui_shadcn::Textarea::new("basic_textarea")
-                .placeholder("Enter text")
-                .size(ControlSize::Md.into())
-                .show(ui, &self.theme, &mut self.basic_text);
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.heading("Textarea — Basic Field");
+                    egui_shadcn::Textarea::new("basic_textarea")
+                        .placeholder("Enter text")
+                        .size(ControlSize::Md.into())
+                        .show(ui, &self.theme, &mut self.basic_text);
 
-            ui.add_space(32.0);
+                    ui.add_space(32.0);
 
-            ui.heading("Textarea — Counter and Limit");
-            egui_shadcn::Textarea::new("limited_textarea")
-                .placeholder("Max 120 characters")
-                .size(ControlSize::Lg.into())
-                .show_counter(true)
-                .max_len(120)
-                .show(ui, &self.theme, &mut self.limited_text);
+                    ui.heading("Textarea — Counter and Limit");
+                    egui_shadcn::Textarea::new("limited_textarea")
+                        .placeholder("Max 120 characters")
+                        .size(ControlSize::Lg.into())
+                        .show_counter(true)
+                        .max_len(120)
+                        .show(ui, &self.theme, &mut self.limited_text);
 
-            ui.add_space(32.0);
+                    ui.add_space(32.0);
 
-            ui.heading("Textarea — invalid");
-            egui_shadcn::Textarea::new("invalid_textarea")
-                .placeholder("Required field")
-                .size(ControlSize::Md.into())
-                .invalid(true)
-                .show_counter(true)
-                .max_len(60)
-                .show(ui, &self.theme, &mut self.invalid_text);
+                    ui.heading("Textarea — invalid");
+                    egui_shadcn::Textarea::new("invalid_textarea")
+                        .placeholder("Required field")
+                        .size(ControlSize::Md.into())
+                        .invalid(true)
+                        .show_counter(true)
+                        .max_len(60)
+                        .show(ui, &self.theme, &mut self.invalid_text);
 
-            ui.add_space(32.0);
+                    ui.add_space(32.0);
 
-            ui.heading("Textarea — No Counter (Sm)");
-            egui_shadcn::Textarea::new("sm_textarea")
-                .placeholder("Compact input")
-                .size(ControlSize::Sm.into())
-                .show(ui, &self.theme, &mut self.no_counter_text);
+                    ui.heading("Textarea — No Counter (Sm)");
+                    egui_shadcn::Textarea::new("sm_textarea")
+                        .placeholder("Compact input")
+                        .size(ControlSize::Sm.into())
+                        .show(ui, &self.theme, &mut self.no_counter_text);
 
-            ui.add_space(32.0);
+                    ui.add_space(32.0);
 
-            ui.heading("Textarea — Disabled");
-            egui_shadcn::Textarea::new("disabled_textarea")
-                .placeholder("Disabled")
-                .size(ControlSize::Md.into())
-                .enabled(false)
-                .show(ui, &self.theme, &mut self.disabled_text);
+                    ui.heading("Textarea — Disabled");
+                    egui_shadcn::Textarea::new("disabled_textarea")
+                        .placeholder("Disabled")
+                        .size(ControlSize::Md.into())
+                        .enabled(false)
+                        .show(ui, &self.theme, &mut self.disabled_text);
+                });
         });
     }
 }

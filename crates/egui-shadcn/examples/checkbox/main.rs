@@ -54,138 +54,142 @@ impl App for CheckboxDemo {
         apply_dark_background(ctx);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Checkbox — Variants");
-            ui.label("Demonstration of all ControlVariant options.");
-            ui.add_space(8.0);
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.primary_checked,
-                "Primary",
-                ControlVariant::Primary,
-                ControlSize::Md,
-                true,
-            );
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.secondary_checked,
-                "Secondary",
-                ControlVariant::Secondary,
-                ControlSize::Md,
-                true,
-            );
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.ghost_checked,
-                "Ghost",
-                ControlVariant::Ghost,
-                ControlSize::Md,
-                true,
-            );
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.outline_checked,
-                "Outline",
-                ControlVariant::Outline,
-                ControlSize::Md,
-                true,
-            );
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.destructive_checked,
-                "Destructive",
-                ControlVariant::Destructive,
-                ControlSize::Md,
-                true,
-            );
-            ui.add_space(12.0);
-            ui.heading("Checkbox — Tri-state & invalid");
-            checkbox_state(
-                ui,
-                &self.theme,
-                &mut self.tri_state,
-                "Tri-state (unchecked → checked → indeterminate)",
-                CheckboxOptions {
-                    variant: ControlVariant::Secondary,
-                    size: ControlSize::Md,
-                    enabled: true,
-                    cycle: CheckboxCycle::TriState,
-                    ..CheckboxOptions::default()
-                },
-            );
-            checkbox_state(
-                ui,
-                &self.theme,
-                &mut self.tri_state,
-                "Tri-state (reusable state)",
-                CheckboxOptions {
-                    variant: ControlVariant::Ghost,
-                    size: ControlSize::Sm,
-                    enabled: true,
-                    cycle: CheckboxCycle::TriState,
-                    ..CheckboxOptions::default()
-                },
-            );
-            checkbox_state(
-                ui,
-                &self.theme,
-                &mut self.invalid_state,
-                "Invalid ring",
-                CheckboxOptions {
-                    variant: ControlVariant::Secondary,
-                    size: ControlSize::Md,
-                    enabled: true,
-                    invalid: true,
-                    ..CheckboxOptions::default()
-                },
-            )
-            .on_hover_text("Invalid state mirrors shadcn ring color");
-            ui.add_space(12.0);
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.heading("Checkbox — Variants");
+                    ui.label("Demonstration of all ControlVariant options.");
+                    ui.add_space(8.0);
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.primary_checked,
+                        "Primary",
+                        ControlVariant::Primary,
+                        ControlSize::Md,
+                        true,
+                    );
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.secondary_checked,
+                        "Secondary",
+                        ControlVariant::Secondary,
+                        ControlSize::Md,
+                        true,
+                    );
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.ghost_checked,
+                        "Ghost",
+                        ControlVariant::Ghost,
+                        ControlSize::Md,
+                        true,
+                    );
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.outline_checked,
+                        "Outline",
+                        ControlVariant::Outline,
+                        ControlSize::Md,
+                        true,
+                    );
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.destructive_checked,
+                        "Destructive",
+                        ControlVariant::Destructive,
+                        ControlSize::Md,
+                        true,
+                    );
+                    ui.add_space(12.0);
+                    ui.heading("Checkbox — Tri-state & invalid");
+                    checkbox_state(
+                        ui,
+                        &self.theme,
+                        &mut self.tri_state,
+                        "Tri-state (unchecked → checked → indeterminate)",
+                        CheckboxOptions {
+                            variant: ControlVariant::Secondary,
+                            size: ControlSize::Md,
+                            enabled: true,
+                            cycle: CheckboxCycle::TriState,
+                            ..CheckboxOptions::default()
+                        },
+                    );
+                    checkbox_state(
+                        ui,
+                        &self.theme,
+                        &mut self.tri_state,
+                        "Tri-state (reusable state)",
+                        CheckboxOptions {
+                            variant: ControlVariant::Ghost,
+                            size: ControlSize::Sm,
+                            enabled: true,
+                            cycle: CheckboxCycle::TriState,
+                            ..CheckboxOptions::default()
+                        },
+                    );
+                    checkbox_state(
+                        ui,
+                        &self.theme,
+                        &mut self.invalid_state,
+                        "Invalid ring",
+                        CheckboxOptions {
+                            variant: ControlVariant::Secondary,
+                            size: ControlSize::Md,
+                            enabled: true,
+                            invalid: true,
+                            ..CheckboxOptions::default()
+                        },
+                    )
+                    .on_hover_text("Invalid state mirrors shadcn ring color");
+                    ui.add_space(12.0);
 
-            ui.heading("Checkbox — Sizes");
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.sm_checked,
-                "Small",
-                ControlVariant::Primary,
-                ControlSize::Sm,
-                true,
-            );
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.md_checked,
-                "Medium",
-                ControlVariant::Primary,
-                ControlSize::Md,
-                true,
-            );
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.lg_checked,
-                "Large",
-                ControlVariant::Primary,
-                ControlSize::Lg,
-                true,
-            );
-            ui.add_space(12.0);
+                    ui.heading("Checkbox — Sizes");
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.sm_checked,
+                        "Small",
+                        ControlVariant::Primary,
+                        ControlSize::Sm,
+                        true,
+                    );
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.md_checked,
+                        "Medium",
+                        ControlVariant::Primary,
+                        ControlSize::Md,
+                        true,
+                    );
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.lg_checked,
+                        "Large",
+                        ControlVariant::Primary,
+                        ControlSize::Lg,
+                        true,
+                    );
+                    ui.add_space(12.0);
 
-            ui.heading("Checkbox — Disabled");
-            checkbox(
-                ui,
-                &self.theme,
-                &mut self.disabled_checked,
-                "Disabled",
-                ControlVariant::Secondary,
-                ControlSize::Md,
-                false,
-            );
+                    ui.heading("Checkbox — Disabled");
+                    checkbox(
+                        ui,
+                        &self.theme,
+                        &mut self.disabled_checked,
+                        "Disabled",
+                        ControlVariant::Secondary,
+                        ControlSize::Md,
+                        false,
+                    );
+                });
         });
     }
 }

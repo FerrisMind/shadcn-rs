@@ -39,58 +39,62 @@ impl App for SwitchDemo {
         apply_dark_background(ctx);
 
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("Switch — Variants");
-            switch(
-                ui,
-                &self.theme,
-                &mut self.primary_on,
-                "Primary",
-                ControlVariant::Primary,
-                ControlSize::Sm,
-                true,
-            );
-            switch(
-                ui,
-                &self.theme,
-                &mut self.secondary_on,
-                "Secondary",
-                ControlVariant::Secondary,
-                ControlSize::Sm,
-                true,
-            );
-            switch(
-                ui,
-                &self.theme,
-                &mut self.outline_on,
-                "Outline",
-                ControlVariant::Outline,
-                ControlSize::Sm,
-                true,
-            );
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    ui.heading("Switch — Variants");
+                    switch(
+                        ui,
+                        &self.theme,
+                        &mut self.primary_on,
+                        "Primary",
+                        ControlVariant::Primary,
+                        ControlSize::Sm,
+                        true,
+                    );
+                    switch(
+                        ui,
+                        &self.theme,
+                        &mut self.secondary_on,
+                        "Secondary",
+                        ControlVariant::Secondary,
+                        ControlSize::Sm,
+                        true,
+                    );
+                    switch(
+                        ui,
+                        &self.theme,
+                        &mut self.outline_on,
+                        "Outline",
+                        ControlVariant::Outline,
+                        ControlSize::Sm,
+                        true,
+                    );
 
-            ui.add_space(12.0);
-            ui.heading("Switch — Sizes");
-            switch(
-                ui,
-                &self.theme,
-                &mut self.large_on,
-                "Large (Lg)",
-                ControlVariant::Primary,
-                ControlSize::Lg,
-                true,
-            );
+                    ui.add_space(12.0);
+                    ui.heading("Switch — Sizes");
+                    switch(
+                        ui,
+                        &self.theme,
+                        &mut self.large_on,
+                        "Large (Lg)",
+                        ControlVariant::Primary,
+                        ControlSize::Lg,
+                        true,
+                    );
 
-            ui.add_space(12.0);
-            ui.heading("Switch — Disabled");
-            switch(
-                ui,
-                &self.theme,
-                &mut self.disabled_on,
-                "Disabled",
-                ControlVariant::Ghost,
-                ControlSize::Md,
-                false,
-            );
+                    ui.add_space(12.0);
+                    ui.heading("Switch — Disabled");
+                    switch(
+                        ui,
+                        &self.theme,
+                        &mut self.disabled_on,
+                        "Disabled",
+                        ControlVariant::Ghost,
+                        ControlSize::Md,
+                        false,
+                    );
+                });
         });
     }
 }
