@@ -151,8 +151,8 @@ pub fn switch_with_options(
     painter.rect_filled(thumb_rect, thumb_rounding, thumb_color);
 
     if response.has_focus() && options.enabled {
-        let ring_rect = track_rect.expand(tokens.focus_ring.width * 0.5 + 0.5);
-        painter.rect_stroke(ring_rect, rounding, tokens.focus_ring, StrokeKind::Outside);
+
+        painter.rect_stroke(track_rect, rounding, tokens.focus_ring, StrokeKind::Outside);
     }
 
     let label_resp = ui.add_enabled(options.enabled, egui::Label::new(label_text).wrap());
@@ -196,6 +196,8 @@ fn accent_from_control_variant(
         ControlVariant::Destructive => palette.destructive,
         ControlVariant::Secondary => crate::tokens::mix(palette.border, palette.foreground, 0.5),
         ControlVariant::Ghost => palette.muted_foreground,
-        ControlVariant::Outline => crate::tokens::mix(palette.border, palette.muted_foreground, 0.4),
+        ControlVariant::Outline => {
+            crate::tokens::mix(palette.border, palette.muted_foreground, 0.4)
+        }
     }
 }

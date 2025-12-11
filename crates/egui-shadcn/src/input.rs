@@ -718,6 +718,15 @@ where
         props.read_only
     );
 
+    let apply_opacity = |color: Color32, opacity: f32| -> Color32 {
+        Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            (color.a() as f32 * opacity) as u8,
+        )
+    };
+
     let mut style = props.style.clone().unwrap_or_else(|| {
         if let Some(accent) = props.accent_color {
             InputStyle::from_palette_with_accent(&theme.palette, props.variant, accent)
@@ -730,8 +739,7 @@ where
         style = style.with_high_contrast();
     }
 
-    let rounding = props.radius.corner_radius();
-    style.rounding = rounding;
+    style.rounding = props.radius.corner_radius();
 
     let effectively_disabled = !props.enabled || props.read_only;
 
@@ -741,17 +749,16 @@ where
     let slot_gap = props.size.slot_gap();
     let slot_icon_size = props.size.slot_icon_size();
 
-    let left_slot_width = if props.left_slot.is_some() {
-        slot_icon_size + slot_gap * 2.0
-    } else {
-        0.0
+    let slot_width = |slot: &BoxedSlotFn<'_>| -> f32 {
+        if slot.is_some() {
+            slot_icon_size + slot_gap * 2.0
+        } else {
+            0.0
+        }
     };
 
-    let right_slot_width = if props.right_slot.is_some() {
-        slot_icon_size + slot_gap * 2.0
-    } else {
-        0.0
-    };
+    let left_slot_width = slot_width(&props.left_slot);
+    let right_slot_width = slot_width(&props.right_slot);
 
     let id = ui.make_persistent_id(&props.id_source);
     let desired_size = vec2(width, height);
@@ -762,28 +769,24 @@ where
     let has_focus = response.has_focus() || ui.memory(|m| m.has_focus(edit_id));
 
     let bg_color = if effectively_disabled {
-        Color32::from_rgba_unmultiplied(
-            style.bg.r(),
-            style.bg.g(),
-            style.bg.b(),
-            (style.bg.a() as f32 * style.disabled_opacity) as u8,
-        )
-    } else if has_focus {
-        style.bg_focus
-    } else if response.hovered() {
-        style.bg_hover
+        apply_opacity(style.bg, style.disabled_opacity)
     } else {
-        style.bg
+        match (has_focus, response.hovered()) {
+            (true, _) => style.bg_focus,
+            (false, true) => style.bg_hover,
+            (false, false) => style.bg,
+        }
     };
 
-    let border_color = if props.is_invalid {
-        style.invalid_border
-    } else if has_focus {
-        style.border_focus
-    } else if response.hovered() && !effectively_disabled {
-        style.border_hover
-    } else {
-        style.border
+    let border_color = match (
+        props.is_invalid,
+        has_focus,
+        response.hovered() && !effectively_disabled,
+    ) {
+        (true, _, _) => style.invalid_border,
+        (false, true, _) => style.border_focus,
+        (false, false, true) => style.border_hover,
+        _ => style.border,
     };
 
     {
@@ -800,14 +803,14 @@ where
         }
 
         if has_focus && !effectively_disabled {
-            let ring_rect = rect.expand(style.focus_ring_width * 0.5);
+
             let ring_color = if props.is_invalid {
                 style.invalid_ring
             } else {
                 style.focus_ring
             };
             painter.rect_stroke(
-                ring_rect,
+                rect,
                 style.rounding,
                 Stroke::new(style.focus_ring_width, ring_color),
                 StrokeKind::Outside,
@@ -815,47 +818,31 @@ where
         }
     }
 
-    if let Some(ref slot_fn) = props.left_slot {
-        let slot_rect = Rect::from_min_size(
-            pos2(
-                rect.left() + slot_gap,
-                rect.top() + (height - slot_icon_size) / 2.0,
-            ),
-            vec2(slot_icon_size, slot_icon_size),
-        );
-        let slot_color = if effectively_disabled {
-            Color32::from_rgba_unmultiplied(
-                style.slot_color.r(),
-                style.slot_color.g(),
-                style.slot_color.b(),
-                (style.slot_color.a() as f32 * style.disabled_opacity) as u8,
-            )
+    let slot_color = |color: Color32| -> Color32 {
+        if effectively_disabled {
+            apply_opacity(color, style.disabled_opacity)
         } else {
-            style.slot_color
-        };
-        slot_fn(ui.painter(), slot_rect, slot_color);
-    }
+            color
+        }
+    };
 
-    if let Some(ref slot_fn) = props.right_slot {
-        let slot_rect = Rect::from_min_size(
-            pos2(
-                rect.right() - slot_gap - slot_icon_size,
-                rect.top() + (height - slot_icon_size) / 2.0,
-            ),
-            vec2(slot_icon_size, slot_icon_size),
-        );
-        let slot_color = if effectively_disabled {
-            Color32::from_rgba_unmultiplied(
-                style.slot_color.r(),
-                style.slot_color.g(),
-                style.slot_color.b(),
-                (style.slot_color.a() as f32 * style.disabled_opacity) as u8,
-            )
-        } else {
-            style.slot_color
-        };
-        slot_fn(ui.painter(), slot_rect, slot_color);
-    }
+    let paint_slot = |slot_fn: &BoxedSlotFn<'_>, align_left: bool| {
+        if let Some(slot_fn) = slot_fn.as_ref() {
+            let x = if align_left {
+                rect.left() + slot_gap
+            } else {
+                rect.right() - slot_gap - slot_icon_size
+            };
+            let slot_rect = Rect::from_min_size(
+                pos2(x, rect.top() + (height - slot_icon_size) / 2.0),
+                vec2(slot_icon_size, slot_icon_size),
+            );
+            slot_fn(ui.painter(), slot_rect, slot_color(style.slot_color));
+        }
+    };
+
+    paint_slot(&props.left_slot, true);
+    paint_slot(&props.right_slot, false);
 
     let inner_rect = Rect::from_min_max(
         pos2(
@@ -869,12 +856,7 @@ where
     );
 
     let text_color = if effectively_disabled {
-        Color32::from_rgba_unmultiplied(
-            style.text_color.r(),
-            style.text_color.g(),
-            style.text_color.b(),
-            (style.text_color.a() as f32 * 0.6) as u8,
-        )
+        apply_opacity(style.text_color, 0.6)
     } else {
         style.text_color
     };
@@ -897,15 +879,15 @@ where
         inner_style.visuals.override_text_color = Some(text_color);
         inner_style.visuals.extreme_bg_color = tokens.idle.bg_fill;
 
-        inner_style.visuals.widgets.inactive.bg_fill = Color32::TRANSPARENT;
-        inner_style.visuals.widgets.inactive.weak_bg_fill = Color32::TRANSPARENT;
-        inner_style.visuals.widgets.inactive.bg_stroke = Stroke::NONE;
-        inner_style.visuals.widgets.hovered.bg_fill = Color32::TRANSPARENT;
-        inner_style.visuals.widgets.hovered.weak_bg_fill = Color32::TRANSPARENT;
-        inner_style.visuals.widgets.hovered.bg_stroke = Stroke::NONE;
-        inner_style.visuals.widgets.active.bg_fill = Color32::TRANSPARENT;
-        inner_style.visuals.widgets.active.weak_bg_fill = Color32::TRANSPARENT;
-        inner_style.visuals.widgets.active.bg_stroke = Stroke::NONE;
+        for visuals in [
+            &mut inner_style.visuals.widgets.inactive,
+            &mut inner_style.visuals.widgets.hovered,
+            &mut inner_style.visuals.widgets.active,
+        ] {
+            visuals.bg_fill = Color32::TRANSPARENT;
+            visuals.weak_bg_fill = Color32::TRANSPARENT;
+            visuals.bg_stroke = Stroke::NONE;
+        }
 
         inner_ui.set_style(inner_style);
 

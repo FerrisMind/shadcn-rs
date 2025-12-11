@@ -189,7 +189,6 @@ pub struct SelectStyle {
 }
 
 impl SelectStyle {
-    /// Базовый стиль (Surface + Soft) без акцента.
     fn base_from_palette(palette: &ColorPalette) -> Self {
         Self {
             trigger_bg: Color32::from_rgba_unmultiplied(
@@ -262,7 +261,8 @@ impl SelectStyle {
             Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 42);
         let accent_tint_hover =
             Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 56);
-        let accent_border = Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 160);
+        let accent_border =
+            Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 160);
 
         self.trigger_bg = accent_tint_soft;
         self.trigger_bg_hover = accent_tint_hover;
@@ -879,8 +879,7 @@ where
         let scale = 0.95 + 0.05 * anim_t;
         let alpha = (anim_t * 255.0) as u8;
 
-        let animated_rect =
-            Rect::from_center_size(popup_rect.center(), popup_rect.size() * scale);
+        let animated_rect = Rect::from_center_size(popup_rect.center(), popup_rect.size() * scale);
 
         let pointer_pos = ui.input(|i| i.pointer.interact_pos());
         if let Some(pos) = pointer_pos
@@ -1464,11 +1463,7 @@ pub fn find_typeahead_match(items: &[SelectItem], needle: &str) -> Option<usize>
     let needle_lower = needle.to_lowercase();
     let mut index: usize = 0;
 
-    fn traverse(
-        items: &[SelectItem],
-        needle_lower: &str,
-        index: &mut usize,
-    ) -> Option<usize> {
+    fn traverse(items: &[SelectItem], needle_lower: &str, index: &mut usize) -> Option<usize> {
         for item in items {
             match item {
                 SelectItem::Option {
@@ -1479,7 +1474,9 @@ pub fn find_typeahead_match(items: &[SelectItem], needle: &str) -> Option<usize>
                     if !*disabled {
                         let label_lower = label.to_lowercase();
                         let value_lower = value.to_lowercase();
-                        if label_lower.starts_with(needle_lower) || value_lower.starts_with(needle_lower) {
+                        if label_lower.starts_with(needle_lower)
+                            || value_lower.starts_with(needle_lower)
+                        {
                             return Some(*index);
                         }
                     }

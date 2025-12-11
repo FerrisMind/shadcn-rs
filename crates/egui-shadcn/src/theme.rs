@@ -1,4 +1,3 @@
-//! Тема egui-shadcn: связывает токены цвета, радиусов и анимаций с визуалами egui.
 use crate::tokens::{
     ColorPalette, ControlSize, ControlVariant, DEFAULT_FOCUS, DEFAULT_MOTION, DEFAULT_RADIUS,
     FocusTokens, InputTokens, InputVariant, MotionTokens, RadiusScale, StateColors, VariantTokens,

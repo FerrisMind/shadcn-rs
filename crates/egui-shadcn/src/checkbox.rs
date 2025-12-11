@@ -1,7 +1,7 @@
 use crate::theme::{Theme, widget_visuals};
 use crate::tokens::{
-    ControlSize, ControlVariant, checkbox_metrics, checkbox_tokens_with_high_contrast, ease_out_cubic,
-    mix,
+    ControlSize, ControlVariant, checkbox_metrics, checkbox_tokens_with_high_contrast,
+    ease_out_cubic, mix,
 };
 use egui::style::Widgets;
 use egui::{
@@ -153,7 +153,8 @@ pub fn checkbox_state(
             if high_contrast { 0.35 } else { 0.15 },
         ),
     );
-    let invalid_ring = Stroke::new(3.0, theme.palette.destructive);
+
+    let invalid_ring = Stroke::new(3.0, scale_alpha(theme.palette.destructive, 0.40));
     let expansion = size.expansion();
     let widgets = Widgets {
         noninteractive: widget_visuals(&toggle_tokens.disabled, rounding, expansion),
@@ -165,11 +166,14 @@ pub fn checkbox_state(
 
     theme.scoped(ui, widgets, |scoped_ui| {
         let mut style = scoped_ui.style().as_ref().clone();
-        style.spacing.icon_width = metrics.track_size.x;
-        style.spacing.icon_width_inner = metrics.thumb_size.x;
-        style.spacing.icon_spacing = icon_spacing;
-        style.spacing.item_spacing.x = icon_spacing;
-        style.spacing.item_spacing.y = visuals.padding.y * 0.25;
+        {
+            let spacing = &mut style.spacing;
+            spacing.icon_width = metrics.track_size.x;
+            spacing.icon_width_inner = metrics.thumb_size.x;
+            spacing.icon_spacing = icon_spacing;
+            spacing.item_spacing.x = icon_spacing;
+            spacing.item_spacing.y = visuals.padding.y * 0.25;
+        }
         style
             .text_styles
             .insert(TextStyle::Body, visuals.text_style.clone());
@@ -186,59 +190,51 @@ pub fn checkbox_state(
                 let label_response =
                     row.add_enabled(enabled, egui::Label::new(label_text.clone()).wrap());
 
-                let clicked_icon = icon_response.clicked();
-                let clicked_label = label_response.clicked();
-                let clicked = enabled && (clicked_icon || clicked_label);
+                let clicked = enabled && (icon_response.clicked() || label_response.clicked());
                 if clicked {
                     state.toggle(cycle);
                 }
 
                 let anim_id: Id = icon_response.id.with("checkbox");
                 let anim_duration = theme.motion.base_ms / 1000.0;
-                let on_t = if animate {
-                    row.ctx().animate_bool_with_time_and_easing(
-                        anim_id,
-                        state.is_active(),
-                        anim_duration,
-                        ease_out_cubic,
-                    )
-                } else if state.is_active() {
-                    1.0
-                } else {
-                    0.0
+                let animate_value = |id: Id, active: bool| -> f32 {
+                    if animate {
+                        row.ctx().animate_bool_with_time_and_easing(
+                            id,
+                            active,
+                            anim_duration,
+                            ease_out_cubic,
+                        )
+                    } else if active {
+                        1.0
+                    } else {
+                        0.0
+                    }
                 };
-                let indeterminate_t = if animate {
-                    row.ctx().animate_bool_with_time_and_easing(
-                        anim_id.with("indeterminate"),
-                        state.is_indeterminate(),
-                        anim_duration,
-                        ease_out_cubic,
-                    )
-                } else if state.is_indeterminate() {
-                    1.0
-                } else {
-                    0.0
-                };
+                let on_t = animate_value(anim_id, state.is_active());
+                let indeterminate_t =
+                    animate_value(anim_id.with("indeterminate"), state.is_indeterminate());
 
                 let pointer_down = icon_response.is_pointer_button_down_on();
                 let hovered_icon = icon_response.hovered();
                 let has_focus = icon_response.has_focus();
 
-                let mut off_state = toggle_tokens.off.idle;
-                let mut on_state = toggle_tokens.on.idle;
-                if !enabled {
-                    off_state = toggle_tokens.disabled;
-                    on_state = toggle_tokens.disabled;
-                } else if pointer_down {
-                    off_state = toggle_tokens.off.active;
-                    on_state = toggle_tokens.on.active;
-                } else if hovered_icon {
-                    off_state = toggle_tokens.off.hovered;
-                    on_state = toggle_tokens.on.hovered;
-                }
+                let select_states = |pointer_down: bool, hovered: bool| {
+                    if !enabled {
+                        (toggle_tokens.disabled, toggle_tokens.disabled)
+                    } else if pointer_down {
+                        (toggle_tokens.off.active, toggle_tokens.on.active)
+                    } else if hovered {
+                        (toggle_tokens.off.hovered, toggle_tokens.on.hovered)
+                    } else {
+                        (toggle_tokens.off.idle, toggle_tokens.on.idle)
+                    }
+                };
+                let (off_state, on_state) = select_states(pointer_down, hovered_icon);
                 let track_state = lerp_state(off_state, on_state, on_t);
 
-                let painter = row.painter_at(icon_rect.expand(focus_ring.width));
+                let max_ring_width = focus_ring.width.max(invalid_ring.width);
+                let painter = row.painter_at(icon_rect.expand(max_ring_width + 2.0));
                 let track_rect =
                     egui::Rect::from_center_size(icon_rect.center(), metrics.track_size);
 
@@ -262,11 +258,10 @@ pub fn checkbox_state(
                 );
 
                 if invalid && enabled {
-                    let ring_rect = track_rect.expand(invalid_ring.width * 0.5 + 1.0);
-                    painter.rect_stroke(ring_rect, rounding, invalid_ring, StrokeKind::Outside);
+
+                    painter.rect_stroke(track_rect, rounding, invalid_ring, StrokeKind::Outside);
                 } else if has_focus && enabled {
-                    let ring_rect = track_rect.expand(focus_ring.width * 0.5 + 0.5);
-                    painter.rect_stroke(ring_rect, rounding, focus_ring, StrokeKind::Outside);
+                    painter.rect_stroke(track_rect, rounding, focus_ring, StrokeKind::Outside);
                 }
 
                 let mut response = icon_response | label_response;
