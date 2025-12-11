@@ -1,8 +1,13 @@
+#![cfg_attr(
+    all(target_os = "windows", not(debug_assertions)),
+    windows_subsystem = "windows"
+)]
+
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{
-    ColorPalette, ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple, SelectSize, SelectStyle, Theme,
-    select, select_with_items, switch,
+    ColorPalette, ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple,
+    SelectSize, SelectStyle, Theme, select, select_with_items, switch,
 };
 use log::{error, info};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
@@ -152,7 +157,11 @@ impl App for SelectDemo {
                     ui.horizontal(|ui| {
                         ui.heading("Theme:");
                         let prev_dark = self.dark_mode;
-                        let icon = if self.dark_mode { Icon::Moon } else { Icon::Sun };
+                        let icon = if self.dark_mode {
+                            Icon::Moon
+                        } else {
+                            Icon::Sun
+                        };
                         let label = icon.unicode().to_string();
                         switch(
                             ui,

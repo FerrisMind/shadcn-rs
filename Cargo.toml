@@ -16,5 +16,18 @@ egui = "0.33"
 log = "0.4"
 env_logger = "0.11"
 
+[profile.dev]
+# Быстрая итерация в dev без раздувания бинарей
+incremental = true
+opt-level = 1
+debug = 1
+
 [profile.release]
-debug = true
+# Сборка, оптимизированная под размер и предсказуемость
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+incremental = false

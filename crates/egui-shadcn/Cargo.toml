@@ -3,9 +3,13 @@ name = "egui-shadcn"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
-description = "Shadcn-inspired component kit for egui."
+description = "Shadcn-inspired component kit for egui"
 repository = "https://example.com/egui-shadcn"
 homepage = "https://example.com/egui-shadcn"
+
+[features]
+default = []
+examples = []
 
 [dependencies]
 egui = { workspace = true }
@@ -15,4 +19,59 @@ lucide-icons = "0.555.0"
 [dev-dependencies]
 env_logger = { workspace = true }
 eframe = "0.33"
+
+[[example]]
+name = "basic"
+path = "examples/basic/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "button"
+path = "examples/button/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "checkbox"
+path = "examples/checkbox/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "input"
+path = "examples/input/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "label"
+path = "examples/label/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "radio"
+path = "examples/radio/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "select"
+path = "examples/select/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "switch"
+path = "examples/switch/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "textarea"
+path = "examples/textarea/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "toggle"
+path = "examples/toggle/main.rs"
+required-features = ["examples"]
+
+[[example]]
+name = "tooltip"
+path = "examples/tooltip/main.rs"
+required-features = ["examples"]
 

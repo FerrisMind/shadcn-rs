@@ -719,7 +719,6 @@ where
         }
 
         if has_focus && !effectively_disabled {
-
             let ring_color = if props.is_invalid {
                 style.invalid_ring
             } else {
@@ -818,7 +817,6 @@ where
         painter.galley(counter_pos, counter_galley, style.placeholder_color);
     }
 
-    // Draw custom resize grip inside the textarea (2 lines like in shadcn/browser reference)
     if props.resizable {
         let painter = ui.painter();
         let grip_color = style.placeholder_color;
@@ -828,12 +826,18 @@ where
         let corner = pos2(rect.right() - grip_padding, rect.bottom() - grip_padding);
 
         painter.line_segment(
-            [pos2(corner.x - 3.0, corner.y), pos2(corner.x, corner.y - 3.0)],
+            [
+                pos2(corner.x - 3.0, corner.y),
+                pos2(corner.x, corner.y - 3.0),
+            ],
             Stroke::new(1.0, grip_color),
         );
 
         painter.line_segment(
-            [pos2(corner.x - 3.0 - line_spacing, corner.y), pos2(corner.x, corner.y - 3.0 - line_spacing)],
+            [
+                pos2(corner.x - 3.0 - line_spacing, corner.y),
+                pos2(corner.x, corner.y - 3.0 - line_spacing),
+            ],
             Stroke::new(1.0, grip_color),
         );
     }
