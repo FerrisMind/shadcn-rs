@@ -1,6 +1,6 @@
 # Checkbox Example
 
-Shows `Checkbox` sizes and variants, including disabled state handling.
+Shows `Checkbox` sizes and variants, tri-state, invalid ring, disabled state handling, and high-contrast token styling.
 
 ## Run
 
