@@ -1,5 +1,8 @@
 use crate::theme::{Theme, widget_visuals};
-use crate::tokens::{ControlSize, ControlVariant, checkbox_metrics, checkbox_tokens, mix};
+use crate::tokens::{
+    ControlSize, ControlVariant, checkbox_metrics, checkbox_tokens_with_high_contrast, ease_out_cubic,
+    mix,
+};
 use egui::style::Widgets;
 use egui::{
     Color32, CornerRadius, CursorIcon, Id, Pos2, Response, Sense, Stroke, StrokeKind, TextStyle,
@@ -68,6 +71,7 @@ pub struct CheckboxOptions {
     pub invalid: bool,
     pub cycle: CheckboxCycle,
     pub animate: bool,
+    pub high_contrast: bool,
 }
 
 impl Default for CheckboxOptions {
@@ -79,6 +83,7 @@ impl Default for CheckboxOptions {
             invalid: false,
             cycle: CheckboxCycle::Binary,
             animate: true,
+            high_contrast: false,
         }
     }
 }
@@ -133,18 +138,19 @@ pub fn checkbox_state(
         invalid,
         cycle,
         animate,
+        high_contrast,
     } = options;
     let visuals = theme.control(variant, size);
     let metrics = checkbox_metrics(size);
-    let toggle_tokens = checkbox_tokens(&theme.palette, variant);
+    let toggle_tokens = checkbox_tokens_with_high_contrast(&theme.palette, variant, high_contrast);
     let rounding = CornerRadius::same((metrics.track_size.x * 0.25).round() as u8);
     let icon_spacing = visuals.padding.x * 0.35;
     let focus_ring = Stroke::new(
         3.0,
         mix(
             toggle_tokens.on.idle.bg_fill,
-            toggle_tokens.on.idle.fg_stroke.color,
-            0.15,
+            theme.palette.foreground,
+            if high_contrast { 0.35 } else { 0.15 },
         ),
     );
     let invalid_ring = Stroke::new(3.0, theme.palette.destructive);
@@ -188,16 +194,26 @@ pub fn checkbox_state(
                 }
 
                 let anim_id: Id = icon_response.id.with("checkbox");
+                let anim_duration = theme.motion.base_ms / 1000.0;
                 let on_t = if animate {
-                    row.ctx().animate_bool(anim_id, state.is_active())
+                    row.ctx().animate_bool_with_time_and_easing(
+                        anim_id,
+                        state.is_active(),
+                        anim_duration,
+                        ease_out_cubic,
+                    )
                 } else if state.is_active() {
                     1.0
                 } else {
                     0.0
                 };
                 let indeterminate_t = if animate {
-                    row.ctx()
-                        .animate_bool(anim_id.with("indeterminate"), state.is_indeterminate())
+                    row.ctx().animate_bool_with_time_and_easing(
+                        anim_id.with("indeterminate"),
+                        state.is_indeterminate(),
+                        anim_duration,
+                        ease_out_cubic,
+                    )
                 } else if state.is_indeterminate() {
                     1.0
                 } else {

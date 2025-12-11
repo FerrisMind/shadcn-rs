@@ -1,6 +1,8 @@
+//! Тема egui-shadcn: связывает токены цвета, радиусов и анимаций с визуалами egui.
 use crate::tokens::{
-    ColorPalette, ControlSize, ControlVariant, InputTokens, InputVariant, StateColors,
-    VariantTokens, input_tokens, variant_tokens,
+    ColorPalette, ControlSize, ControlVariant, DEFAULT_FOCUS, DEFAULT_MOTION, DEFAULT_RADIUS,
+    FocusTokens, InputTokens, InputVariant, MotionTokens, RadiusScale, StateColors, VariantTokens,
+    input_tokens, variant_tokens,
 };
 use egui::style::{WidgetVisuals, Widgets};
 use egui::{Color32, CornerRadius, FontId, Stroke, Ui, Vec2};
@@ -32,18 +34,41 @@ pub struct InputVisuals {
 #[derive(Clone, Debug)]
 pub struct Theme {
     pub palette: ColorPalette,
+    pub motion: MotionTokens,
+    pub radius: RadiusScale,
+    pub focus: FocusTokens,
 }
 
 impl Theme {
     pub fn new(palette: ColorPalette) -> Self {
         info!("Initializing egui-shadcn theme");
-        Self { palette }
+        Self {
+            palette,
+            motion: DEFAULT_MOTION,
+            radius: DEFAULT_RADIUS,
+            focus: DEFAULT_FOCUS,
+        }
+    }
+
+    pub fn with_tokens(
+        palette: ColorPalette,
+        motion: MotionTokens,
+        radius: RadiusScale,
+        focus: FocusTokens,
+    ) -> Self {
+        info!("Initializing egui-shadcn theme with custom tokens");
+        Self {
+            palette,
+            motion,
+            radius,
+            focus,
+        }
     }
 
     pub fn control(&self, variant: ControlVariant, size: ControlSize) -> ControlVisuals {
         trace!("Building style for variant {:?} size {:?}", variant, size);
         let tokens = variant_tokens(&self.palette, variant);
-        let rounding = size.rounding();
+        let rounding = size.rounding_with_scale(&self.radius);
         let expansion = size.expansion();
         ControlVisuals {
             widgets: widgets_from_variant(&tokens, rounding, expansion),
@@ -63,7 +88,7 @@ impl Theme {
             size, variant
         );
         let tokens = input_tokens(&self.palette, variant);
-        let rounding = size.rounding();
+        let rounding = size.rounding_with_scale(&self.radius);
         let expansion = size.expansion();
         InputVisuals {
             widgets: widgets_from_input(&tokens, rounding, expansion),

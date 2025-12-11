@@ -1,8 +1,8 @@
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, ControlSize, mix};
 use egui::{
-    Color32, CornerRadius, FontId, Key, LayerId, Order, Painter, Pos2, Rect, Response, Sense,
-    Stroke, StrokeKind, Ui, Vec2, pos2, vec2,
+    Color32, CornerRadius, Event, FontId, Key, LayerId, Order, Painter, Pos2, Rect, Response,
+    Sense, Stroke, StrokeKind, Ui, Vec2, pos2, vec2,
 };
 use log::trace;
 use std::fmt::Debug;
@@ -189,7 +189,8 @@ pub struct SelectStyle {
 }
 
 impl SelectStyle {
-    pub fn from_palette(palette: &ColorPalette) -> Self {
+    /// Базовый стиль (Surface + Soft) без акцента.
+    fn base_from_palette(palette: &ColorPalette) -> Self {
         Self {
             trigger_bg: Color32::from_rgba_unmultiplied(
                 palette.input.r(),
@@ -235,7 +236,7 @@ impl SelectStyle {
 
             item_bg: Color32::TRANSPARENT,
             item_bg_hover: Color32::from_rgb(55, 55, 55),
-            item_bg_selected: Color32::TRANSPARENT,
+            item_bg_selected: mix(Color32::from_rgb(55, 55, 55), palette.primary, 0.12),
             item_text: palette.foreground,
             item_text_hover: palette.foreground,
             item_rounding: CornerRadius::same(3),
@@ -254,6 +255,151 @@ impl SelectStyle {
 
             scroll_button_color: palette.muted_foreground,
         }
+    }
+
+    fn with_accent(mut self, palette: &ColorPalette, accent: Color32) -> Self {
+        let accent_tint_soft =
+            Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 42);
+        let accent_tint_hover =
+            Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 56);
+        let accent_border = Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 160);
+
+        self.trigger_bg = accent_tint_soft;
+        self.trigger_bg_hover = accent_tint_hover;
+        self.trigger_border = accent_border;
+        self.trigger_text = accent;
+        self.trigger_placeholder = mix(accent, palette.muted_foreground, 0.35);
+        self.trigger_icon = accent;
+        self.focus_ring_color =
+            Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 180);
+
+        self.content_bg = mix(palette.input, accent, 0.15);
+        self.content_border = accent_border;
+        self.item_bg_hover = mix(accent, Color32::WHITE, 0.12);
+        self.item_bg_selected = mix(accent, palette.background, 0.15);
+        self.item_text_hover = palette.foreground;
+        self.item_icon_color = mix(accent, palette.foreground, 0.15);
+        self.item_solid_bg_hover = accent;
+        self.item_solid_text_hover = palette.primary_foreground;
+
+        self.separator_color = mix(accent, palette.border, 0.25);
+        self.scroll_button_color = mix(accent, palette.muted_foreground, 0.2);
+
+        self
+    }
+
+    fn with_trigger_variant(
+        mut self,
+        variant: TriggerVariant,
+        palette: &ColorPalette,
+        accent: Color32,
+    ) -> Self {
+        match variant {
+            TriggerVariant::Surface => {}
+            TriggerVariant::Classic => {
+                let bg = mix(palette.input, palette.background, 0.1);
+                self.trigger_bg = bg;
+                self.trigger_bg_hover = mix(bg, palette.foreground, 0.08);
+                self.trigger_border = mix(palette.border, palette.foreground, 0.25);
+                self.trigger_text = palette.foreground;
+                self.focus_ring_color = mix(palette.primary, palette.foreground, 0.35);
+            }
+            TriggerVariant::Soft => {
+                let tint = mix(accent, palette.background, 0.85);
+                self.trigger_bg = tint;
+                self.trigger_bg_hover = mix(tint, accent, 0.22);
+                self.trigger_border = Color32::TRANSPARENT;
+                self.trigger_text = accent;
+                self.trigger_placeholder = mix(accent, palette.muted_foreground, 0.4);
+                self.trigger_icon = accent;
+                self.focus_ring_color = mix(accent, palette.foreground, 0.35);
+            }
+            TriggerVariant::Ghost => {
+                self.trigger_bg = Color32::TRANSPARENT;
+                self.trigger_bg_hover = mix(palette.muted, palette.background, 0.5);
+                self.trigger_border = Color32::TRANSPARENT;
+                self.trigger_text = mix(accent, palette.foreground, 0.6);
+                self.trigger_placeholder = mix(self.trigger_text, palette.muted_foreground, 0.5);
+                self.trigger_icon = self.trigger_text;
+                self.focus_ring_color = mix(accent, palette.foreground, 0.4);
+            }
+        }
+        self
+    }
+
+    fn with_content_variant(
+        mut self,
+        variant: ContentVariant,
+        palette: &ColorPalette,
+        accent: Color32,
+    ) -> Self {
+        match variant {
+            ContentVariant::Soft => {
+                let tinted = mix(self.item_bg_hover, accent, 0.25);
+                self.item_bg_selected =
+                    Color32::from_rgba_unmultiplied(tinted.r(), tinted.g(), tinted.b(), 80);
+            }
+            ContentVariant::Solid => {
+                self.content_bg = mix(palette.input, accent, 0.12);
+                self.content_border = mix(palette.border, accent, 0.25);
+                self.item_bg_hover = self.item_solid_bg_hover;
+                let solid_selected = mix(self.item_solid_bg_hover, accent, 0.2);
+                self.item_bg_selected = Color32::from_rgba_unmultiplied(
+                    solid_selected.r(),
+                    solid_selected.g(),
+                    solid_selected.b(),
+                    200,
+                );
+                self.item_text_hover = self.item_solid_text_hover;
+            }
+        }
+        self
+    }
+
+    pub fn from_palette(palette: &ColorPalette) -> Self {
+        Self::from_palette_for_variants(
+            palette,
+            TriggerVariant::Surface,
+            ContentVariant::Soft,
+            None,
+        )
+    }
+
+    pub fn from_palette_for_variants(
+        palette: &ColorPalette,
+        trigger_variant: TriggerVariant,
+        content_variant: ContentVariant,
+        accent: Option<Color32>,
+    ) -> Self {
+        let mut style = Self::base_from_palette(palette);
+        let effective_accent = accent.unwrap_or(palette.accent);
+        if accent.is_some() {
+            style = style.with_accent(palette, effective_accent);
+        }
+        style = style.with_trigger_variant(trigger_variant, palette, effective_accent);
+        style.with_content_variant(content_variant, palette, effective_accent)
+    }
+
+    pub fn from_palette_with_accent(palette: &ColorPalette, accent: Color32) -> Self {
+        Self::from_palette_for_variants(
+            palette,
+            TriggerVariant::Surface,
+            ContentVariant::Soft,
+            Some(accent),
+        )
+    }
+
+    pub fn with_high_contrast(mut self, palette: &ColorPalette) -> Self {
+        self.trigger_bg = mix(self.trigger_bg, palette.foreground, 0.08);
+        self.trigger_bg_hover = mix(self.trigger_bg_hover, palette.foreground, 0.12);
+        self.trigger_text = palette.foreground;
+        self.trigger_icon = palette.foreground;
+        self.content_bg = mix(self.content_bg, palette.foreground, 0.06);
+        self.content_border = mix(self.content_border, palette.foreground, 0.2);
+        self.item_bg_hover = mix(self.item_bg_hover, palette.foreground, 0.1);
+        self.item_bg_selected = mix(self.item_bg_selected, palette.foreground, 0.15);
+        self.item_text_hover = palette.foreground;
+        self
     }
 }
 
@@ -454,6 +600,10 @@ struct SelectState {
     show_scroll_up: bool,
 
     show_scroll_down: bool,
+
+    typed_buffer: String,
+
+    last_type_time: f64,
 }
 
 fn draw_chevron_down(painter: &Painter, center: Pos2, size: f32, color: Color32) {
@@ -525,10 +675,19 @@ pub fn select_with_items<Id>(
 where
     Id: Hash + Debug,
 {
-    let style = props
-        .style
-        .clone()
-        .unwrap_or_else(|| SelectStyle::from_palette(&theme.palette));
+    let style = props.style.clone().unwrap_or_else(|| {
+        SelectStyle::from_palette_for_variants(
+            &theme.palette,
+            props.trigger_variant,
+            props.content_variant,
+            props.accent_color,
+        )
+    });
+    let style = if props.high_contrast {
+        style.with_high_contrast(&theme.palette)
+    } else {
+        style
+    };
     let id = ui.make_persistent_id(&props.id_source);
 
     trace!(
@@ -601,9 +760,12 @@ where
         }
     }
 
-    let anim_t = ui
-        .ctx()
-        .animate_bool_with_time(id.with("open"), state.is_open, 0.15);
+    let anim_t = ui.ctx().animate_bool_with_time_and_easing(
+        id.with("open"),
+        state.is_open,
+        theme.motion.base_ms / 1000.0,
+        crate::tokens::ease_out_cubic,
+    );
 
     let painter = ui.painter();
 
@@ -716,12 +878,9 @@ where
 
         let scale = 0.95 + 0.05 * anim_t;
         let alpha = (anim_t * 255.0) as u8;
-        let slide_offset = (1.0 - anim_t) * 8.0;
 
-        let animated_rect = Rect::from_center_size(
-            popup_rect.center() + vec2(0.0, -slide_offset),
-            popup_rect.size() * scale,
-        );
+        let animated_rect =
+            Rect::from_center_size(popup_rect.center(), popup_rect.size() * scale);
 
         let pointer_pos = ui.input(|i| i.pointer.interact_pos());
         if let Some(pos) = pointer_pos
@@ -742,6 +901,30 @@ where
                     i.key_pressed(Key::Escape),
                 )
             });
+
+            let now = ui.input(|i| i.time);
+            let mut typed = String::new();
+            let events: Vec<Event> = ui.input(|i| i.events.clone());
+            for event in events {
+                if let Event::Text(text) = event
+                    && !text.is_empty()
+                    && !text.chars().any(|c| c.is_control())
+                {
+                    typed.push_str(&text);
+                }
+            }
+
+            if now - state.last_type_time > 0.8 {
+                state.typed_buffer.clear();
+            }
+
+            if !typed.is_empty() {
+                state.typed_buffer.push_str(&typed);
+                state.last_type_time = now;
+                if let Some(idx) = find_typeahead_match(items, &state.typed_buffer) {
+                    state.focused_index = Some(idx);
+                }
+            }
 
             if input.0 {
                 state.focused_index = Some(
@@ -878,6 +1061,21 @@ where
             0.0
         };
 
+        if needs_scroll
+            && let Some(idx) = state.focused_index
+            && let Some((offset, item_h)) = calculate_selected_offset(
+                items,
+                &flat_options[idx].0,
+                item_height,
+                separator_height,
+                label_height,
+            )
+        {
+            let visible_h = items_rect.height();
+            let target = (offset - (visible_h - item_h) * 0.5).max(0.0);
+            state.scroll_offset = target.clamp(0.0, max_scroll);
+        }
+
         let items_painter = content_painter.with_clip_rect(items_rect);
         let mut y_offset = items_rect.top() - state.scroll_offset;
         let mut option_index = 0;
@@ -972,6 +1170,11 @@ where
         }
     }
 
+    if !state.is_open {
+        state.typed_buffer.clear();
+        state.last_type_time = 0.0;
+    }
+
     ui.ctx().data_mut(|d| d.insert_temp(id, state));
 
     response
@@ -1021,6 +1224,16 @@ fn draw_select_item(
                     .unwrap_or(false)
             });
 
+            let selected_bg = if is_selected {
+                if high_contrast && content_variant == ContentVariant::Solid {
+                    style.item_solid_high_contrast_bg
+                } else {
+                    style.item_bg_selected
+                }
+            } else {
+                Color32::TRANSPARENT
+            };
+
             let (bg, text_base) = if *disabled {
                 (Color32::TRANSPARENT, style.item_text)
             } else if is_hovered || is_focused {
@@ -1037,6 +1250,15 @@ fn draw_select_item(
                     }
                     ContentVariant::Soft => (style.item_bg_hover, style.item_text_hover),
                 }
+            } else if is_selected {
+                (
+                    selected_bg,
+                    if high_contrast && content_variant == ContentVariant::Solid {
+                        style.item_solid_high_contrast_text
+                    } else {
+                        style.item_text
+                    },
+                )
             } else {
                 (style.item_bg, style.item_text)
             };
@@ -1233,6 +1455,48 @@ fn flatten_options(items: &[SelectItem]) -> Vec<(String, String, bool)> {
         }
     }
     result
+}
+
+pub fn find_typeahead_match(items: &[SelectItem], needle: &str) -> Option<usize> {
+    if needle.is_empty() {
+        return None;
+    }
+    let needle_lower = needle.to_lowercase();
+    let mut index: usize = 0;
+
+    fn traverse(
+        items: &[SelectItem],
+        needle_lower: &str,
+        index: &mut usize,
+    ) -> Option<usize> {
+        for item in items {
+            match item {
+                SelectItem::Option {
+                    value,
+                    label,
+                    disabled,
+                } => {
+                    if !*disabled {
+                        let label_lower = label.to_lowercase();
+                        let value_lower = value.to_lowercase();
+                        if label_lower.starts_with(needle_lower) || value_lower.starts_with(needle_lower) {
+                            return Some(*index);
+                        }
+                    }
+                    *index += 1;
+                }
+                SelectItem::Group { items, .. } => {
+                    if let Some(found) = traverse(items, needle_lower, index) {
+                        return Some(found);
+                    }
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+
+    traverse(items, &needle_lower, &mut index)
 }
 
 fn find_label_for_value(items: &[SelectItem], value: &str) -> Option<String> {
