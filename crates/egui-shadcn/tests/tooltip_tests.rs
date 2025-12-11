@@ -310,7 +310,7 @@ fn tooltip_animation_duration_configuration() {
 #[test]
 fn tooltip_default_animation_duration() {
     let props = TooltipProps::new("Test");
-    assert_eq!(props.animation_duration_ms, 140);
+    assert_eq!(props.animation_duration_ms, 200);
 }
 
 #[test]
