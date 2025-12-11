@@ -19,6 +19,7 @@ struct SelectDemo {
     disabled_selected: Option<String>,
     custom_selected: Option<String>,
     custom_items: Vec<SelectItem>,
+    accent_selected: Option<String>,
     scroll_selected: Option<String>,
 }
 
@@ -70,6 +71,7 @@ impl SelectDemo {
                 SelectItem::option("ts", icon_label(Icon::Braces, "TypeScript")),
                 SelectItem::option("python", icon_label(Icon::Braces, "Python")),
             ],
+            accent_selected: None,
             scroll_selected: None,
         }
     }
@@ -217,6 +219,22 @@ impl App for SelectDemo {
                     );
                     if let Some(value) = &self.custom_selected {
                         ui.label(format!("custom selected: {value}"));
+                    }
+                    ui.add_space(12.0);
+
+                    ui.heading("Select — Accent color + high contrast");
+                    select_with_items(
+                        ui,
+                        &self.theme,
+                        SelectProps::new("accent", &mut self.accent_selected)
+                            .placeholder("Accent crimson")
+                            .accent_color(egui::Color32::from_rgb(220, 80, 120))
+                            .high_contrast(true)
+                            .width(240.0),
+                        &self.custom_items,
+                    );
+                    if let Some(value) = &self.accent_selected {
+                        ui.label(format!("accent selected: {value}"));
                     }
                     ui.add_space(12.0);
 

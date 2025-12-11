@@ -1,6 +1,6 @@
 # Select Example
 
-Demonstrates the `Select` component with grouped options, placeholder, invalid and disabled states, and the custom arrow styling.
+Demonstrates the `Select` component with grouped options, placeholder, invalid and disabled states, custom arrow styling, high-contrast accents, and keyboard typeahead (prefix search).
 
 ## Run
 
