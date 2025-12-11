@@ -18,8 +18,8 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 - `button` — variants `Primary|Secondary|Ghost|Outline|Destructive|Link`; sizes `Sm|Md|Lg|IconSm|Icon|IconLg`.
 - `label` — `for_id` to focus linked inputs, variants `Default|Secondary|Muted|Destructive`, descriptions, required marker.
 - `text_input` — `text_input` wrapper + `text_input_with_config`/`InputConfig` (variants `Surface|Classic|Soft`, leading/trailing slots, password/read-only, fill width, invalid/disabled, selection colors) + accent override, radius/padding tweaks, slot gap/padding, `resolve_input_style` helper.
-- `select` — options via `SelectProps`, placeholder, `is_invalid`, arrow glyph, disabled state.
-- `checkbox` — sizes/variants, tri-state (`CheckboxState`), focus/invalid ring.
+- `select` — options via `SelectProps`, placeholder, `is_invalid`, arrow glyph, disabled state, accent color override for trigger/content, ghost/classic/soft variants, high-contrast, клавиатурный typeahead (по префиксу).
+- `checkbox` — sizes/variants, tri-state (`CheckboxState`), focus/invalid ring, high-contrast для токенов/кольца.
 - `radio_group` — descriptions, vertical/horizontal layout, accent override, disabled options, high-contrast mode.
 - `toggle` — default/outline variants с hover/bg/fg как в shadcn, on-state accent, размеры `Sm|Md|Lg|IconSm|Icon|IconLg`.
 - `switch` — варианты `surface|classic|soft`, размеры `1|2|3` (map с `ControlSize`), `high_contrast`, кастом accent/thumb через `SwitchOptions`.
@@ -158,3 +158,5 @@ checkbox_state(
 - `select` now takes `SelectProps`: `select(ui, &theme, SelectProps { ... })`.
 - `textarea` takes `TextareaProps`; pass placeholder as `WidgetText` (`"text".into()`).
 - `SelectProps` includes `is_invalid`; set to `false` for legacy behavior.
+- `CheckboxOptions` получил поле `high_contrast`; при ручной инициализации через литерал добавьте `high_contrast: false` (или `true` для повышенного контраста). Добавлен helper `checkbox_tokens_with_high_contrast`.
+- `select` добавил helper `find_typeahead_match` и клавиатурный поиск по префиксу; при необходимости можете использовать его для пользовательских UX проверок.
