@@ -463,6 +463,213 @@ fn compute_contrast_color(bg: Color32) -> Color32 {
     }
 }
 
+fn apply_disabled_opacity(color: Color32, disabled_opacity: f32) -> Color32 {
+    Color32::from_rgba_unmultiplied(
+        color.r(),
+        color.g(),
+        color.b(),
+        (color.a() as f32 * disabled_opacity) as u8,
+    )
+}
+
+fn resolve_style(theme: &Theme, props: &ButtonProps<'_>) -> ButtonStyle {
+    let mut style = props.style.clone().unwrap_or_else(|| {
+        if let Some(accent) = props.accent_color {
+            ButtonStyle::from_variant_with_accent(&theme.palette, props.variant, accent)
+        } else {
+            ButtonStyle::from_variant(&theme.palette, props.variant)
+        }
+    });
+
+    style.rounding = props.radius.corner_radius();
+
+    if props.high_contrast {
+        style = style.with_high_contrast();
+    }
+
+    style
+}
+
+fn desired_button_size(props: &ButtonProps<'_>) -> Vec2 {
+    let height = props.size.height();
+
+    let width = if props.size.is_icon() {
+        props.size.icon_width()
+    } else {
+        let label_text = props.label.text().to_string();
+        let approx_char_width = props.size.font_size() * 0.6;
+        let text_width = approx_char_width * label_text.chars().count() as f32;
+
+        let icon_width = if props.icon.is_some() || props.loading {
+            props.size.icon_size() + props.size.gap()
+        } else {
+            0.0
+        };
+
+        text_width + icon_width + props.size.padding_x() * 2.0
+    };
+
+    vec2(width.max(40.0), height)
+}
+
+fn background_color(
+    style: &ButtonStyle,
+    effectively_disabled: bool,
+    hover_t: f32,
+    active_t: f32,
+) -> Color32 {
+    if effectively_disabled {
+        apply_disabled_opacity(style.bg, style.disabled_opacity)
+    } else {
+        let hover_bg = mix(style.bg, style.bg_hover, hover_t);
+        mix(hover_bg, style.bg_active, active_t)
+    }
+}
+
+fn text_color(style: &ButtonStyle, effectively_disabled: bool) -> Color32 {
+    if effectively_disabled {
+        apply_disabled_opacity(style.text, style.disabled_opacity)
+    } else {
+        style.text
+    }
+}
+
+fn border_color(style: &ButtonStyle, effectively_disabled: bool, hover_t: f32) -> Color32 {
+    if effectively_disabled {
+        apply_disabled_opacity(style.border, style.disabled_opacity)
+    } else {
+        mix(style.border, style.border_hover, hover_t)
+    }
+}
+
+fn paint_background(
+    painter: &Painter,
+    rect: egui::Rect,
+    style: &ButtonStyle,
+    bg_color: Color32,
+    border_color: Color32,
+) {
+    painter.rect_filled(rect, style.rounding, bg_color);
+
+    if border_color != Color32::TRANSPARENT {
+        painter.rect_stroke(
+            rect,
+            style.rounding,
+            Stroke::new(1.0, border_color),
+            StrokeKind::Inside,
+        );
+    }
+}
+
+fn paint_focus_ring(painter: &Painter, rect: egui::Rect, style: &ButtonStyle, has_focus: bool) {
+    if has_focus {
+        let ring_rect = rect.expand(2.0);
+        painter.rect_stroke(
+            ring_rect,
+            style.rounding,
+            Stroke::new(3.0, style.focus_ring),
+            StrokeKind::Outside,
+        );
+    }
+}
+
+fn paint_icon_button(
+    ui: &Ui,
+    painter: &Painter,
+    props: &ButtonProps<'_>,
+    text_color: Color32,
+    center: Pos2,
+) {
+    let icon_size = props.size.icon_size();
+    if props.loading {
+        let t = ui.ctx().input(|i| i.time) as f32;
+        draw_spinner(painter, center, icon_size, text_color, t * 2.0);
+        ui.ctx().request_repaint();
+    } else if let Some(icon_fn) = props.icon {
+        icon_fn(painter, center, icon_size, text_color);
+    } else {
+        let label_text = props.label.text().to_string();
+        if !label_text.is_empty() {
+            let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
+            let text_pos = pos2(
+                center.x - text_galley.rect.width() / 2.0,
+                center.y - text_galley.rect.height() / 2.0,
+            );
+            painter.galley(text_pos, text_galley, text_color);
+        }
+    }
+}
+
+fn paint_text_button(
+    ui: &Ui,
+    painter: &Painter,
+    props: &ButtonProps<'_>,
+    text_color: Color32,
+    center: Pos2,
+) {
+    let icon_size = props.size.icon_size();
+    let gap = props.size.gap();
+
+    let label_text = props.label.text().to_string();
+    let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
+    let text_width = text_galley.rect.width();
+
+    if props.loading {
+        let total_width = icon_size + gap + text_width;
+        let start_x = center.x - total_width / 2.0;
+
+        let spinner_center = pos2(start_x + icon_size / 2.0, center.y);
+        let t = ui.ctx().input(|i| i.time) as f32;
+        draw_spinner(painter, spinner_center, icon_size, text_color, t * 2.0);
+        ui.ctx().request_repaint();
+
+        let text_pos = pos2(
+            start_x + icon_size + gap,
+            center.y - text_galley.rect.height() / 2.0,
+        );
+        painter.galley(text_pos, text_galley, text_color);
+    } else if let Some(icon_fn) = props.icon {
+        let total_width = icon_size + gap + text_width;
+        let start_x = center.x - total_width / 2.0;
+
+        let icon_center = pos2(start_x + icon_size / 2.0, center.y);
+        icon_fn(painter, icon_center, icon_size, text_color);
+
+        let text_pos = pos2(
+            start_x + icon_size + gap,
+            center.y - text_galley.rect.height() / 2.0,
+        );
+        painter.galley(text_pos, text_galley, text_color);
+    } else {
+        let text_pos = pos2(
+            center.x - text_width / 2.0,
+            center.y - text_galley.rect.height() / 2.0,
+        );
+        painter.galley(text_pos, text_galley, text_color);
+    }
+}
+
+fn paint_link_underline(
+    painter: &Painter,
+    props: &ButtonProps<'_>,
+    text_color: Color32,
+    center: Pos2,
+) {
+    let label_text = props.label.text().to_string();
+    let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
+    let text_width = text_galley.rect.width();
+    let text_bottom = center.y + text_galley.rect.height() / 2.0 - 2.0;
+    let underline_y = text_bottom + 2.0;
+
+    painter.line_segment(
+        [
+            pos2(center.x - text_width / 2.0, underline_y),
+            pos2(center.x + text_width / 2.0, underline_y),
+        ],
+        Stroke::new(1.0, text_color),
+    );
+}
+
 #[derive(Clone)]
 pub struct ButtonProps<'a> {
     pub label: WidgetText,
@@ -663,41 +870,10 @@ fn button_with_props(ui: &mut Ui, theme: &Theme, props: ButtonProps<'_>) -> Resp
         props.variant, props.size, props.enabled, props.loading
     );
 
-    let mut style = props.style.clone().unwrap_or_else(|| {
-        if let Some(accent) = props.accent_color {
-            ButtonStyle::from_variant_with_accent(&theme.palette, props.variant, accent)
-        } else {
-            ButtonStyle::from_variant(&theme.palette, props.variant)
-        }
-    });
-
-    style.rounding = props.radius.corner_radius();
-
-    if props.high_contrast {
-        style = style.with_high_contrast();
-    }
-
+    let style = resolve_style(theme, &props);
     let effectively_disabled = !props.enabled || props.loading;
 
-    let height = props.size.height();
-
-    let width = if props.size.is_icon() {
-        props.size.icon_width()
-    } else {
-        let label_text = props.label.text().to_string();
-        let approx_char_width = props.size.font_size() * 0.6;
-        let text_width = approx_char_width * label_text.chars().count() as f32;
-
-        let icon_width = if props.icon.is_some() || props.loading {
-            props.size.icon_size() + props.size.gap()
-        } else {
-            0.0
-        };
-
-        text_width + icon_width + props.size.padding_x() * 2.0
-    };
-
-    let desired_size = vec2(width.max(40.0), height);
+    let desired_size = desired_button_size(&props);
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
     let painter = ui.painter();
@@ -720,139 +896,23 @@ fn button_with_props(ui: &mut Ui, theme: &Theme, props: ButtonProps<'_>) -> Resp
         ease_out_cubic,
     );
 
-    let bg_color = if effectively_disabled {
-        Color32::from_rgba_unmultiplied(
-            style.bg.r(),
-            style.bg.g(),
-            style.bg.b(),
-            (style.bg.a() as f32 * style.disabled_opacity) as u8,
-        )
-    } else {
-        let hover_bg = mix(style.bg, style.bg_hover, hover_t);
-        mix(hover_bg, style.bg_active, active_t)
-    };
+    let bg_color = background_color(&style, effectively_disabled, hover_t, active_t);
+    let text_color = text_color(&style, effectively_disabled);
+    let border_color = border_color(&style, effectively_disabled, hover_t);
 
-    let text_color = if effectively_disabled {
-        Color32::from_rgba_unmultiplied(
-            style.text.r(),
-            style.text.g(),
-            style.text.b(),
-            (style.text.a() as f32 * style.disabled_opacity) as u8,
-        )
-    } else {
-        style.text
-    };
-
-    let border_color = if effectively_disabled {
-        Color32::from_rgba_unmultiplied(
-            style.border.r(),
-            style.border.g(),
-            style.border.b(),
-            (style.border.a() as f32 * style.disabled_opacity) as u8,
-        )
-    } else {
-        mix(style.border, style.border_hover, hover_t)
-    };
-
-    painter.rect_filled(rect, style.rounding, bg_color);
-
-    if border_color != Color32::TRANSPARENT {
-        painter.rect_stroke(
-            rect,
-            style.rounding,
-            Stroke::new(1.0, border_color),
-            StrokeKind::Inside,
-        );
-    }
-
-    if has_focus {
-        let ring_rect = rect.expand(2.0);
-        painter.rect_stroke(
-            ring_rect,
-            style.rounding,
-            Stroke::new(3.0, style.focus_ring),
-            StrokeKind::Outside,
-        );
-    }
+    paint_background(painter, rect, &style, bg_color, border_color);
+    paint_focus_ring(painter, rect, &style, has_focus);
 
     let center = rect.center();
 
     if props.size.is_icon() {
-        let icon_size = props.size.icon_size();
-        if props.loading {
-            let t = ui.ctx().input(|i| i.time) as f32;
-            draw_spinner(painter, center, icon_size, text_color, t * 2.0);
-            ui.ctx().request_repaint();
-        } else if let Some(icon_fn) = props.icon {
-            icon_fn(painter, center, icon_size, text_color);
-        } else {
-            let label_text = props.label.text().to_string();
-            if !label_text.is_empty() {
-                let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
-                let text_pos = pos2(
-                    center.x - text_galley.rect.width() / 2.0,
-                    center.y - text_galley.rect.height() / 2.0,
-                );
-                painter.galley(text_pos, text_galley, text_color);
-            }
-        }
+        paint_icon_button(ui, painter, &props, text_color, center);
     } else {
-        let icon_size = props.size.icon_size();
-        let gap = props.size.gap();
-
-        let label_text = props.label.text().to_string();
-        let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
-        let text_width = text_galley.rect.width();
-
-        if props.loading {
-            let total_width = icon_size + gap + text_width;
-            let start_x = center.x - total_width / 2.0;
-
-            let spinner_center = pos2(start_x + icon_size / 2.0, center.y);
-            let t = ui.ctx().input(|i| i.time) as f32;
-            draw_spinner(painter, spinner_center, icon_size, text_color, t * 2.0);
-            ui.ctx().request_repaint();
-
-            let text_pos = pos2(
-                start_x + icon_size + gap,
-                center.y - text_galley.rect.height() / 2.0,
-            );
-            painter.galley(text_pos, text_galley, text_color);
-        } else if let Some(icon_fn) = props.icon {
-            let total_width = icon_size + gap + text_width;
-            let start_x = center.x - total_width / 2.0;
-
-            let icon_center = pos2(start_x + icon_size / 2.0, center.y);
-            icon_fn(painter, icon_center, icon_size, text_color);
-
-            let text_pos = pos2(
-                start_x + icon_size + gap,
-                center.y - text_galley.rect.height() / 2.0,
-            );
-            painter.galley(text_pos, text_galley, text_color);
-        } else {
-            let text_pos = pos2(
-                center.x - text_width / 2.0,
-                center.y - text_galley.rect.height() / 2.0,
-            );
-            painter.galley(text_pos, text_galley, text_color);
-        }
+        paint_text_button(ui, painter, &props, text_color, center);
     }
 
     if props.variant == ButtonVariant::Link && is_hovered {
-        let label_text = props.label.text().to_string();
-        let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
-        let text_width = text_galley.rect.width();
-        let text_bottom = center.y + text_galley.rect.height() / 2.0 - 2.0;
-        let underline_y = text_bottom + 2.0;
-
-        painter.line_segment(
-            [
-                pos2(center.x - text_width / 2.0, underline_y),
-                pos2(center.x + text_width / 2.0, underline_y),
-            ],
-            Stroke::new(1.0, text_color),
-        );
+        paint_link_underline(painter, &props, text_color, center);
     }
 
     response

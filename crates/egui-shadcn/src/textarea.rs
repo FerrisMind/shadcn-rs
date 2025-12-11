@@ -651,6 +651,14 @@ where
         let mut final_rect = Rect::NOTHING;
         let mut final_response = None;
 
+        let mut style = ui.style().as_ref().clone();
+
+        style.visuals.widgets.noninteractive.fg_stroke = Stroke::new(0.0, Color32::TRANSPARENT);
+        style.visuals.widgets.inactive.fg_stroke = Stroke::new(0.0, Color32::TRANSPARENT);
+        style.visuals.widgets.hovered.fg_stroke = Stroke::new(0.0, Color32::TRANSPARENT);
+        style.visuals.widgets.active.fg_stroke = Stroke::new(0.0, Color32::TRANSPARENT);
+        ui.set_style(style);
+
         resize.show(ui, |ui| {
             let size = ui.available_size();
             let (rect, response) = ui.allocate_exact_size(size, Sense::click());
@@ -711,14 +719,14 @@ where
         }
 
         if has_focus && !effectively_disabled {
-            let ring_rect = rect.expand(style.focus_ring_width * 0.5);
+
             let ring_color = if props.is_invalid {
                 style.invalid_ring
             } else {
                 style.focus_ring
             };
             painter.rect_stroke(
-                ring_rect,
+                rect,
                 style.rounding,
                 Stroke::new(style.focus_ring_width, ring_color),
                 StrokeKind::Outside,
@@ -808,6 +816,26 @@ where
         );
 
         painter.galley(counter_pos, counter_galley, style.placeholder_color);
+    }
+
+    // Draw custom resize grip inside the textarea (2 lines like in shadcn/browser reference)
+    if props.resizable {
+        let painter = ui.painter();
+        let grip_color = style.placeholder_color;
+        let grip_padding = 3.0;
+        let line_spacing = 4.0;
+
+        let corner = pos2(rect.right() - grip_padding, rect.bottom() - grip_padding);
+
+        painter.line_segment(
+            [pos2(corner.x - 3.0, corner.y), pos2(corner.x, corner.y - 3.0)],
+            Stroke::new(1.0, grip_color),
+        );
+
+        painter.line_segment(
+            [pos2(corner.x - 3.0 - line_spacing, corner.y), pos2(corner.x, corner.y - 3.0 - line_spacing)],
+            Stroke::new(1.0, grip_color),
+        );
     }
 
     response.inner

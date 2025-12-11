@@ -296,7 +296,7 @@ impl RadioStyle {
         accent_color: Option<Color32>,
     ) -> Self {
         let mut tokens = checkbox_tokens_with_high_contrast(palette, variant, high_contrast);
-        // Радио не имеет заливки в off-состоянии — убираем фон, оставляя только обводку.
+
         tokens.off.idle.bg_fill = Color32::TRANSPARENT;
         tokens.off.hovered.bg_fill = Color32::TRANSPARENT;
         tokens.off.active.bg_fill = Color32::TRANSPARENT;
@@ -407,7 +407,6 @@ where
             spacing.item_spacing.y = painter_spacing;
         }
 
-        // Отключаем прямоугольные фоны ховера: делаем виджеты прозрачными и с большим радиусом.
         let mut no_bg_widgets = widgets.clone();
         let clear_bg = |wv: &mut egui::style::WidgetVisuals| {
             wv.bg_fill = Color32::TRANSPARENT;
@@ -430,7 +429,6 @@ where
 
                 let response = ui_container
                     .horizontal(|row| {
-                        // Гарантируем отсутствие прямоугольных подсветок на уровне строки.
                         let mut row_style = row.style().as_ref().clone();
                         {
                             let mut widgets = row_style.visuals.widgets.clone();
@@ -491,9 +489,11 @@ where
 
                         let circle_rect =
                             icon_rect.expand((style.disabled.border.width * 0.5).max(1.0));
+
+                        let ring_offset = 1.0;
                         let focus_ring_radius =
-                            circle_rect.width().min(circle_rect.height()) * 0.55 + 2.0;
-                        let focus_ring_stroke_width = 2.0;
+                            circle_rect.width().min(circle_rect.height()) * 0.5 + ring_offset;
+                        let focus_ring_stroke_width = 3.0;
                         let clip_expand = (focus_ring_radius - circle_rect.width() * 0.5
                             + focus_ring_stroke_width)
                             .max(style.disabled.border.width);
@@ -655,7 +655,6 @@ where
                 );
 
                 let card_response = vert_ui.horizontal(|row| {
-                    // Убираем прямоугольный hover для карточного варианта.
                     let mut row_style = row.style().as_ref().clone();
                     {
                         let mut widgets = row_style.visuals.widgets.clone();
@@ -757,16 +756,20 @@ fn render_radio_card<T: PartialEq + Clone + Debug>(
         Stroke::new(1.0, style.off_idle.border.color)
     };
 
-    let (card_rect, response) = ui.allocate_exact_size(
-        vec2(ui.available_width(), 60.0),
-        Sense::click(),
-    );
+    let (card_rect, response) =
+        ui.allocate_exact_size(vec2(ui.available_width(), 60.0), Sense::click());
 
     if ui.is_rect_visible(card_rect) {
         let painter = ui.painter();
         let corner_radius = egui::CornerRadius::same(8);
 
-        painter.rect(card_rect, corner_radius, card_bg, border_stroke, egui::StrokeKind::Inside);
+        painter.rect(
+            card_rect,
+            corner_radius,
+            card_bg,
+            border_stroke,
+            egui::StrokeKind::Inside,
+        );
 
         let radio_center = egui::pos2(
             card_rect.left() + 20.0 + icon_size.x * 0.5,
@@ -777,7 +780,11 @@ fn render_radio_card<T: PartialEq + Clone + Debug>(
         let state = if !enabled {
             style.disabled
         } else if response.hovered() {
-            if selected { style.on_hovered } else { style.off_hovered }
+            if selected {
+                style.on_hovered
+            } else {
+                style.off_hovered
+            }
         } else if selected {
             style.on_idle
         } else {
@@ -822,7 +829,11 @@ fn render_radio_card<T: PartialEq + Clone + Debug>(
             egui::WidgetText::LayoutJob(_) => String::new(),
         };
 
-        let label_color = if enabled { style.label } else { style.description };
+        let label_color = if enabled {
+            style.label
+        } else {
+            style.description
+        };
         painter.text(
             egui::pos2(text_left, text_top),
             egui::Align2::LEFT_TOP,

@@ -1,4 +1,3 @@
-//! Токены стилей egui-shadcn, синхронизированные с shadcn-ui и Radix UI Themes.
 use egui::{Color32, CornerRadius, FontId, Stroke, Vec2};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -20,7 +19,6 @@ impl Default for MotionTokens {
     }
 }
 
-/// Кубическая ease-out кривая Radix (`cubic-bezier(0.16, 1, 0.3, 1)`).
 pub fn ease_out_cubic(t: f32) -> f32 {
     let clamped = t.clamp(0.0, 1.0);
     let inv = 1.0 - clamped;
@@ -217,6 +215,12 @@ pub struct ColorPalette {
 
 impl Default for ColorPalette {
     fn default() -> Self {
+        Self::dark()
+    }
+}
+
+impl ColorPalette {
+    pub fn dark() -> Self {
         Self {
             background: Color32::from_rgb(15, 15, 15),
             foreground: Color32::from_rgb(249, 249, 249),
@@ -232,6 +236,25 @@ impl Default for ColorPalette {
             muted_foreground: Color32::from_rgb(143, 143, 143),
             destructive: Color32::from_rgb(242, 95, 92),
             destructive_foreground: Color32::from_rgb(15, 15, 15),
+        }
+    }
+
+    pub fn light() -> Self {
+        Self {
+            background: Color32::from_rgb(255, 255, 255),
+            foreground: Color32::from_rgb(37, 37, 37),
+            border: Color32::from_rgb(235, 235, 235),
+            input: Color32::from_rgb(235, 235, 235),
+            primary: Color32::from_rgb(52, 52, 52),
+            primary_foreground: Color32::from_rgb(251, 251, 251),
+            secondary: Color32::from_rgb(247, 247, 247),
+            secondary_foreground: Color32::from_rgb(52, 52, 52),
+            accent: Color32::from_rgb(247, 247, 247),
+            accent_foreground: Color32::from_rgb(52, 52, 52),
+            muted: Color32::from_rgb(247, 247, 247),
+            muted_foreground: Color32::from_rgb(142, 142, 142),
+            destructive: Color32::from_rgb(220, 53, 53),
+            destructive_foreground: Color32::from_rgb(255, 255, 255),
         }
     }
 }
