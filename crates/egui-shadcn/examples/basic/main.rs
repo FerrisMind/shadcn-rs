@@ -1,7 +1,7 @@
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{
-    ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple, SelectSize, Textarea,
+    ColorPalette, ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple, SelectSize, Textarea,
     TextareaSize, Theme, ToggleVariant, button, checkbox, select, select_with_items, switch,
     toggle,
 };
@@ -10,6 +10,7 @@ use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
 struct DemoApp {
     theme: Theme,
+    dark_mode: bool,
     value: String,
 
     selected_legacy: Option<String>,
@@ -26,6 +27,7 @@ impl DemoApp {
     fn new() -> Self {
         Self {
             theme: Theme::default(),
+            dark_mode: true,
             value: "Hello".to_string(),
             selected_legacy: Some("Option A".to_string()),
             options_legacy: vec!["Option A".to_string(), "Option B".to_string()],
@@ -35,6 +37,15 @@ impl DemoApp {
             switch_on: true,
             toggle_on: false,
         }
+    }
+
+    fn update_theme(&mut self) {
+        let palette = if self.dark_mode {
+            ColorPalette::dark()
+        } else {
+            ColorPalette::light()
+        };
+        self.theme = Theme::new(palette);
     }
 }
 
@@ -68,23 +79,55 @@ fn icon_label(icon: Icon, label: &str) -> String {
     format!("{} {}", icon.unicode(), label)
 }
 
-impl App for DemoApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
-        ensure_lucide_font(ctx);
-
-        let mut style = ctx.style().as_ref().clone();
+fn apply_background(ctx: &egui::Context, dark_mode: bool) {
+    let mut style = ctx.style().as_ref().clone();
+    if dark_mode {
         let bg = egui::Color32::from_rgb(10, 10, 10);
-
         let input_bg = egui::Color32::from_rgb(21, 21, 21);
         style.visuals.window_fill = bg;
         style.visuals.panel_fill = bg;
         style.visuals.extreme_bg_color = input_bg;
-        ctx.set_style(style);
+        style.visuals.override_text_color = Some(egui::Color32::from_rgb(249, 249, 249));
+    } else {
+        let bg = egui::Color32::from_rgb(255, 255, 255);
+        let input_bg = egui::Color32::from_rgb(245, 245, 245);
+        style.visuals.window_fill = bg;
+        style.visuals.panel_fill = bg;
+        style.visuals.extreme_bg_color = input_bg;
+        style.visuals.override_text_color = Some(egui::Color32::from_rgb(37, 37, 37));
+    }
+    ctx.set_style(style);
+}
+
+impl App for DemoApp {
+    fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        ensure_lucide_font(ctx);
+        apply_background(ctx, self.dark_mode);
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical()
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
+                    ui.horizontal(|ui| {
+                        ui.heading("Theme:");
+                        let prev_dark = self.dark_mode;
+                        let icon = if self.dark_mode { Icon::Moon } else { Icon::Sun };
+                        let label = icon.unicode().to_string();
+                        switch(
+                            ui,
+                            &self.theme,
+                            &mut self.dark_mode,
+                            label,
+                            ControlVariant::Secondary,
+                            ControlSize::Sm,
+                            true,
+                        );
+                        if prev_dark != self.dark_mode {
+                            self.update_theme();
+                        }
+                    });
+                    ui.add_space(16.0);
+
                     ui.heading("egui-shadcn Components Demo");
                     ui.add_space(16.0);
 
@@ -199,10 +242,8 @@ impl App for DemoApp {
                             .placeholder("Required field")
                             .invalid(true)
                             .width(180.0),
-                        &vec![
-                            SelectItem::option("one", "One"),
-                            SelectItem::option("two", "Two"),
-                        ],
+                        &[SelectItem::option("one", "One"),
+                            SelectItem::option("two", "Two")],
                     );
                     ui.add_space(12.0);
 
@@ -215,7 +256,7 @@ impl App for DemoApp {
                             .placeholder("Disabled")
                             .enabled(false)
                             .width(180.0),
-                        &vec![SelectItem::option("locked", "Locked Value")],
+                        &[SelectItem::option("locked", "Locked Value")],
                     );
                     ui.add_space(12.0);
 

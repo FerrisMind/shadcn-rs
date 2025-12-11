@@ -1,11 +1,12 @@
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{Color32, FontData, FontDefinitions, FontFamily, FontId, Painter, Rect};
-use egui_shadcn::{Input, InputRadius, InputSize, InputType, InputVariant as Variant, Theme};
+use egui_shadcn::{ColorPalette, ControlSize, ControlVariant, Input, InputRadius, InputSize, InputType, InputVariant as Variant, Theme, switch};
 use log::{error, info};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
 struct InputDemo {
     theme: Theme,
+    dark_mode: bool,
 
     basic_text: String,
     email_text: String,
@@ -35,6 +36,7 @@ impl InputDemo {
     fn new() -> Self {
         Self {
             theme: Theme::default(),
+            dark_mode: true,
             basic_text: String::new(),
             email_text: String::new(),
             password_text: String::new(),
@@ -82,13 +84,23 @@ fn ensure_lucide_font(ctx: &egui::Context) {
     ctx.data_mut(|d| d.insert_temp(font_loaded_id, true));
 }
 
-fn apply_dark_background(ctx: &egui::Context) {
+fn apply_background(ctx: &egui::Context, dark_mode: bool) {
     let mut style = ctx.style().as_ref().clone();
-    let bg = egui::Color32::from_rgb(10, 10, 10);
-    let input_bg = egui::Color32::from_rgb(21, 21, 21);
-    style.visuals.window_fill = bg;
-    style.visuals.panel_fill = bg;
-    style.visuals.extreme_bg_color = input_bg;
+    if dark_mode {
+        let bg = egui::Color32::from_rgb(10, 10, 10);
+        let input_bg = egui::Color32::from_rgb(21, 21, 21);
+        style.visuals.window_fill = bg;
+        style.visuals.panel_fill = bg;
+        style.visuals.extreme_bg_color = input_bg;
+        style.visuals.override_text_color = Some(egui::Color32::from_rgb(249, 249, 249));
+    } else {
+        let bg = egui::Color32::from_rgb(255, 255, 255);
+        let input_bg = egui::Color32::from_rgb(245, 245, 245);
+        style.visuals.window_fill = bg;
+        style.visuals.panel_fill = bg;
+        style.visuals.extreme_bg_color = input_bg;
+        style.visuals.override_text_color = Some(egui::Color32::from_rgb(37, 37, 37));
+    }
     ctx.set_style(style);
 }
 
@@ -132,11 +144,36 @@ fn draw_at_sign_icon(painter: &Painter, rect: Rect, color: Color32) {
 impl App for InputDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         ensure_lucide_font(ctx);
-        apply_dark_background(ctx);
+        apply_background(ctx, self.dark_mode);
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical().show(ui, |ui| {
                 ui.spacing_mut().item_spacing.y = 16.0;
+
+                ui.horizontal(|ui| {
+                    ui.heading("Theme:");
+                    let prev_dark = self.dark_mode;
+                    let icon = if self.dark_mode { Icon::Moon } else { Icon::Sun };
+                    let label = icon.unicode().to_string();
+                    switch(
+                        ui,
+                        &self.theme,
+                        &mut self.dark_mode,
+                        label,
+                        ControlVariant::Secondary,
+                        ControlSize::Sm,
+                        true,
+                    );
+                    if prev_dark != self.dark_mode {
+                        let palette = if self.dark_mode {
+                            ColorPalette::dark()
+                        } else {
+                            ColorPalette::light()
+                        };
+                        self.theme = Theme::new(palette);
+                    }
+                });
+                ui.add_space(8.0);
 
                 ui.heading("Basic Input Types");
                 ui.horizontal(|ui| {

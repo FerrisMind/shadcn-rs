@@ -1,14 +1,15 @@
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{
-    ControlSize, SelectItem, SelectProps, SelectPropsSimple, SelectSize, SelectStyle, Theme,
-    select, select_with_items,
+    ColorPalette, ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple, SelectSize, SelectStyle, Theme,
+    select, select_with_items, switch,
 };
 use log::{error, info};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
 struct SelectDemo {
     theme: Theme,
+    dark_mode: bool,
     legacy_selected: Option<String>,
     legacy_options: Vec<String>,
     grouped_selected: Option<String>,
@@ -27,6 +28,7 @@ impl SelectDemo {
     fn new() -> Self {
         Self {
             theme: Theme::default(),
+            dark_mode: true,
             legacy_selected: Some("Option A".to_string()),
             legacy_options: vec!["Option A".into(), "Option B".into(), "Option C".into()],
             grouped_selected: None,
@@ -107,13 +109,23 @@ fn icon_label(icon: Icon, label: &str) -> String {
     format!("{} {}", icon.unicode(), label)
 }
 
-fn apply_dark_background(ctx: &egui::Context) {
+fn apply_background(ctx: &egui::Context, dark_mode: bool) {
     let mut style = ctx.style().as_ref().clone();
-    let bg = egui::Color32::from_rgb(10, 10, 10);
-    let input_bg = egui::Color32::from_rgb(21, 21, 21);
-    style.visuals.window_fill = bg;
-    style.visuals.panel_fill = bg;
-    style.visuals.extreme_bg_color = input_bg;
+    if dark_mode {
+        let bg = egui::Color32::from_rgb(10, 10, 10);
+        let input_bg = egui::Color32::from_rgb(21, 21, 21);
+        style.visuals.window_fill = bg;
+        style.visuals.panel_fill = bg;
+        style.visuals.extreme_bg_color = input_bg;
+        style.visuals.override_text_color = Some(egui::Color32::from_rgb(249, 249, 249));
+    } else {
+        let bg = egui::Color32::from_rgb(255, 255, 255);
+        let input_bg = egui::Color32::from_rgb(245, 245, 245);
+        style.visuals.window_fill = bg;
+        style.visuals.panel_fill = bg;
+        style.visuals.extreme_bg_color = input_bg;
+        style.visuals.override_text_color = Some(egui::Color32::from_rgb(37, 37, 37));
+    }
     ctx.set_style(style);
 }
 
@@ -131,12 +143,37 @@ fn custom_style(theme: &Theme) -> SelectStyle {
 impl App for SelectDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         ensure_lucide_font(ctx);
-        apply_dark_background(ctx);
+        apply_background(ctx, self.dark_mode);
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical()
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
+                    ui.horizontal(|ui| {
+                        ui.heading("Theme:");
+                        let prev_dark = self.dark_mode;
+                        let icon = if self.dark_mode { Icon::Moon } else { Icon::Sun };
+                        let label = icon.unicode().to_string();
+                        switch(
+                            ui,
+                            &self.theme,
+                            &mut self.dark_mode,
+                            label,
+                            ControlVariant::Secondary,
+                            ControlSize::Sm,
+                            true,
+                        );
+                        if prev_dark != self.dark_mode {
+                            let palette = if self.dark_mode {
+                                ColorPalette::dark()
+                            } else {
+                                ColorPalette::light()
+                            };
+                            self.theme = Theme::new(palette);
+                        }
+                    });
+                    ui.add_space(16.0);
+
                     ui.heading("Select — legacy API");
                     select(
                         ui,

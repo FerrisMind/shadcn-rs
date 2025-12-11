@@ -1,11 +1,12 @@
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{FontData, FontDefinitions, FontFamily, FontId, RichText};
-use egui_shadcn::{ControlSize, Theme, ToggleVariant, toggle};
+use egui_shadcn::{ColorPalette, ControlSize, ControlVariant, Theme, ToggleVariant, switch, toggle};
 use log::{error, info};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
 struct ToggleDemo {
     theme: Theme,
+    dark_mode: bool,
     default_on: bool,
     outline_on: bool,
     icon_on: bool,
@@ -17,12 +18,22 @@ impl ToggleDemo {
     fn new() -> Self {
         Self {
             theme: Theme::default(),
+            dark_mode: true,
             default_on: false,
             outline_on: true,
             icon_on: false,
             icon_lg_on: true,
             disabled_on: true,
         }
+    }
+
+    fn update_theme(&mut self) {
+        let palette = if self.dark_mode {
+            ColorPalette::dark()
+        } else {
+            ColorPalette::light()
+        };
+        self.theme = Theme::new(palette);
     }
 }
 
@@ -56,25 +67,55 @@ fn lucide_icon(icon: Icon, size: f32) -> RichText {
     RichText::new(icon.unicode().to_string()).font(FontId::new(size, FontFamily::Proportional))
 }
 
-fn apply_dark_background(ctx: &egui::Context) {
+fn apply_background(ctx: &egui::Context, dark_mode: bool) {
     let mut style = ctx.style().as_ref().clone();
-    let bg = egui::Color32::from_rgb(10, 10, 10);
-    let input_bg = egui::Color32::from_rgb(21, 21, 21);
-    style.visuals.window_fill = bg;
-    style.visuals.panel_fill = bg;
-    style.visuals.extreme_bg_color = input_bg;
+    if dark_mode {
+        let bg = egui::Color32::from_rgb(10, 10, 10);
+        let input_bg = egui::Color32::from_rgb(21, 21, 21);
+        style.visuals.window_fill = bg;
+        style.visuals.panel_fill = bg;
+        style.visuals.extreme_bg_color = input_bg;
+        style.visuals.override_text_color = Some(egui::Color32::from_rgb(249, 249, 249));
+    } else {
+        let bg = egui::Color32::from_rgb(255, 255, 255);
+        let input_bg = egui::Color32::from_rgb(245, 245, 245);
+        style.visuals.window_fill = bg;
+        style.visuals.panel_fill = bg;
+        style.visuals.extreme_bg_color = input_bg;
+        style.visuals.override_text_color = Some(egui::Color32::from_rgb(37, 37, 37));
+    }
     ctx.set_style(style);
 }
 
 impl App for ToggleDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         ensure_lucide_font(ctx);
-        apply_dark_background(ctx);
+        apply_background(ctx, self.dark_mode);
 
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::vertical()
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
+                    ui.horizontal(|ui| {
+                        ui.heading("Theme:");
+                        let prev_dark = self.dark_mode;
+                        let icon = if self.dark_mode { Icon::Moon } else { Icon::Sun };
+                        let label = icon.unicode().to_string();
+                        switch(
+                            ui,
+                            &self.theme,
+                            &mut self.dark_mode,
+                            label,
+                            ControlVariant::Secondary,
+                            ControlSize::Sm,
+                            true,
+                        );
+                        if prev_dark != self.dark_mode {
+                            self.update_theme();
+                        }
+                    });
+                    ui.add_space(16.0);
+
                     ui.heading("Toggle — Variants");
                     toggle(
                         ui,
