@@ -15,19 +15,20 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 ## Компоненты
 - `button` — варианты `Primary|Secondary|Ghost|Outline|Destructive|Link`; размеры `Sm|Md|Lg|IconSm|Icon|IconLg`.
 - `text_input` — цвет плейсхолдера, `is_invalid`, `enabled`, кольцо 3px, цвета выделения.
-- `select` — через `SelectProps`, плейсхолдер, `is_invalid`, стрелка, disabled.
-- `checkbox` — размеры и варианты.
+- `select` — через `SelectProps`, плейсхолдер, `is_invalid`, стрелка, disabled, accent override, варианты триггера `surface/classic/soft/ghost`, варианты контента `soft/solid`, high-contrast, клавиатурный typeahead (по префиксу).
+- `checkbox` — размеры и варианты, tri-state, фокус/invalid ring, high-contrast токены/кольцо.
 - `toggle` — варианты default/outline с акцентными цветами.
 - `switch` — размеры трека/ползунка как в shadcn.
 - `textarea` — фокус, заливка при ошибке, опциональный счетчик.
 
 ## Тема
-Состояния берутся из `Theme::control` и `Theme::input`, основанных на `ColorPalette`.
+- Состояния берутся из `Theme::control` и `Theme::input`, основанных на `ColorPalette`.
+- Токены темы: `ColorPalette`, `RadiusScale`, `MotionTokens` (150/200/250ms, cubic-bezier), `FocusTokens` (кольцо 3px). Анимации hover/press/open у button/select/checkbox/radio/tooltip используют `MotionTokens` и easing `ease_out_cubic`. Для кастомизации используйте `Theme::with_tokens(...)` c нужными радиусами/анимациями/шириной кольца.
 
 ## Примеры
 - `cargo run --example button` — все варианты и размеры.
 - `cargo run --example text_input` — размеры `Sm|Md|Lg`, invalid/disabled.
-- `cargo run --example select` — групповые списки, `SelectProps`, invalid/disabled, свой `SelectStyle`.
+- `cargo run --example select` — групповые списки, `SelectProps`, invalid/disabled, свой `SelectStyle` с выбором trigger/content variants и accent.
 - `cargo run --example checkbox` — все варианты/размеры, disabled.
 - `cargo run --example toggle` — default/outline, icon-размеры, disabled.
 - `cargo run --example switch` — цветовые варианты, размеры `Sm|Md|Lg`, disabled.
@@ -41,4 +42,6 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 - `select` принимает `SelectProps`: `select(ui, &theme, SelectProps { ... })`.
 - `textarea` принимает `TextareaProps`; плейсхолдер как `WidgetText` (`"text".into()`).
 - В `SelectProps` есть `is_invalid`; установите `false` для прежнего поведения.
+- `CheckboxOptions` получил поле `high_contrast`; при ручной инициализации добавьте `high_contrast: false` (или `true` для повышенного контраста). Добавлен helper `checkbox_tokens_with_high_contrast`.
+- `select` добавил helper `find_typeahead_match` и клавиатурный поиск по префиксу.
 
