@@ -4,7 +4,7 @@ use egui_shadcn::select::{
     ContentVariant, PopupPosition, SelectItem, SelectProps, SelectPropsSimple, SelectRadius,
     SelectSize, SelectStyle, TriggerVariant, select, select_with_items,
 };
-use egui_shadcn::tokens::ControlSize;
+use egui_shadcn::tokens::{ColorPalette, ControlSize};
 
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -140,6 +140,88 @@ fn select_style_from_palette_creates_valid_style() {
     assert_ne!(style.content_bg, Color32::TRANSPARENT);
     assert_ne!(style.item_text, Color32::TRANSPARENT);
     assert_ne!(style.trigger_placeholder, Color32::TRANSPARENT);
+}
+
+#[test]
+fn select_style_from_palette_with_accent_applies_accent_colors() {
+    init_logger();
+    let palette = ColorPalette::default();
+    let base = SelectStyle::from_palette(&palette);
+    let accent = Color32::from_rgb(210, 90, 120);
+    let accent_style = SelectStyle::from_palette_with_accent(&palette, accent);
+
+    assert_ne!(accent_style.trigger_bg, base.trigger_bg);
+    assert_eq!(accent_style.trigger_text, accent);
+    assert_eq!(accent_style.item_solid_bg_hover, accent);
+    assert_eq!(accent_style.focus_ring_color.a(), 180);
+}
+
+#[test]
+fn select_trigger_variants_have_distinct_styles() {
+    init_logger();
+    let palette = ColorPalette::default();
+    let accent = Color32::from_rgb(120, 160, 255);
+
+    let surface = SelectStyle::from_palette_for_variants(
+        &palette,
+        TriggerVariant::Surface,
+        ContentVariant::Soft,
+        None,
+    );
+    let ghost = SelectStyle::from_palette_for_variants(
+        &palette,
+        TriggerVariant::Ghost,
+        ContentVariant::Soft,
+        Some(accent),
+    );
+    let soft = SelectStyle::from_palette_for_variants(
+        &palette,
+        TriggerVariant::Soft,
+        ContentVariant::Soft,
+        Some(accent),
+    );
+
+    assert_eq!(ghost.trigger_bg, Color32::TRANSPARENT);
+    assert_eq!(ghost.trigger_border, Color32::TRANSPARENT);
+    assert_eq!(soft.trigger_text, accent);
+    assert!(soft.trigger_bg.a() > surface.trigger_bg.a());
+    assert_ne!(surface.trigger_border, Color32::TRANSPARENT);
+}
+
+#[test]
+fn select_content_variant_solid_sets_solid_backgrounds() {
+    init_logger();
+    let palette = ColorPalette::default();
+
+    let soft = SelectStyle::from_palette_for_variants(
+        &palette,
+        TriggerVariant::Surface,
+        ContentVariant::Soft,
+        None,
+    );
+    let solid = SelectStyle::from_palette_for_variants(
+        &palette,
+        TriggerVariant::Surface,
+        ContentVariant::Solid,
+        None,
+    );
+
+    assert_ne!(solid.content_bg, soft.content_bg);
+    assert!(solid.item_bg_selected.a() > soft.item_bg_selected.a());
+    assert_ne!(solid.item_bg_hover, soft.item_bg_hover);
+    assert_ne!(solid.item_text_hover, soft.item_text_hover);
+}
+
+#[test]
+fn select_style_high_contrast_adjusts_trigger_and_content() {
+    init_logger();
+    let palette = ColorPalette::default();
+    let base = SelectStyle::from_palette(&palette);
+    let hc = base.clone().with_high_contrast(&palette);
+
+    assert_ne!(hc.trigger_bg, base.trigger_bg);
+    assert_eq!(hc.trigger_text, palette.foreground);
+    assert_ne!(hc.content_border, base.content_border);
 }
 
 #[test]
@@ -1007,4 +1089,22 @@ fn select_long_labels_render() {
         .inner;
     let _ = ctx.end_pass();
     assert!(inner.rect.width() >= 0.0);
+}
+
+#[test]
+fn select_typeahead_matches_prefix_case_insensitive() {
+    let items = vec![
+        SelectItem::option("apple", "Apple"),
+        SelectItem::option("banana", "Banana"),
+        SelectItem::option_disabled("blueberry", "Blueberry"),
+        SelectItem::option("cherry", "Cherry"),
+    ];
+
+    let match_a = egui_shadcn::select::find_typeahead_match(&items, "ap");
+    let match_b = egui_shadcn::select::find_typeahead_match(&items, "B");
+    let match_c = egui_shadcn::select::find_typeahead_match(&items, "ch");
+
+    assert_eq!(match_a, Some(0));
+    assert_eq!(match_b, Some(1));
+    assert_eq!(match_c, Some(3));
 }

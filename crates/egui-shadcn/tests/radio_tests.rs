@@ -145,3 +145,17 @@ fn radio_group_horizontal_with_separators() {
     let _ = ctx.end_pass();
     assert!(response.rect.width() >= 0.0);
 }
+
+#[test]
+fn radio_tokens_high_contrast_adjusts_colors() {
+    let palette = egui_shadcn::tokens::ColorPalette::default();
+    let normal = egui_shadcn::tokens::checkbox_tokens(&palette, ControlVariant::Primary);
+    let high = egui_shadcn::tokens::checkbox_tokens_with_high_contrast(
+        &palette,
+        ControlVariant::Primary,
+        true,
+    );
+
+    assert_ne!(normal.on.idle.bg_fill, high.on.idle.bg_fill);
+    assert_ne!(normal.off.idle.bg_fill, high.off.idle.bg_fill);
+}

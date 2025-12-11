@@ -1,7 +1,8 @@
 use egui::Color32;
 use egui_shadcn::tokens::{
-    ColorPalette, ControlSize, ControlVariant, InputVariant, SwitchSize, SwitchTokenOptions,
-    SwitchVariant, ToggleVariant, checkbox_tokens, input_tokens, mix, switch_metrics,
+    ColorPalette, ControlSize, ControlVariant, DEFAULT_FOCUS, DEFAULT_MOTION, DEFAULT_RADIUS,
+    InputVariant, MotionTokens, RadiusScale, SwitchSize, SwitchTokenOptions, SwitchVariant,
+    ToggleVariant, checkbox_tokens, input_tokens, mix, switch_metrics,
     switch_metrics_for_control_size, switch_tokens_with_options, toggle_button_tokens,
     toggle_metrics, variant_tokens,
 };
@@ -141,6 +142,46 @@ fn toggle_outline_tokens_apply_accent_on_hover() {
         tokens.off.hovered.fg_stroke.color,
         palette.accent_foreground
     );
+}
+
+#[test]
+fn focus_tokens_used_for_switch_focus_ring() {
+    init_logger();
+    let palette = ColorPalette::default();
+    let tokens = switch_tokens_with_options(
+        &palette,
+        SwitchTokenOptions {
+            variant: SwitchVariant::Surface,
+            high_contrast: false,
+            accent: palette.primary,
+            thumb_color: None,
+        },
+    );
+    assert!(
+        (tokens.focus_ring.width - DEFAULT_FOCUS.ring_width).abs() < f32::EPSILON,
+        "focus ring width should follow DEFAULT_FOCUS"
+    );
+}
+
+#[test]
+fn motion_tokens_match_radix_timings() {
+    init_logger();
+    let motion = MotionTokens::default();
+    assert_eq!(motion.fast_ms, DEFAULT_MOTION.fast_ms);
+    assert_eq!(motion.base_ms, 200.0);
+    assert_eq!(motion.slow_ms, 250.0);
+    assert_eq!(motion.easing, "cubic-bezier(0.16, 1, 0.3, 1)");
+}
+
+#[test]
+fn radius_scale_applies_to_control_rounding() {
+    init_logger();
+    let scale = RadiusScale::default();
+    let sm = ControlSize::Sm.rounding_with_scale(&scale);
+    let md = ControlSize::Md.rounding_with_scale(&scale);
+    assert_eq!(sm, egui::CornerRadius::same(DEFAULT_RADIUS.r2 as u8));
+    assert_eq!(md, egui::CornerRadius::same(DEFAULT_RADIUS.r3 as u8));
+    assert!(md.nw > sm.nw);
 }
 
 #[test]

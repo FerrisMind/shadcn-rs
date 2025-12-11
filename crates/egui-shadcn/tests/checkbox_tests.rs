@@ -71,3 +71,18 @@ fn checkbox_tokens_use_input_background_when_unchecked() {
     assert_eq!(tokens.off.idle.bg_fill, palette.input);
     assert_eq!(tokens.off.idle.border.color, palette.border);
 }
+
+#[test]
+fn checkbox_tokens_high_contrast_adjusts_colors() {
+    let palette = ColorPalette::default();
+    let normal = checkbox_tokens(&palette, ControlVariant::Secondary);
+    let high = egui_shadcn::tokens::checkbox_tokens_with_high_contrast(
+        &palette,
+        ControlVariant::Secondary,
+        true,
+    );
+
+    assert_ne!(normal.on.idle.bg_fill, high.on.idle.bg_fill);
+    assert_ne!(normal.off.idle.bg_fill, high.off.idle.bg_fill);
+    assert_ne!(normal.disabled.bg_fill, high.disabled.bg_fill);
+}
