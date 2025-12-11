@@ -11,7 +11,7 @@ cargo add egui-shadcn --path crates/egui-shadcn
 ## Компоненты
 - `button` — варианты `Primary`, `Secondary`, `Ghost`, `Outline`, `Destructive`, `Link`; размеры `Sm|Md|Lg|IconSm|Icon|IconLg`; поддерживает `enabled`.
 - `text_input` — плейсхолдер с кастомным цветом, `is_invalid`, `enabled`, 3px ring и цвет selection.
-- `select` — плейсхолдер, список опций, `enabled`, `is_invalid` (через `SelectProps`), стрелка в тексте.
+- `select` — плейсхолдер, список опций, `enabled`, `is_invalid` (через `SelectProps`), стрелка в тексте, кастом accent для триггера/контента, варианты `ghost|classic|soft`, high-contrast.
 - `checkbox` — вариант и размер.
 - `toggle` — кнопка-toggle (default/outline), цвета accent, размеры `Sm|Md|Lg`.
 - `switch` — трековый переключатель, размеры трека/ползунка совпадают с shadcn (32×18.4).

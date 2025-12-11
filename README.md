@@ -14,7 +14,7 @@ cargo add egui-shadcn --path crates/egui-shadcn
 - `button` — variants `Primary|Secondary|Ghost|Outline|Destructive|Link`; sizes `Sm|Md|Lg|IconSm|Icon|IconLg`; supports `enabled`.
 - `label` — `for_id` to focus inputs, variants `Default|Secondary|Muted|Destructive`, optional description, required marker.
 - `text_input` — `text_input` wrapper + `text_input_with_config`/`InputConfig`: variants `Surface|Classic|Soft`, leading/trailing slots, password/read-only, fill width, invalid/disabled, 3px ring, selection colors, accent override, radius/padding overrides, slot gap/padding, `resolve_input_style` for parity checks.
-- `select` — placeholder, options list, `enabled`, `is_invalid` (via `SelectProps`), arrow in text.
+- `select` — placeholder, options list, `enabled`, `is_invalid` (via `SelectProps`), arrow in text, color/accent override for trigger+content, ghost/classic/soft variants, high-contrast.
 – `checkbox` — variants/sizes, три-стейт через `CheckboxState`, кольцо фокуса/invalid и анимации.
 - `radio_group` — vertical/horizontal layouts, option descriptions, accent override, disabled options, high-contrast mode.
 - `toggle` — button-like toggle (default/outline) с hover/bg/fg как в shadcn, анимация on/off через `animate_bool`, размеры `Sm|Md|Lg|IconSm|Icon|IconLg`.
