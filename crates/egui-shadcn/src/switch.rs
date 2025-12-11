@@ -143,7 +143,11 @@ pub fn switch_with_options(
     let thumb_rounding = options
         .corner_radius
         .unwrap_or_else(|| CornerRadius::same((metrics.thumb_size.y * 0.5) as u8));
-    let thumb_color = mix(tokens.toggle.thumb_off, tokens.toggle.thumb_on, t);
+    let thumb_color = if !options.enabled {
+        tokens.toggle.thumb_disabled
+    } else {
+        mix(tokens.toggle.thumb_off, tokens.toggle.thumb_on, t)
+    };
     painter.rect_filled(thumb_rect, thumb_rounding, thumb_color);
 
     if response.has_focus() && options.enabled {
@@ -190,7 +194,8 @@ fn accent_from_control_variant(
     match variant {
         ControlVariant::Primary | ControlVariant::Link => palette.primary,
         ControlVariant::Destructive => palette.destructive,
-        ControlVariant::Secondary => palette.secondary,
-        ControlVariant::Ghost | ControlVariant::Outline => palette.accent,
+        ControlVariant::Secondary => crate::tokens::mix(palette.border, palette.foreground, 0.5),
+        ControlVariant::Ghost => palette.muted_foreground,
+        ControlVariant::Outline => crate::tokens::mix(palette.border, palette.muted_foreground, 0.4),
     }
 }

@@ -312,6 +312,7 @@ pub struct ToggleTokens {
     pub disabled: StateColors,
     pub thumb_on: Color32,
     pub thumb_off: Color32,
+    pub thumb_disabled: Color32,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -577,6 +578,7 @@ pub fn checkbox_tokens_with_high_contrast(
 
     let on = variant_tokens(palette, variant);
     let disabled = disabled_state(palette);
+    let thumb_disabled = mix(palette.muted_foreground, palette.background, 0.5);
     let mut tokens = ToggleTokens {
         off: ToggleState {
             idle: off_idle,
@@ -591,6 +593,7 @@ pub fn checkbox_tokens_with_high_contrast(
         disabled,
         thumb_on: on.idle.fg_stroke.color,
         thumb_off: fg_off,
+        thumb_disabled,
     };
 
     if high_contrast {
@@ -634,6 +637,12 @@ pub fn switch_tokens_with_options(
 ) -> SwitchTokens {
     let disabled = disabled_state(palette);
 
+    let accent_luminance = (options.accent.r() as f32 * 0.299
+        + options.accent.g() as f32 * 0.587
+        + options.accent.b() as f32 * 0.114)
+        / 255.0;
+    let accent_is_light = accent_luminance > 0.5;
+
     let thumb_base = options.thumb_color.unwrap_or_else(|| {
         mix(
             palette.background,
@@ -641,11 +650,17 @@ pub fn switch_tokens_with_options(
             0.9,
         )
     });
-    let thumb_on = if options.high_contrast {
+
+    let thumb_on = if let Some(custom) = options.thumb_color {
+        custom
+    } else if options.high_contrast {
         mix(options.accent, palette.foreground, 0.65)
+    } else if accent_is_light {
+        mix(palette.primary_foreground, palette.background, 0.15)
     } else {
         thumb_base
     };
+
     let thumb_off = if options.high_contrast {
         mix(thumb_base, palette.background, 0.25)
     } else {
@@ -725,6 +740,8 @@ pub fn switch_tokens_with_options(
         Stroke::new(on_border.width * 1.05, on_border.color),
     );
 
+    let thumb_disabled = mix(palette.muted_foreground, palette.background, 0.5);
+
     let toggle = ToggleTokens {
         off: ToggleState {
             idle: off_idle,
@@ -739,6 +756,7 @@ pub fn switch_tokens_with_options(
         disabled,
         thumb_on,
         thumb_off,
+        thumb_disabled,
     };
 
     let focus_color = if options.high_contrast {
