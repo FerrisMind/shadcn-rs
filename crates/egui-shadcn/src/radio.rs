@@ -1,6 +1,7 @@
 use crate::theme::Theme;
 use crate::tokens::{
-    ColorPalette, ControlSize, ControlVariant, StateColors, checkbox_metrics, checkbox_tokens, mix,
+    ColorPalette, ControlSize, ControlVariant, StateColors, checkbox_metrics,
+    checkbox_tokens_with_high_contrast, ease_out_cubic, mix,
 };
 use egui::style::Widgets;
 use egui::{Color32, CursorIcon, Response, Sense, Stroke, TextStyle, Ui, Vec2, WidgetText, vec2};
@@ -294,7 +295,12 @@ impl RadioStyle {
         high_contrast: bool,
         accent_color: Option<Color32>,
     ) -> Self {
-        let mut tokens = checkbox_tokens(palette, variant);
+        let mut tokens = checkbox_tokens_with_high_contrast(palette, variant, high_contrast);
+        // Радио не имеет заливки в off-состоянии — убираем фон, оставляя только обводку.
+        tokens.off.idle.bg_fill = Color32::TRANSPARENT;
+        tokens.off.hovered.bg_fill = Color32::TRANSPARENT;
+        tokens.off.active.bg_fill = Color32::TRANSPARENT;
+        tokens.disabled.bg_fill = Color32::TRANSPARENT;
         if let Some(accent) = accent_color {
             let border = Stroke::new(1.0, mix(accent, palette.foreground, 0.18));
             tokens.on.idle = StateColors::with_border(accent, palette.primary_foreground, border);
@@ -308,13 +314,6 @@ impl RadioStyle {
                 palette.primary_foreground,
                 Stroke::new(border.width * 1.1, border.color),
             );
-        }
-
-        if high_contrast {
-            tokens.on.idle.bg_fill = mix(tokens.on.idle.bg_fill, palette.foreground, 0.25);
-            tokens.on.hovered.bg_fill = mix(tokens.on.hovered.bg_fill, palette.foreground, 0.2);
-            tokens.on.active.bg_fill = mix(tokens.on.active.bg_fill, palette.foreground, 0.2);
-            tokens.off.idle.bg_fill = mix(tokens.off.idle.bg_fill, palette.background, 0.2);
         }
 
         let focus_ring = mix(tokens.on.idle.bg_fill, tokens.on.idle.fg_stroke.color, 0.2);
@@ -379,6 +378,7 @@ where
     );
     let (icon_size, indicator_radius) = radio_metrics(props.size);
     let visuals = theme.control(props.variant, props.size);
+    let anim_duration = theme.motion.base_ms / 1000.0;
     let spacing = visuals.padding;
 
     let mut aggregate_response: Option<Response> = None;
@@ -407,7 +407,20 @@ where
             spacing.item_spacing.y = painter_spacing;
         }
 
-        scope_ui.style_mut().visuals.widgets = widgets.clone();
+        // Отключаем прямоугольные фоны ховера: делаем виджеты прозрачными и с большим радиусом.
+        let mut no_bg_widgets = widgets.clone();
+        let clear_bg = |wv: &mut egui::style::WidgetVisuals| {
+            wv.bg_fill = Color32::TRANSPARENT;
+            wv.weak_bg_fill = Color32::TRANSPARENT;
+            wv.bg_stroke = Stroke::NONE;
+            wv.corner_radius = egui::CornerRadius::same(255);
+        };
+        clear_bg(&mut no_bg_widgets.inactive);
+        clear_bg(&mut no_bg_widgets.hovered);
+        clear_bg(&mut no_bg_widgets.active);
+        clear_bg(&mut no_bg_widgets.open);
+        clear_bg(&mut no_bg_widgets.noninteractive);
+        scope_ui.style_mut().visuals.widgets = no_bg_widgets;
 
         let mut render_items = |ui_container: &mut Ui, combined: &mut Option<Response>| {
             for (idx, option) in props.options.iter().enumerate() {
@@ -417,6 +430,25 @@ where
 
                 let response = ui_container
                     .horizontal(|row| {
+                        // Гарантируем отсутствие прямоугольных подсветок на уровне строки.
+                        let mut row_style = row.style().as_ref().clone();
+                        {
+                            let mut widgets = row_style.visuals.widgets.clone();
+                            let clear_bg = |wv: &mut egui::style::WidgetVisuals| {
+                                wv.bg_fill = Color32::TRANSPARENT;
+                                wv.weak_bg_fill = Color32::TRANSPARENT;
+                                wv.bg_stroke = Stroke::NONE;
+                                wv.corner_radius = egui::CornerRadius::same(255);
+                            };
+                            clear_bg(&mut widgets.noninteractive);
+                            clear_bg(&mut widgets.inactive);
+                            clear_bg(&mut widgets.hovered);
+                            clear_bg(&mut widgets.active);
+                            clear_bg(&mut widgets.open);
+                            row_style.visuals.widgets = widgets;
+                        }
+                        row.set_style(row_style);
+
                         let (icon_rect, icon_response) =
                             row.allocate_exact_size(icon_size, Sense::click());
                         let label_response = row.add_enabled(
@@ -431,7 +463,12 @@ where
                         }
 
                         let selected = *props.value == option.value;
-                        let anim_value = row.ctx().animate_bool(item_id, selected);
+                        let anim_value = row.ctx().animate_bool_with_time_and_easing(
+                            item_id,
+                            selected,
+                            anim_duration,
+                            ease_out_cubic,
+                        );
 
                         let hovered = icon_response.hovered() || label_response.hovered();
                         let pointer_down = icon_response.is_pointer_button_down_on();
@@ -452,9 +489,15 @@ where
 
                         let state = if selected { on_state } else { off_state };
 
-                        let painter = row.painter_at(icon_rect.expand(style.disabled.border.width));
                         let circle_rect =
                             icon_rect.expand((style.disabled.border.width * 0.5).max(1.0));
+                        let focus_ring_radius =
+                            circle_rect.width().min(circle_rect.height()) * 0.55 + 2.0;
+                        let focus_ring_stroke_width = 2.0;
+                        let clip_expand = (focus_ring_radius - circle_rect.width() * 0.5
+                            + focus_ring_stroke_width)
+                            .max(style.disabled.border.width);
+                        let painter = row.painter_at(icon_rect.expand(clip_expand));
                         painter.circle_filled(
                             circle_rect.center(),
                             circle_rect.width().min(circle_rect.height()) * 0.5,
@@ -483,12 +526,10 @@ where
                         }
 
                         if focus && option_enabled {
-                            let focus_ring_radius =
-                                circle_rect.width().min(circle_rect.height()) * 0.55 + 2.0;
                             painter.circle_stroke(
                                 circle_rect.center(),
                                 focus_ring_radius,
-                                Stroke::new(2.0, style.focus_ring),
+                                Stroke::new(focus_ring_stroke_width, style.focus_ring),
                             );
                         }
 
@@ -565,7 +606,9 @@ where
         props.high_contrast,
         props.accent_color,
     );
+    let (icon_size, indicator_radius) = radio_metrics(props.size);
     let visuals = theme.control(props.variant, props.size);
+    let anim_duration = theme.motion.base_ms / 1000.0;
     let _spacing = props.custom_spacing.unwrap_or(8.0);
 
     let grid_layout = props.grid_layout.unwrap_or(GridLayout::new(2));
@@ -577,6 +620,19 @@ where
         scoped_style
             .text_styles
             .insert(TextStyle::Body, visuals.text_style.clone());
+        let mut widgets = visuals.widgets.clone();
+        let clear_bg = |wv: &mut egui::style::WidgetVisuals| {
+            wv.bg_fill = Color32::TRANSPARENT;
+            wv.weak_bg_fill = Color32::TRANSPARENT;
+            wv.bg_stroke = Stroke::NONE;
+            wv.corner_radius = egui::CornerRadius::same(255);
+        };
+        clear_bg(&mut widgets.noninteractive);
+        clear_bg(&mut widgets.inactive);
+        clear_bg(&mut widgets.hovered);
+        clear_bg(&mut widgets.active);
+        clear_bg(&mut widgets.open);
+        scoped_style.visuals.widgets = widgets;
         scope_ui.set_style(scoped_style);
 
         let mut col_count = 0;
@@ -591,9 +647,33 @@ where
                 let option_enabled = !props.disabled && !option.disabled;
                 let item_id = id.with(idx);
                 let selected = *props.value == option.value;
-                let anim_value = vert_ui.ctx().animate_bool(item_id, selected);
+                let anim_value = vert_ui.ctx().animate_bool_with_time_and_easing(
+                    item_id,
+                    selected,
+                    anim_duration,
+                    ease_out_cubic,
+                );
 
                 let card_response = vert_ui.horizontal(|row| {
+                    // Убираем прямоугольный hover для карточного варианта.
+                    let mut row_style = row.style().as_ref().clone();
+                    {
+                        let mut widgets = row_style.visuals.widgets.clone();
+                        let clear_bg = |wv: &mut egui::style::WidgetVisuals| {
+                            wv.bg_fill = Color32::TRANSPARENT;
+                            wv.weak_bg_fill = Color32::TRANSPARENT;
+                            wv.bg_stroke = Stroke::NONE;
+                            wv.corner_radius = egui::CornerRadius::same(255);
+                        };
+                        clear_bg(&mut widgets.noninteractive);
+                        clear_bg(&mut widgets.inactive);
+                        clear_bg(&mut widgets.hovered);
+                        clear_bg(&mut widgets.active);
+                        clear_bg(&mut widgets.open);
+                        row_style.visuals.widgets = widgets;
+                    }
+                    row.set_style(row_style);
+
                     render_radio_card(
                         row,
                         option,
@@ -601,7 +681,8 @@ where
                         selected,
                         anim_value,
                         &style,
-                        props.value,
+                        icon_size,
+                        indicator_radius,
                     )
                 });
 
@@ -648,61 +729,124 @@ where
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_radio_card<T: PartialEq + Clone + Debug>(
     ui: &mut Ui,
     option: &RadioOption<T>,
     enabled: bool,
-    _selected: bool,
-    _anim_value: f32,
+    selected: bool,
+    anim_value: f32,
     style: &RadioStyle,
-    _current_value: &T,
+    icon_size: Vec2,
+    indicator_radius: f32,
 ) -> Response {
-    let _card_bg = if _selected {
+    let card_bg = if selected {
         Color32::from_rgba_unmultiplied(
             style.on_idle.bg_fill.r(),
             style.on_idle.bg_fill.g(),
             style.on_idle.bg_fill.b(),
-            (255.0 * _anim_value) as u8,
+            (40.0 * anim_value) as u8,
         )
     } else {
-        style.off_idle.bg_fill
+        Color32::TRANSPARENT
     };
 
-    let _border_stroke = if _selected {
-        Stroke::new(2.0, style.on_idle.border.color)
+    let border_stroke = if selected {
+        Stroke::new(1.0, style.on_idle.border.color)
     } else {
-        style.off_idle.border
+        Stroke::new(1.0, style.off_idle.border.color)
     };
 
-    ui.vertical(|card_ui| {
-        let label_str = match &option.label {
-            egui::WidgetText::RichText(rt) => rt.text(),
-            egui::WidgetText::Galley(_) => "",
-            egui::WidgetText::Text(t) => t,
-            egui::WidgetText::LayoutJob(_) => "",
+    let (card_rect, response) = ui.allocate_exact_size(
+        vec2(ui.available_width(), 60.0),
+        Sense::click(),
+    );
+
+    if ui.is_rect_visible(card_rect) {
+        let painter = ui.painter();
+        let corner_radius = egui::CornerRadius::same(8);
+
+        painter.rect(card_rect, corner_radius, card_bg, border_stroke, egui::StrokeKind::Inside);
+
+        let radio_center = egui::pos2(
+            card_rect.left() + 20.0 + icon_size.x * 0.5,
+            card_rect.center().y,
+        );
+        let radio_radius = icon_size.x.min(icon_size.y) * 0.5;
+
+        let state = if !enabled {
+            style.disabled
+        } else if response.hovered() {
+            if selected { style.on_hovered } else { style.off_hovered }
+        } else if selected {
+            style.on_idle
+        } else {
+            style.off_idle
         };
 
-        let response = card_ui.button(egui::RichText::new(label_str).color(if enabled {
-            style.label
-        } else {
-            style.description
-        }));
+        painter.circle_filled(radio_center, radio_radius, state.bg_fill);
+        if state.border != Stroke::NONE {
+            painter.circle_stroke(radio_center, radio_radius, state.border);
+        }
 
-        if let Some(desc) = &option.description {
-            let desc_str = match desc {
-                egui::WidgetText::RichText(rt) => rt.text(),
-                egui::WidgetText::Galley(_) => "",
-                egui::WidgetText::Text(t) => t,
-                egui::WidgetText::LayoutJob(_) => "",
-            };
-            card_ui.label(
-                egui::RichText::new(desc_str)
-                    .color(style.description)
-                    .small(),
+        if anim_value > 0.0 {
+            let indicator_color = Color32::from_rgba_unmultiplied(
+                style.indicator.r(),
+                style.indicator.g(),
+                style.indicator.b(),
+                (style.indicator.a() as f32 * anim_value) as u8,
+            );
+            painter.circle_filled(
+                radio_center,
+                indicator_radius * anim_value.max(0.3),
+                indicator_color,
             );
         }
 
-        response
-    })
-    .inner
+        if response.has_focus() && enabled {
+            let focus_ring_radius = radio_radius * 1.1 + 2.0;
+            painter.circle_stroke(
+                radio_center,
+                focus_ring_radius,
+                Stroke::new(2.0, style.focus_ring),
+            );
+        }
+
+        let text_left = card_rect.left() + 20.0 + icon_size.x + 12.0;
+        let text_top = card_rect.top() + 12.0;
+
+        let label_str = match &option.label {
+            egui::WidgetText::RichText(rt) => rt.text().to_string(),
+            egui::WidgetText::Galley(_) => String::new(),
+            egui::WidgetText::Text(t) => t.to_string(),
+            egui::WidgetText::LayoutJob(_) => String::new(),
+        };
+
+        let label_color = if enabled { style.label } else { style.description };
+        painter.text(
+            egui::pos2(text_left, text_top),
+            egui::Align2::LEFT_TOP,
+            &label_str,
+            egui::FontId::default(),
+            label_color,
+        );
+
+        if let Some(desc) = &option.description {
+            let desc_str = match desc {
+                egui::WidgetText::RichText(rt) => rt.text().to_string(),
+                egui::WidgetText::Galley(_) => String::new(),
+                egui::WidgetText::Text(t) => t.to_string(),
+                egui::WidgetText::LayoutJob(_) => String::new(),
+            };
+            painter.text(
+                egui::pos2(text_left, text_top + 18.0),
+                egui::Align2::LEFT_TOP,
+                &desc_str,
+                egui::FontId::proportional(12.0),
+                style.description,
+            );
+        }
+    }
+
+    response
 }

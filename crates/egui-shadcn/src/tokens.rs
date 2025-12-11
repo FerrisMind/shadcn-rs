@@ -1,4 +1,102 @@
+//! Токены стилей egui-shadcn, синхронизированные с shadcn-ui и Radix UI Themes.
 use egui::{Color32, CornerRadius, FontId, Stroke, Vec2};
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct MotionTokens {
+    pub fast_ms: f32,
+    pub base_ms: f32,
+    pub slow_ms: f32,
+    pub easing: &'static str,
+}
+
+impl Default for MotionTokens {
+    fn default() -> Self {
+        Self {
+            fast_ms: 150.0,
+            base_ms: 200.0,
+            slow_ms: 250.0,
+            easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+        }
+    }
+}
+
+/// Кубическая ease-out кривая Radix (`cubic-bezier(0.16, 1, 0.3, 1)`).
+pub fn ease_out_cubic(t: f32) -> f32 {
+    let clamped = t.clamp(0.0, 1.0);
+    let inv = 1.0 - clamped;
+    1.0 - inv * inv * inv
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct RadiusScale {
+    pub r1: f32,
+    pub r2: f32,
+    pub r3: f32,
+    pub r4: f32,
+    pub r5: f32,
+    pub r6: f32,
+}
+
+impl RadiusScale {
+    pub fn step(&self, index: u8) -> f32 {
+        match index {
+            1 => self.r1,
+            2 => self.r2,
+            3 => self.r3,
+            4 => self.r4,
+            5 => self.r5,
+            _ => self.r6,
+        }
+    }
+}
+
+impl Default for RadiusScale {
+    fn default() -> Self {
+        Self {
+            r1: 4.0,
+            r2: 6.0,
+            r3: 8.0,
+            r4: 10.0,
+            r5: 12.0,
+            r6: 16.0,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct FocusTokens {
+    pub ring_width: f32,
+}
+
+impl FocusTokens {
+    pub fn stroke(&self, color: Color32) -> Stroke {
+        Stroke::new(self.ring_width, color)
+    }
+}
+
+impl Default for FocusTokens {
+    fn default() -> Self {
+        Self { ring_width: 3.0 }
+    }
+}
+
+pub const DEFAULT_MOTION: MotionTokens = MotionTokens {
+    fast_ms: 150.0,
+    base_ms: 200.0,
+    slow_ms: 250.0,
+    easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+};
+
+pub const DEFAULT_RADIUS: RadiusScale = RadiusScale {
+    r1: 4.0,
+    r2: 6.0,
+    r3: 8.0,
+    r4: 10.0,
+    r5: 12.0,
+    r6: 16.0,
+};
+
+pub const DEFAULT_FOCUS: FocusTokens = FocusTokens { ring_width: 3.0 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ControlVariant {
@@ -60,14 +158,20 @@ impl ControlSize {
     }
 
     pub fn rounding(self) -> CornerRadius {
-        match self {
-            ControlSize::Sm => CornerRadius::same(6),
-            ControlSize::Md => CornerRadius::same(8),
-            ControlSize::Lg => CornerRadius::same(10),
-            ControlSize::IconSm => CornerRadius::same(8),
-            ControlSize::Icon => CornerRadius::same(9),
-            ControlSize::IconLg => CornerRadius::same(10),
-        }
+        self.rounding_with_scale(&DEFAULT_RADIUS)
+    }
+
+    pub fn rounding_with_scale(self, scale: &RadiusScale) -> CornerRadius {
+        let radius = match self {
+            ControlSize::Sm => scale.r2,
+            ControlSize::Md => scale.r3,
+            ControlSize::Lg => scale.r4,
+            ControlSize::IconSm => scale.r3,
+            ControlSize::Icon => (scale.r3 + scale.r4) * 0.5,
+            ControlSize::IconLg => scale.r4,
+        };
+        let radius_clamped = radius.round().clamp(0.0, u8::MAX as f32) as u8;
+        CornerRadius::same(radius_clamped)
     }
 
     pub fn expansion(self) -> f32 {
@@ -348,6 +452,7 @@ pub fn variant_tokens(palette: &ColorPalette, variant: ControlVariant) -> Varian
 
 pub fn input_tokens(palette: &ColorPalette, variant: InputVariant) -> InputTokens {
     let disabled = disabled_state(palette);
+    let focus = FocusTokens::default();
 
     match variant {
         InputVariant::Surface => {
@@ -369,13 +474,13 @@ pub fn input_tokens(palette: &ColorPalette, variant: InputVariant) -> InputToken
                 focused: StateColors::with_border(
                     mix(base_bg, focus_color, 0.14),
                     palette.foreground,
-                    Stroke::new(3.0, focus_color),
+                    focus.stroke(focus_color),
                 ),
                 disabled,
                 invalid: StateColors::with_border(
                     mix(base_bg, palette.destructive, 0.18),
                     palette.foreground,
-                    Stroke::new(3.0, palette.destructive),
+                    focus.stroke(palette.destructive),
                 ),
                 selection_bg: palette.primary,
                 selection_fg: palette.primary_foreground,
@@ -400,13 +505,13 @@ pub fn input_tokens(palette: &ColorPalette, variant: InputVariant) -> InputToken
                 focused: StateColors::with_border(
                     mix(base_bg, Color32::WHITE, 0.12),
                     palette.foreground,
-                    Stroke::new(3.0, focus_color),
+                    focus.stroke(focus_color),
                 ),
                 disabled,
                 invalid: StateColors::with_border(
                     mix(base_bg, palette.destructive, 0.16),
                     palette.foreground,
-                    Stroke::new(3.0, palette.destructive),
+                    focus.stroke(palette.destructive),
                 ),
                 selection_bg: palette.primary,
                 selection_fg: palette.primary_foreground,
@@ -431,13 +536,13 @@ pub fn input_tokens(palette: &ColorPalette, variant: InputVariant) -> InputToken
                 focused: StateColors::with_border(
                     mix(base_bg, focus_color, 0.2),
                     palette.accent_foreground,
-                    Stroke::new(3.0, focus_color),
+                    focus.stroke(focus_color),
                 ),
                 disabled,
                 invalid: StateColors::with_border(
                     mix(base_bg, palette.destructive, 0.2),
                     palette.accent_foreground,
-                    Stroke::new(3.0, palette.destructive),
+                    focus.stroke(palette.destructive),
                 ),
                 selection_bg: mix(palette.accent, Color32::WHITE, 0.12),
                 selection_fg: palette.accent_foreground,
@@ -448,6 +553,14 @@ pub fn input_tokens(palette: &ColorPalette, variant: InputVariant) -> InputToken
 }
 
 pub fn checkbox_tokens(palette: &ColorPalette, variant: ControlVariant) -> ToggleTokens {
+    checkbox_tokens_with_high_contrast(palette, variant, false)
+}
+
+pub fn checkbox_tokens_with_high_contrast(
+    palette: &ColorPalette,
+    variant: ControlVariant,
+    high_contrast: bool,
+) -> ToggleTokens {
     let fg_off = mix(palette.foreground, palette.muted_foreground, 0.4);
     let off_idle =
         StateColors::with_border(palette.input, fg_off, Stroke::new(1.0, palette.border));
@@ -464,7 +577,7 @@ pub fn checkbox_tokens(palette: &ColorPalette, variant: ControlVariant) -> Toggl
 
     let on = variant_tokens(palette, variant);
     let disabled = disabled_state(palette);
-    ToggleTokens {
+    let mut tokens = ToggleTokens {
         off: ToggleState {
             idle: off_idle,
             hovered: off_hovered,
@@ -478,7 +591,23 @@ pub fn checkbox_tokens(palette: &ColorPalette, variant: ControlVariant) -> Toggl
         disabled,
         thumb_on: on.idle.fg_stroke.color,
         thumb_off: fg_off,
+    };
+
+    if high_contrast {
+        tokens.on.idle.bg_fill = mix(tokens.on.idle.bg_fill, Color32::WHITE, 0.2);
+        tokens.on.hovered.bg_fill = mix(tokens.on.hovered.bg_fill, Color32::WHITE, 0.25);
+        tokens.on.active.bg_fill = mix(tokens.on.active.bg_fill, Color32::WHITE, 0.3);
+
+        tokens.off.idle.bg_fill = mix(tokens.off.idle.bg_fill, Color32::WHITE, 0.25);
+        tokens.off.hovered.bg_fill = mix(tokens.off.hovered.bg_fill, Color32::WHITE, 0.3);
+        tokens.off.active.bg_fill = mix(tokens.off.active.bg_fill, Color32::WHITE, 0.35);
+
+        tokens.disabled.bg_fill = mix(tokens.disabled.bg_fill, palette.background, 0.35);
+        tokens.thumb_on = mix(tokens.thumb_on, palette.background, 0.12);
+        tokens.thumb_off = mix(tokens.thumb_off, palette.background, 0.12);
     }
+
+    tokens
 }
 
 pub fn switch_tokens(palette: &ColorPalette, variant: ControlVariant) -> SwitchTokens {
@@ -612,21 +741,20 @@ pub fn switch_tokens_with_options(
         thumb_off,
     };
 
-    let focus_ring = Stroke::new(
-        2.0,
-        if options.high_contrast {
-            mix(options.accent, palette.foreground, 0.35)
-        } else {
-            mix(options.accent, palette.foreground, 0.15)
-        },
-    );
+    let focus_color = if options.high_contrast {
+        mix(options.accent, palette.foreground, 0.35)
+    } else {
+        mix(options.accent, palette.foreground, 0.15)
+    };
+    let focus_ring = DEFAULT_FOCUS.stroke(focus_color);
 
     SwitchTokens { toggle, focus_ring }
 }
 
 pub fn checkbox_metrics(size: ControlSize) -> ToggleMetrics {
     let track = match size {
-        ControlSize::Sm | ControlSize::Md | ControlSize::IconSm => 16.0,
+        ControlSize::Sm | ControlSize::IconSm => 16.0,
+        ControlSize::Md => 16.0,
         ControlSize::Lg | ControlSize::Icon | ControlSize::IconLg => 18.0,
     };
     ToggleMetrics {

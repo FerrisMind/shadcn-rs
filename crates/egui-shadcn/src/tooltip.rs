@@ -1,5 +1,5 @@
 use crate::theme::Theme;
-use crate::tokens::{ColorPalette, mix};
+use crate::tokens::{ColorPalette, DEFAULT_MOTION, ease_out_cubic, mix};
 use egui::epaint::Shadow;
 use egui::{
     Color32, CornerRadius, Frame, Id, Order, Pos2, Rect, Response, Stroke, Ui, Vec2, WidgetText,
@@ -255,7 +255,7 @@ impl TooltipProps {
             force_mount: false,
             skip_delay_ms: 300,
             disable_hoverable_content: false,
-            animation_duration_ms: 140,
+            animation_duration_ms: DEFAULT_MOTION.base_ms as u64,
             open: None,
             default_open: false,
             sticky: false,
@@ -528,10 +528,6 @@ fn calculate_aligned_pos(
     }
 }
 
-fn ease_out_cubic(t: f32) -> f32 {
-    1.0 - (1.0 - t).powi(3)
-}
-
 #[allow(clippy::too_many_arguments)]
 fn draw_arrow(
     painter: &egui::Painter,
@@ -619,7 +615,7 @@ pub fn tooltip(anchor: &Response, ui: &mut Ui, theme: &Theme, props: TooltipProp
         .unwrap_or_else(|| anchor.id.with("tooltip"));
 
     let delay_secs = props.delay_ms as f64 / 1000.0;
-    let animation_duration = props.animation_duration_ms as f32 / 1000.0;
+    let animation_duration = (props.animation_duration_ms as f32).max(1.0) / 1000.0;
 
     let global_last_close = get_global_last_close_time(ctx);
     let should_skip_delay = global_last_close.is_some_and(|close_time| {
@@ -749,8 +745,12 @@ pub fn tooltip(anchor: &Response, ui: &mut Ui, theme: &Theme, props: TooltipProp
         TooltipSide::Right => vec2(-4.0, 0.0),
     };
 
+    let scale = 0.96 + 0.04 * animation_progress;
+    let scaled_size = measured_size * scale;
+    let scale_offset = (measured_size - scaled_size) * 0.5;
+
     let animated_offset = slide_offset * (1.0 - animation_progress);
-    let final_pos = tooltip_pos + animated_offset;
+    let final_pos = tooltip_pos + animated_offset + scale_offset;
 
     let opacity = animation_progress;
 

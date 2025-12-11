@@ -1,5 +1,5 @@
 use crate::theme::Theme;
-use crate::tokens::{ColorPalette, ControlSize, ControlVariant, mix};
+use crate::tokens::{ColorPalette, ControlSize, ControlVariant, ease_out_cubic, mix};
 use egui::{
     Color32, CornerRadius, FontId, Painter, Pos2, Response, Sense, Stroke, StrokeKind, Ui, Vec2,
     WidgetText, pos2, vec2,
@@ -706,6 +706,20 @@ fn button_with_props(ui: &mut Ui, theme: &Theme, props: ButtonProps<'_>) -> Resp
     let is_pressed = response.is_pointer_button_down_on() && !effectively_disabled;
     let has_focus = response.has_focus() && !effectively_disabled;
 
+    let anim_duration = theme.motion.base_ms / 1000.0;
+    let active_t = ui.ctx().animate_bool_with_time_and_easing(
+        response.id.with("active"),
+        is_pressed,
+        anim_duration,
+        ease_out_cubic,
+    );
+    let hover_t = ui.ctx().animate_bool_with_time_and_easing(
+        response.id.with("hover"),
+        is_hovered,
+        anim_duration,
+        ease_out_cubic,
+    );
+
     let bg_color = if effectively_disabled {
         Color32::from_rgba_unmultiplied(
             style.bg.r(),
@@ -713,12 +727,9 @@ fn button_with_props(ui: &mut Ui, theme: &Theme, props: ButtonProps<'_>) -> Resp
             style.bg.b(),
             (style.bg.a() as f32 * style.disabled_opacity) as u8,
         )
-    } else if is_pressed {
-        style.bg_active
-    } else if is_hovered {
-        style.bg_hover
     } else {
-        style.bg
+        let hover_bg = mix(style.bg, style.bg_hover, hover_t);
+        mix(hover_bg, style.bg_active, active_t)
     };
 
     let text_color = if effectively_disabled {
@@ -732,10 +743,15 @@ fn button_with_props(ui: &mut Ui, theme: &Theme, props: ButtonProps<'_>) -> Resp
         style.text
     };
 
-    let border_color = if is_hovered && !effectively_disabled {
-        style.border_hover
+    let border_color = if effectively_disabled {
+        Color32::from_rgba_unmultiplied(
+            style.border.r(),
+            style.border.g(),
+            style.border.b(),
+            (style.border.a() as f32 * style.disabled_opacity) as u8,
+        )
     } else {
-        style.border
+        mix(style.border, style.border_hover, hover_t)
     };
 
     painter.rect_filled(rect, style.rounding, bg_color);
