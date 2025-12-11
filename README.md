@@ -1,5 +1,13 @@
 # shadcn-rs workspace
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset=".github/assets/icon-white.svg" />
+    <source media="(prefers-color-scheme: light)" srcset=".github/assets/icon-black.svg" />
+    <img alt="shadcn-rs logo" src=".github/assets/icon-black.svg" width="180" />
+  </picture>
+</p>
+
 > Translations: [Русский](README.ru.md) · [Português (Brasil)](README.pt-BR.md)
 
 ## Overview
