@@ -803,7 +803,6 @@ where
         }
 
         if has_focus && !effectively_disabled {
-
             let ring_color = if props.is_invalid {
                 style.invalid_ring
             } else {

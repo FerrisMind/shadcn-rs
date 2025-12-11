@@ -1,3 +1,8 @@
+#![cfg_attr(
+    all(target_os = "windows", not(debug_assertions)),
+    windows_subsystem = "windows"
+)]
+
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{ColorPalette, ControlSize, ControlVariant, Label, LabelVariant, Theme, switch};
@@ -83,7 +88,11 @@ impl App for LabelDemo {
                     ui.horizontal(|ui| {
                         ui.heading("Theme:");
                         let prev_dark = self.dark_mode;
-                        let icon = if self.dark_mode { Icon::Moon } else { Icon::Sun };
+                        let icon = if self.dark_mode {
+                            Icon::Moon
+                        } else {
+                            Icon::Sun
+                        };
                         let label = icon.unicode().to_string();
                         switch(
                             ui,

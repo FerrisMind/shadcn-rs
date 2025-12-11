@@ -1,6 +1,13 @@
+#![cfg_attr(
+    all(target_os = "windows", not(debug_assertions)),
+    windows_subsystem = "windows"
+)]
+
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{FontData, FontDefinitions, FontFamily, FontId, RichText};
-use egui_shadcn::{ColorPalette, ControlSize, ControlVariant, Theme, ToggleVariant, switch, toggle};
+use egui_shadcn::{
+    ColorPalette, ControlSize, ControlVariant, Theme, ToggleVariant, switch, toggle,
+};
 use log::{error, info};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
@@ -99,7 +106,11 @@ impl App for ToggleDemo {
                     ui.horizontal(|ui| {
                         ui.heading("Theme:");
                         let prev_dark = self.dark_mode;
-                        let icon = if self.dark_mode { Icon::Moon } else { Icon::Sun };
+                        let icon = if self.dark_mode {
+                            Icon::Moon
+                        } else {
+                            Icon::Sun
+                        };
                         let label = icon.unicode().to_string();
                         switch(
                             ui,

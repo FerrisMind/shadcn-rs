@@ -258,7 +258,6 @@ pub fn checkbox_state(
                 );
 
                 if invalid && enabled {
-
                     painter.rect_stroke(track_rect, rounding, invalid_ring, StrokeKind::Outside);
                 } else if has_focus && enabled {
                     painter.rect_stroke(track_rect, rounding, focus_ring, StrokeKind::Outside);

@@ -1,3 +1,8 @@
+#![cfg_attr(
+    all(target_os = "windows", not(debug_assertions)),
+    windows_subsystem = "windows"
+)]
+
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::tooltip::{TooltipAlign, TooltipProps, TooltipSide};

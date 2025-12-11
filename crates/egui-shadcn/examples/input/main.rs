@@ -1,6 +1,14 @@
+#![cfg_attr(
+    all(target_os = "windows", not(debug_assertions)),
+    windows_subsystem = "windows"
+)]
+
 use eframe::{App, Frame, NativeOptions, egui};
 use egui::{Color32, FontData, FontDefinitions, FontFamily, FontId, Painter, Rect};
-use egui_shadcn::{ColorPalette, ControlSize, ControlVariant, Input, InputRadius, InputSize, InputType, InputVariant as Variant, Theme, switch};
+use egui_shadcn::{
+    ColorPalette, ControlSize, ControlVariant, Input, InputRadius, InputSize, InputType,
+    InputVariant as Variant, Theme, switch,
+};
 use log::{error, info};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
@@ -153,7 +161,11 @@ impl App for InputDemo {
                 ui.horizontal(|ui| {
                     ui.heading("Theme:");
                     let prev_dark = self.dark_mode;
-                    let icon = if self.dark_mode { Icon::Moon } else { Icon::Sun };
+                    let icon = if self.dark_mode {
+                        Icon::Moon
+                    } else {
+                        Icon::Sun
+                    };
                     let label = icon.unicode().to_string();
                     switch(
                         ui,
