@@ -230,19 +230,34 @@ pub fn card_tokens_with_options(
                 offset: [0, 1],
                 blur: 4,
                 spread: 0,
-                color: Color32::from_rgba_unmultiplied(0, 0, 0, idle_alpha),
+                color: Color32::from_rgba_unmultiplied(
+                    palette.foreground.r(),
+                    palette.foreground.g(),
+                    palette.foreground.b(),
+                    idle_alpha,
+                ),
             };
             let shadow_hover = egui::epaint::Shadow {
                 offset: [0, 2],
                 blur: 6,
                 spread: 0,
-                color: Color32::from_rgba_unmultiplied(0, 0, 0, hover_alpha),
+                color: Color32::from_rgba_unmultiplied(
+                    palette.foreground.r(),
+                    palette.foreground.g(),
+                    palette.foreground.b(),
+                    hover_alpha,
+                ),
             };
             let shadow_active = egui::epaint::Shadow {
                 offset: [0, 1],
                 blur: 4,
                 spread: 0,
-                color: Color32::from_rgba_unmultiplied(0, 0, 0, active_alpha),
+                color: Color32::from_rgba_unmultiplied(
+                    palette.foreground.r(),
+                    palette.foreground.g(),
+                    palette.foreground.b(),
+                    active_alpha,
+                ),
             };
 
             CardTokens {
@@ -286,19 +301,34 @@ pub fn card_tokens_with_options(
                 offset: [0, 2],
                 blur: 8,
                 spread: 0,
-                color: Color32::from_rgba_unmultiplied(0, 0, 0, idle_alpha),
+                color: Color32::from_rgba_unmultiplied(
+                    palette.foreground.r(),
+                    palette.foreground.g(),
+                    palette.foreground.b(),
+                    idle_alpha,
+                ),
             };
             let shadow_hover = egui::epaint::Shadow {
                 offset: [0, 4],
                 blur: 12,
                 spread: 0,
-                color: Color32::from_rgba_unmultiplied(0, 0, 0, hover_alpha),
+                color: Color32::from_rgba_unmultiplied(
+                    palette.foreground.r(),
+                    palette.foreground.g(),
+                    palette.foreground.b(),
+                    hover_alpha,
+                ),
             };
             let shadow_active = egui::epaint::Shadow {
                 offset: [0, 2],
                 blur: 8,
                 spread: 0,
-                color: Color32::from_rgba_unmultiplied(0, 0, 0, active_alpha),
+                color: Color32::from_rgba_unmultiplied(
+                    palette.foreground.r(),
+                    palette.foreground.g(),
+                    palette.foreground.b(),
+                    active_alpha,
+                ),
             };
 
             CardTokens {
