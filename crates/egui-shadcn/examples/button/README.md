@@ -1,10 +1,14 @@
 # Button Example
 
-Demonstrates `Button` variants (primary, secondary, ghost, outline, destructive, link), icon-only sizes, and disabled state.
+<p align="center">
+  <picture>
+    <img alt="shadcn-rs logo" src="../../examples/button/button.svg"/>
+  </picture>
+</p>
 
 ## Run
 
 ```
-cargo run --example button
+cargo run --example button --features examples
 ```
 
