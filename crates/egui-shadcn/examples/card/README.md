@@ -1,16 +1,16 @@
 ## Card example
 
-Варианты карточек `Surface | Classic | Ghost` с настройкой паддингов, радиуса и тени.
+<p align="center">
+  <picture>
+    <img alt="shadcn-rs logo" src="../../examples/card/card.svg" width="180" />
+  </picture>
+</p>
 
 Запуск:
 ```bash
-cargo run --example card
+cargo run --example card --features examples
 ```
 
-Что показано:
-- Три варианта карточек в стиле Radix Themes.
-- Кнопка для включения/выключения тени.
-- Кастомные паддинги и радиус скругления.
 
 
 

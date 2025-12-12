@@ -1,5 +1,13 @@
 # egui-shadcn
 
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="../../.github/assets/icon-white.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="../../.github/assets/icon-black.svg" />
+    <img alt="shadcn-rs logo" src="../../.github/assets/icon-black.svg" width="180" />
+  </picture>
+</p>
+
 ## Visão geral
 `egui-shadcn` é um conjunto de componentes de formulário para egui inspirados no shadcn/ui. Replica variantes e tamanhos do shadcn e expõe tokens de tema para visuais consistentes.
 
