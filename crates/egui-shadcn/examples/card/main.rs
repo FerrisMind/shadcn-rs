@@ -3,7 +3,10 @@
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui::{Align2, FontData, FontDefinitions, FontFamily, FontId};
 use egui_shadcn::tokens::ColorPalette;
 use egui_shadcn::{
@@ -144,7 +147,10 @@ fn render_login_card(ui: &mut egui::Ui, theme: &Theme, email: &mut String, passw
                 content.vertical(|field| {
                     field.spacing_mut().item_spacing.y = 8.0;
                     let email_id = field.make_persistent_id("card-email");
-                    Label::new("Email").size(ControlSize::Sm).show(field, theme);
+                    Label::new("Email")
+                        .size(ControlSize::Sm)
+                        .interactive(false)
+                        .show(field, theme);
                     Input::new(email_id)
                         .input_type(InputType::Email)
                         .placeholder("m@example.com")
@@ -163,6 +169,7 @@ fn render_login_card(ui: &mut egui::Ui, theme: &Theme, email: &mut String, passw
                         row.set_min_width(available_width);
                         Label::new("Password")
                             .size(ControlSize::Sm)
+                            .interactive(false)
                             .show(row, theme);
 
                         row.with_layout(
@@ -373,10 +380,8 @@ fn render_theme_toggle(ui: &mut egui::Ui, theme: &Theme, light_mode: &mut bool) 
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size(egui::vec2(720.0, 376.0)),
-        ..Default::default()
-    };
+    let mut options = icon::native_options();
+    options.viewport = options.viewport.with_inner_size(egui::vec2(720.0, 376.0));
     eframe::run_native(
         "Card example",
         options,
