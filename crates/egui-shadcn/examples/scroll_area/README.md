@@ -2,7 +2,7 @@
 
 <p align="center">
   <picture>
-    <img alt="scroll logo" src="../../examples/scroll/scroll.svg"/>
+    <img alt="scroll logo" src="../../examples/scroll_area/scroll.svg"/>
   </picture>
 </p>
 
