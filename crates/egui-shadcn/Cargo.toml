@@ -21,11 +21,6 @@ env_logger = { workspace = true }
 eframe = "0.33"
 
 [[example]]
-name = "basic"
-path = "examples/basic/main.rs"
-required-features = ["examples"]
-
-[[example]]
 name = "button"
 path = "examples/button/main.rs"
 required-features = ["examples"]

@@ -1,382 +1,183 @@
+//! Пример Select, содержащий `select-demo`, `select-scrollable` и `select-form`.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
 use eframe::{App, Frame, NativeOptions, egui};
-use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{
-    ColorPalette, ControlSize, ControlVariant, SelectItem, SelectProps, SelectPropsSimple,
-    SelectSize, SelectStyle, Theme, select, select_with_items, switch,
+    ControlSize, ControlVariant, Label, SelectItem, SelectProps, SeparatorProps, Theme, button,
+    select_with_items, separator,
 };
-use log::{error, info};
-use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
 struct SelectDemo {
     theme: Theme,
-    dark_mode: bool,
-    legacy_selected: Option<String>,
-    legacy_options: Vec<String>,
-    grouped_selected: Option<String>,
-    grouped_items: Vec<SelectItem>,
-    sm_selected: Option<String>,
-    sm_items: Vec<SelectItem>,
-    invalid_selected: Option<String>,
-    disabled_selected: Option<String>,
-    custom_selected: Option<String>,
-    custom_items: Vec<SelectItem>,
-    accent_selected: Option<String>,
-    scroll_selected: Option<String>,
+    fruit: Option<String>,
+    timezone: Option<String>,
+    email: Option<String>,
 }
 
 impl SelectDemo {
     fn new() -> Self {
         Self {
             theme: Theme::default(),
-            dark_mode: true,
-            legacy_selected: Some("Option A".to_string()),
-            legacy_options: vec!["Option A".into(), "Option B".into(), "Option C".into()],
-            grouped_selected: None,
-            grouped_items: vec![
-                SelectItem::group(
-                    "Fruits",
-                    vec![
-                        SelectItem::option("apple", icon_label(Icon::Apple, "Apple")),
-                        SelectItem::option("banana", icon_label(Icon::Banana, "Banana")),
-                        SelectItem::option_disabled(
-                            "mango",
-                            icon_label(Icon::Salad, "Mango (out of stock)"),
-                        ),
-                    ],
-                ),
-                SelectItem::separator(),
-                SelectItem::group(
-                    "Vegetables",
-                    vec![
-                        SelectItem::option("carrot", icon_label(Icon::Carrot, "Carrot")),
-                        SelectItem::option("broccoli", icon_label(Icon::LeafyGreen, "Broccoli")),
-                        SelectItem::option("pepper", icon_label(Icon::Flame, "Pepper")),
-                    ],
-                ),
-            ],
-            sm_selected: None,
-            sm_items: vec![
-                SelectItem::label("Timezones"),
-                SelectItem::option("est", "Eastern (EST)"),
-                SelectItem::option("pst", "Pacific (PST)"),
-                SelectItem::option("cet", "Central Europe (CET)"),
-                SelectItem::separator(),
-                SelectItem::option("ist", "India (IST)"),
-                SelectItem::option("jst", "Japan (JST)"),
-            ],
-            invalid_selected: None,
-            disabled_selected: Some("locked".to_string()),
-            custom_selected: None,
-            custom_items: vec![
-                SelectItem::option("rust", icon_label(Icon::Code, "Rust")),
-                SelectItem::option("go", icon_label(Icon::Code, "Go")),
-                SelectItem::option("ts", icon_label(Icon::Braces, "TypeScript")),
-                SelectItem::option("python", icon_label(Icon::Braces, "Python")),
-            ],
-            accent_selected: None,
-            scroll_selected: None,
+            fruit: None,
+            timezone: None,
+            email: None,
         }
     }
 }
 
-fn ensure_lucide_font(ctx: &egui::Context) {
-    let font_loaded_id = egui::Id::new("lucide_font_loaded");
-    let already_set = ctx.data(|d| d.get_temp::<bool>(font_loaded_id).unwrap_or(false));
-    if already_set {
-        return;
-    }
-
-    let mut fonts = FontDefinitions::default();
-    fonts.font_data.insert(
-        "lucide".into(),
-        FontData::from_static(LUCIDE_FONT_BYTES).into(),
-    );
-    fonts
-        .families
-        .entry(FontFamily::Name("lucide".into()))
-        .or_default()
-        .insert(0, "lucide".into());
-    fonts
-        .families
-        .entry(FontFamily::Proportional)
-        .or_default()
-        .insert(0, "lucide".into());
-    ctx.set_fonts(fonts);
-    ctx.data_mut(|d| d.insert_temp(font_loaded_id, true));
-}
-
-fn icon_label(icon: Icon, label: &str) -> String {
-    format!("{} {}", icon.unicode(), label)
-}
-
-fn apply_background(ctx: &egui::Context, dark_mode: bool) {
-    let mut style = ctx.style().as_ref().clone();
-    if dark_mode {
-        let bg = egui::Color32::from_rgb(10, 10, 10);
-        let input_bg = egui::Color32::from_rgb(21, 21, 21);
-        style.visuals.window_fill = bg;
-        style.visuals.panel_fill = bg;
-        style.visuals.extreme_bg_color = input_bg;
-        style.visuals.override_text_color = Some(egui::Color32::from_rgb(249, 249, 249));
-    } else {
-        let bg = egui::Color32::from_rgb(255, 255, 255);
-        let input_bg = egui::Color32::from_rgb(245, 245, 245);
-        style.visuals.window_fill = bg;
-        style.visuals.panel_fill = bg;
-        style.visuals.extreme_bg_color = input_bg;
-        style.visuals.override_text_color = Some(egui::Color32::from_rgb(37, 37, 37));
-    }
-    ctx.set_style(style);
-}
-
-fn custom_style(theme: &Theme) -> SelectStyle {
-    let mut style = SelectStyle::from_palette(&theme.palette);
-    style.trigger_bg = egui::Color32::from_rgb(24, 24, 32);
-    style.trigger_bg_hover = egui::Color32::from_rgb(34, 34, 44);
-    style.trigger_border = theme.palette.accent;
-    style.trigger_icon = theme.palette.accent_foreground;
-    style.content_bg = egui::Color32::from_rgb(16, 16, 24);
-    style.item_bg_hover = egui::Color32::from_rgb(40, 40, 52);
-    style
-}
-
 impl App for SelectDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
-        ensure_lucide_font(ctx);
-        apply_background(ctx, self.dark_mode);
-
         egui::CentralPanel::default().show(ctx, |ui| {
-            egui::ScrollArea::vertical()
-                .auto_shrink([false; 2])
-                .show(ui, |ui| {
-                    ui.horizontal(|ui| {
-                        ui.heading("Theme:");
-                        let prev_dark = self.dark_mode;
-                        let icon = if self.dark_mode {
-                            Icon::Moon
-                        } else {
-                            Icon::Sun
-                        };
-                        let label = icon.unicode().to_string();
-                        switch(
-                            ui,
-                            &self.theme,
-                            &mut self.dark_mode,
-                            label,
-                            ControlVariant::Secondary,
-                            ControlSize::Sm,
-                            true,
-                        );
-                        if prev_dark != self.dark_mode {
-                            let palette = if self.dark_mode {
-                                ColorPalette::dark()
-                            } else {
-                                ColorPalette::light()
-                            };
-                            self.theme = Theme::new(palette);
-                        }
-                    });
-                    ui.add_space(16.0);
+            ui.vertical(|ui| {
+                ui.spacing_mut().item_spacing.y = 16.0;
+                ui.set_max_width(360.0);
 
-                    ui.heading("Select — legacy API");
-                    select(
-                        ui,
-                        &self.theme,
-                        SelectPropsSimple {
-                            id_source: "legacy",
-                            selected: &mut self.legacy_selected,
-                            options: &self.legacy_options,
-                            placeholder: "Select an option",
-                            size: ControlSize::Md,
-                            enabled: true,
-                            is_invalid: false,
-                        },
-                    );
-                    if let Some(value) = &self.legacy_selected {
-                        ui.label(format!("legacy selected: {value}"));
-                    }
-                    ui.add_space(12.0);
+                // select-demo
+                let fruits = vec![SelectItem::group(
+                    "Fruits",
+                    vec![
+                        SelectItem::option("apple", "Apple"),
+                        SelectItem::option("banana", "Banana"),
+                        SelectItem::option("blueberry", "Blueberry"),
+                        SelectItem::option("grapes", "Grapes"),
+                        SelectItem::option("pineapple", "Pineapple"),
+                    ],
+                )];
+                select_with_items(
+                    ui,
+                    &self.theme,
+                    SelectProps::new("select-demo", &mut self.fruit)
+                        .placeholder("Select a fruit")
+                        .width(180.0),
+                    &fruits,
+                );
 
-                    ui.heading("Select — Groups, Disabled and Icons");
-                    select_with_items(
-                        ui,
-                        &self.theme,
-                        SelectProps::new("grouped", &mut self.grouped_selected)
-                            .placeholder("Categories with groups")
-                            .width(240.0),
-                        &self.grouped_items,
-                    );
-                    if let Some(value) = &self.grouped_selected {
-                        ui.label(format!("grouped selected: {value}"));
-                    }
-                    ui.add_space(12.0);
-
-                    ui.heading("Select — Size Sm");
-                    select_with_items(
-                        ui,
-                        &self.theme,
-                        SelectProps::new("small", &mut self.sm_selected)
-                            .placeholder("Compact select")
-                            .size(SelectSize::Sm)
-                            .width(260.0),
-                        &self.sm_items,
-                    );
-                    ui.add_space(12.0);
-
-                    ui.heading("Select — Invalid and Disabled");
-                    select_with_items(
-                        ui,
-                        &self.theme,
-                        SelectProps::new("invalid", &mut self.invalid_selected)
-                            .placeholder("Required field")
-                            .invalid(true)
-                            .width(200.0),
-                        &[
-                            SelectItem::option("one", "One"),
-                            SelectItem::option("two", "Two"),
+                // select-scrollable
+                let timezones = vec![
+                    SelectItem::group(
+                        "North America",
+                        vec![
+                            SelectItem::option("est", "Eastern Standard Time (EST)"),
+                            SelectItem::option("cst", "Central Standard Time (CST)"),
+                            SelectItem::option("mst", "Mountain Standard Time (MST)"),
+                            SelectItem::option("pst", "Pacific Standard Time (PST)"),
+                            SelectItem::option("akst", "Alaska Standard Time (AKST)"),
+                            SelectItem::option("hst", "Hawaii Standard Time (HST)"),
                         ],
-                    );
-                    select_with_items(
-                        ui,
-                        &self.theme,
-                        SelectProps::new("disabled", &mut self.disabled_selected)
-                            .placeholder("Disabled select")
-                            .enabled(false)
-                            .width(200.0),
-                        &[SelectItem::option("locked", "Locked")],
-                    );
-                    ui.add_space(12.0);
+                    ),
+                    SelectItem::group(
+                        "Europe & Africa",
+                        vec![
+                            SelectItem::option("gmt", "Greenwich Mean Time (GMT)"),
+                            SelectItem::option("cet", "Central European Time (CET)"),
+                            SelectItem::option("eet", "Eastern European Time (EET)"),
+                            SelectItem::option("west", "Western European Summer Time (WEST)"),
+                            SelectItem::option("cat", "Central Africa Time (CAT)"),
+                            SelectItem::option("eat", "East Africa Time (EAT)"),
+                        ],
+                    ),
+                    SelectItem::group(
+                        "Asia",
+                        vec![
+                            SelectItem::option("msk", "Moscow Time (MSK)"),
+                            SelectItem::option("ist", "India Standard Time (IST)"),
+                            SelectItem::option("cst_china", "China Standard Time (CST)"),
+                            SelectItem::option("jst", "Japan Standard Time (JST)"),
+                            SelectItem::option("kst", "Korea Standard Time (KST)"),
+                            SelectItem::option(
+                                "ist_indonesia",
+                                "Indonesia Central Standard Time (WITA)",
+                            ),
+                        ],
+                    ),
+                    SelectItem::group(
+                        "Australia & Pacific",
+                        vec![
+                            SelectItem::option("awst", "Australian Western Standard Time (AWST)"),
+                            SelectItem::option("acst", "Australian Central Standard Time (ACST)"),
+                            SelectItem::option("aest", "Australian Eastern Standard Time (AEST)"),
+                            SelectItem::option("nzst", "New Zealand Standard Time (NZST)"),
+                            SelectItem::option("fjt", "Fiji Time (FJT)"),
+                        ],
+                    ),
+                    SelectItem::group(
+                        "South America",
+                        vec![
+                            SelectItem::option("art", "Argentina Time (ART)"),
+                            SelectItem::option("bot", "Bolivia Time (BOT)"),
+                            SelectItem::option("brt", "Brasilia Time (BRT)"),
+                            SelectItem::option("clt", "Chile Standard Time (CLT)"),
+                        ],
+                    ),
+                ];
+                select_with_items(
+                    ui,
+                    &self.theme,
+                    SelectProps::new("select-scrollable", &mut self.timezone)
+                        .placeholder("Select a timezone")
+                        .width(280.0),
+                    &timezones,
+                );
 
-                    ui.heading("Select — Custom Style");
-                    let style = custom_style(&self.theme);
-                    select_with_items(
-                        ui,
-                        &self.theme,
-                        SelectProps::new("custom", &mut self.custom_selected)
-                            .placeholder("Custom bg and border")
-                            .width(260.0)
-                            .style(style),
-                        &self.custom_items,
-                    );
-                    if let Some(value) = &self.custom_selected {
-                        ui.label(format!("custom selected: {value}"));
-                    }
-                    ui.add_space(12.0);
+                ui.add_space(8.0);
+                separator(ui, &self.theme, SeparatorProps::default());
+                ui.add_space(8.0);
 
-                    ui.heading("Select — Accent color + high contrast");
-                    select_with_items(
-                        ui,
-                        &self.theme,
-                        SelectProps::new("accent", &mut self.accent_selected)
-                            .placeholder("Accent crimson")
-                            .accent_color(egui::Color32::from_rgb(220, 80, 120))
-                            .high_contrast(true)
-                            .width(240.0),
-                        &self.custom_items,
-                    );
-                    if let Some(value) = &self.accent_selected {
-                        ui.label(format!("accent selected: {value}"));
-                    }
-                    ui.add_space(12.0);
+                // select-form (упрощённо)
+                ui.vertical(|form| {
+                    form.spacing_mut().item_spacing.y = 8.0;
+                    let email_id = form.make_persistent_id("select-form-email");
+                    Label::new("Email")
+                        .for_id(email_id)
+                        .size(ControlSize::Sm)
+                        .show(form, &self.theme);
 
-                    ui.heading("Select — scrollable (timezones)");
-                    let scroll_items = vec![
-                        SelectItem::group(
-                            "North America",
-                            vec![
-                                SelectItem::option("est", "Eastern Standard Time (EST)"),
-                                SelectItem::option("cst", "Central Standard Time (CST)"),
-                                SelectItem::option("mst", "Mountain Standard Time (MST)"),
-                                SelectItem::option("pst", "Pacific Standard Time (PST)"),
-                                SelectItem::option("akst", "Alaska Standard Time (AKST)"),
-                                SelectItem::option("hst", "Hawaii Standard Time (HST)"),
-                            ],
-                        ),
-                        SelectItem::group(
-                            "Europe & Africa",
-                            vec![
-                                SelectItem::option("gmt", "Greenwich Mean Time (GMT)"),
-                                SelectItem::option("cet", "Central European Time (CET)"),
-                                SelectItem::option("eet", "Eastern European Time (EET)"),
-                                SelectItem::option("west", "Western European Summer Time (WEST)"),
-                                SelectItem::option("cat", "Central Africa Time (CAT)"),
-                                SelectItem::option("eat", "East Africa Time (EAT)"),
-                            ],
-                        ),
-                        SelectItem::group(
-                            "Asia",
-                            vec![
-                                SelectItem::option("msk", "Moscow Time (MSK)"),
-                                SelectItem::option("ist", "India Standard Time (IST)"),
-                                SelectItem::option("cst_china", "China Standard Time (CST)"),
-                                SelectItem::option("jst", "Japan Standard Time (JST)"),
-                                SelectItem::option("kst", "Korea Standard Time (KST)"),
-                                SelectItem::option(
-                                    "wita",
-                                    "Indonesia Central Standard Time (WITA)",
-                                ),
-                            ],
-                        ),
-                        SelectItem::group(
-                            "Australia & Pacific",
-                            vec![
-                                SelectItem::option(
-                                    "awst",
-                                    "Australian Western Standard Time (AWST)",
-                                ),
-                                SelectItem::option(
-                                    "acst",
-                                    "Australian Central Standard Time (ACST)",
-                                ),
-                                SelectItem::option(
-                                    "aest",
-                                    "Australian Eastern Standard Time (AEST)",
-                                ),
-                                SelectItem::option("nzst", "New Zealand Standard Time (NZST)"),
-                                SelectItem::option("fjt", "Fiji Time (FJT)"),
-                            ],
-                        ),
-                        SelectItem::group(
-                            "South America",
-                            vec![
-                                SelectItem::option("art", "Argentina Time (ART)"),
-                                SelectItem::option("bot", "Bolivia Time (BOT)"),
-                                SelectItem::option("brt", "Brasilia Time (BRT)"),
-                                SelectItem::option("clt", "Chile Standard Time (CLT)"),
-                            ],
-                        ),
+                    let emails = vec![
+                        SelectItem::option("m@example.com", "m@example.com"),
+                        SelectItem::option("m@google.com", "m@google.com"),
+                        SelectItem::option("m@support.com", "m@support.com"),
                     ];
+
                     select_with_items(
-                        ui,
+                        form,
                         &self.theme,
-                        SelectProps::new("scrollable_select", &mut self.scroll_selected)
-                            .placeholder("Select a timezone")
-                            .width(280.0),
-                        &scroll_items,
+                        SelectProps::new(email_id, &mut self.email)
+                            .placeholder("Select a verified email to display")
+                            .width(form.available_width()),
+                        &emails,
                     );
-                    if let Some(val) = &self.scroll_selected {
-                        ui.label(format!("scrollable selected: {val}"));
-                    }
+
+                    form.label(
+                        egui::RichText::new(
+                            "You can manage email addresses in your email settings.",
+                        )
+                        .color(self.theme.palette.muted_foreground)
+                        .size(12.0),
+                    );
+
+                    let _ = button(
+                        form,
+                        &self.theme,
+                        "Submit",
+                        ControlVariant::Primary,
+                        ControlSize::Md,
+                        true,
+                    );
                 });
+            });
         });
     }
 }
 
-fn main() {
+fn main() -> eframe::Result<()> {
     env_logger::init();
-    info!("Starting select example");
-
-    let native_options = NativeOptions::default();
-    if let Err(err) = eframe::run_native(
-        "egui-shadcn — select",
-        native_options,
+    let options = NativeOptions::default();
+    eframe::run_native(
+        "Select example",
+        options,
         Box::new(|_cc| Ok(Box::new(SelectDemo::new()))),
-    ) {
-        error!("Failed to run select example: {err}");
-    }
+    )
 }

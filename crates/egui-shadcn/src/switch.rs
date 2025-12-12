@@ -1,3 +1,4 @@
+use crate::label::Label;
 use crate::theme::Theme;
 use crate::tokens::{
     ControlSize, ControlVariant, SwitchSize, SwitchTokenOptions, SwitchVariant, mix,
@@ -68,6 +69,7 @@ pub fn switch_with_options(
     options: SwitchOptions,
 ) -> Response {
     let label_text: WidgetText = label.into();
+    let label_size: ControlSize = options.size.into();
     trace!(
         "Rendering switch style={:?} size={:?} enabled={} high_contrast={} animate={}",
         options.style, options.size, options.enabled, options.high_contrast, options.animate
@@ -151,11 +153,16 @@ pub fn switch_with_options(
     painter.rect_filled(thumb_rect, thumb_rounding, thumb_color);
 
     if response.has_focus() && options.enabled {
-
         painter.rect_stroke(track_rect, rounding, tokens.focus_ring, StrokeKind::Outside);
     }
 
-    let label_resp = ui.add_enabled(options.enabled, egui::Label::new(label_text).wrap());
+    let label_resp = {
+        let mut builder = Label::new(label_text.clone()).size(label_size);
+        if !options.enabled {
+            builder = builder.disabled(true);
+        }
+        builder.show(ui, theme)
+    };
     if label_resp.clicked() && options.enabled {
         *on = !*on;
         response.mark_changed();
