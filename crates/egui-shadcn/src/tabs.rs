@@ -364,7 +364,7 @@ pub fn tabs<'a, R>(
                         trigger_ui.painter().rect_filled(
                             shadow_rect,
                             tokens.trigger_rounding,
-                            Color32::from_black_alpha((12.0 * active_t) as u8),
+                            Color32::from_black_alpha((20.0 * active_t) as u8),
                         );
                     }
 
@@ -372,10 +372,18 @@ pub fn tabs<'a, R>(
                         .painter()
                         .rect_filled(rect, tokens.trigger_rounding, bg_color);
                     if tokens.trigger_stroke.width > 0.0 {
+                        let stroke = if props.variant == TabsVariant::Soft {
+                            Stroke::new(
+                                tokens.trigger_stroke.width,
+                                apply_opacity(tokens.trigger_stroke.color, active_t),
+                            )
+                        } else {
+                            tokens.trigger_stroke
+                        };
                         trigger_ui.painter().rect_stroke(
                             rect,
                             tokens.trigger_rounding,
-                            tokens.trigger_stroke,
+                            stroke,
                             StrokeKind::Inside,
                         );
                     }
@@ -536,6 +544,8 @@ pub fn tabs<'a, R>(
         .find(|t| t.id == *props.active)
         .unwrap_or(first_enabled);
 
+    ui.add_space(8.0);
+
     let content = render_content(ui, active_tab);
 
     TabsResult {
@@ -577,34 +587,28 @@ fn resolve_tabs_tokens(palette: &ColorPalette, props: &TabsProps<'_>) -> TabsTok
     };
     let focus_ring = DEFAULT_FOCUS.stroke(focus_color);
 
-    let (trigger_height, trigger_padding, font, list_rounding, trigger_rounding) = match props.size
-    {
-        TabsSize::Size1 => (
-            32.0,
-            vec2(8.0, 5.0),
-            FontId::proportional(13.0),
-            CornerRadius::same(6),
-            CornerRadius::same(4),
-        ),
-        TabsSize::Size2 => (
-            36.0,
-            vec2(10.0, 6.0),
-            FontId::proportional(14.0),
-            CornerRadius::same(8),
-            CornerRadius::same(6),
-        ),
-    };
+    let (mut trigger_height, mut trigger_padding, font, _list_rounding, trigger_rounding) =
+        match props.size {
+            TabsSize::Size1 => (
+                32.0,
+                vec2(8.0, 5.0),
+                FontId::proportional(13.0),
+                CornerRadius::same(6),
+                CornerRadius::same(4),
+            ),
+            TabsSize::Size2 => (
+                36.0,
+                vec2(10.0, 6.0),
+                FontId::proportional(14.0),
+                CornerRadius::same(8),
+                CornerRadius::same(6),
+            ),
+        };
 
-    let trigger_padding = if props.compact {
-        trigger_padding * 0.85
-    } else {
-        trigger_padding
-    };
-    let trigger_height = if props.compact {
-        trigger_height - 2.0
-    } else {
-        trigger_height
-    };
+    if props.compact {
+        trigger_padding *= 0.85;
+        trigger_height -= 2.0;
+    }
 
     match props.variant {
         TabsVariant::Underline => {
@@ -639,19 +643,36 @@ fn resolve_tabs_tokens(palette: &ColorPalette, props: &TabsProps<'_>) -> TabsTok
         }
         TabsVariant::Soft => {
             let list_fill = palette.muted;
-            let hover_bg = mix(list_fill, palette.background, 0.25);
+            let hover_bg = Color32::TRANSPARENT;
+
+            let list_padding = 3.0;
+            let trigger_height = (trigger_height - list_padding * 2.0).max(0.0);
+            let trigger_padding = vec2(8.0, 4.0);
+
+            let list_rounding = match props.size {
+                TabsSize::Size1 => CornerRadius::same(8),
+                TabsSize::Size2 => CornerRadius::same(10),
+            };
+            let trigger_rounding = match props.size {
+                TabsSize::Size1 => CornerRadius::same(6),
+                TabsSize::Size2 => CornerRadius::same(8),
+            };
+
+            let trigger_stroke = Stroke::new(1.0, mix(palette.border, palette.foreground, 0.22));
+
+            let active_bg = palette.background;
             TabsTokens {
                 list_fill,
                 list_stroke: Stroke::NONE,
                 list_rounding,
-                list_padding: 3.0,
+                list_padding,
                 trigger_height,
                 trigger_padding,
                 trigger_rounding,
-                trigger_stroke: Stroke::NONE,
+                trigger_stroke,
                 trigger_idle_bg: Color32::TRANSPARENT,
                 trigger_hover_bg: hover_bg,
-                trigger_active_bg: palette.background,
+                trigger_active_bg: active_bg,
                 trigger_idle_text: palette.muted_foreground,
                 trigger_hover_text: palette.foreground,
                 trigger_active_text: palette.foreground,

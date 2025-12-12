@@ -1,5 +1,3 @@
-//! ScrollArea component rendering and interactions aligned with shadcn/ui styling.
-
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, DEFAULT_FOCUS, ease_out_cubic, mix};
 use egui::scroll_area::{

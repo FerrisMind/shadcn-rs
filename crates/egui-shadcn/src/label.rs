@@ -81,6 +81,8 @@ pub struct LabelProps {
 
     pub for_id: Option<Id>,
 
+    pub interactive: bool,
+
     pub size: ControlSize,
 
     pub variant: LabelVariant,
@@ -97,6 +99,7 @@ impl LabelProps {
         Self {
             text: text.into(),
             for_id: None,
+            interactive: true,
             size: ControlSize::Md,
             variant: LabelVariant::Default,
             disabled: false,
@@ -112,6 +115,11 @@ impl LabelProps {
 
     pub fn size(mut self, size: ControlSize) -> Self {
         self.size = size;
+        self
+    }
+
+    pub fn interactive(mut self, interactive: bool) -> Self {
+        self.interactive = interactive;
         self
     }
 
@@ -159,6 +167,11 @@ impl Label {
 
     pub fn size(mut self, size: ControlSize) -> Self {
         self.props.size = size;
+        self
+    }
+
+    pub fn interactive(mut self, interactive: bool) -> Self {
+        self.props.interactive = interactive;
         self
     }
 
@@ -212,7 +225,12 @@ pub fn label_with_props(ui: &mut Ui, theme: &Theme, props: LabelProps) -> Respon
             scoped_ui
                 .horizontal(|row| {
                     let label_text = props.text.clone().color(style.text);
-                    let label = egui::Label::new(label_text).sense(Sense::click());
+                    let sense = if props.interactive {
+                        Sense::click()
+                    } else {
+                        Sense::hover()
+                    };
+                    let label = egui::Label::new(label_text).sense(sense);
                     let label_response = row.add_enabled(!props.disabled, label);
 
                     if props.required {
@@ -226,7 +244,7 @@ pub fn label_with_props(ui: &mut Ui, theme: &Theme, props: LabelProps) -> Respon
                     }
 
                     let mut response = label_response;
-                    if !props.disabled {
+                    if props.interactive && !props.disabled {
                         response = response.on_hover_cursor(egui::CursorIcon::PointingHand);
                     }
                     response
