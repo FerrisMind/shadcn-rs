@@ -1,17 +1,16 @@
 ## Dialog example
 
-Модальный диалог с оверлеем, выравниванием, scrim opacity и закрытием по Esc/бэкдропу.
+<p align="center">
+  <picture>
+    <img alt="shadcn-rs logo" src="../../examples/dialog/dialog.svg"/>
+  </picture>
+</p>
 
-Запуск:
+Run:
 ```bash
-cargo run --example dialog
+cargo run --example dialog --features examples
 ```
 
-Что показано:
-- Кнопка открытия (shadcn button).
-- Варианты выравнивания: Center и Start.
-- Scrim opacity и анимация появления.
-- Закрытие по Esc и клику вне контента.
 
 
 
