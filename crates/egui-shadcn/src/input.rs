@@ -866,6 +866,8 @@ where
     let token_variant = TokenInputVariant::from(props.variant);
     let tokens = input_tokens(&theme.palette, token_variant);
 
+    let vertical_margin = (inner_rect.height() / 2.0) - (props.size.font_size() * 0.54);
+
     let response = ui.scope_builder(UiBuilder::new().max_rect(inner_rect), |inner_ui| {
         inner_ui.set_clip_rect(inner_rect);
 
@@ -895,9 +897,8 @@ where
             .hint_text(placeholder_colored)
             .text_color(text_color)
             .frame(false)
-            .margin(vec2(0.0, 0.0))
-            .desired_width(inner_rect.width())
-            .vertical_align(egui::Align::Center);
+            .margin(vec2(0.0, vertical_margin))
+            .desired_width(inner_rect.width());
 
         if props.input_type.is_password() {
             edit = edit.password(true);

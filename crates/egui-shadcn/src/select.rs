@@ -227,15 +227,24 @@ impl SelectStyle {
 
             disabled_opacity: 0.5,
 
-            content_bg: Color32::from_rgb(30, 30, 30),
+            content_bg: palette.background,
             content_border: palette.border,
             content_rounding: CornerRadius::same(6),
-            content_shadow: Color32::from_rgba_unmultiplied(0, 0, 0, 40),
+            content_shadow: Color32::from_rgba_unmultiplied(
+                palette.foreground.r(),
+                palette.foreground.g(),
+                palette.foreground.b(),
+                40,
+            ),
             content_padding: 4.0,
 
             item_bg: Color32::TRANSPARENT,
-            item_bg_hover: Color32::from_rgb(55, 55, 55),
-            item_bg_selected: mix(Color32::from_rgb(55, 55, 55), palette.primary, 0.12),
+            item_bg_hover: mix(palette.muted, palette.background, 0.5),
+            item_bg_selected: mix(
+                mix(palette.muted, palette.background, 0.5),
+                palette.primary,
+                0.12,
+            ),
             item_text: palette.foreground,
             item_text_hover: palette.foreground,
             item_rounding: CornerRadius::same(3),
