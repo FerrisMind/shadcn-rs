@@ -1,4 +1,4 @@
-# shadcn-rs workspace
+# shadcn-rs
 
 <p align="center">
   <picture>
