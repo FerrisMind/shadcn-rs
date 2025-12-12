@@ -1,16 +1,15 @@
 ## Separator example
 
-Горизонтальные и вертикальные разделители с Radix size `Size1..Size4`, толщиной, длиной и цветом.
+<p align="center">
+  <picture>
+    <img alt="shadcn-rs logo" src="../../examples/separator/separator.svg"/>
+  </picture>
+</p>
 
 Запуск:
 ```bash
-cargo run --example separator
+cargo run --example separator --features examples
 ```
-
-Что показано:
-- Горизонтальный разделитель с пользовательской длиной (length override).
-- Вертикальный разделитель между элементами.
-- Size `Size1..Size4` (1–3 фикс., 4 = fill) и кастом thickness/gap/color через `SeparatorProps`.
 
 
 
