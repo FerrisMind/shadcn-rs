@@ -1,10 +1,14 @@
 # Checkbox Example
 
-Shows `Checkbox` sizes and variants, tri-state, invalid ring, disabled state handling, and high-contrast token styling.
+<p align="center">
+  <picture>
+    <img alt="checkbox logo" src="../../examples/checkbox/checkbox.svg"/>
+  </picture>
+</p>
 
 ## Run
 
 ```
-cargo run --example checkbox
+cargo run --example popover --features examples
 ```
 
