@@ -187,6 +187,10 @@ pub struct ButtonStyle {
 
     pub text: Color32,
 
+    pub text_hover: Color32,
+
+    pub text_active: Color32,
+
     pub border: Color32,
 
     pub border_hover: Color32,
@@ -206,6 +210,8 @@ impl ButtonStyle {
                 bg_hover: Color32::from_rgb(207, 207, 207),
                 bg_active: Color32::from_rgb(229, 229, 229),
                 text: palette.primary_foreground,
+                text_hover: palette.primary_foreground,
+                text_active: palette.primary_foreground,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
                 focus_ring: mix(palette.primary, Color32::from_rgb(150, 150, 150), 0.3),
@@ -217,6 +223,8 @@ impl ButtonStyle {
                 bg_hover: mix(palette.primary, Color32::BLACK, 0.08),
                 bg_active: mix(palette.primary, Color32::BLACK, 0.15),
                 text: palette.primary_foreground,
+                text_hover: palette.primary_foreground,
+                text_active: palette.primary_foreground,
                 border: mix(palette.primary, Color32::BLACK, 0.2),
                 border_hover: mix(palette.primary, Color32::BLACK, 0.25),
                 focus_ring: mix(palette.primary, Color32::from_rgb(150, 150, 150), 0.4),
@@ -245,6 +253,8 @@ impl ButtonStyle {
                         60,
                     ),
                     text: palette.foreground,
+                    text_hover: palette.foreground,
+                    text_active: palette.foreground,
                     border: Color32::TRANSPARENT,
                     border_hover: Color32::TRANSPARENT,
                     focus_ring: Color32::from_rgba_unmultiplied(
@@ -279,6 +289,8 @@ impl ButtonStyle {
                         45,
                     ),
                     text: palette.foreground,
+                    text_hover: palette.foreground,
+                    text_active: palette.foreground,
                     border: Color32::from_rgba_unmultiplied(
                         palette.primary.r(),
                         palette.primary.g(),
@@ -306,6 +318,8 @@ impl ButtonStyle {
                 bg_hover: mix(palette.destructive, Color32::WHITE, 0.1),
                 bg_active: mix(palette.destructive, Color32::WHITE, 0.15),
                 text: Color32::WHITE,
+                text_hover: Color32::WHITE,
+                text_active: Color32::WHITE,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
                 focus_ring: mix(palette.destructive, Color32::WHITE, 0.3),
@@ -317,6 +331,8 @@ impl ButtonStyle {
                 bg_hover: palette.accent,
                 bg_active: mix(palette.accent, Color32::WHITE, 0.1),
                 text: palette.foreground,
+                text_hover: palette.foreground,
+                text_active: palette.foreground,
                 border: palette.border,
                 border_hover: mix(palette.border, palette.foreground, 0.1),
                 focus_ring: Color32::from_rgba_unmultiplied(
@@ -333,6 +349,8 @@ impl ButtonStyle {
                 bg_hover: mix(palette.secondary, Color32::WHITE, 0.08),
                 bg_active: mix(palette.secondary, Color32::WHITE, 0.12),
                 text: palette.secondary_foreground,
+                text_hover: palette.secondary_foreground,
+                text_active: palette.secondary_foreground,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
                 focus_ring: Color32::from_rgba_unmultiplied(
@@ -349,6 +367,8 @@ impl ButtonStyle {
                 bg_hover: palette.accent,
                 bg_active: mix(palette.accent, Color32::WHITE, 0.1),
                 text: palette.foreground,
+                text_hover: palette.foreground,
+                text_active: palette.foreground,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
                 focus_ring: Color32::from_rgba_unmultiplied(
@@ -365,6 +385,8 @@ impl ButtonStyle {
                 bg_hover: Color32::TRANSPARENT,
                 bg_active: Color32::TRANSPARENT,
                 text: palette.primary,
+                text_hover: palette.primary,
+                text_active: palette.primary,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
                 focus_ring: Color32::from_rgba_unmultiplied(
@@ -436,9 +458,13 @@ impl ButtonStyle {
             ButtonVariant::Secondary => {}
             ButtonVariant::Ghost => {
                 style.text = accent;
+                style.text_hover = accent;
+                style.text_active = accent;
             }
             ButtonVariant::Link => {
                 style.text = accent;
+                style.text_hover = accent;
+                style.text_active = accent;
                 style.focus_ring =
                     Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 128);
             }
@@ -526,11 +552,17 @@ fn background_color(
     }
 }
 
-fn text_color(style: &ButtonStyle, effectively_disabled: bool) -> Color32 {
+fn text_color(
+    style: &ButtonStyle,
+    effectively_disabled: bool,
+    hover_t: f32,
+    active_t: f32,
+) -> Color32 {
     if effectively_disabled {
         apply_disabled_opacity(style.text, style.disabled_opacity)
     } else {
-        style.text
+        let hover_text = mix(style.text, style.text_hover, hover_t);
+        mix(hover_text, style.text_active, active_t)
     }
 }
 
@@ -897,7 +929,7 @@ fn button_with_props(ui: &mut Ui, theme: &Theme, props: ButtonProps<'_>) -> Resp
     );
 
     let bg_color = background_color(&style, effectively_disabled, hover_t, active_t);
-    let text_color = text_color(&style, effectively_disabled);
+    let text_color = text_color(&style, effectively_disabled, hover_t, active_t);
     let border_color = border_color(&style, effectively_disabled, hover_t);
 
     paint_background(painter, rect, &style, bg_color, border_color);
