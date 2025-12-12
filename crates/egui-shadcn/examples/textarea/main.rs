@@ -1,10 +1,12 @@
-//! Пример Textarea, содержащий все референсы shadcn/ui для Textarea.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{
     ControlSize, ControlVariant, Label, SeparatorProps, Textarea, TextareaSize, Theme, button,
     separator,
@@ -39,13 +41,11 @@ impl App for TextareaDemo {
                 ui.spacing_mut().item_spacing.y = 16.0;
                 ui.set_max_width(420.0);
 
-                // textarea-demo
                 Textarea::new("textarea-demo")
                     .placeholder("Type your message here.")
                     .size(TextareaSize::Size2)
                     .show(ui, &self.theme, &mut self.message);
 
-                // textarea-disabled
                 Textarea::new("textarea-disabled")
                     .placeholder("Type your message here.")
                     .size(TextareaSize::Size2)
@@ -56,7 +56,6 @@ impl App for TextareaDemo {
                 separator(ui, &self.theme, SeparatorProps::default());
                 ui.add_space(8.0);
 
-                // textarea-with-label
                 ui.vertical(|group| {
                     group.spacing_mut().item_spacing.y = 8.0;
                     let message_id = group.make_persistent_id("message");
@@ -70,7 +69,6 @@ impl App for TextareaDemo {
                         .show(group, &self.theme, &mut self.labeled_message);
                 });
 
-                // textarea-with-text
                 ui.vertical(|group| {
                     group.spacing_mut().item_spacing.y = 8.0;
                     let message_id = group.make_persistent_id("message-2");
@@ -89,7 +87,6 @@ impl App for TextareaDemo {
                     );
                 });
 
-                // textarea-with-button
                 ui.vertical(|group| {
                     group.spacing_mut().item_spacing.y = 8.0;
                     let message_id = group.make_persistent_id("message-3");
@@ -111,7 +108,6 @@ impl App for TextareaDemo {
                 separator(ui, &self.theme, SeparatorProps::default());
                 ui.add_space(8.0);
 
-                // textarea-form (упрощённо)
                 ui.vertical(|form| {
                     form.spacing_mut().item_spacing.y = 8.0;
                     let bio_id = form.make_persistent_id("bio");
@@ -144,7 +140,7 @@ impl App for TextareaDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Textarea example",
         options,

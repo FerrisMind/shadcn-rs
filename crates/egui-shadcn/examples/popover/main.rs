@@ -1,10 +1,12 @@
-//! Пример Popover, повторяющий shadcn/ui `popover-demo`.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{
     ControlSize, ControlVariant, Input, InputSize, Label, PopoverProps, Theme, button, popover,
 };
@@ -168,7 +170,7 @@ fn render_dimension_row(
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Popover example",
         options,

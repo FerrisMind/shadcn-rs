@@ -1,10 +1,12 @@
-//! Пример Toggle, содержащий все референсы shadcn/ui для Toggle.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui::{FontData, FontDefinitions, FontFamily, FontId, RichText};
 use egui_shadcn::{ControlSize, SeparatorProps, Theme, ToggleVariant, separator, toggle};
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
@@ -65,7 +67,6 @@ impl App for ToggleDemo {
             ui.vertical(|ui| {
                 ui.spacing_mut().item_spacing.y = 16.0;
 
-                // toggle-demo (Bookmark)
                 let label = RichText::new(format!("{} Bookmark", Icon::Bookmark.unicode()))
                     .font(FontId::proportional(14.0));
                 let _ = toggle(
@@ -83,7 +84,6 @@ impl App for ToggleDemo {
                 separator(ui, &self.theme, SeparatorProps::default());
                 ui.add_space(8.0);
 
-                // toggle-sm
                 let _ = toggle(
                     ui,
                     &self.theme,
@@ -95,7 +95,6 @@ impl App for ToggleDemo {
                 )
                 .on_hover_text("Toggle italic");
 
-                // toggle-lg
                 let _ = toggle(
                     ui,
                     &self.theme,
@@ -107,7 +106,6 @@ impl App for ToggleDemo {
                 )
                 .on_hover_text("Toggle italic");
 
-                // toggle-outline
                 let _ = toggle(
                     ui,
                     &self.theme,
@@ -119,7 +117,6 @@ impl App for ToggleDemo {
                 )
                 .on_hover_text("Toggle italic");
 
-                // toggle-with-text
                 let with_text = RichText::new(format!("{} Italic", Icon::Italic.unicode()))
                     .font(FontId::proportional(14.0));
                 let _ = toggle(
@@ -133,7 +130,6 @@ impl App for ToggleDemo {
                 )
                 .on_hover_text("Toggle italic");
 
-                // toggle-disabled
                 let _ = toggle(
                     ui,
                     &self.theme,
@@ -151,7 +147,7 @@ impl App for ToggleDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Toggle example",
         options,

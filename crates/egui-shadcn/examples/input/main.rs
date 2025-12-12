@@ -1,10 +1,12 @@
-//! Пример Input, содержащий все референсы shadcn/ui для Input.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{
     ControlSize, ControlVariant, Input, InputSize, InputType, Label, SeparatorProps, Theme, button,
     separator,
@@ -43,7 +45,6 @@ impl App for InputDemo {
                 ui.spacing_mut().item_spacing.y = 16.0;
                 ui.set_max_width(360.0);
 
-                // input-demo
                 let input_id = ui.make_persistent_id("input-email");
                 Input::new(input_id)
                     .input_type(InputType::Email)
@@ -52,7 +53,6 @@ impl App for InputDemo {
                     .width(ui.available_width())
                     .show(ui, &self.theme, &mut self.email);
 
-                // input-disabled
                 let disabled_id = ui.make_persistent_id("input-disabled");
                 Input::new(disabled_id)
                     .input_type(InputType::Email)
@@ -66,7 +66,6 @@ impl App for InputDemo {
                 separator(ui, &self.theme, SeparatorProps::default());
                 ui.add_space(8.0);
 
-                // input-file
                 ui.vertical(|group| {
                     group.spacing_mut().item_spacing.y = 8.0;
                     let picture_id = group.make_persistent_id("input-picture");
@@ -80,7 +79,6 @@ impl App for InputDemo {
                         .show(group, &self.theme, &mut self.picture_path);
                 });
 
-                // input-with-button
                 ui.horizontal(|row| {
                     row.spacing_mut().item_spacing.x = 8.0;
                     let email_id = row.make_persistent_id("input-subscribe");
@@ -100,7 +98,6 @@ impl App for InputDemo {
                     );
                 });
 
-                // input-with-label
                 ui.vertical(|group| {
                     group.spacing_mut().item_spacing.y = 8.0;
                     let email_id = group.make_persistent_id("input-with-label");
@@ -116,7 +113,6 @@ impl App for InputDemo {
                         .show(group, &self.theme, &mut self.labeled_email);
                 });
 
-                // input-with-text
                 ui.vertical(|group| {
                     group.spacing_mut().item_spacing.y = 8.0;
                     let email_id = group.make_persistent_id("input-with-text");
@@ -141,7 +137,6 @@ impl App for InputDemo {
                 separator(ui, &self.theme, SeparatorProps::default());
                 ui.add_space(8.0);
 
-                // input-form (упрощённая версия без валидатора)
                 ui.vertical(|form| {
                     form.spacing_mut().item_spacing.y = 8.0;
                     let username_id = form.make_persistent_id("username");
@@ -175,7 +170,7 @@ impl App for InputDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Input example",
         options,

@@ -1,10 +1,12 @@
-//! Пример ScrollArea, содержащий `scroll-area-demo` и `scroll-area-horizontal-demo`.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{
     ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize, ScrollAreaType, ScrollDirection,
     SeparatorProps, Theme, scroll_area, separator,
@@ -28,7 +30,6 @@ impl App for ScrollAreaDemo {
             ui.vertical(|ui| {
                 ui.spacing_mut().item_spacing.y = 24.0;
 
-                // scroll-area-demo (Tags)
                 let tags: Vec<String> =
                     (1..=50).rev().map(|i| format!("v1.2.0-beta.{i}")).collect();
 
@@ -63,7 +64,6 @@ impl App for ScrollAreaDemo {
                         });
                     });
 
-                // scroll-area-horizontal-demo (упрощённо без изображений)
                 egui::Frame::NONE
                     .fill(self.theme.palette.background)
                     .stroke(egui::Stroke::new(1.0, self.theme.palette.border))
@@ -119,7 +119,7 @@ impl App for ScrollAreaDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "ScrollArea example",
         options,

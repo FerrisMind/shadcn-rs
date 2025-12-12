@@ -1,10 +1,12 @@
-//! Пример Checkbox, повторяющий shadcn/ui `checkbox-demo`.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{ControlSize, ControlVariant, Label, Theme, checkbox};
 
 struct CheckboxDemo {
@@ -33,7 +35,6 @@ impl App for CheckboxDemo {
             ui.vertical(|ui| {
                 ui.spacing_mut().item_spacing.y = 24.0;
 
-                // Row 1
                 ui.horizontal(|row| {
                     row.spacing_mut().item_spacing.x = 12.0;
                     let _ = checkbox(
@@ -47,7 +48,6 @@ impl App for CheckboxDemo {
                     );
                 });
 
-                // Row 2
                 ui.horizontal(|row| {
                     row.spacing_mut().item_spacing.x = 12.0;
                     let _ = checkbox(
@@ -74,7 +74,6 @@ impl App for CheckboxDemo {
                     });
                 });
 
-                // Row 3
                 ui.horizontal(|row| {
                     row.spacing_mut().item_spacing.x = 12.0;
                     let _ = checkbox(
@@ -88,9 +87,8 @@ impl App for CheckboxDemo {
                     );
                 });
 
-                // Row 4 (clickable label container)
-                let checked_border = egui::Color32::from_rgb(37, 99, 235); // blue-600
-                let checked_bg = egui::Color32::from_rgba_unmultiplied(37, 99, 235, 20); // subtle blue bg
+                let checked_border = egui::Color32::from_rgb(37, 99, 235);
+                let checked_bg = egui::Color32::from_rgba_unmultiplied(37, 99, 235, 20);
                 let border_color = if self.notifications_2 {
                     checked_border
                 } else {
@@ -149,7 +147,7 @@ impl App for CheckboxDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Checkbox example",
         options,

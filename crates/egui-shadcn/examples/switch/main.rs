@@ -1,10 +1,12 @@
-//! Пример Switch, содержащий `switch-demo` и `switch-form`.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{ControlSize, ControlVariant, Theme, button, switch};
 
 struct SwitchDemo {
@@ -32,7 +34,6 @@ impl App for SwitchDemo {
                 ui.spacing_mut().item_spacing.y = 16.0;
                 ui.set_max_width(420.0);
 
-                // switch-demo
                 ui.horizontal(|row| {
                     row.spacing_mut().item_spacing.x = 8.0;
                     let _ = switch(
@@ -48,7 +49,6 @@ impl App for SwitchDemo {
 
                 ui.add_space(8.0);
 
-                // switch-form (упрощённо)
                 ui.label(
                     egui::RichText::new("Email Notifications")
                         .text_style(egui::TextStyle::Button)
@@ -130,7 +130,7 @@ impl App for SwitchDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Switch example",
         options,
