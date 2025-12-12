@@ -1,0 +1,90 @@
+use egui_shadcn::{
+    ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize, ScrollAreaType, ScrollDirection, Theme,
+    scroll_area,
+};
+
+fn init_logger() {
+    let _ = env_logger::builder().is_test(true).try_init();
+}
+
+#[test]
+fn scroll_area_props_builder_sets_fields() {
+    let id = egui::Id::new("scroll");
+    let props = ScrollAreaProps::default()
+        .with_id(id)
+        .with_direction(ScrollDirection::Both)
+        .with_size(ScrollAreaSize::Size3)
+        .with_radius(ScrollAreaRadius::Large)
+        .with_type(ScrollAreaType::Always)
+        .with_hide_delay_ms(500.0)
+        .with_auto_shrink([true, false]);
+
+    assert_eq!(props.id_source, Some(id));
+    assert_eq!(props.direction, ScrollDirection::Both);
+    assert_eq!(props.size, ScrollAreaSize::Size3);
+    assert_eq!(props.radius, ScrollAreaRadius::Large);
+    assert_eq!(props.scroll_type, ScrollAreaType::Always);
+    assert_eq!(props.scroll_hide_delay_ms, Some(500.0));
+    assert_eq!(props.auto_shrink, [true, false]);
+}
+
+#[test]
+fn scroll_area_radius_corner_values() {
+    use egui::CornerRadius;
+
+    assert_eq!(
+        ScrollAreaRadius::None.corner_radius(),
+        CornerRadius::same(0)
+    );
+    assert_eq!(
+        ScrollAreaRadius::Small.corner_radius(),
+        CornerRadius::same(2)
+    );
+    assert_eq!(
+        ScrollAreaRadius::Medium.corner_radius(),
+        CornerRadius::same(4)
+    );
+    assert_eq!(
+        ScrollAreaRadius::Large.corner_radius(),
+        CornerRadius::same(6)
+    );
+    assert_eq!(
+        ScrollAreaRadius::Full.corner_radius(),
+        CornerRadius::same(255)
+    );
+}
+
+#[test]
+fn scroll_area_size_thickness_is_ordered() {
+    let s1 = ScrollAreaSize::Size1.metrics();
+    let s2 = ScrollAreaSize::Size2.metrics();
+    let s3 = ScrollAreaSize::Size3.metrics();
+
+    assert!(s2.bar_thickness > s1.bar_thickness);
+    assert!(s3.bar_thickness > s2.bar_thickness);
+    assert!(s3.handle_min_length >= s1.handle_min_length);
+}
+
+#[test]
+fn scroll_area_smoke_returns_inner_value() {
+    init_logger();
+    let ctx = egui::Context::default();
+    let theme = Theme::default();
+
+    ctx.begin_pass(egui::RawInput::default());
+    let inner = egui::CentralPanel::default()
+        .show(&ctx, |ui| {
+            scroll_area(
+                ui,
+                &theme,
+                ScrollAreaProps::default()
+                    .with_direction(ScrollDirection::Vertical)
+                    .with_type(ScrollAreaType::Hover),
+                |_scroll_ui| 123usize,
+            )
+        })
+        .inner;
+    let _ = ctx.end_pass();
+
+    assert_eq!(inner, 123);
+}
