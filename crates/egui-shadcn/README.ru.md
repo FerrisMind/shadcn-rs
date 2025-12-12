@@ -2,7 +2,9 @@
 
 <p align="center">
   <picture>
-    <img alt="shadcn-egui logo" src="../egui-shadcn/assets/icons/shadcn-egui/icon.svg" width="180" />
+    <source media="(prefers-color-scheme: dark)" srcset="../egui-shadcn/assets/icons/shadcn-egui/icon-white.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="../egui-shadcn/assets/icons/shadcn-egui/icon-black.svg" />
+    <img alt="shadcn-egui logo" src="../egui-shadcn/assets/icons/shadcn-egui/icon-black.svg" width="180" />
   </picture>
 </p>
 
