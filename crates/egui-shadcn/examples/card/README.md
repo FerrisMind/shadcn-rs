@@ -2,7 +2,7 @@
 
 <p align="center">
   <picture>
-    <img alt="shadcn-rs logo" src="../../examples/card/card.svg" width="180" />
+    <img alt="shadcn-rs logo" src="../../examples/card/card.svg"/>
   </picture>
 </p>
 
