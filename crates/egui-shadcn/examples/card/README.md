@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-Запуск:
+Run:
 ```bash
 cargo run --example card --features examples
 ```
