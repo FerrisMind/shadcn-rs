@@ -1,10 +1,14 @@
 # Switch Example
 
-Shows the `Switch` track/thumb sizing aligned with shadcn, color variants, and disabled state.
+<p align="center">
+  <picture>
+    <img alt="shadcn-rs logo" src="../../examples/switch/switch.svg"/>
+  </picture>
+</p>
 
 ## Run
 
 ```
-cargo run --example switch
+cargo run --example switch --features examples
 ```
 
