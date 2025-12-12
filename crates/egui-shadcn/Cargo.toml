@@ -6,6 +6,7 @@ license = "MIT"
 description = "Shadcn-inspired component kit for egui"
 repository = "https://example.com/egui-shadcn"
 homepage = "https://example.com/egui-shadcn"
+build = "build.rs"
 
 [features]
 default = []
@@ -19,6 +20,9 @@ lucide-icons = "0.555.0"
 [dev-dependencies]
 env_logger = { workspace = true }
 eframe = "0.33"
+
+[build-dependencies]
+winres = "0.1"
 
 [[example]]
 name = "button"
