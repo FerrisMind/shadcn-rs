@@ -1,10 +1,12 @@
-//! Пример Select, содержащий `select-demo`, `select-scrollable` и `select-form`.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{
     ControlSize, ControlVariant, Label, SelectItem, SelectProps, SeparatorProps, Theme, button,
     select_with_items, separator,
@@ -35,7 +37,6 @@ impl App for SelectDemo {
                 ui.spacing_mut().item_spacing.y = 16.0;
                 ui.set_max_width(360.0);
 
-                // select-demo
                 let fruits = vec![SelectItem::group(
                     "Fruits",
                     vec![
@@ -55,7 +56,6 @@ impl App for SelectDemo {
                     &fruits,
                 );
 
-                // select-scrollable
                 let timezones = vec![
                     SelectItem::group(
                         "North America",
@@ -126,7 +126,6 @@ impl App for SelectDemo {
                 separator(ui, &self.theme, SeparatorProps::default());
                 ui.add_space(8.0);
 
-                // select-form (упрощённо)
                 ui.vertical(|form| {
                     form.spacing_mut().item_spacing.y = 8.0;
                     let email_id = form.make_persistent_id("select-form-email");
@@ -174,7 +173,7 @@ impl App for SelectDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Select example",
         options,

@@ -1,10 +1,12 @@
-//! Пример Label, повторяющий shadcn/ui `label-demo`.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{ControlSize, ControlVariant, Theme, checkbox};
 
 struct LabelDemo {
@@ -42,7 +44,7 @@ impl App for LabelDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Label example",
         options,

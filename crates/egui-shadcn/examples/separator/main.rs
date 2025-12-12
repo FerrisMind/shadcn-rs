@@ -1,10 +1,12 @@
-//! Пример Separator, повторяющий структуру и текст из референса shadcn/ui.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::{SeparatorOrientation, SeparatorProps, Theme, separator};
 
 struct SeparatorDemo {
@@ -82,7 +84,7 @@ impl App for SeparatorDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Separator example",
         options,

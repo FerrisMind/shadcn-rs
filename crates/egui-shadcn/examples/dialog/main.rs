@@ -3,7 +3,10 @@
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{
     ControlSize, ControlVariant, DialogAlign, DialogProps, Input, InputSize, Label, Theme, button,
@@ -41,7 +44,6 @@ impl App for DialogDemo {
             ui.vertical(|ui| {
                 ui.spacing_mut().item_spacing.y = 16.0;
 
-                // dialog-demo trigger
                 if button(
                     ui,
                     theme,
@@ -55,7 +57,6 @@ impl App for DialogDemo {
                     self.dialog_open = true;
                 }
 
-                // dialog-close-button trigger
                 if button(
                     ui,
                     theme,
@@ -181,7 +182,6 @@ impl App for DialogDemo {
             }
             self.dialog_open = open;
 
-            // dialog-close-button (Share link)
             let mut share_open = self.share_open;
             let mut share_should_close = false;
             let share_link = &mut self.share_link;
@@ -240,7 +240,7 @@ impl App for DialogDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "Dialog example",
         options,

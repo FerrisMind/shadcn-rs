@@ -1,10 +1,12 @@
-//! Пример RadioGroup, содержащий `radio-group-demo` и `radio-group-form`.
 #![cfg_attr(
     all(target_os = "windows", not(debug_assertions)),
     windows_subsystem = "windows"
 )]
 
-use eframe::{App, Frame, NativeOptions, egui};
+#[path = "../_shared/icon.rs"]
+mod icon;
+
+use eframe::{App, Frame, egui};
 use egui_shadcn::radio::{RadioGroup, RadioOption};
 use egui_shadcn::{ControlSize, ControlVariant, SeparatorProps, Theme, button, separator};
 
@@ -30,7 +32,6 @@ impl App for RadioDemo {
             ui.vertical(|ui| {
                 ui.spacing_mut().item_spacing.y = 16.0;
 
-                // radio-group-demo
                 let options = vec![
                     RadioOption::new("default".to_string(), "Default"),
                     RadioOption::new("comfortable".to_string(), "Comfortable"),
@@ -43,7 +44,6 @@ impl App for RadioDemo {
                 separator(ui, &self.theme, SeparatorProps::default());
                 ui.add_space(8.0);
 
-                // radio-group-form (упрощённо)
                 ui.label(
                     egui::RichText::new("Notify me about...")
                         .text_style(egui::TextStyle::Button)
@@ -73,7 +73,7 @@ impl App for RadioDemo {
 
 fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = NativeOptions::default();
+    let options = icon::native_options();
     eframe::run_native(
         "RadioGroup example",
         options,
