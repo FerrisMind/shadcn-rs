@@ -16,6 +16,13 @@ cargo add egui-shadcn --path crates/egui-shadcn
 - `toggle` — кнопка-toggle (default/outline), цвета accent, размеры `Sm|Md|Lg`.
 - `switch` — трековый переключатель, размеры трека/ползунка совпадают с shadcn (32×18.4).
 - `textarea` — подсветка фокуса, `is_invalid` (заливка), опциональный счетчик и `max_len`.
+- `tooltip` — задержки открытия/закрытия, позиции, high-contrast.
+- `card` — контейнер `Surface|Outline|Subtle`, заголовок/описание, настраиваемые паддинги/тень.
+- `separator` — горизонтальный/вертикальный разделитель с толщиной/отступами.
+- `tabs` — underline/soft/outline, горизонтальные/вертикальные, компактный режим.
+- `scroll_area` — вертикальный/горизонтальный/оба скролла с контролем баров.
+- `popover` — триггер + контент Above/Below, закрытие по Esc/клику вне, кастом ширина/высота.
+- `dialog` — модальный оверлей с тайтлом/описанием, центр/offset позиционирование, закрытие по Esc/бэкдропу.
 
 ## Примеры
 - `cargo run --example button` — варианты `Primary|Secondary|Ghost|Outline|Destructive|Link` и все размеры включая icon.
@@ -32,6 +39,13 @@ cargo add egui-shadcn --path crates/egui-shadcn
 let theme = Theme::default();
 let mut value = String::new();
 let mut selected = None;
+let mut active_tab = "tab-1".to_string();
+let mut dialog_open = true;
+let mut popover_open = true;
+let tabs_items = [
+    TabItem::new("tab-1", "Основное"),
+    TabItem::new("tab-2", "Расширенное"),
+];
 egui::CentralPanel::default().show(&ctx, |ui| {
     button(ui, &theme, "Primary", ControlVariant::Primary, ControlSize::Md, true);
     text_input(ui, &theme, &mut value, "Введите текст", ControlSize::Md, false, true);
@@ -58,6 +72,31 @@ egui::CentralPanel::default().show(&ctx, |ui| {
             size: ControlSize::Sm,
             enabled: true,
             is_invalid: false,
+        },
+    );
+    tabs(
+        ui,
+        &theme,
+        TabsProps::new(ui.make_persistent_id("tabs"), &tabs_items, &mut active_tab),
+        |tab_ui, active| {
+            tab_ui.label(format!("Активен {}", active.id));
+        },
+    );
+    let (_trigger, _content) = popover(
+        ui,
+        &theme,
+        PopoverProps::new(ui.make_persistent_id("popover"), &mut popover_open),
+        |t| t.button("Открыть popover"),
+        |body| body.label("Тело popover"),
+    );
+    let _dialog = dialog(
+        ui,
+        &theme,
+        DialogProps::new(ui.make_persistent_id("dialog"), &mut dialog_open)
+            .with_title("Диалог")
+            .with_description("Модальное окно"),
+        |body| {
+            body.label("Контент диалога");
         },
     );
 });

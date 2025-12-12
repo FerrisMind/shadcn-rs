@@ -51,6 +51,11 @@ path = "examples/radio/main.rs"
 required-features = ["examples"]
 
 [[example]]
+name = "scroll_area"
+path = "examples/scroll_area/main.rs"
+required-features = ["examples"]
+
+[[example]]
 name = "select"
 path = "examples/select/main.rs"
 required-features = ["examples"]
@@ -74,4 +79,3 @@ required-features = ["examples"]
 name = "tooltip"
 path = "examples/tooltip/main.rs"
 required-features = ["examples"]
-

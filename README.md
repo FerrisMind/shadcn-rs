@@ -29,6 +29,12 @@ cargo add egui-shadcn --path crates/egui-shadcn
 - `switch` — варианты `surface|classic|soft`, размеры `1|2|3` (map с `ControlSize`), `high_contrast`, кастом accent/thumb через `SwitchOptions`.
 - `textarea` — focus ring, `is_invalid` fill, optional counter and `max_len`.
 - `tooltip` — delayed hover/focus helper with positions and high-contrast styling.
+- `card` — контейнер с вариантами `Surface|Classic|Ghost` (алиасы Outline/Subtle), заголовком/описанием, настраиваемыми паддингами/радиусом/тенью.
+- `separator` — горизонтальный/вертикальный разделитель с толщиной/отступами, явной длиной и цветом.
+- `tabs` — underline/soft/outline варианты, горизонтальная/вертикальная ориентация, компактный режим.
+- `scroll_area` — обёртка над `egui::ScrollArea` с контролем направления, размеров, видимости скролл-баров и `auto_shrink`.
+- `popover` — align `Start|Center|End`, side/align offset, опционально ширина триггера, кламп к экрану, анимация, закрытие по Esc/клику вне.
+- `dialog` — модальный оверлей с тайтлом/описанием, scrim opacity, центр/offset позиционирование, анимация, флаги закрытия по Esc/бэкдропу.
 
 Tri-state checkbox with invalid ring:
 ```rust
@@ -64,8 +70,15 @@ checkbox_state(
 - `cargo run --example textarea` — counter and limit, `invalid`, `disabled`.
 - `cargo run --example tooltip` — delayed hover/focus tooltip with positioning and high-contrast.
 - `cargo run --example basic` — combined demo of all components.
+- `cargo run --example card` — Surface/Classic/Ghost карточки, паддинги/радиус/тень.
+- `cargo run --example separator` — гор./верт. разделители, толщина/длина/цвет.
+- `cargo run --example tabs` — underline/soft/outline, активный таб в состоянии.
+- `cargo run --example scroll_area` — вертикальный/двухосевой скролл с max_size и auto_shrink.
+- `cargo run --example popover` — align, offsets, match ширины триггера, кламп к экрану.
+- `cargo run --example dialog` — модальный оверлей со scrim, выравниванием и анимацией.
+- `cargo run --example structural` — полный набор приоритет-2 компонентов на одном экране.
 
-Combined screen (`basic.rs`):
+Combined screen (`basic.rs`, требуется импорт `PopoverAlign`):
 ```rust
 let theme = Theme::default();
 let mut value = String::new();
@@ -96,6 +109,48 @@ egui::CentralPanel::default().show(&ctx, |ui| {
             size: ControlSize::Sm,
             enabled: true,
             is_invalid: false,
+        },
+    );
+    let mut dialog_open = true;
+    let mut popover_open = true;
+    let mut active_tab = "tab-1".to_string();
+    let tab_items = [
+        TabItem::new("tab-1", "General"),
+        TabItem::new("tab-2", "Advanced"),
+    ];
+    tabs(
+        ui,
+        &theme,
+        TabsProps::new(ui.make_persistent_id("tabs"), &tab_items, &mut active_tab),
+        |tab_ui, active| {
+            tab_ui.label(format!("Active tab = {}", active.id));
+        },
+    );
+    let (trigger, _popover_content) = popover(
+        ui,
+        &theme,
+        PopoverProps::new(ui.make_persistent_id("popover"), &mut popover_open)
+            .with_align(PopoverAlign::End)
+            .with_side_offset(8.0)
+            .match_trigger_width(true),
+        |t_ui| t_ui.button("Open popover"),
+        |body_ui| {
+            body_ui.label("Popover body");
+        },
+    );
+    if trigger.clicked() {
+        popover_open = true;
+    }
+    let _dialog_content = dialog(
+        ui,
+        &theme,
+        DialogProps::new(ui.make_persistent_id("dialog"), &mut dialog_open)
+            .with_title("Dialog")
+            .with_description("Parity with shadcn/radix")
+            .with_scrim_opacity(160)
+            .with_animation(true),
+        |body_ui| {
+            body_ui.label("Modal body");
         },
     );
 });
