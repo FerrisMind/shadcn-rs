@@ -1,17 +1,14 @@
 ## Popover example
 
-Popover с выравниванием, side/align offset, match ширины триггера и клампом к экрану.
+<p align="center">
+  <picture>
+    <img alt="popover logo" src="../../examples/popover/popover.svg"/>
+  </picture>
+</p>
 
-Запуск:
+Run:
 ```bash
-cargo run --example popover
+cargo run --example popover --features examples
 ```
-
-Что показано:
-- Переключение align: Start / Center / End.
-- Side offset и align offset.
-- match_trigger_width и constrain_to_screen.
-
-
 
 
