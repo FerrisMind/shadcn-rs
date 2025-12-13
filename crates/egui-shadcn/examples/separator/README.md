@@ -1,15 +1,21 @@
-## Separator example
+# Separator Example
 
 <p align="center">
   <picture>
-    <img alt="shadcn-rs logo" src="../../examples/separator/separator.svg"/>
+    <img alt="separator example" src="../../examples/separator/separator.svg"/>
   </picture>
 </p>
 
-Run:
+Demonstrates the `Separator` component with horizontal and vertical orientations.
+
+## Features
+
+- Text section with title and description
+- Horizontal separator
+- Navigation menu with vertical separators between items (Blog, Docs, Source)
+
+## Run
+
 ```bash
 cargo run --example separator --features examples
 ```
-
-
-
