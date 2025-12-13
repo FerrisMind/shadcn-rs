@@ -4,8 +4,8 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Shadcn-inspired component kit for egui"
-repository = "https://example.com/egui-shadcn"
-homepage = "https://example.com/egui-shadcn"
+authors = ["FerrisMind"]
+repository = "https://github.com/FerrisMind/shadcn-rs"
 build = "build.rs"
 
 [features]

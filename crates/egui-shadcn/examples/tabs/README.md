@@ -17,5 +17,5 @@ Demonstrates the `Tabs` component with card content and form fields.
 ## Run
 
 ```bash
-cargo run --example tabs --features examples
+cargo run --example tabs --features examples  
 ```
