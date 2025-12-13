@@ -1,9 +1,16 @@
-## Radio group example (egui-shadcn)
+# Radio Group Example
 
-Showcases `RadioGroup` with descriptions, direction control, variant overrides, and accent/high-contrast tweaks.
+Demonstrates the `RadioGroup` component with multiple options.
 
-### Run
+## Features
+
+- Radio group with three options (Default, Comfortable, Compact) - pre-selected "Comfortable"
+- Section label ("Notify me about...")
+- Radio group with three options (All new messages, Direct messages and mentions, Nothing) - pre-selected "All new messages"
+- Submit button
+
+## Run
+
 ```bash
-cargo run --example radio
+cargo run --example radio --features examples
 ```
-
