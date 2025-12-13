@@ -6,8 +6,6 @@ use egui_shadcn::{
     dialog::dialog_layout_tokens, popover, popover::compute_popover_rect, scroll_area, separator,
     tabs,
 };
-use env_logger;
-
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
 }
@@ -72,7 +70,7 @@ fn tabs_switch_and_scroll() {
                 },
             );
 
-            let scroll_result = scroll_area(
+            scroll_area(
                 ui,
                 &theme,
                 ScrollAreaProps::default().with_direction(ScrollDirection::Vertical),
@@ -83,7 +81,7 @@ fn tabs_switch_and_scroll() {
                 },
             );
 
-            (tabs_result.bar_response, scroll_result)
+            (tabs_result.bar_response, ())
         })
         .inner;
     let _ = ctx.end_pass();
@@ -234,11 +232,13 @@ fn popover_does_not_close_on_open_click_same_frame() {
     let _ = ctx.end_pass();
     assert!(!popover_open, "popover should start closed");
 
-    let mut input = egui::RawInput::default();
-    input.screen_rect = Some(egui::Rect::from_min_size(
-        egui::pos2(0.0, 0.0),
-        egui::vec2(1024.0, 768.0),
-    ));
+    let mut input = egui::RawInput {
+        screen_rect: Some(egui::Rect::from_min_size(
+            egui::pos2(0.0, 0.0),
+            egui::vec2(1024.0, 768.0),
+        )),
+        ..Default::default()
+    };
     let pos = trigger_rect.center();
     input.events.push(egui::Event::PointerMoved(pos));
     input.events.push(egui::Event::PointerButton {

@@ -1,8 +1,6 @@
 use egui_shadcn::{
     ControlSize, ControlVariant, Theme, ToggleVariant, button, checkbox, select, switch, toggle,
 };
-use env_logger;
-
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
 }
@@ -95,8 +93,8 @@ fn select_and_toggle_render() {
     assert!(inner.2.rect.width() >= 0.0);
     assert!(selected.is_none());
     assert!(enabled);
-    assert!(switch_on == false || switch_on == true);
-    assert!(toggle_on == false || toggle_on == true);
+    assert!(!switch_on);
+    assert!(!toggle_on);
 }
 
 #[test]
