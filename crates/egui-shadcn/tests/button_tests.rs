@@ -125,9 +125,20 @@ fn high_contrast_modifies_style() {
     init_logger();
     let palette = ColorPalette::default();
     let normal_style = ButtonStyle::from_variant(&palette, ButtonVariant::Default);
-    let high_contrast_style = normal_style.clone().with_high_contrast();
+    let high_contrast_style = normal_style.clone().with_high_contrast(&palette);
 
-    assert_ne!(normal_style.bg, high_contrast_style.bg);
+    let bg_changed = normal_style.bg != high_contrast_style.bg
+        || normal_style.bg_hover != high_contrast_style.bg_hover;
+    if palette.foreground != normal_style.bg || palette.foreground != normal_style.bg_hover {
+        assert!(
+            bg_changed,
+            "high-contrast should tweak background tones when foreground differs"
+        );
+    }
+    assert_eq!(
+        high_contrast_style.text, palette.foreground,
+        "high-contrast should force text to foreground color"
+    );
 }
 
 #[test]
