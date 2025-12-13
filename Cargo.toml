@@ -6,10 +6,9 @@ resolver = "2"
 edition = "2024"
 license = "MIT"
 version = "0.1.0"
-authors = ["egui-shadcn contributors"]
-homepage = "https://example.com/egui-shadcn"
-repository = "https://example.com/egui-shadcn"
-description = "Shadcn-inspired component kit for egui."
+authors = ["FerrisMind"]
+repository = "https://github.com/FerrisMind/shadcn-rs"
+description = "Shadcn and Radix UI-inspired component library for the Rust GUI (egui)"
 
 [workspace.dependencies]
 egui = "0.33"
@@ -17,13 +16,11 @@ log = "0.4"
 env_logger = "0.11"
 
 [profile.dev]
-# Быстрая итерация в dev без раздувания бинарей
 incremental = true
 opt-level = 1
 debug = 1
 
 [profile.release]
-# Сборка, оптимизированная под размер и предсказуемость
 opt-level = "s"
 lto = true
 codegen-units = 1
