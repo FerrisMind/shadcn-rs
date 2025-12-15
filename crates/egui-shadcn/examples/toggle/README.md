@@ -1,5 +1,11 @@
 # Toggle Example
 
+<p align="center">
+  <picture>
+    <img alt="toggle example" src="../../examples/toggle/toggle.svg"/>
+  </picture>
+</p>
+
 Demonstrates the `Toggle` button component with variants and icon sizes.
 
 ## Features

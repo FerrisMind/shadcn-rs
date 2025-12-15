@@ -1,10 +1,16 @@
 # Label Example
 
-Demonstrates the `Label` component with checkbox integration.
+<p align="center">
+  <picture>
+    <img alt="label example" src="../../examples/label/label.svg"/>
+  </picture>
+</p>
+
+Demonstrates the `Label` component placed in a grid card with a linked checkbox.
 
 ## Features
 
-- Checkbox with inline label text ("Accept terms and conditions")
+- Label + checkbox: “Accept terms and conditions”.
 
 ## Run
 

@@ -20,6 +20,7 @@ lucide-icons = "0.555.0"
 [dev-dependencies]
 env_logger = { workspace = true }
 eframe = "0.33"
+rfd = "0.16"
 
 [build-dependencies]
 winres = "0.1"

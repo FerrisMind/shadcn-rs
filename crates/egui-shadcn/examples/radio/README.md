@@ -1,13 +1,18 @@
 # Radio Group Example
 
-Demonstrates the `RadioGroup` component with multiple options.
+<p align="center">
+  <picture>
+    <img alt="radio example" src="../../examples/radio/radio.svg"/>
+  </picture>
+</p>
+
+Demonstrates the `RadioGroup` component laid out as a grid of labeled cards.
 
 ## Features
 
-- Radio group with three options (Default, Comfortable, Compact) - pre-selected "Comfortable"
-- Section label ("Notify me about...")
-- Radio group with three options (All new messages, Direct messages and mentions, Nothing) - pre-selected "All new messages"
-- Submit button
+- Radio Group: layout density with descriptions.
+- Notifications: message preferences.
+- React Hook Form style: subscription plan with validation and reset/save.
 
 ## Run
 

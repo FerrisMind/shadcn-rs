@@ -24,20 +24,29 @@ impl TooltipDemo {
 impl App for TooltipDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            let response = button(
-                ui,
-                &self.theme,
-                "Hover",
-                ControlVariant::Outline,
-                ControlSize::Md,
-                true,
-            );
-            let _ = tooltip(
-                &response,
-                ui,
-                &self.theme,
-                TooltipProps::new("Add to library"),
-            );
+            ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
+                ui.add_space(80.0);
+
+                let response = button(
+                    ui,
+                    &self.theme,
+                    "Hover",
+                    ControlVariant::Outline,
+                    ControlSize::Md,
+                    true,
+                );
+
+                let _ = tooltip(
+                    &response,
+                    ui,
+                    &self.theme,
+                    TooltipProps::new("Add to library")
+                        .delay_ms(0)
+                        .skip_delay_ms(0)
+                        .show_arrow(true)
+                        .side_offset(8.0),
+                );
+            });
         });
     }
 }
