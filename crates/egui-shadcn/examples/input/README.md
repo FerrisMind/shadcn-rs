@@ -1,5 +1,11 @@
 # Input Example
 
+<p align="center">
+  <picture>
+    <img alt="input example" src="../../examples/input/input.svg"/>
+  </picture>
+</p>
+
 Demonstrates the `Input` component with labels, helper text, and form integration.
 
 ## Features

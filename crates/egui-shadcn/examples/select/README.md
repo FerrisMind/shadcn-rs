@@ -1,5 +1,11 @@
 # Select Example
 
+<p align="center">
+  <picture>
+    <img alt="select example" src="../../examples/select/select.svg"/>
+  </picture>
+</p>
+
 Demonstrates the `Select` component with grouped options and form integration.
 
 ## Features

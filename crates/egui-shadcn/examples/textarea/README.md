@@ -1,5 +1,11 @@
 # Textarea Example
 
+<p align="center">
+  <picture>
+    <img alt="textarea example" src="../../examples/textarea/textarea.svg"/>
+  </picture>
+</p>
+
 Demonstrates the `Textarea` component with labels, helper text, and form integration.
 
 ## Features
