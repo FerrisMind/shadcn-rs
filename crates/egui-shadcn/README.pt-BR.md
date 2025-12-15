@@ -1,9 +1,7 @@
 # egui-shadcn
 
 <p align="center">
-  <picture>
-    <img alt="shadcn-egui logo" src="https://raw.githubusercontent.com/FerrisMind/shadcn-rs/master/crates/egui-shadcn/assets/icons/shadcn-egui/icon.svg" width="180" />
-  </picture>
+  <img src="https://raw.githubusercontent.com/FerrisMind/shadcn-rs/master/crates/egui-shadcn/assets/icons/shadcn-egui/icon.svg" width="200" alt="shadcn-egui logo" />
 </p>
 
 ## Visão geral
