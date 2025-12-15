@@ -1,3 +1,30 @@
+//! Tabs component aligned with Radix Tabs API plus egui-specific layout extensions.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{tabs, TabItem, TabsProps, TabsVariant, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme, value: &mut String) {
+//!     let items = vec![
+//!         TabItem::new("account", "Account"),
+//!         TabItem::new("password", "Password"),
+//!     ];
+//!     tabs(
+//!         ui,
+//!         theme,
+//!         TabsProps {
+//!             value,
+//!             variant: TabsVariant::Default,
+//!             ..Default::default()
+//!         },
+//!         &items,
+//!         |ui, key| {
+//!             ui.label(format!("Content for {key}"));
+//!         },
+//!     );
+//! }
+//! ```
+
 use crate::scroll_area::{ScrollAreaProps, ScrollDirection, scroll_area};
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, DEFAULT_FOCUS, ease_out_cubic, mix};

@@ -1,3 +1,14 @@
+//! Toggle button (on/off) styled after shadcn, sharing tokens with switch and button.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{toggle, ToggleVariant, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme, active: &mut bool) {
+//!     toggle(ui, theme, "Airplane mode", ToggleVariant::Default, active);
+//! }
+//! ```
+
 use crate::theme::Theme;
 use crate::tokens::{ControlSize, ControlVariant, ToggleVariant, toggle_button_tokens};
 use egui::{Button, Response, TextStyle, TextWrapMode, Ui, Vec2, WidgetText};

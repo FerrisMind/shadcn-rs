@@ -1,3 +1,26 @@
+//! Radio group with Radix-like API, supports card/grid presentation and directional focus loop.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{radio_group, RadioDirection, RadioGroupProps, RadioOption, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme, value: &mut String) {
+//!     radio_group(
+//!         ui,
+//!         theme,
+//!         RadioGroupProps {
+//!             value,
+//!             direction: RadioDirection::Vertical,
+//!             ..Default::default()
+//!         },
+//!         &[
+//!             RadioOption::new("email", "Email"),
+//!             RadioOption::new("sms", "SMS"),
+//!         ],
+//!     );
+//! }
+//! ```
+
 use crate::theme::Theme;
 use crate::tokens::{
     ColorPalette, ControlSize, ControlVariant, StateColors, checkbox_metrics,

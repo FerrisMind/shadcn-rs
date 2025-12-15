@@ -1,3 +1,25 @@
+//! Popover overlay mirroring Radix Popover API with positioning and portal options.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{popover, PopoverProps, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme, open: &mut bool) {
+//!     popover(
+//!         ui,
+//!         theme,
+//!         PopoverProps {
+//!             open,
+//!             ..Default::default()
+//!         },
+//!         |ui| ui.button("Trigger"),
+//!         |ui| {
+//!             ui.label("Popover content");
+//!         },
+//!     );
+//! }
+//! ```
+
 use crate::theme::Theme;
 use egui::{
     CornerRadius, Frame, Id, Margin, Order, Pos2, Rect, Response, Stroke, Ui, Vec2, pos2, vec2,

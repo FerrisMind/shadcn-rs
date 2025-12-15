@@ -1,3 +1,21 @@
+//! Shadcn-style button for egui: variants, sizes, and focus ring aligned with Radix patterns.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{button, ControlSize, ControlVariant, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme) {
+//!     button(
+//!         ui,
+//!         theme,
+//!         "Save",
+//!         ControlVariant::Primary,
+//!         ControlSize::Md,
+//!         true,
+//!     );
+//! }
+//! ```
+
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, ControlSize, ControlVariant, ease_out_cubic, mix};
 use egui::{

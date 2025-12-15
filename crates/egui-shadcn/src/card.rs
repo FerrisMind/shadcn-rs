@@ -1,3 +1,22 @@
+//! Card component for grouping content with shadcn-inspired surfaces, variants, and sizing.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{card, CardSize, CardVariant, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme) {
+//!     card(
+//!         ui,
+//!         theme,
+//!         CardVariant::Surface,
+//!         CardSize::Size3,
+//!         |ui| {
+//!             ui.label("Card content");
+//!         },
+//!     );
+//! }
+//! ```
+
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, DEFAULT_RADIUS, RadiusScale, ease_out_cubic, mix};
 use egui::{

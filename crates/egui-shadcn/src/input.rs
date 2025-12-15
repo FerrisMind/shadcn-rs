@@ -1,3 +1,21 @@
+//! Text input styled after shadcn, with Radix-like variants, sizes, and focus ring.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{text_input, ControlSize, InputVariant, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme, text: &mut String) {
+//!     text_input(
+//!         ui,
+//!         theme,
+//!         "Label",
+//!         text,
+//!         InputVariant::Surface,
+//!         ControlSize::Md,
+//!     );
+//! }
+//! ```
+
 use crate::theme::Theme;
 use crate::tokens::{
     ColorPalette, ControlSize, InputVariant as TokenInputVariant, input_tokens, mix,

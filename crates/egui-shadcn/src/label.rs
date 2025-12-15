@@ -1,3 +1,14 @@
+//! Accessible label component aligned with Radix Label API plus shadcn variants.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{label, LabelVariant, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme) {
+//!     label(ui, theme, "Email", LabelVariant::Default, false, None);
+//! }
+//! ```
+
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, ControlSize, mix};
 use egui::{Color32, FontId, Id, Response, Sense, TextStyle, Ui, WidgetText};

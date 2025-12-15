@@ -1,3 +1,25 @@
+//! Select dropdown aligned with Radix Select API: positioning, portal, and per-item text values.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::{select, SelectPropsSimple, Theme};
+//!
+//! fn ui(ui: &mut egui::Ui, theme: &Theme, value: &mut String) {
+//!     select(
+//!         ui,
+//!         theme,
+//!         SelectPropsSimple {
+//!             value,
+//!             items: vec![
+//!                 ("apple".into(), "Apple".into()),
+//!                 ("banana".into(), "Banana".into()),
+//!             ],
+//!             ..Default::default()
+//!         },
+//!     );
+//! }
+//! ```
+
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, ControlSize, mix};
 use egui::{
