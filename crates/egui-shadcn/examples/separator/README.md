@@ -2,7 +2,7 @@
 
 <p align="center">
   <picture>
-    <img alt="separator example" src="../../examples/separator/separator.svg"/>
+    <img alt="separator example" src="../../examples/separator/separator.png" width="900"/>
   </picture>
 </p>
 
