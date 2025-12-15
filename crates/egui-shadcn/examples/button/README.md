@@ -2,7 +2,7 @@
 
 <p align="center">
   <picture>
-    <img alt="button example" src="../../examples/button/button.svg"/>
+    <img alt="button example" src="../../examples/button/button.png" width=900/>
   </picture>
 </p>
 
