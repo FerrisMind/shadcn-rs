@@ -19,5 +19,5 @@ Demonstrates the `Button` component with variants, sizes, icons, and states.
 ## Run
 
 ```bash
-cargo run --example button --features examples
+cargo run --example button
 ```

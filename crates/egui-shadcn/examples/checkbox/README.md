@@ -18,5 +18,5 @@ Demonstrates the `Checkbox` component with labels and descriptions.
 ## Run
 
 ```bash
-cargo run --example checkbox --features examples
+cargo run --example checkbox
 ```

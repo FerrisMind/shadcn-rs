@@ -17,5 +17,5 @@ Demonstrates the `Separator` component with horizontal and vertical orientations
 ## Run
 
 ```bash
-cargo run --example separator --features examples
+cargo run --example separator
 ```

@@ -20,5 +20,5 @@ Demonstrates the `Toggle` button component with variants and icon sizes.
 ## Run
 
 ```bash
-cargo run --example toggle --features examples
+cargo run --example toggle
 ```

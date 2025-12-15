@@ -20,5 +20,5 @@ Demonstrates the `Textarea` component with labels, helper text, and form integra
 ## Run
 
 ```bash
-cargo run --example textarea --features examples
+cargo run --example textarea
 ```

@@ -17,5 +17,5 @@ Demonstrates the `RadioGroup` component laid out as a grid of labeled cards.
 ## Run
 
 ```bash
-cargo run --example radio --features examples
+cargo run --example radio
 ```

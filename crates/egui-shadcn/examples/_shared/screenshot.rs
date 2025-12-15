@@ -20,7 +20,7 @@ pub fn apply_screenshot_scale(ctx: &egui::Context) {
         return;
     }
 
-    ctx.set_pixels_per_point(ctx.pixels_per_point() * 1.5);
+    ctx.set_pixels_per_point(ctx.pixels_per_point() * 2.0);
     ctx.data_mut(|d| d.insert_temp(applied_id, true));
 }
 

@@ -17,5 +17,5 @@ Demonstrates the `Card` component with form layouts and theme switching.
 ## Run
 
 ```bash
-cargo run --example card --features examples
+cargo run --example card
 ```

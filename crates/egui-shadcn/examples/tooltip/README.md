@@ -15,5 +15,5 @@ Demonstrates the `Tooltip` component with basic hover interaction.
 ## Run
 
 ```bash
-cargo run --example tooltip --features examples
+cargo run --example tooltip
 ```
