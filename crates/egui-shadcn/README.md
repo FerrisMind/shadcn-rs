@@ -95,13 +95,13 @@ let theme = Theme::default();
 Run examples to see components in action:
 
 ```bash
-cargo run --example button --features examples      # Button variants and sizes
-cargo run --example input --features examples       # Text input with config
-cargo run --example select --features examples      # Select dropdown
-cargo run --example checkbox --features examples    # Checkbox with tri-state
-cargo run --example switch --features examples      # Switch component
-cargo run --example toggle --features examples      # Toggle button
-cargo run --example popover --features examples     # Popover component
+cargo run --example button      # Button variants and sizes
+cargo run --example input       # Text input with config
+cargo run --example select      # Select dropdown
+cargo run --example checkbox    # Checkbox with tri-state
+cargo run --example switch      # Switch component
+cargo run --example toggle      # Toggle button
+cargo run --example popover     # Popover component
 ```
 
 See `examples/` directory for all available examples.

@@ -15,5 +15,5 @@ Demonstrates the `Label` component placed in a grid card with a linked checkbox.
 ## Run
 
 ```bash
-cargo run --example label --features examples
+cargo run --example label
 ```

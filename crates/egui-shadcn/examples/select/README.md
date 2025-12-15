@@ -17,5 +17,5 @@ Demonstrates the `Select` component with grouped options and form integration.
 ## Run
 
 ```bash
-cargo run --example select --features examples
+cargo run --example select
 ```

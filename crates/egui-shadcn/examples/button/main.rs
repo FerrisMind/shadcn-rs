@@ -13,8 +13,7 @@ use egui::{
     FontData, FontDefinitions, FontFamily, FontId, RichText, text::LayoutJob, text::TextFormat,
 };
 use egui_shadcn::{
-    Button, ButtonRadius, ButtonSize, ButtonVariant, ControlSize, ControlVariant, Label,
-    ScrollAreaProps, ScrollAreaType, ScrollDirection, SeparatorProps, Theme, button, scroll_area,
+    Button, ButtonRadius, ButtonSize, ButtonVariant, ControlSize, ControlVariant, Label, SeparatorProps, Theme, button,
     separator,
 };
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};

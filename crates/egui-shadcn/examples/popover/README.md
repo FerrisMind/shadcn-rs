@@ -18,5 +18,5 @@ Demonstrates the `Popover` component with form content.
 ## Run
 
 ```bash
-cargo run --example popover --features examples
+cargo run --example popover
 ```

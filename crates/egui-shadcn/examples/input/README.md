@@ -21,5 +21,5 @@ Demonstrates the `Input` component with labels, helper text, and form integratio
 ## Run
 
 ```bash
-cargo run --example input --features examples
+cargo run --example input
 ```

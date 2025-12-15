@@ -20,5 +20,5 @@ Demonstrates the `Switch` component in a settings interface.
 ## Run
 
 ```bash
-cargo run --example switch --features examples
+cargo run --example switch
 ```

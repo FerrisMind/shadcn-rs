@@ -17,5 +17,5 @@ Demonstrates the `ScrollArea` component with vertical and horizontal scrolling.
 ## Run
 
 ```bash
-cargo run --example scroll_area --features examples
+cargo run --example scroll_area
 ```

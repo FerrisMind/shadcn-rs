@@ -18,5 +18,5 @@ Demonstrates the `Dialog` component with modal forms and content.
 ## Run
 
 ```bash
-cargo run --example dialog --features examples
+cargo run --example dialog
 ```
