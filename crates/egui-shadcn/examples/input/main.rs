@@ -6,11 +6,9 @@
 #[path = "../_shared/icon.rs"]
 mod icon;
 
-use eframe::{egui, App, Frame};
+use eframe::{App, Frame, egui};
 use egui::RichText;
-use egui_shadcn::{
-    button, ControlSize, ControlVariant, Input, InputSize, InputType, Label, Theme,
-};
+use egui_shadcn::{ControlSize, ControlVariant, Input, InputSize, InputType, Label, Theme, button};
 use rfd::FileDialog;
 
 struct InputDemo {

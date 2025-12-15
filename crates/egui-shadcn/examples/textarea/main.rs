@@ -6,10 +6,7 @@
 #[path = "../_shared/icon.rs"]
 mod icon;
 
-use eframe::{
-    App, Frame,
-    egui,
-};
+use eframe::{App, Frame, egui};
 use egui_shadcn::{ControlSize, ControlVariant, Textarea, TextareaSize, Theme, button};
 
 struct TextareaDemo {

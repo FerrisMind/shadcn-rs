@@ -6,9 +6,9 @@
 #[path = "../_shared/icon.rs"]
 mod icon;
 
-use eframe::{egui, App, Frame};
+use eframe::{App, Frame, egui};
 use egui::RichText;
-use egui_shadcn::{checkbox, ControlSize, ControlVariant, Label, Theme};
+use egui_shadcn::{ControlSize, ControlVariant, Label, Theme, checkbox};
 
 struct LabelDemo {
     theme: Theme,
@@ -37,42 +37,38 @@ impl App for LabelDemo {
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.spacing_mut().item_spacing = egui::vec2(16.0, 16.0);
             let avail = ui.available_size();
-            ui.allocate_ui_with_layout(
-                avail,
-                egui::Layout::top_down(egui::Align::Center),
-                |ui| {
-                    ui.heading("Label");
-                    ui.add_space(12.0);
+            ui.allocate_ui_with_layout(avail, egui::Layout::top_down(egui::Align::Center), |ui| {
+                ui.heading("Label");
+                ui.add_space(12.0);
 
-                    let card_width = 320.0;
-                    ui.vertical_centered(|ui| {
+                let card_width = 320.0;
+                ui.vertical_centered(|ui| {
+                    ui.set_min_width(card_width);
+                    ui.set_max_width(card_width);
+                    example_card(ui, "Label", |ui| {
                         ui.set_min_width(card_width);
                         ui.set_max_width(card_width);
-                        example_card(ui, "Label", |ui| {
-                            ui.set_min_width(card_width);
-                            ui.set_max_width(card_width);
-                            ui.horizontal(|row| {
-                                row.spacing_mut().item_spacing.x = 8.0;
-                                let _ = checkbox(
-                                    row,
-                                    &self.theme,
-                                    &mut self.terms,
-                                    "",
-                                    ControlVariant::Primary,
-                                    ControlSize::Md,
-                                    true,
-                                );
-                                let label_resp = Label::new("Accept terms and conditions")
-                                    .size(ControlSize::Md)
-                                    .show(row, &self.theme);
-                                if label_resp.clicked() {
-                                    self.terms = !self.terms;
-                                }
-                            });
+                        ui.horizontal(|row| {
+                            row.spacing_mut().item_spacing.x = 8.0;
+                            let _ = checkbox(
+                                row,
+                                &self.theme,
+                                &mut self.terms,
+                                "",
+                                ControlVariant::Primary,
+                                ControlSize::Md,
+                                true,
+                            );
+                            let label_resp = Label::new("Accept terms and conditions")
+                                .size(ControlSize::Md)
+                                .show(row, &self.theme);
+                            if label_resp.clicked() {
+                                self.terms = !self.terms;
+                            }
                         });
                     });
-                },
-            );
+                });
+            });
         });
     }
 }
