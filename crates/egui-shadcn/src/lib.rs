@@ -21,7 +21,10 @@ pub use button::{
     Button, ButtonProps, ButtonRadius, ButtonSize, ButtonStyle, ButtonVariant, button,
 };
 pub use card::{CardProps, CardSize, CardTokens, CardVariant, card, card_tokens_with_options};
-pub use checkbox::{CheckboxCycle, CheckboxOptions, CheckboxState, checkbox, checkbox_state};
+pub use checkbox::{
+    CheckboxCycle, CheckboxOptions, CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant,
+    checkbox, checkbox_state, checkbox_with_props,
+};
 pub use dialog::{
     DialogAlign, DialogLayoutTokens, DialogProps, DialogSize, DialogTokens, compute_dialog_rect,
     dialog, dialog_layout_tokens, dialog_tokens_with_options,
@@ -31,23 +34,32 @@ pub use input::{
     resolve_input_style, text_input, text_input_with_config, text_input_with_props,
 };
 pub use label::{Label, LabelProps, LabelVariant, label, label_with_props};
-pub use popover::{PopoverAlign, PopoverPlacement, PopoverProps, popover};
+pub use popover::{
+    PopoverAlign, PopoverCollisionPadding, PopoverPlacement, PopoverPortalContainer, PopoverProps,
+    PopoverSide, PopoverSticky, PopoverUpdatePositionStrategy, popover,
+};
 pub use radio::{
     GridLayout, RadioCardVariant, RadioDirection, RadioGroup, RadioGroupProps, RadioOption,
     radio_group,
 };
 pub use scroll_area::{
-    ScrollAreaColors, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize, ScrollAreaType,
-    ScrollDirection, scroll_area,
+    ScrollAreaColors, ScrollAreaDir, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize,
+    ScrollAreaType, ScrollDirection, scroll_area,
 };
 pub use select::{
-    ContentVariant, PopupPosition, SelectItem, SelectProps, SelectPropsSimple, SelectRadius,
-    SelectSize, SelectStyle, TriggerVariant, select, select_with_items,
+    ContentVariant, PopupPosition, SelectAlign, SelectAutoFocusEvent, SelectCollisionPadding,
+    SelectDirection, SelectEscapeKeyDownEvent, SelectItem, SelectPointerDownOutsideEvent,
+    SelectPortalContainer, SelectProps, SelectPropsSimple, SelectRadius, SelectSide, SelectSize,
+    SelectSticky, SelectStyle, SelectUpdatePositionStrategy, TriggerVariant, select,
+    select_with_items,
 };
 pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separator};
-pub use switch::{SwitchOptions, switch, switch_with_options};
+pub use switch::{
+    OnCheckedChange, SwitchOptions, SwitchProps, switch, switch_with_options, switch_with_props,
+};
 pub use tabs::{
-    TabItem, TabsJustify, TabsOrientation, TabsProps, TabsSize, TabsVariant, TabsWrap, tabs,
+    TabItem, TabsActivationMode, TabsContentForceMount, TabsDirection, TabsDirectionality,
+    TabsJustify, TabsListLoop, TabsOrientation, TabsProps, TabsSize, TabsVariant, TabsWrap, tabs,
 };
 pub use textarea::{
     TextareaBuilder, TextareaBuilder as Textarea, TextareaProps, TextareaRadius, TextareaSize,
@@ -64,6 +76,8 @@ pub use tokens::{
     toggle_button_tokens, toggle_metrics, variant_tokens,
 };
 pub use tooltip::{
-    TooltipAlign, TooltipAnimationState, TooltipOpenState, TooltipPosition, TooltipProps,
-    TooltipSide, TooltipState, TooltipStyle, tooltip,
+    TooltipAlign, TooltipAnimationState, TooltipCollisionPadding, TooltipEscapeKeyDownEvent,
+    TooltipOpenState, TooltipPointerDownOutsideEvent, TooltipPortalContainer, TooltipPosition,
+    TooltipProps, TooltipSide, TooltipState, TooltipSticky, TooltipStyle,
+    TooltipUpdatePositionStrategy, tooltip,
 };

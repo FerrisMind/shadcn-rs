@@ -6,7 +6,7 @@ use crate::tokens::{
 use egui::style::Widgets;
 use egui::{Color32, CursorIcon, Response, Sense, Stroke, TextStyle, Ui, Vec2, WidgetText, vec2};
 use log::trace;
-use std::fmt::Debug;
+use std::fmt::{self, Debug};
 use std::hash::Hash;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -21,6 +21,12 @@ pub enum RadioCardVariant {
     #[default]
     Button,
     Card,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TextDirection {
+    Ltr,
+    Rtl,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -53,9 +59,15 @@ pub struct RadioOption<T> {
 
     pub disabled: bool,
 
+    pub required: bool,
+
+    pub as_child: bool,
+
     pub icon: Option<WidgetText>,
 
     pub accent_color: Option<Color32>,
+
+    pub force_mount_indicator: bool,
 }
 
 impl<T> RadioOption<T> {
@@ -65,8 +77,11 @@ impl<T> RadioOption<T> {
             label: label.into(),
             description: None,
             disabled: false,
+            required: false,
+            as_child: false,
             icon: None,
             accent_color: None,
+            force_mount_indicator: false,
         }
     }
 
@@ -80,6 +95,16 @@ impl<T> RadioOption<T> {
         self
     }
 
+    pub fn required(mut self, required: bool) -> Self {
+        self.required = required;
+        self
+    }
+
+    pub fn as_child(mut self, as_child: bool) -> Self {
+        self.as_child = as_child;
+        self
+    }
+
     pub fn icon(mut self, icon: impl Into<WidgetText>) -> Self {
         self.icon = Some(icon.into());
         self
@@ -87,6 +112,11 @@ impl<T> RadioOption<T> {
 
     pub fn accent_color(mut self, color: Color32) -> Self {
         self.accent_color = Some(color);
+        self
+    }
+
+    pub fn force_mount_indicator(mut self, force: bool) -> Self {
+        self.force_mount_indicator = force;
         self
     }
 }
@@ -102,6 +132,20 @@ where
     pub value: &'a mut T,
 
     pub options: &'a [RadioOption<T>],
+
+    pub default_value: Option<T>,
+
+    pub on_value_change: Option<OnValueChange<'a, T>>,
+
+    pub name: Option<String>,
+
+    pub required: bool,
+
+    pub dir: Option<TextDirection>,
+
+    pub loop_focus: bool,
+
+    pub as_child: bool,
 
     pub size: ControlSize,
 
@@ -124,6 +168,14 @@ where
     pub custom_spacing: Option<f32>,
 }
 
+pub struct OnValueChange<'a, T>(pub Box<dyn FnMut(&T) + 'a>);
+
+impl<'a, T> Debug for OnValueChange<'a, T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OnValueChange").finish()
+    }
+}
+
 impl<'a, T, Id> RadioGroupProps<'a, T, Id>
 where
     T: Clone + PartialEq + Debug,
@@ -134,6 +186,13 @@ where
             id_source,
             value,
             options,
+            default_value: None,
+            on_value_change: None,
+            name: None,
+            required: false,
+            dir: None,
+            loop_focus: true,
+            as_child: false,
             size: ControlSize::Md,
             variant: ControlVariant::Primary,
             disabled: false,
@@ -194,6 +253,46 @@ where
 
     pub fn custom_spacing(mut self, spacing: f32) -> Self {
         self.custom_spacing = Some(spacing);
+        self
+    }
+
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+
+    pub fn required(mut self, required: bool) -> Self {
+        self.required = required;
+        self
+    }
+
+    pub fn dir(mut self, dir: TextDirection) -> Self {
+        self.dir = Some(dir);
+        self
+    }
+
+    pub fn default_value(mut self, value: T) -> Self {
+        self.default_value = Some(value);
+        self
+    }
+
+    pub fn on_value_change(mut self, callback: impl FnMut(&T) + 'a) -> Self {
+        self.on_value_change = Some(OnValueChange(Box::new(callback)));
+        self
+    }
+
+    pub fn loop_focus(mut self, loop_focus: bool) -> Self {
+        self.loop_focus = loop_focus;
+        self
+    }
+
+    pub fn as_child(mut self, as_child: bool) -> Self {
+        self.as_child = as_child;
+        self
+    }
+
+    pub fn orientation(mut self, direction: RadioDirection) -> Self {
+        self.direction = direction;
         self
     }
 }
@@ -265,6 +364,46 @@ where
 
     pub fn custom_spacing(mut self, spacing: f32) -> Self {
         self.props.custom_spacing = Some(spacing);
+        self
+    }
+
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        self.props.name = Some(name.into());
+        self
+    }
+
+    pub fn required(mut self, required: bool) -> Self {
+        self.props.required = required;
+        self
+    }
+
+    pub fn dir(mut self, dir: TextDirection) -> Self {
+        self.props.dir = Some(dir);
+        self
+    }
+
+    pub fn default_value(mut self, value: T) -> Self {
+        self.props.default_value = Some(value);
+        self
+    }
+
+    pub fn on_value_change(mut self, callback: impl FnMut(&T) + 'a) -> Self {
+        self.props.on_value_change = Some(OnValueChange(Box::new(callback)));
+        self
+    }
+
+    pub fn loop_focus(mut self, loop_focus: bool) -> Self {
+        self.props.loop_focus = loop_focus;
+        self
+    }
+
+    pub fn as_child(mut self, as_child: bool) -> Self {
+        self.props.as_child = as_child;
+        self
+    }
+
+    pub fn orientation(mut self, direction: RadioDirection) -> Self {
+        self.props.direction = direction;
         self
     }
 
@@ -341,11 +480,33 @@ fn radio_metrics(size: ControlSize) -> (Vec2, f32) {
     (circle_size, indicator_radius)
 }
 
+fn apply_default_value<Id, T>(ui: &Ui, props: &mut RadioGroupProps<'_, T, Id>)
+where
+    T: Clone + PartialEq + Debug,
+    Id: Hash + Debug,
+{
+    if let Some(default) = props.default_value.clone() {
+        let default_id = ui.make_persistent_id((&props.id_source, "default_applied"));
+        let already_applied = ui
+            .ctx()
+            .memory_mut(|mem| mem.data.get_persisted::<bool>(default_id).unwrap_or(false));
+        if !already_applied {
+            *props.value = default;
+            if let Some(cb) = props.on_value_change.as_mut() {
+                (cb.0)(props.value);
+            }
+            ui.ctx()
+                .memory_mut(|mem| mem.data.insert_persisted(default_id, true));
+        }
+    }
+}
+
 pub fn radio_group<Id, T>(ui: &mut Ui, theme: &Theme, props: RadioGroupProps<'_, T, Id>) -> Response
 where
     T: Clone + PartialEq + Debug,
     Id: Hash + Debug,
 {
+    let mut props = props;
     trace!(
         "Rendering radio group variant={:?} size={:?} options={} card_variant={:?}",
         props.variant,
@@ -353,6 +514,8 @@ where
         props.options.len(),
         props.card_variant
     );
+
+    apply_default_value(ui, &mut props);
 
     match props.card_variant {
         RadioCardVariant::Button => render_button_group(ui, theme, props),
@@ -363,7 +526,7 @@ where
 fn render_button_group<Id, T>(
     ui: &mut Ui,
     theme: &Theme,
-    props: RadioGroupProps<'_, T, Id>,
+    mut props: RadioGroupProps<'_, T, Id>,
 ) -> Response
 where
     T: Clone + PartialEq + Debug,
@@ -422,7 +585,7 @@ where
         scope_ui.style_mut().visuals.widgets = no_bg_widgets;
 
         let mut render_items = |ui_container: &mut Ui, combined: &mut Option<Response>| {
-            for (idx, option) in props.options.iter().enumerate() {
+            for (idx, option) in props.options.iter().cloned().enumerate() {
                 let option_enabled = !props.disabled && !option.disabled;
                 let item_id = id.with(idx);
                 let label_text = option.label.clone().color(style.label);
@@ -456,8 +619,10 @@ where
 
                         let clicked =
                             option_enabled && (icon_response.clicked() || label_response.clicked());
-                        if clicked {
+                        let mut should_call_change = false;
+                        if clicked && *props.value != option.value {
                             *props.value = option.value.clone();
+                            should_call_change = true;
                         }
 
                         let selected = *props.value == option.value;
@@ -511,7 +676,7 @@ where
                             );
                         }
 
-                        if anim_value > 0.0 {
+                        if anim_value > 0.0 || option.force_mount_indicator {
                             let indicator_color = Color32::from_rgba_unmultiplied(
                                 style.indicator.r(),
                                 style.indicator.g(),
@@ -520,7 +685,12 @@ where
                             );
                             painter.circle_filled(
                                 circle_rect.center(),
-                                indicator_radius * anim_value.max(0.3),
+                                indicator_radius
+                                    * if anim_value > 0.0 {
+                                        anim_value.max(0.3)
+                                    } else {
+                                        0.3
+                                    },
                                 indicator_color,
                             );
                         }
@@ -556,6 +726,11 @@ where
                         if option_enabled {
                             merged = merged.on_hover_cursor(CursorIcon::PointingHand);
                         }
+
+                        if should_call_change && let Some(cb) = props.on_value_change.as_mut() {
+                            (cb.0)(props.value);
+                        }
+
                         merged
                     })
                     .inner;
@@ -593,7 +768,7 @@ where
 fn render_card_group<Id, T>(
     ui: &mut Ui,
     theme: &Theme,
-    props: RadioGroupProps<'_, T, Id>,
+    mut props: RadioGroupProps<'_, T, Id>,
 ) -> Response
 where
     T: Clone + PartialEq + Debug,
@@ -639,7 +814,7 @@ where
         let mut row_container_response: Option<Response> = None;
 
         scope_ui.vertical(|vert_ui| {
-            for (idx, option) in props.options.iter().enumerate() {
+            for (idx, option) in props.options.iter().cloned().enumerate() {
                 if col_count == 0 {
                     row_container_response = None;
                 }
@@ -675,7 +850,7 @@ where
 
                     render_radio_card(
                         row,
-                        option,
+                        &option,
                         option_enabled,
                         selected,
                         anim_value,
@@ -689,14 +864,20 @@ where
                     card_response.inner.clone().mark_changed();
                 }
 
-                if option_enabled && card_response.inner.clicked() {
+                let mut should_call_change = false;
+                if option_enabled && card_response.inner.clicked() && *props.value != option.value {
                     *props.value = option.value.clone();
+                    should_call_change = true;
                 }
 
                 row_container_response = Some(match row_container_response.take() {
                     Some(acc) => acc | card_response.inner,
                     None => card_response.inner,
                 });
+
+                if should_call_change && let Some(cb) = props.on_value_change.as_mut() {
+                    (cb.0)(props.value);
+                }
 
                 col_count += 1;
                 if col_count >= grid_layout.columns {
@@ -796,7 +977,7 @@ fn render_radio_card<T: PartialEq + Clone + Debug>(
             painter.circle_stroke(radio_center, radio_radius, state.border);
         }
 
-        if anim_value > 0.0 {
+        if anim_value > 0.0 || option.force_mount_indicator {
             let indicator_color = Color32::from_rgba_unmultiplied(
                 style.indicator.r(),
                 style.indicator.g(),
@@ -805,7 +986,12 @@ fn render_radio_card<T: PartialEq + Clone + Debug>(
             );
             painter.circle_filled(
                 radio_center,
-                indicator_radius * anim_value.max(0.3),
+                indicator_radius
+                    * if anim_value > 0.0 {
+                        anim_value.max(0.3)
+                    } else {
+                        0.3
+                    },
                 indicator_color,
             );
         }

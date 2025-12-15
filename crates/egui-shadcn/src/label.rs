@@ -79,6 +79,7 @@ impl LabelStyle {
 pub struct LabelProps {
     pub text: WidgetText,
 
+    pub html_for: Option<String>,
     pub for_id: Option<Id>,
 
     pub interactive: bool,
@@ -92,12 +93,15 @@ pub struct LabelProps {
     pub required: bool,
 
     pub description: Option<WidgetText>,
+
+    pub as_child: bool,
 }
 
 impl LabelProps {
     pub fn new(text: impl Into<WidgetText>) -> Self {
         Self {
             text: text.into(),
+            html_for: None,
             for_id: None,
             interactive: true,
             size: ControlSize::Md,
@@ -105,11 +109,17 @@ impl LabelProps {
             disabled: false,
             required: false,
             description: None,
+            as_child: false,
         }
     }
 
     pub fn for_id(mut self, id: Id) -> Self {
         self.for_id = Some(id);
+        self
+    }
+
+    pub fn with_html_for(mut self, target: impl Into<String>) -> Self {
+        self.html_for = Some(target.into());
         self
     }
 
@@ -140,6 +150,11 @@ impl LabelProps {
 
     pub fn description(mut self, description: impl Into<WidgetText>) -> Self {
         self.description = Some(description.into());
+        self
+    }
+
+    pub fn with_as_child(mut self, as_child: bool) -> Self {
+        self.as_child = as_child;
         self
     }
 
@@ -214,6 +229,10 @@ pub fn label_with_props(ui: &mut Ui, theme: &Theme, props: LabelProps) -> Respon
         style = style.disabled();
     }
 
+    let resolved_target = props
+        .for_id
+        .or_else(|| props.html_for.as_ref().map(Id::new));
+
     let response = ui
         .scope(|scoped_ui| {
             let mut scoped_style = scoped_ui.style().as_ref().clone();
@@ -237,7 +256,7 @@ pub fn label_with_props(ui: &mut Ui, theme: &Theme, props: LabelProps) -> Respon
                         row.colored_label(style.required, "*");
                     }
 
-                    if let Some(target) = props.for_id
+                    if let Some(target) = resolved_target
                         && label_response.clicked()
                     {
                         row.memory_mut(|m| m.request_focus(target));

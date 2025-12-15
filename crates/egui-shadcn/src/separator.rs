@@ -43,6 +43,8 @@ pub struct SeparatorProps {
     pub decorative: bool,
 
     pub high_contrast: bool,
+
+    pub as_child: bool,
 }
 
 impl Default for SeparatorProps {
@@ -54,8 +56,9 @@ impl Default for SeparatorProps {
             gap: 0.0,
             length: None,
             color: None,
-            decorative: true,
+            decorative: false,
             high_contrast: false,
+            as_child: false,
         }
     }
 }
@@ -98,6 +101,11 @@ impl SeparatorProps {
 
     pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.high_contrast = high_contrast;
+        self
+    }
+
+    pub fn as_child(mut self, as_child: bool) -> Self {
+        self.as_child = as_child;
         self
     }
 }

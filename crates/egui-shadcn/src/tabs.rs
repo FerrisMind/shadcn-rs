@@ -7,6 +7,7 @@ use egui::{
     StrokeKind, TextStyle, TextWrapMode, Ui, Vec2, WidgetText, vec2,
 };
 use log::trace;
+use std::fmt::{self, Debug};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TabsVariant {
@@ -21,6 +22,32 @@ pub enum TabsVariant {
 pub enum TabsOrientation {
     Horizontal,
     Vertical,
+}
+
+pub type TabsDirection = TabsOrientation;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TabsDirectionality {
+    Ltr,
+    Rtl,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TabsActivationMode {
+    Automatic,
+    Manual,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TabsListLoop {
+    Enabled,
+    Disabled,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TabsContentForceMount {
+    Off,
+    On,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -48,6 +75,8 @@ pub struct TabItem {
     pub id: String,
     pub label: WidgetText,
     pub disabled: bool,
+    pub force_mount: TabsContentForceMount,
+    pub trigger_as_child: bool,
 }
 
 impl TabItem {
@@ -56,11 +85,27 @@ impl TabItem {
             id: id.into(),
             label: label.into(),
             disabled: false,
+            force_mount: TabsContentForceMount::Off,
+            trigger_as_child: false,
         }
     }
 
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    pub fn force_mount(mut self, force: bool) -> Self {
+        self.force_mount = if force {
+            TabsContentForceMount::On
+        } else {
+            TabsContentForceMount::Off
+        };
+        self
+    }
+
+    pub fn trigger_as_child(mut self, as_child: bool) -> Self {
+        self.trigger_as_child = as_child;
         self
     }
 }
@@ -70,11 +115,22 @@ pub struct TabsProps<'a> {
     pub id_source: Id,
     pub items: &'a [TabItem],
     pub active: &'a mut String,
+    pub default_value: Option<String>,
+    pub on_value_change: Option<OnValueChange<'a>>,
     pub variant: TabsVariant,
-    pub orientation: TabsOrientation,
+    pub orientation: TabsDirection,
+    pub activation_mode: TabsActivationMode,
+    pub dir: Option<TabsDirectionality>,
+    pub list_loop: TabsListLoop,
     pub size: TabsSize,
     pub wrap: TabsWrap,
     pub justify: TabsJustify,
+
+    pub root_as_child: bool,
+    pub list_as_child: bool,
+    pub trigger_as_child: bool,
+    pub content_as_child: bool,
+    pub content_force_mount: TabsContentForceMount,
 
     pub full_width: bool,
 
@@ -88,17 +144,35 @@ pub struct TabsProps<'a> {
     pub compact: bool,
 }
 
+pub struct OnValueChange<'a>(pub Box<dyn FnMut(&str) + 'a>);
+
+impl<'a> Debug for OnValueChange<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("OnValueChange").finish()
+    }
+}
+
 impl<'a> TabsProps<'a> {
     pub fn new(id_source: Id, items: &'a [TabItem], active: &'a mut String) -> Self {
         Self {
             id_source,
             items,
             active,
+            default_value: None,
+            on_value_change: None,
             variant: TabsVariant::Underline,
-            orientation: TabsOrientation::Horizontal,
+            orientation: TabsDirection::Horizontal,
+            activation_mode: TabsActivationMode::Automatic,
+            dir: None,
+            list_loop: TabsListLoop::Enabled,
             size: TabsSize::Size2,
             wrap: TabsWrap::NoWrap,
             justify: TabsJustify::Start,
+            root_as_child: false,
+            list_as_child: false,
+            trigger_as_child: false,
+            content_as_child: false,
+            content_force_mount: TabsContentForceMount::Off,
             full_width: false,
             scrollable: true,
             accent_color: None,
@@ -113,8 +187,33 @@ impl<'a> TabsProps<'a> {
         self
     }
 
-    pub fn with_orientation(mut self, orientation: TabsOrientation) -> Self {
+    pub fn with_orientation(mut self, orientation: TabsDirection) -> Self {
         self.orientation = orientation;
+        self
+    }
+
+    pub fn with_activation_mode(mut self, mode: TabsActivationMode) -> Self {
+        self.activation_mode = mode;
+        self
+    }
+
+    pub fn with_dir(mut self, dir: TabsDirectionality) -> Self {
+        self.dir = Some(dir);
+        self
+    }
+
+    pub fn with_default_value(mut self, value: String) -> Self {
+        self.default_value = Some(value);
+        self
+    }
+
+    pub fn with_on_value_change(mut self, callback: impl FnMut(&str) + 'a) -> Self {
+        self.on_value_change = Some(OnValueChange(Box::new(callback)));
+        self
+    }
+
+    pub fn with_list_loop(mut self, loop_focus: TabsListLoop) -> Self {
+        self.list_loop = loop_focus;
         self
     }
 
@@ -130,6 +229,31 @@ impl<'a> TabsProps<'a> {
 
     pub fn with_justify(mut self, justify: TabsJustify) -> Self {
         self.justify = justify;
+        self
+    }
+
+    pub fn root_as_child(mut self, as_child: bool) -> Self {
+        self.root_as_child = as_child;
+        self
+    }
+
+    pub fn list_as_child(mut self, as_child: bool) -> Self {
+        self.list_as_child = as_child;
+        self
+    }
+
+    pub fn trigger_as_child(mut self, as_child: bool) -> Self {
+        self.trigger_as_child = as_child;
+        self
+    }
+
+    pub fn content_as_child(mut self, as_child: bool) -> Self {
+        self.content_as_child = as_child;
+        self
+    }
+
+    pub fn with_content_force_mount(mut self, force: TabsContentForceMount) -> Self {
+        self.content_force_mount = force;
         self
     }
 
@@ -169,13 +293,41 @@ pub struct TabsResult<R> {
     pub content: R,
 }
 
+fn apply_default_value(ui: &Ui, props: &mut TabsProps<'_>) {
+    if let Some(default) = props.default_value.clone() {
+        let applied_id = props.id_source.with("default_applied");
+        let already_applied = ui
+            .ctx()
+            .memory_mut(|mem| mem.data.get_persisted::<bool>(applied_id).unwrap_or(false));
+        if !already_applied {
+            *props.active = default;
+            if let Some(cb) = props.on_value_change.as_mut() {
+                (cb.0)(props.active);
+            }
+            ui.ctx()
+                .memory_mut(|mem| mem.data.insert_persisted(applied_id, true));
+        }
+    }
+}
+
+fn set_active_if_changed(props: &mut TabsProps<'_>, next: &str) {
+    if props.active != next {
+        *props.active = next.to_string();
+        if let Some(cb) = props.on_value_change.as_mut() {
+            (cb.0)(props.active);
+        }
+    }
+}
+
 pub fn tabs<'a, R>(
     ui: &mut Ui,
     theme: &Theme,
-    props: TabsProps<'a>,
+    mut props: TabsProps<'a>,
     render_content: impl FnOnce(&mut Ui, &TabItem) -> R,
 ) -> TabsResult<R> {
     let palette = &theme.palette;
+
+    apply_default_value(ui, &mut props);
 
     if props.items.is_empty() {
         let dummy = ui.allocate_response(Vec2::ZERO, Sense::hover());
@@ -196,13 +348,15 @@ pub fn tabs<'a, R>(
         .iter()
         .any(|t| t.id == *props.active && !t.disabled)
     {
-        *props.active = first_enabled.id.clone();
+        set_active_if_changed(&mut props, &first_enabled.id);
     }
 
     trace!("render tabs {:?}", props.id_source);
 
     let tokens = resolve_tabs_tokens(palette, &props);
     let anim_duration = theme.motion.base_ms / 1000.0;
+    let mut current_active = props.active.clone();
+    let mut pending_active: Option<String> = None;
 
     let mut bar_rect: Rect = Rect::NOTHING;
     let bar_response = Frame::default()
@@ -280,7 +434,7 @@ pub fn tabs<'a, R>(
                                           tab: &TabItem|
                  -> Response {
                     let trigger_id = trigger_ids[index];
-                    let is_active = *props.active == tab.id;
+                    let is_active = current_active == tab.id;
                     let width = trigger_widths[index];
 
                     let (rect, _) = trigger_ui
@@ -426,13 +580,15 @@ pub fn tabs<'a, R>(
                     let text_pos = rect.center() - 0.5 * galley.size();
                     trigger_ui.painter().galley(text_pos, galley, text_color);
 
-                    if response.clicked()
+                    if (response.clicked()
                         || (has_focus
                             && trigger_ui.input(|i| {
                                 i.key_pressed(egui::Key::Enter) || i.key_pressed(egui::Key::Space)
-                            }))
+                            })))
+                        && current_active != tab.id
                     {
-                        *props.active = tab.id.clone();
+                        current_active = tab.id.clone();
+                        pending_active = Some(tab.id.clone());
                     }
 
                     let mut response = response;
@@ -468,13 +624,16 @@ pub fn tabs<'a, R>(
                 };
 
                 if let Some(current) = focused_index {
-                    let next_key = match props.orientation {
-                        TabsOrientation::Horizontal => egui::Key::ArrowRight,
-                        TabsOrientation::Vertical => egui::Key::ArrowDown,
-                    };
-                    let prev_key = match props.orientation {
-                        TabsOrientation::Horizontal => egui::Key::ArrowLeft,
-                        TabsOrientation::Vertical => egui::Key::ArrowUp,
+                    let (next_key, prev_key) = match props.orientation {
+                        TabsDirection::Horizontal => {
+                            let (mut next, mut prev) =
+                                (egui::Key::ArrowRight, egui::Key::ArrowLeft);
+                            if matches!(props.dir, Some(TabsDirectionality::Rtl)) {
+                                std::mem::swap(&mut next, &mut prev);
+                            }
+                            (next, prev)
+                        }
+                        TabsDirection::Vertical => (egui::Key::ArrowDown, egui::Key::ArrowUp),
                     };
 
                     let direction = if triggers_ui.input(|i| i.key_pressed(next_key)) {
@@ -486,10 +645,16 @@ pub fn tabs<'a, R>(
                     };
 
                     if let Some(delta) = direction
-                        && let Some(next_index) = next_enabled_index(current, delta, props.items)
+                        && let Some(next_index) =
+                            next_enabled_index(current, delta, props.items, props.list_loop)
                     {
                         let next_tab = &props.items[next_index];
-                        *props.active = next_tab.id.clone();
+                        if props.activation_mode == TabsActivationMode::Automatic
+                            && current_active != next_tab.id
+                        {
+                            current_active = next_tab.id.clone();
+                            pending_active = Some(next_tab.id.clone());
+                        }
                         let next_id = trigger_ids[next_index];
                         triggers_ui.memory_mut(|m| m.request_focus(next_id));
                     }
@@ -536,6 +701,10 @@ pub fn tabs<'a, R>(
                 );
             }
         }
+    }
+
+    if let Some(new_active) = pending_active.take() {
+        set_active_if_changed(&mut props, &new_active);
     }
 
     let active_tab = props
@@ -714,14 +883,31 @@ fn resolve_tabs_tokens(palette: &ColorPalette, props: &TabsProps<'_>) -> TabsTok
     }
 }
 
-fn next_enabled_index(start: usize, delta: i32, items: &[TabItem]) -> Option<usize> {
+fn next_enabled_index(
+    start: usize,
+    delta: i32,
+    items: &[TabItem],
+    loop_focus: TabsListLoop,
+) -> Option<usize> {
     if items.is_empty() {
         return None;
     }
     let len = items.len();
     let mut index = start as i32;
-    for _ in 0..len {
-        index = (index + delta).rem_euclid(len as i32);
+    let limit = if matches!(loop_focus, TabsListLoop::Enabled) {
+        len
+    } else {
+        len + 1
+    };
+    for _ in 0..limit {
+        index += delta;
+        if matches!(loop_focus, TabsListLoop::Disabled) {
+            if index < 0 || index >= len as i32 {
+                return None;
+            }
+        } else {
+            index = index.rem_euclid(len as i32);
+        }
         let candidate = index as usize;
         if !items[candidate].disabled {
             return Some(candidate);

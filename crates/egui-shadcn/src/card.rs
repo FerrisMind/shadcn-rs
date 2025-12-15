@@ -23,9 +23,9 @@ pub enum CardVariant {
 pub enum CardSize {
     Size1,
 
-    #[default]
     Size2,
 
+    #[default]
     Size3,
 
     Size4,
@@ -63,6 +63,7 @@ pub struct CardProps {
     pub padding: Vec2,
     pub rounding: CornerRadius,
     pub show_shadow: bool,
+    pub as_child: bool,
     pub interactive: bool,
     pub sense: Sense,
     pub high_contrast: bool,
@@ -73,7 +74,7 @@ pub struct CardProps {
 
 impl Default for CardProps {
     fn default() -> Self {
-        let size = CardSize::Size2;
+        let size = CardSize::Size3;
         Self {
             id_source: None,
             variant: CardVariant::Surface,
@@ -81,6 +82,7 @@ impl Default for CardProps {
             padding: size.padding(),
             rounding: size.rounding_with_scale(&DEFAULT_RADIUS),
             show_shadow: true,
+            as_child: false,
             interactive: false,
             sense: Sense::hover(),
             high_contrast: false,
@@ -111,6 +113,15 @@ impl CardProps {
         self.size = size;
         self.padding = size.padding();
         self.rounding = size.rounding_with_scale(&DEFAULT_RADIUS);
+        self
+    }
+
+    pub fn with_as_child(mut self, as_child: bool) -> Self {
+        self.as_child = as_child;
+        if as_child {
+            self.interactive = true;
+            self.sense = Sense::click();
+        }
         self
     }
 
@@ -174,7 +185,7 @@ pub struct CardTokens {
 }
 
 pub fn card_tokens(palette: &ColorPalette, variant: CardVariant, show_shadow: bool) -> CardTokens {
-    card_tokens_with_options(palette, variant, show_shadow, CardSize::Size2, false)
+    card_tokens_with_options(palette, variant, show_shadow, CardSize::Size3, false)
 }
 
 pub fn card_tokens_with_options(
@@ -389,6 +400,13 @@ pub fn card(
         )
     });
 
+    let interactive = props.interactive || props.as_child;
+    let sense = if props.as_child {
+        Sense::click()
+    } else {
+        props.sense
+    };
+
     let id = props
         .id_source
         .unwrap_or_else(|| ui.make_persistent_id("card"));
@@ -404,7 +422,7 @@ pub fn card(
         .data(|d| d.get_temp::<bool>(id.with("pressed")))
         .unwrap_or(false);
 
-    let hover_t = if props.interactive {
+    let hover_t = if interactive {
         ctx.animate_bool_with_time_and_easing(
             id.with("hover-anim"),
             last_hovered,
@@ -414,7 +432,7 @@ pub fn card(
     } else {
         0.0
     };
-    let active_t = if props.interactive {
+    let active_t = if interactive {
         ctx.animate_bool_with_time_and_easing(
             id.with("active-anim"),
             last_pressed,
@@ -431,7 +449,7 @@ pub fn card(
     let mut stroke = tokens.stroke;
     let mut shadow = tokens.shadow_idle;
 
-    if props.interactive {
+    if interactive {
         background = lerp_color(tokens.background, tokens.background_hover, hover_mix);
         background = lerp_color(background, tokens.background_active, active_t);
 
@@ -465,8 +483,8 @@ pub fn card(
 
     let mut response = inner.response;
 
-    if props.interactive {
-        response = response.interact(props.sense);
+    if interactive {
+        response = response.interact(sense);
         if response.clicked() {
             ui.memory_mut(|m| m.request_focus(response.id));
         }
