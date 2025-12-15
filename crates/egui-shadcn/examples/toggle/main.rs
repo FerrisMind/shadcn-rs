@@ -393,7 +393,8 @@ impl App for ToggleDemo {
                                 };
                             }
 
-                            let mut strike_on = self.group_single == Some(InlineChoice::Strikethrough);
+                            let mut strike_on =
+                                self.group_single == Some(InlineChoice::Strikethrough);
                             let resp = toggle(
                                 row,
                                 &self.theme,
@@ -453,7 +454,8 @@ impl App for ToggleDemo {
                                 };
                             }
 
-                            let mut strike_on = self.group_single_sm == Some(InlineChoice::Strikethrough);
+                            let mut strike_on =
+                                self.group_single_sm == Some(InlineChoice::Strikethrough);
                             let resp = toggle(
                                 row,
                                 &self.theme,
@@ -495,9 +497,10 @@ impl App for ToggleDemo {
                             let star_text = RichText::new(format!("{} Star", Icon::Star.unicode()))
                                 .color(star_color)
                                 .font(FontId::proportional(14.0));
-                            let heart_text = RichText::new(format!("{} Heart", Icon::Heart.unicode()))
-                                .color(heart_color)
-                                .font(FontId::proportional(14.0));
+                            let heart_text =
+                                RichText::new(format!("{} Heart", Icon::Heart.unicode()))
+                                    .color(heart_color)
+                                    .font(FontId::proportional(14.0));
                             let bookmark_text =
                                 RichText::new(format!("{} Bookmark", Icon::Bookmark.unicode()))
                                     .color(bookmark_color)

@@ -6,10 +6,10 @@
 #[path = "../_shared/icon.rs"]
 mod icon;
 
-use eframe::{egui, App, Frame};
+use eframe::{App, Frame, egui};
 use egui::RichText;
 use egui_shadcn::radio::{GridLayout, RadioCardVariant, RadioGroup, RadioOption};
-use egui_shadcn::{button, ControlSize, ControlVariant, Theme};
+use egui_shadcn::{ControlSize, ControlVariant, Theme, button};
 
 struct RadioDemo {
     theme: Theme,
@@ -32,12 +32,10 @@ impl RadioDemo {
 
     fn layout_options() -> Vec<RadioOption<String>> {
         vec![
-            RadioOption::new("default".to_string(), "Default")
-                .description("Standard density."),
+            RadioOption::new("default".to_string(), "Default").description("Standard density."),
             RadioOption::new("comfortable".to_string(), "Comfortable")
                 .description("Cozy with extra padding."),
-            RadioOption::new("compact".to_string(), "Compact")
-                .description("Fits more content."),
+            RadioOption::new("compact".to_string(), "Compact").description("Fits more content."),
         ]
     }
 
@@ -136,11 +134,15 @@ impl App for RadioDemo {
                         "You can upgrade or downgrade your plan at any time.",
                     ));
 
-                    RadioGroup::new("radio-rhf-plan", &mut self.rhf_plan, &RadioDemo::full_plans())
-                        .custom_spacing(8.0)
-                        .card_variant(RadioCardVariant::Card)
-                        .grid_layout(GridLayout::new(1).with_spacing(10.0))
-                        .show(ui, &self.theme);
+                    RadioGroup::new(
+                        "radio-rhf-plan",
+                        &mut self.rhf_plan,
+                        &RadioDemo::full_plans(),
+                    )
+                    .custom_spacing(8.0)
+                    .card_variant(RadioCardVariant::Card)
+                    .grid_layout(GridLayout::new(1).with_spacing(10.0))
+                    .show(ui, &self.theme);
 
                     if let Some(err) = &self.rhf_error {
                         ui.label(error(&self.theme, err));
@@ -161,8 +163,7 @@ impl App for RadioDemo {
                         if save.clicked() {
                             self.rhf_error = match self.rhf_plan.as_str() {
                                 "" => Some(
-                                    "You must select a subscription plan to continue."
-                                        .to_string(),
+                                    "You must select a subscription plan to continue.".to_string(),
                                 ),
                                 _ => None,
                             };

@@ -6,11 +6,11 @@
 #[path = "../_shared/icon.rs"]
 mod icon;
 
-use eframe::{egui, App, Frame};
+use eframe::{App, Frame, egui};
 use egui::RichText;
 use egui_shadcn::{
-    button, select_with_items, ControlSize, ControlVariant, Label, PopupPosition, SelectItem,
-    SelectProps, Theme,
+    ControlSize, ControlVariant, Label, PopupPosition, SelectItem, SelectProps, Theme, button,
+    select_with_items,
 };
 
 struct SelectDemo {
