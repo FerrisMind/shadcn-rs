@@ -11,12 +11,15 @@ readme = "README.md"
 documentation = "https://docs.rs/egui-shadcn"
 keywords = ["egui", "ui", "components", "shadcn", "radix"]
 categories = ["gui", "visualization", "rendering::graphics-api", "game-development"]
-build = "build.rs"
+
+include = [
+    "src/**/*",
+    "Cargo.toml",
+    "/README.md",
+    "LICENSE*",
+]
 
 
-[features]
-default = []
-examples = []
 
 [dependencies]
 egui = { workspace = true }
@@ -31,57 +34,3 @@ rfd = "0.16"
 [build-dependencies]
 winres = "0.1"
 
-[[example]]
-name = "button"
-path = "examples/button/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "checkbox"
-path = "examples/checkbox/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "input"
-path = "examples/input/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "label"
-path = "examples/label/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "radio"
-path = "examples/radio/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "scroll_area"
-path = "examples/scroll_area/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "select"
-path = "examples/select/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "switch"
-path = "examples/switch/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "textarea"
-path = "examples/textarea/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "toggle"
-path = "examples/toggle/main.rs"
-required-features = ["examples"]
-
-[[example]]
-name = "tooltip"
-path = "examples/tooltip/main.rs"
-required-features = ["examples"]

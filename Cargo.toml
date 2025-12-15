@@ -5,7 +5,7 @@ resolver = "2"
 [workspace.package]
 edition = "2024"
 license = "MIT"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["FerrisMind"]
 repository = "https://github.com/FerrisMind/shadcn-rs"
 description = "Shadcn and Radix UI-inspired component library for the Rust GUI (egui)"

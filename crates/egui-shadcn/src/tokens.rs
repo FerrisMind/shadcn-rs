@@ -1,3 +1,14 @@
+//! Token definitions for shadcn-style palettes, radii, motion, and control/input states.
+//! Used by all components; keep values in sync with shadcn and Radix references.
+//!
+//! # Example
+//! ```rust
+//! use egui_shadcn::tokens::{ColorPalette, variant_tokens};
+//!
+//! let palette = ColorPalette::shadcn_dark();
+//! let button_tokens = variant_tokens(&palette, egui_shadcn::ControlVariant::Primary);
+//! ```
+
 use egui::{Color32, CornerRadius, FontId, Stroke, Vec2};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
