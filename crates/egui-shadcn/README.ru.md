@@ -21,19 +21,17 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 ```
 
 ## Компоненты
-- `button` — варианты `Primary|Secondary|Ghost|Outline|Destructive|Link`; размеры `Sm|Md|Lg|IconSm|Icon|IconLg`.
-- `text_input` — цвет плейсхолдера, `is_invalid`, `enabled`, кольцо 3px, цвета выделения.
-- `select` — через `SelectProps`, плейсхолдер, `is_invalid`, стрелка, disabled, accent override, варианты триггера `surface/classic/soft/ghost`, варианты контента `soft/solid`, high-contrast, клавиатурный typeahead (по префиксу).
-- `checkbox` — размеры и варианты, tri-state, фокус/invalid ring, high-contrast токены/кольцо.
-- `toggle` — варианты default/outline с акцентными цветами.
-- `switch` — размеры трека/ползунка как в shadcn.
-- `textarea` — фокус, заливка при ошибке, опциональный счетчик.
-- `card` — варианты `Surface|Classic|Ghost` (алиасы Outline/Subtle), заголовок/описание, настройка паддингов/радиуса/тени.
-- `separator` — горизонтальный/вертикальный разделитель с толщиной/отступами, явной длиной и цветом.
-- `tabs` — underline/soft/outline, горизонтальная/вертикальная ориентация, компактный режим.
-- `scroll_area` — контролируемый скролл (vertical/horizontal/both), `bar_visibility`, `auto_shrink`.
-- `popover` - `placement Above/Below/Left/Right`, align `Start|Center|End`, side/align offset, match ширина триггера, кламп к экрану, анимация, закрытие по Esc/клику вне.
-- `dialog` — модальный оверлей с тайтлом/описанием, scrim opacity, offset позиционирование, анимация, флаги закрытия по Esc/бэкдропу.
+- Все компоненты поддерживают варианты, размеры и настройку темы.
+- Checkbox: API Radix Themes (`size 1..=3`, варианты `surface|classic|soft`, `color`, `high_contrast`).
+- Dialog: API Radix Themes Content (`size 1..=4`, align `start|center`, width/min/max/height, `as_child`).
+- Label: API Radix Label (`as_child`, `html_for`) + варианты/description/required.
+- Popover: API Radix Popover (Root state, позиционирование Popper `side/align/offsets/collision`, Portal `container`, `force_mount`, DismissableLayer callbacks).
+- Tooltip: API Radix Tooltip (Provider задержки, Root state, позиционирование/коллизия Content, Portal container, dismiss callbacks).
+- Select: API Radix Select (Root state, form-поля, позиционирование `position/side/align/offsets/collision`, dismiss callbacks, `text_value` для typeahead).
+- Radio Group: API Radix Radio Group (`as_child`, контролируемый/неконтролируемый, `orientation`, `dir`, `loop_focus`, флаги на item) + карточный/сеточный варианты.
+- Tabs: API Radix Tabs Root/List/Trigger/Content (`as_child`, controlled/uncontrolled, `orientation`, `dir`, `activation_mode`, list `loop`, content `force_mount`) + egui-расширения (variants, wrap/justify, scrollable, full_width, accent/high_contrast, compact/animate).
+- Switch: API Radix Switch Root/Thumb (`as_child`, controlled/uncontrolled, `name/value`, `required`) + egui-расширения (size/style/high_contrast/animate/accent/custom radius/thumb color).
+- Scroll Area: API Radix Scroll Area (`type` по умолчанию `hover`, `scroll_hide_delay` `600ms`, `as_child`, `dir`, `force_mount` по осям) + egui-расширения (size/radius/accent/high_contrast/colors_override/max_size/bar_visibility).
 
 ## Тема
 - Состояния берутся из `Theme::control` и `Theme::input`, основанных на `ColorPalette`.
