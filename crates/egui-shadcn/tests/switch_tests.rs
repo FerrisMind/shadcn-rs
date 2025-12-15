@@ -56,7 +56,6 @@ fn switch_default_checked_applied_once_and_callback_fires() {
     assert!(checked);
     assert_eq!(calls, 1);
 
-    // second pass should not reapply
     checked = false;
     ctx.begin_pass(RawInput::default());
     egui::CentralPanel::default()
