@@ -5,6 +5,8 @@
 
 #[path = "../_shared/icon.rs"]
 mod icon;
+#[path = "../_shared/screenshot.rs"]
+mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui_shadcn::{ControlSize, ControlVariant, Theme, TooltipProps, button, tooltip};
@@ -23,6 +25,7 @@ impl TooltipDemo {
 
 impl App for TooltipDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        screenshot::apply_screenshot_scale(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
                 ui.add_space(80.0);

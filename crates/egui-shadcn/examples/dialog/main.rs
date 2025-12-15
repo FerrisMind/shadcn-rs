@@ -5,6 +5,8 @@
 
 #[path = "../_shared/icon.rs"]
 mod icon;
+#[path = "../_shared/screenshot.rs"]
+mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
@@ -38,6 +40,7 @@ impl DialogDemo {
 
 impl App for DialogDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        screenshot::apply_screenshot_scale(ctx);
         ensure_lucide_font(ctx);
         let theme = &self.theme;
         egui::CentralPanel::default().show(ctx, |ui| {

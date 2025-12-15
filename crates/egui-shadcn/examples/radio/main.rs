@@ -5,6 +5,8 @@
 
 #[path = "../_shared/icon.rs"]
 mod icon;
+#[path = "../_shared/screenshot.rs"]
+mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::RichText;
@@ -81,6 +83,7 @@ fn error(theme: &Theme, text: &str) -> RichText {
 
 impl App for RadioDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        screenshot::apply_screenshot_scale(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.spacing_mut().item_spacing = egui::vec2(16.0, 16.0);
             ui.heading("Radio Group");
