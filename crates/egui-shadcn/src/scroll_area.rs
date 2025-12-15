@@ -16,13 +16,12 @@ pub enum ScrollDirection {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ScrollAreaType {
+    #[default]
     Hover,
 
     Scroll,
 
     Always,
-
-    #[default]
     Auto,
 }
 
@@ -32,6 +31,12 @@ pub enum ScrollAreaSize {
     Size1,
     Size2,
     Size3,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ScrollAreaDir {
+    Ltr,
+    Rtl,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -172,12 +177,16 @@ struct ThumbInteractionGeometry {
 
 #[derive(Clone, Debug)]
 pub struct ScrollAreaProps {
+    pub as_child: bool,
     pub id_source: Option<Id>,
+    pub dir: Option<ScrollAreaDir>,
+    pub nonce: Option<String>,
     pub direction: ScrollDirection,
     pub size: ScrollAreaSize,
     pub radius: ScrollAreaRadius,
     pub scroll_type: ScrollAreaType,
     pub scroll_hide_delay_ms: Option<f32>,
+    pub force_mount: [bool; 2],
     pub auto_shrink: [bool; 2],
     pub max_size: Option<Vec2>,
     pub bar_visibility: ScrollBarVisibility,
@@ -189,12 +198,16 @@ pub struct ScrollAreaProps {
 impl Default for ScrollAreaProps {
     fn default() -> Self {
         Self {
+            as_child: false,
             id_source: None,
+            dir: None,
+            nonce: None,
             direction: ScrollDirection::Both,
             size: ScrollAreaSize::Size1,
             radius: ScrollAreaRadius::Full,
-            scroll_type: ScrollAreaType::Auto,
-            scroll_hide_delay_ms: None,
+            scroll_type: ScrollAreaType::Hover,
+            scroll_hide_delay_ms: Some(600.0),
+            force_mount: [false; 2],
             auto_shrink: [true; 2],
             max_size: None,
             bar_visibility: ScrollBarVisibility::VisibleWhenNeeded,
@@ -206,8 +219,23 @@ impl Default for ScrollAreaProps {
 }
 
 impl ScrollAreaProps {
+    pub fn as_child(mut self, as_child: bool) -> Self {
+        self.as_child = as_child;
+        self
+    }
+
     pub fn with_id(mut self, id: Id) -> Self {
         self.id_source = Some(id);
+        self
+    }
+
+    pub fn with_dir(mut self, dir: ScrollAreaDir) -> Self {
+        self.dir = Some(dir);
+        self
+    }
+
+    pub fn with_nonce(mut self, nonce: impl Into<String>) -> Self {
+        self.nonce = Some(nonce.into());
         self
     }
 
@@ -231,8 +259,18 @@ impl ScrollAreaProps {
         self
     }
 
+    pub fn with_scroll_hide_delay(mut self, delay_ms: f32) -> Self {
+        self.scroll_hide_delay_ms = Some(delay_ms);
+        self
+    }
+
     pub fn with_hide_delay_ms(mut self, delay_ms: f32) -> Self {
         self.scroll_hide_delay_ms = Some(delay_ms);
+        self
+    }
+
+    pub fn with_force_mount(mut self, force_mount: [bool; 2]) -> Self {
+        self.force_mount = force_mount;
         self
     }
 
@@ -366,25 +404,21 @@ fn paint_scrollbars<R>(ctx: ScrollBarContext<'_, R>) {
         .unwrap_or(0.0);
 
     let fade_duration = theme.motion.fast_ms.max(1.0) / 1000.0;
-    let hide_delay_ms = props.scroll_hide_delay_ms.unwrap_or_else(|| {
-        if props.scroll_type == ScrollAreaType::Scroll {
-            600.0
-        } else {
-            0.0
-        }
-    });
+    let hide_delay_ms = props.scroll_hide_delay_ms.unwrap_or(600.0);
     let hide_delay_secs = hide_delay_ms as f64 / 1000.0;
 
-    let base_visible_h = match props.bar_visibility {
-        ScrollBarVisibility::AlwaysHidden => false,
-        ScrollBarVisibility::AlwaysVisible => true,
-        ScrollBarVisibility::VisibleWhenNeeded => needs_h,
-    };
-    let base_visible_v = match props.bar_visibility {
-        ScrollBarVisibility::AlwaysHidden => false,
-        ScrollBarVisibility::AlwaysVisible => true,
-        ScrollBarVisibility::VisibleWhenNeeded => needs_v,
-    };
+    let base_visible_h = props.force_mount[0]
+        || match props.bar_visibility {
+            ScrollBarVisibility::AlwaysHidden => false,
+            ScrollBarVisibility::AlwaysVisible => true,
+            ScrollBarVisibility::VisibleWhenNeeded => needs_h,
+        };
+    let base_visible_v = props.force_mount[1]
+        || match props.bar_visibility {
+            ScrollBarVisibility::AlwaysHidden => false,
+            ScrollBarVisibility::AlwaysVisible => true,
+            ScrollBarVisibility::VisibleWhenNeeded => needs_v,
+        };
 
     let scroll_recent = now - last_scroll_time <= hide_delay_secs;
     let hover_recent = now - last_hover_time <= hide_delay_secs;

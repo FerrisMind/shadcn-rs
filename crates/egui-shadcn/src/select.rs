@@ -8,6 +8,127 @@ use log::trace;
 use std::fmt::Debug;
 use std::hash::Hash;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SelectDirection {
+    Ltr,
+    Rtl,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum SelectSide {
+    Top,
+    Right,
+
+    #[default]
+    Bottom,
+
+    Left,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum SelectAlign {
+    #[default]
+    Start,
+    Center,
+    End,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SelectCollisionPadding {
+    pub top: f32,
+    pub right: f32,
+    pub bottom: f32,
+    pub left: f32,
+}
+
+impl SelectCollisionPadding {
+    pub fn all(value: f32) -> Self {
+        Self {
+            top: value,
+            right: value,
+            bottom: value,
+            left: value,
+        }
+    }
+}
+
+impl Default for SelectCollisionPadding {
+    fn default() -> Self {
+        Self::all(10.0)
+    }
+}
+
+impl From<f32> for SelectCollisionPadding {
+    fn from(value: f32) -> Self {
+        SelectCollisionPadding::all(value)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum SelectSticky {
+    #[default]
+    Partial,
+    Always,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum SelectUpdatePositionStrategy {
+    #[default]
+    Optimized,
+    Always,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum SelectPortalContainer {
+    Tooltip,
+    Foreground,
+    Middle,
+    Background,
+}
+
+impl SelectPortalContainer {
+    fn order(self) -> Order {
+        match self {
+            SelectPortalContainer::Tooltip => Order::Tooltip,
+            SelectPortalContainer::Foreground => Order::Foreground,
+            SelectPortalContainer::Middle => Order::Middle,
+            SelectPortalContainer::Background => Order::Background,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub struct SelectPreventable {
+    default_prevented: bool,
+}
+
+impl SelectPreventable {
+    pub fn prevent_default(&mut self) {
+        self.default_prevented = true;
+    }
+
+    pub fn default_prevented(&self) -> bool {
+        self.default_prevented
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SelectAutoFocusEvent {
+    pub preventable: SelectPreventable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SelectEscapeKeyDownEvent {
+    pub key: Key,
+    pub preventable: SelectPreventable,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct SelectPointerDownOutsideEvent {
+    pub pointer_pos: Option<Pos2>,
+    pub preventable: SelectPreventable,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum SelectSize {
     Size1,
@@ -108,9 +229,9 @@ impl SelectRadius {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum PopupPosition {
-    #[default]
     Popper,
 
+    #[default]
     ItemAligned,
 }
 
@@ -424,6 +545,7 @@ pub enum SelectItem {
         value: String,
         label: String,
         disabled: bool,
+        text_value: Option<String>,
     },
 
     Group {
@@ -442,6 +564,7 @@ impl SelectItem {
             value: value.into(),
             label: label.into(),
             disabled: false,
+            text_value: None,
         }
     }
 
@@ -450,6 +573,33 @@ impl SelectItem {
             value: value.into(),
             label: label.into(),
             disabled: true,
+            text_value: None,
+        }
+    }
+
+    pub fn option_with_text_value(
+        value: impl Into<String>,
+        label: impl Into<String>,
+        text_value: impl Into<String>,
+    ) -> Self {
+        Self::Option {
+            value: value.into(),
+            label: label.into(),
+            disabled: false,
+            text_value: Some(text_value.into()),
+        }
+    }
+
+    pub fn option_disabled_with_text_value(
+        value: impl Into<String>,
+        label: impl Into<String>,
+        text_value: impl Into<String>,
+    ) -> Self {
+        Self::Option {
+            value: value.into(),
+            label: label.into(),
+            disabled: true,
+            text_value: Some(text_value.into()),
         }
     }
 
@@ -469,7 +619,6 @@ impl SelectItem {
     }
 }
 
-#[derive(Debug)]
 pub struct SelectProps<'a, Id>
 where
     Id: Hash + Debug,
@@ -477,6 +626,9 @@ where
     pub id_source: Id,
 
     pub selected: &'a mut Option<String>,
+    pub value: Option<String>,
+    pub default_value: Option<String>,
+    pub on_value_change: Option<&'a mut dyn FnMut(&str)>,
 
     pub placeholder: &'a str,
 
@@ -487,6 +639,34 @@ where
     pub content_variant: ContentVariant,
 
     pub enabled: bool,
+
+    pub open: Option<bool>,
+    pub default_open: bool,
+    pub on_open_change: Option<&'a mut dyn FnMut(bool)>,
+
+    pub dir: Option<SelectDirection>,
+    pub name: Option<String>,
+    pub auto_complete: Option<String>,
+    pub required: bool,
+    pub form: Option<String>,
+
+    pub side: SelectSide,
+    pub side_offset: f32,
+    pub align: SelectAlign,
+    pub align_offset: f32,
+
+    pub avoid_collisions: bool,
+    pub collision_boundary: Option<Rect>,
+    pub collision_padding: SelectCollisionPadding,
+    pub arrow_padding: f32,
+    pub sticky: SelectSticky,
+    pub hide_when_detached: bool,
+    pub update_position_strategy: SelectUpdatePositionStrategy,
+    pub container: Option<SelectPortalContainer>,
+
+    pub on_close_auto_focus: Option<&'a mut dyn FnMut(&mut SelectAutoFocusEvent)>,
+    pub on_escape_key_down: Option<&'a mut dyn FnMut(&mut SelectEscapeKeyDownEvent)>,
+    pub on_pointer_down_outside: Option<&'a mut dyn FnMut(&mut SelectPointerDownOutsideEvent)>,
 
     pub is_invalid: bool,
 
@@ -503,23 +683,102 @@ where
     pub position: PopupPosition,
 }
 
+impl<Id> std::fmt::Debug for SelectProps<'_, Id>
+where
+    Id: Hash + Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SelectProps")
+            .field("id_source", &self.id_source)
+            .field("selected", &self.selected)
+            .field("value", &self.value)
+            .field("default_value", &self.default_value)
+            .field("placeholder", &self.placeholder)
+            .field("size", &self.size)
+            .field("trigger_variant", &self.trigger_variant)
+            .field("content_variant", &self.content_variant)
+            .field("enabled", &self.enabled)
+            .field("open", &self.open)
+            .field("default_open", &self.default_open)
+            .field("dir", &self.dir)
+            .field("name", &self.name)
+            .field("auto_complete", &self.auto_complete)
+            .field("required", &self.required)
+            .field("form", &self.form)
+            .field("side", &self.side)
+            .field("side_offset", &self.side_offset)
+            .field("align", &self.align)
+            .field("align_offset", &self.align_offset)
+            .field("avoid_collisions", &self.avoid_collisions)
+            .field("collision_boundary", &self.collision_boundary)
+            .field("collision_padding", &self.collision_padding)
+            .field("arrow_padding", &self.arrow_padding)
+            .field("sticky", &self.sticky)
+            .field("hide_when_detached", &self.hide_when_detached)
+            .field("update_position_strategy", &self.update_position_strategy)
+            .field("container", &self.container)
+            .field("is_invalid", &self.is_invalid)
+            .field("width", &self.width)
+            .field("style", &self.style.is_some())
+            .field("accent_color", &self.accent_color)
+            .field("radius", &self.radius)
+            .field("high_contrast", &self.high_contrast)
+            .field("position", &self.position)
+            .field("on_open_change", &self.on_open_change.is_some())
+            .field("on_value_change", &self.on_value_change.is_some())
+            .field("on_close_auto_focus", &self.on_close_auto_focus.is_some())
+            .field("on_escape_key_down", &self.on_escape_key_down.is_some())
+            .field(
+                "on_pointer_down_outside",
+                &self.on_pointer_down_outside.is_some(),
+            )
+            .finish()
+    }
+}
+
 impl<'a, Id: Hash + Debug> SelectProps<'a, Id> {
     pub fn new(id_source: Id, selected: &'a mut Option<String>) -> Self {
         Self {
             id_source,
             selected,
+            value: None,
+            default_value: None,
+            on_value_change: None,
             placeholder: "Select...",
             size: SelectSize::Size2,
             trigger_variant: TriggerVariant::Surface,
             content_variant: ContentVariant::Soft,
             enabled: true,
+            open: None,
+            default_open: false,
+            on_open_change: None,
+            dir: None,
+            name: None,
+            auto_complete: None,
+            required: false,
+            form: None,
+            side: SelectSide::Bottom,
+            side_offset: 4.0,
+            align: SelectAlign::Start,
+            align_offset: 0.0,
+            avoid_collisions: true,
+            collision_boundary: None,
+            collision_padding: SelectCollisionPadding::default(),
+            arrow_padding: 0.0,
+            sticky: SelectSticky::default(),
+            hide_when_detached: false,
+            update_position_strategy: SelectUpdatePositionStrategy::default(),
+            container: None,
+            on_close_auto_focus: None,
+            on_escape_key_down: None,
+            on_pointer_down_outside: None,
             is_invalid: false,
             width: None,
             style: None,
             accent_color: None,
             radius: SelectRadius::Medium,
             high_contrast: false,
-            position: PopupPosition::Popper,
+            position: PopupPosition::ItemAligned,
         }
     }
 
@@ -548,8 +807,155 @@ impl<'a, Id: Hash + Debug> SelectProps<'a, Id> {
         self
     }
 
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.enabled = !disabled;
+        self
+    }
+
     pub fn invalid(mut self, is_invalid: bool) -> Self {
         self.is_invalid = is_invalid;
+        self
+    }
+
+    pub fn open(mut self, open: bool) -> Self {
+        self.open = Some(open);
+        self
+    }
+
+    pub fn default_open(mut self, default_open: bool) -> Self {
+        self.default_open = default_open;
+        self
+    }
+
+    pub fn on_open_change(mut self, on_open_change: &'a mut dyn FnMut(bool)) -> Self {
+        self.on_open_change = Some(on_open_change);
+        self
+    }
+
+    pub fn value(mut self, value: impl Into<String>) -> Self {
+        self.value = Some(value.into());
+        self
+    }
+
+    pub fn default_value(mut self, default_value: impl Into<String>) -> Self {
+        self.default_value = Some(default_value.into());
+        self
+    }
+
+    pub fn on_value_change(mut self, on_value_change: &'a mut dyn FnMut(&str)) -> Self {
+        self.on_value_change = Some(on_value_change);
+        self
+    }
+
+    pub fn dir(mut self, dir: SelectDirection) -> Self {
+        self.dir = Some(dir);
+        self
+    }
+
+    pub fn name(mut self, name: impl Into<String>) -> Self {
+        self.name = Some(name.into());
+        self
+    }
+
+    pub fn auto_complete(mut self, auto_complete: impl Into<String>) -> Self {
+        self.auto_complete = Some(auto_complete.into());
+        self
+    }
+
+    pub fn required(mut self, required: bool) -> Self {
+        self.required = required;
+        self
+    }
+
+    pub fn form(mut self, form: impl Into<String>) -> Self {
+        self.form = Some(form.into());
+        self
+    }
+
+    pub fn side(mut self, side: SelectSide) -> Self {
+        self.side = side;
+        self
+    }
+
+    pub fn side_offset(mut self, side_offset: f32) -> Self {
+        self.side_offset = side_offset;
+        self
+    }
+
+    pub fn align(mut self, align: SelectAlign) -> Self {
+        self.align = align;
+        self
+    }
+
+    pub fn align_offset(mut self, align_offset: f32) -> Self {
+        self.align_offset = align_offset;
+        self
+    }
+
+    pub fn avoid_collisions(mut self, avoid_collisions: bool) -> Self {
+        self.avoid_collisions = avoid_collisions;
+        self
+    }
+
+    pub fn collision_boundary(mut self, boundary: Rect) -> Self {
+        self.collision_boundary = Some(boundary);
+        self
+    }
+
+    pub fn collision_padding(mut self, padding: impl Into<SelectCollisionPadding>) -> Self {
+        self.collision_padding = padding.into();
+        self
+    }
+
+    pub fn arrow_padding(mut self, arrow_padding: f32) -> Self {
+        self.arrow_padding = arrow_padding;
+        self
+    }
+
+    pub fn sticky(mut self, sticky: SelectSticky) -> Self {
+        self.sticky = sticky;
+        self
+    }
+
+    pub fn hide_when_detached(mut self, hide_when_detached: bool) -> Self {
+        self.hide_when_detached = hide_when_detached;
+        self
+    }
+
+    pub fn update_position_strategy(
+        mut self,
+        update_position_strategy: SelectUpdatePositionStrategy,
+    ) -> Self {
+        self.update_position_strategy = update_position_strategy;
+        self
+    }
+
+    pub fn container(mut self, container: SelectPortalContainer) -> Self {
+        self.container = Some(container);
+        self
+    }
+
+    pub fn on_close_auto_focus(
+        mut self,
+        on_close_auto_focus: &'a mut dyn FnMut(&mut SelectAutoFocusEvent),
+    ) -> Self {
+        self.on_close_auto_focus = Some(on_close_auto_focus);
+        self
+    }
+
+    pub fn on_escape_key_down(
+        mut self,
+        on_escape_key_down: &'a mut dyn FnMut(&mut SelectEscapeKeyDownEvent),
+    ) -> Self {
+        self.on_escape_key_down = Some(on_escape_key_down);
+        self
+    }
+
+    pub fn on_pointer_down_outside(
+        mut self,
+        on_pointer_down_outside: &'a mut dyn FnMut(&mut SelectPointerDownOutsideEvent),
+    ) -> Self {
+        self.on_pointer_down_outside = Some(on_pointer_down_outside);
         self
     }
 
@@ -675,10 +1081,95 @@ fn draw_check_icon(painter: &Painter, center: Pos2, size: f32, color: Color32) {
     );
 }
 
+#[allow(clippy::too_many_arguments)]
+fn compute_select_popup_rect(
+    trigger_rect: Rect,
+    popup_size: Vec2,
+    boundary: Rect,
+    side: SelectSide,
+    align: SelectAlign,
+    side_offset: f32,
+    align_offset: f32,
+    avoid_collisions: bool,
+    collision_padding: SelectCollisionPadding,
+) -> Rect {
+    let boundary = Rect::from_min_max(
+        pos2(
+            boundary.left() + collision_padding.left,
+            boundary.top() + collision_padding.top,
+        ),
+        pos2(
+            boundary.right() - collision_padding.right,
+            boundary.bottom() - collision_padding.bottom,
+        ),
+    );
+
+    let (left, top) = match side {
+        SelectSide::Bottom => {
+            let top = trigger_rect.bottom() + side_offset;
+            let left = match align {
+                SelectAlign::Start => trigger_rect.left(),
+                SelectAlign::Center => trigger_rect.center().x - popup_size.x * 0.5,
+                SelectAlign::End => trigger_rect.right() - popup_size.x,
+            } + align_offset;
+            (left, top)
+        }
+        SelectSide::Top => {
+            let top = trigger_rect.top() - side_offset - popup_size.y;
+            let left = match align {
+                SelectAlign::Start => trigger_rect.left(),
+                SelectAlign::Center => trigger_rect.center().x - popup_size.x * 0.5,
+                SelectAlign::End => trigger_rect.right() - popup_size.x,
+            } + align_offset;
+            (left, top)
+        }
+        SelectSide::Right => {
+            let left = trigger_rect.right() + side_offset;
+            let top = match align {
+                SelectAlign::Start => trigger_rect.top(),
+                SelectAlign::Center => trigger_rect.center().y - popup_size.y * 0.5,
+                SelectAlign::End => trigger_rect.bottom() - popup_size.y,
+            } + align_offset;
+            (left, top)
+        }
+        SelectSide::Left => {
+            let left = trigger_rect.left() - side_offset - popup_size.x;
+            let top = match align {
+                SelectAlign::Start => trigger_rect.top(),
+                SelectAlign::Center => trigger_rect.center().y - popup_size.y * 0.5,
+                SelectAlign::End => trigger_rect.bottom() - popup_size.y,
+            } + align_offset;
+            (left, top)
+        }
+    };
+
+    let mut rect = Rect::from_min_size(pos2(left, top), popup_size);
+
+    if avoid_collisions {
+        let mut translation = vec2(0.0, 0.0);
+        if rect.left() < boundary.left() {
+            translation.x = boundary.left() - rect.left();
+        } else if rect.right() > boundary.right() {
+            translation.x = boundary.right() - rect.right();
+        }
+
+        if rect.top() < boundary.top() {
+            translation.y = boundary.top() - rect.top();
+        } else if rect.bottom() > boundary.bottom() {
+            translation.y = boundary.bottom() - rect.bottom();
+        }
+
+        rect = rect.translate(translation);
+        rect.set_height(rect.height().min(boundary.height()));
+    }
+
+    rect
+}
+
 pub fn select_with_items<Id>(
     ui: &mut Ui,
     theme: &Theme,
-    props: SelectProps<'_, Id>,
+    mut props: SelectProps<'_, Id>,
     items: &[SelectItem],
 ) -> Response
 where
@@ -710,6 +1201,39 @@ where
         .ctx()
         .data_mut(|d| d.get_temp::<SelectState>(id).unwrap_or_default());
 
+    let default_value_init_key = id.with("default-value-initialized");
+    let default_value_initialized = ui
+        .ctx()
+        .data(|d| d.get_temp::<bool>(default_value_init_key))
+        .unwrap_or(false);
+    if !default_value_initialized {
+        if props.value.is_none()
+            && props.selected.is_none()
+            && let Some(default_value) = props.default_value.as_ref()
+        {
+            *props.selected = Some(default_value.clone());
+        }
+        ui.ctx()
+            .data_mut(|d| d.insert_temp(default_value_init_key, true));
+    }
+
+    let default_open_init_key = id.with("default-open-initialized");
+    let default_open_initialized = ui
+        .ctx()
+        .data(|d| d.get_temp::<bool>(default_open_init_key))
+        .unwrap_or(false);
+    if !default_open_initialized {
+        if props.open.is_none() && props.default_open {
+            state.is_open = true;
+        }
+        ui.ctx()
+            .data_mut(|d| d.insert_temp(default_open_init_key, true));
+    }
+
+    if let Some(controlled_open) = props.open {
+        state.is_open = controlled_open;
+    }
+
     let trigger_height = props.size.trigger_height();
     let trigger_width = props.width.unwrap_or(180.0);
     let icon_size = props.size.icon_size();
@@ -718,13 +1242,24 @@ where
     let (trigger_rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click());
 
     if response.clicked() && props.enabled {
-        state.is_open = !state.is_open;
-        if state.is_open {
+        let next_open = !state.is_open;
+        if props.open.is_some() {
+            if let Some(cb) = props.on_open_change.as_mut() {
+                cb(next_open);
+            }
+        } else {
+            state.is_open = next_open;
+            if let Some(cb) = props.on_open_change.as_mut() {
+                cb(next_open);
+            }
+        }
+
+        if next_open {
             let item_height = style.item_padding.y * 2.0 + props.size.font_size();
             let separator_height = 9.0;
             let label_height = style.item_padding.y * 2.0 + 12.0;
 
-            if let Some(selected_value) = props.selected.as_ref() {
+            if let Some(selected_value) = props.value.as_deref().or(props.selected.as_deref()) {
                 let flat_options = flatten_options(items);
                 state.focused_index = flat_options
                     .iter()
@@ -762,10 +1297,47 @@ where
         });
 
         if input.0 && !state.is_open {
-            state.is_open = true;
-            state.focused_index = None;
+            if props.open.is_some() {
+                if let Some(cb) = props.on_open_change.as_mut() {
+                    cb(true);
+                }
+            } else {
+                state.is_open = true;
+                state.focused_index = None;
+                if let Some(cb) = props.on_open_change.as_mut() {
+                    cb(true);
+                }
+            }
         } else if input.1 && state.is_open {
-            state.is_open = false;
+            let mut evt = SelectEscapeKeyDownEvent {
+                key: Key::Escape,
+                preventable: SelectPreventable::default(),
+            };
+            if let Some(cb) = props.on_escape_key_down.as_mut() {
+                cb(&mut evt);
+            }
+            if !evt.preventable.default_prevented() {
+                if props.open.is_some() {
+                    if let Some(cb) = props.on_open_change.as_mut() {
+                        cb(false);
+                    }
+                } else {
+                    state.is_open = false;
+                    if let Some(cb) = props.on_open_change.as_mut() {
+                        cb(false);
+                    }
+                }
+
+                let mut auto_focus = SelectAutoFocusEvent {
+                    preventable: SelectPreventable::default(),
+                };
+                if let Some(cb) = props.on_close_auto_focus.as_mut() {
+                    cb(&mut auto_focus);
+                }
+                if !auto_focus.preventable.default_prevented() {
+                    response.request_focus();
+                }
+            }
         }
     }
 
@@ -822,19 +1394,20 @@ where
     }
 
     let text_rect = trigger_rect.shrink2(vec2(style.content_padding * 3.0, 0.0));
+    let current_value_for_display = props.value.clone().or_else(|| props.selected.clone());
     let text_color = if !props.enabled {
         mix(
             style.trigger_text,
             Color32::TRANSPARENT,
             style.disabled_opacity,
         )
-    } else if props.selected.is_some() {
+    } else if current_value_for_display.is_some() {
         style.trigger_text
     } else {
         style.trigger_placeholder
     };
 
-    let display_text = if let Some(selected_value) = props.selected.as_ref() {
+    let display_text = if let Some(selected_value) = current_value_for_display.as_ref() {
         find_label_for_value(items, selected_value).unwrap_or_else(|| selected_value.clone())
     } else {
         props.placeholder.to_string()
@@ -868,7 +1441,11 @@ where
 
     if anim_t > 0.0 {
         let popup_id = id.with("popup");
-        let layer_id = LayerId::new(Order::Foreground, popup_id);
+        let layer_order = props
+            .container
+            .unwrap_or(SelectPortalContainer::Foreground)
+            .order();
+        let layer_id = LayerId::new(layer_order, popup_id);
 
         let flat_options = flatten_options(items);
 
@@ -882,8 +1459,20 @@ where
         let popup_height = content_height.min(max_popup_height) + style.content_padding * 2.0;
         let popup_width = trigger_width.max(128.0);
 
-        let popup_pos = pos2(trigger_rect.left(), trigger_rect.bottom() + 4.0);
-        let popup_rect = Rect::from_min_size(popup_pos, vec2(popup_width, popup_height));
+        let boundary = props
+            .collision_boundary
+            .unwrap_or_else(|| ui.ctx().available_rect());
+        let popup_rect = compute_select_popup_rect(
+            trigger_rect,
+            vec2(popup_width, popup_height),
+            boundary,
+            props.side,
+            props.align,
+            props.side_offset,
+            props.align_offset,
+            props.avoid_collisions,
+            props.collision_padding,
+        );
 
         let scale = 0.95 + 0.05 * anim_t;
         let alpha = (anim_t * 255.0) as u8;
@@ -897,7 +1486,35 @@ where
             && !animated_rect.contains(pos)
             && !trigger_rect.contains(pos)
         {
-            state.is_open = false;
+            let mut evt = SelectPointerDownOutsideEvent {
+                pointer_pos: Some(pos),
+                preventable: SelectPreventable::default(),
+            };
+            if let Some(cb) = props.on_pointer_down_outside.as_mut() {
+                cb(&mut evt);
+            }
+            if !evt.preventable.default_prevented() {
+                if props.open.is_some() {
+                    if let Some(cb) = props.on_open_change.as_mut() {
+                        cb(false);
+                    }
+                } else {
+                    state.is_open = false;
+                    if let Some(cb) = props.on_open_change.as_mut() {
+                        cb(false);
+                    }
+                }
+
+                let mut auto_focus = SelectAutoFocusEvent {
+                    preventable: SelectPreventable::default(),
+                };
+                if let Some(cb) = props.on_close_auto_focus.as_mut() {
+                    cb(&mut auto_focus);
+                }
+                if !auto_focus.preventable.default_prevented() {
+                    response.request_focus();
+                }
+            }
         }
 
         if state.is_open {
@@ -950,12 +1567,70 @@ where
                 && let Some((value, _, disabled)) = flat_options.get(idx)
                 && !disabled
             {
-                *props.selected = Some(value.clone());
-                state.is_open = false;
+                let current_value = props.value.clone().or_else(|| props.selected.clone());
+                let did_change = match current_value.as_deref() {
+                    Some(current) => current != value,
+                    None => true,
+                };
+                if props.value.is_none() {
+                    *props.selected = Some(value.clone());
+                }
+                if did_change && let Some(cb) = props.on_value_change.as_mut() {
+                    cb(value);
+                }
+
+                if props.open.is_some() {
+                    if let Some(cb) = props.on_open_change.as_mut() {
+                        cb(false);
+                    }
+                } else {
+                    state.is_open = false;
+                    if let Some(cb) = props.on_open_change.as_mut() {
+                        cb(false);
+                    }
+                }
+
+                let mut auto_focus = SelectAutoFocusEvent {
+                    preventable: SelectPreventable::default(),
+                };
+                if let Some(cb) = props.on_close_auto_focus.as_mut() {
+                    cb(&mut auto_focus);
+                }
+                if !auto_focus.preventable.default_prevented() {
+                    response.request_focus();
+                }
                 response.mark_changed();
             }
             if input.3 {
-                state.is_open = false;
+                let mut evt = SelectEscapeKeyDownEvent {
+                    key: Key::Escape,
+                    preventable: SelectPreventable::default(),
+                };
+                if let Some(cb) = props.on_escape_key_down.as_mut() {
+                    cb(&mut evt);
+                }
+                if !evt.preventable.default_prevented() {
+                    if props.open.is_some() {
+                        if let Some(cb) = props.on_open_change.as_mut() {
+                            cb(false);
+                        }
+                    } else {
+                        state.is_open = false;
+                        if let Some(cb) = props.on_open_change.as_mut() {
+                            cb(false);
+                        }
+                    }
+
+                    let mut auto_focus = SelectAutoFocusEvent {
+                        preventable: SelectPreventable::default(),
+                    };
+                    if let Some(cb) = props.on_close_auto_focus.as_mut() {
+                        cb(&mut auto_focus);
+                    }
+                    if !auto_focus.preventable.default_prevented() {
+                        response.request_focus();
+                    }
+                }
             }
         }
 
@@ -1095,7 +1770,7 @@ where
             state.focused_index = None;
         }
 
-        let selected_ref = props.selected.clone();
+        let selected_ref = props.value.clone().or_else(|| props.selected.clone());
 
         for item in items {
             let (new_y, clicked) = draw_select_item(
@@ -1123,8 +1798,39 @@ where
         }
 
         if let Some(value) = clicked_value {
-            *props.selected = Some(value);
-            state.is_open = false;
+            let current_value = props.value.clone().or_else(|| props.selected.clone());
+            let did_change = match current_value.as_deref() {
+                Some(current) => current != value,
+                None => true,
+            };
+
+            if props.value.is_none() {
+                *props.selected = Some(value.clone());
+            }
+            if did_change && let Some(cb) = props.on_value_change.as_mut() {
+                cb(&value);
+            }
+
+            if props.open.is_some() {
+                if let Some(cb) = props.on_open_change.as_mut() {
+                    cb(false);
+                }
+            } else {
+                state.is_open = false;
+                if let Some(cb) = props.on_open_change.as_mut() {
+                    cb(false);
+                }
+            }
+
+            let mut auto_focus = SelectAutoFocusEvent {
+                preventable: SelectPreventable::default(),
+            };
+            if let Some(cb) = props.on_close_auto_focus.as_mut() {
+                cb(&mut auto_focus);
+            }
+            if !auto_focus.preventable.default_prevented() {
+                response.request_focus();
+            }
             response.mark_changed();
         }
 
@@ -1212,6 +1918,7 @@ fn draw_select_item(
             value,
             label,
             disabled,
+            ..
         } => {
             let item_rect = Rect::from_min_size(
                 pos2(content_rect.left(), y_offset),
@@ -1453,6 +2160,7 @@ fn flatten_options(items: &[SelectItem]) -> Vec<(String, String, bool)> {
                 value,
                 label,
                 disabled,
+                ..
             } => {
                 result.push((value.clone(), label.clone(), *disabled));
             }
@@ -1479,9 +2187,10 @@ pub fn find_typeahead_match(items: &[SelectItem], needle: &str) -> Option<usize>
                     value,
                     label,
                     disabled,
+                    text_value,
                 } => {
                     if !*disabled {
-                        let label_lower = label.to_lowercase();
+                        let label_lower = text_value.as_deref().unwrap_or(label).to_lowercase();
                         let value_lower = value.to_lowercase();
                         if label_lower.starts_with(needle_lower)
                             || value_lower.starts_with(needle_lower)
@@ -1599,22 +2308,11 @@ where
         .map(|opt| SelectItem::option(opt.clone(), opt.clone()))
         .collect();
 
-    let new_props = SelectProps {
-        id_source: props.id_source,
-        selected: props.selected,
-        placeholder: props.placeholder,
-        size: props.size.into(),
-        trigger_variant: TriggerVariant::Surface,
-        content_variant: ContentVariant::Soft,
-        enabled: props.enabled,
-        is_invalid: props.is_invalid,
-        width: None,
-        style: None,
-        accent_color: None,
-        radius: SelectRadius::Medium,
-        high_contrast: false,
-        position: PopupPosition::Popper,
-    };
+    let new_props = SelectProps::new(props.id_source, props.selected)
+        .placeholder(props.placeholder)
+        .size(props.size.into())
+        .enabled(props.enabled)
+        .invalid(props.is_invalid);
 
     select_with_items(ui, theme, new_props, &items)
 }

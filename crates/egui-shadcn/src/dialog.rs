@@ -114,6 +114,7 @@ pub struct DialogProps<'a> {
 
     pub dialog_size: DialogSize,
     pub align: DialogAlign,
+    pub as_child: bool,
 
     pub width: Option<f32>,
     pub min_width: Option<f32>,
@@ -146,6 +147,7 @@ impl<'a> DialogProps<'a> {
             size: Vec2::new(480.0, 0.0),
             dialog_size: DialogSize::Size3,
             align: DialogAlign::Center,
+            as_child: false,
             width: None,
             min_width: None,
             max_width: Some(600.0),
@@ -188,6 +190,11 @@ impl<'a> DialogProps<'a> {
 
     pub fn with_align(mut self, align: DialogAlign) -> Self {
         self.align = align;
+        self
+    }
+
+    pub fn with_as_child(mut self, as_child: bool) -> Self {
+        self.as_child = as_child;
         self
     }
 
@@ -333,6 +340,7 @@ pub fn dialog<R>(
         size,
         dialog_size,
         align,
+        as_child: _as_child,
         width,
         min_width,
         max_width,

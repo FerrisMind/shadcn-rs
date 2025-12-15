@@ -164,6 +164,27 @@ impl ButtonSize {
     }
 }
 
+/// Radix-like size scale (1-4) mapped onto our concrete sizes.
+/// Keeping existing ButtonSize for compatibility while exposing a scale API.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ButtonScale {
+    #[default]
+    Size2,
+    Size1,
+    Size3,
+    Size4,
+}
+
+impl From<ButtonScale> for ButtonSize {
+    fn from(scale: ButtonScale) -> Self {
+        match scale {
+            ButtonScale::Size1 => ButtonSize::Sm,
+            ButtonScale::Size2 => ButtonSize::Default,
+            ButtonScale::Size3 | ButtonScale::Size4 => ButtonSize::Lg,
+        }
+    }
+}
+
 impl From<ControlSize> for ButtonSize {
     fn from(size: ControlSize) -> Self {
         match size {
@@ -713,6 +734,8 @@ pub struct ButtonProps<'a> {
 
     pub size: ButtonSize,
 
+    pub scale: ButtonScale,
+
     pub radius: ButtonRadius,
 
     pub enabled: bool,
@@ -754,6 +777,7 @@ impl<'a> ButtonProps<'a> {
             label: label.into(),
             variant: ButtonVariant::Default,
             size: ButtonSize::Default,
+            scale: ButtonScale::Size2,
             radius: ButtonRadius::default(),
             enabled: true,
             loading: false,
@@ -772,6 +796,12 @@ impl<'a> ButtonProps<'a> {
 
     pub fn size(mut self, size: ButtonSize) -> Self {
         self.size = size;
+        self
+    }
+
+    pub fn scale(mut self, scale: ButtonScale) -> Self {
+        self.scale = scale;
+        self.size = ButtonSize::from(scale);
         self
     }
 
@@ -796,6 +826,11 @@ impl<'a> ButtonProps<'a> {
     }
 
     pub fn accent_color(mut self, color: Color32) -> Self {
+        self.accent_color = Some(color);
+        self
+    }
+
+    pub fn color(mut self, color: Color32) -> Self {
         self.accent_color = Some(color);
         self
     }
@@ -842,6 +877,12 @@ impl<'a> Button<'a> {
         self
     }
 
+    pub fn scale(mut self, scale: ButtonScale) -> Self {
+        self.props.scale = scale;
+        self.props.size = ButtonSize::from(scale);
+        self
+    }
+
     pub fn radius(mut self, radius: ButtonRadius) -> Self {
         self.props.radius = radius;
         self
@@ -863,6 +904,11 @@ impl<'a> Button<'a> {
     }
 
     pub fn accent_color(mut self, color: Color32) -> Self {
+        self.props.accent_color = Some(color);
+        self
+    }
+
+    pub fn color(mut self, color: Color32) -> Self {
         self.props.accent_color = Some(color);
         self
     }
@@ -979,4 +1025,30 @@ pub fn button(
         .size(ButtonSize::from(size))
         .enabled(enabled)
         .show(ui, theme)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn size_from_scale_matches_expected() {
+        assert_eq!(ButtonSize::from(ButtonScale::Size1), ButtonSize::Sm);
+        assert_eq!(ButtonSize::from(ButtonScale::Size2), ButtonSize::Default);
+        assert_eq!(ButtonSize::from(ButtonScale::Size3), ButtonSize::Lg);
+        assert_eq!(ButtonSize::from(ButtonScale::Size4), ButtonSize::Lg);
+    }
+
+    #[test]
+    fn builder_color_alias_sets_accent() {
+        let btn = Button::new("Test").color(Color32::RED);
+        assert_eq!(btn.props.accent_color, Some(Color32::RED));
+    }
+
+    #[test]
+    fn builder_scale_sets_size() {
+        let btn = Button::new("Test").scale(ButtonScale::Size1);
+        assert_eq!(btn.props.scale, ButtonScale::Size1);
+        assert_eq!(btn.props.size, ButtonSize::Sm);
+    }
 }

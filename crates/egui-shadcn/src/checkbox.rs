@@ -1,7 +1,7 @@
 use crate::theme::{Theme, widget_visuals};
 use crate::tokens::{
-    ControlSize, ControlVariant, checkbox_metrics, checkbox_tokens_with_high_contrast,
-    ease_out_cubic, mix,
+    ColorPalette, ControlSize, ControlVariant, ToggleState, ToggleTokens, VariantTokens,
+    checkbox_metrics, checkbox_tokens_with_high_contrast, ease_out_cubic, mix,
 };
 use egui::style::Widgets;
 use egui::{
@@ -72,6 +72,7 @@ pub struct CheckboxOptions {
     pub cycle: CheckboxCycle,
     pub animate: bool,
     pub high_contrast: bool,
+    pub color: Option<Color32>,
 }
 
 impl Default for CheckboxOptions {
@@ -84,6 +85,125 @@ impl Default for CheckboxOptions {
             cycle: CheckboxCycle::Binary,
             animate: true,
             high_contrast: false,
+            color: None,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum CheckboxVariant {
+    #[default]
+    Surface,
+    Classic,
+    Soft,
+}
+
+impl CheckboxVariant {
+    fn to_control(self) -> ControlVariant {
+        match self {
+            CheckboxVariant::Surface => ControlVariant::Secondary,
+            CheckboxVariant::Classic => ControlVariant::Outline,
+            CheckboxVariant::Soft => ControlVariant::Primary,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum CheckboxSize {
+    Size1,
+    #[default]
+    Size2,
+    Size3,
+}
+
+impl From<CheckboxSize> for ControlSize {
+    fn from(size: CheckboxSize) -> Self {
+        match size {
+            CheckboxSize::Size1 => ControlSize::Sm,
+            CheckboxSize::Size2 => ControlSize::Md,
+            CheckboxSize::Size3 => ControlSize::Lg,
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct CheckboxProps {
+    pub variant: CheckboxVariant,
+    pub size: CheckboxSize,
+    pub color: Option<Color32>,
+    pub high_contrast: bool,
+    pub enabled: bool,
+    pub invalid: bool,
+    pub cycle: CheckboxCycle,
+    pub animate: bool,
+}
+
+impl Default for CheckboxProps {
+    fn default() -> Self {
+        Self {
+            variant: CheckboxVariant::Surface,
+            size: CheckboxSize::Size2,
+            color: None,
+            high_contrast: false,
+            enabled: true,
+            invalid: false,
+            cycle: CheckboxCycle::Binary,
+            animate: true,
+        }
+    }
+}
+
+impl CheckboxProps {
+    pub fn with_variant(mut self, variant: CheckboxVariant) -> Self {
+        self.variant = variant;
+        self
+    }
+
+    pub fn with_size(mut self, size: CheckboxSize) -> Self {
+        self.size = size;
+        self
+    }
+
+    pub fn with_color(mut self, color: Color32) -> Self {
+        self.color = Some(color);
+        self
+    }
+
+    pub fn with_high_contrast(mut self, high_contrast: bool) -> Self {
+        self.high_contrast = high_contrast;
+        self
+    }
+
+    pub fn with_enabled(mut self, enabled: bool) -> Self {
+        self.enabled = enabled;
+        self
+    }
+
+    pub fn with_invalid(mut self, invalid: bool) -> Self {
+        self.invalid = invalid;
+        self
+    }
+
+    pub fn with_cycle(mut self, cycle: CheckboxCycle) -> Self {
+        self.cycle = cycle;
+        self
+    }
+
+    pub fn with_animate(mut self, animate: bool) -> Self {
+        self.animate = animate;
+        self
+    }
+
+    fn to_options(&self) -> CheckboxOptions {
+        CheckboxOptions {
+            variant: self.variant.to_control(),
+            size: self.size.into(),
+            enabled: self.enabled,
+            invalid: self.invalid,
+            cycle: self.cycle,
+            animate: self.animate,
+            high_contrast: self.high_contrast,
+            color: self.color,
         }
     }
 }
@@ -118,6 +238,16 @@ pub fn checkbox(
     response
 }
 
+pub fn checkbox_with_props(
+    ui: &mut Ui,
+    theme: &Theme,
+    state: &mut CheckboxState,
+    label: impl Into<WidgetText>,
+    props: CheckboxProps,
+) -> Response {
+    checkbox_state(ui, theme, state, label, props.to_options())
+}
+
 pub fn checkbox_state(
     ui: &mut Ui,
     theme: &Theme,
@@ -139,10 +269,11 @@ pub fn checkbox_state(
         cycle,
         animate,
         high_contrast,
+        color,
     } = options;
     let visuals = theme.control(variant, size);
     let metrics = checkbox_metrics(size);
-    let toggle_tokens = checkbox_tokens_with_high_contrast(&theme.palette, variant, high_contrast);
+    let toggle_tokens = checkbox_tokens_with_options(&theme.palette, variant, high_contrast, color);
     let rounding = CornerRadius::same((metrics.track_size.x * 0.25).round() as u8);
     let icon_spacing = visuals.padding.x * 0.35;
     let focus_ring = Stroke::new(
@@ -346,4 +477,77 @@ fn scale_alpha(color: Color32, factor: f32) -> Color32 {
     let [r, g, b, a] = color.to_array();
     let alpha = ((a as f32) * clamped).round() as u8;
     Color32::from_rgba_unmultiplied(r, g, b, alpha)
+}
+
+fn checkbox_tokens_with_options(
+    palette: &ColorPalette,
+    variant: ControlVariant,
+    high_contrast: bool,
+    color_override: Option<Color32>,
+) -> ToggleTokens {
+    let mut tokens = checkbox_tokens_with_high_contrast(palette, variant, false);
+
+    if let Some(accent) = color_override {
+        let accent_tokens = variant_tokens_from_accent(palette, accent);
+        tokens.on = ToggleState {
+            idle: accent_tokens.idle,
+            hovered: accent_tokens.hovered,
+            active: accent_tokens.active,
+        };
+        tokens.thumb_on = accent_tokens.idle.fg_stroke.color;
+    }
+
+    if high_contrast {
+        tokens = apply_high_contrast(tokens, palette);
+    }
+
+    tokens
+}
+
+fn variant_tokens_from_accent(palette: &ColorPalette, accent: Color32) -> VariantTokens {
+    let fg = if is_light(accent) {
+        palette.background
+    } else {
+        Color32::WHITE
+    };
+    VariantTokens {
+        idle: crate::tokens::StateColors::new(accent, fg, palette.border),
+        hovered: crate::tokens::StateColors::new(
+            mix(accent, Color32::WHITE, 0.06),
+            fg,
+            mix(palette.border, Color32::WHITE, 0.08),
+        ),
+        active: crate::tokens::StateColors::new(
+            mix(accent, Color32::WHITE, 0.1),
+            fg,
+            mix(palette.border, Color32::WHITE, 0.12),
+        ),
+        disabled: crate::tokens::StateColors::new(
+            mix(accent, palette.background, 0.4),
+            mix(fg, palette.background, 0.4),
+            mix(palette.border, palette.background, 0.4),
+        ),
+    }
+}
+
+fn apply_high_contrast(mut tokens: ToggleTokens, palette: &ColorPalette) -> ToggleTokens {
+    tokens.on.idle.bg_fill = mix(tokens.on.idle.bg_fill, Color32::WHITE, 0.2);
+    tokens.on.hovered.bg_fill = mix(tokens.on.hovered.bg_fill, Color32::WHITE, 0.25);
+    tokens.on.active.bg_fill = mix(tokens.on.active.bg_fill, Color32::WHITE, 0.3);
+
+    tokens.off.idle.bg_fill = mix(tokens.off.idle.bg_fill, Color32::WHITE, 0.25);
+    tokens.off.hovered.bg_fill = mix(tokens.off.hovered.bg_fill, Color32::WHITE, 0.3);
+    tokens.off.active.bg_fill = mix(tokens.off.active.bg_fill, Color32::WHITE, 0.35);
+
+    tokens.disabled.bg_fill = mix(tokens.disabled.bg_fill, palette.background, 0.35);
+    tokens.thumb_on = mix(tokens.thumb_on, palette.background, 0.12);
+    tokens.thumb_off = mix(tokens.thumb_off, palette.background, 0.12);
+
+    tokens
+}
+
+fn is_light(color: Color32) -> bool {
+    let luminance =
+        (color.r() as f32 * 0.299 + color.g() as f32 * 0.587 + color.b() as f32 * 0.114) / 255.0;
+    luminance > 0.55
 }
