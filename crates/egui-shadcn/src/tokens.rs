@@ -272,12 +272,11 @@ impl Oklch {
 
     #[allow(clippy::excessive_precision)]
     fn to_color32(self) -> Color32 {
-        // OKLCH -> OKLab
+
         let h_rad = self.h_deg.to_radians();
         let a = self.c * h_rad.cos();
         let b = self.c * h_rad.sin();
 
-        // OKLab -> LMS (non-linear)
         let l_ = self.l + 0.396_337_777_4 * a + 0.215_803_757_3 * b;
         let m_ = self.l - 0.105_561_345_8 * a - 0.063_854_172_8 * b;
         let s_ = self.l - 0.089_484_177_5 * a - 1.291_485_548_0 * b;
@@ -286,7 +285,6 @@ impl Oklch {
         let m = m_ * m_ * m_;
         let s = s_ * s_ * s_;
 
-        // LMS -> linear sRGB
         let r_lin = 4.076_741_662_1 * l - 3.307_711_591_3 * m + 0.230_969_929_2 * s;
         let g_lin = -1.268_438_004_6 * l + 2.609_757_401_1 * m - 0.341_319_396_5 * s;
         let b_lin = -0.004_196_086_3 * l - 0.703_418_614_7 * m + 1.707_614_701_0 * s;
@@ -366,8 +364,7 @@ impl ShadcnOklchPalette {
             muted: self.muted.to_color32(),
             muted_foreground: self.muted_foreground.to_color32(),
             destructive: self.destructive.to_color32(),
-            // Extension (not in shadcn docs): keep it for compatibility. We match shadcn/ui,
-            // where destructive buttons use light text.
+
             destructive_foreground: Oklch::new(0.985, 0.0, 0.0).to_color32(),
             chart_1: self.chart_1.to_color32(),
             chart_2: self.chart_2.to_color32(),

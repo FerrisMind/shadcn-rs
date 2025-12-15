@@ -37,7 +37,6 @@ fn tabs_props_defaults_match_radix_root() {
     assert_eq!(props.content_force_mount, TabsContentForceMount::Off);
     assert!(!props.content_as_child);
 
-    // existing defaults preserved
     assert_eq!(props.variant, TabsVariant::Underline);
 }
 
@@ -74,7 +73,6 @@ fn tabs_default_value_applies_once_and_calls_callback() {
     assert_eq!(active, default_value);
     assert_eq!(calls, 1);
 
-    // second pass should not reapply default
     active = "tab1".to_string();
     ctx.begin_pass(RawInput::default());
     egui::CentralPanel::default()

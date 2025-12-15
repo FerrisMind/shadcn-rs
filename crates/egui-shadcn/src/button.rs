@@ -164,8 +164,6 @@ impl ButtonSize {
     }
 }
 
-/// Radix-like size scale (1-4) mapped onto our concrete sizes.
-/// Keeping existing ButtonSize for compatibility while exposing a scale API.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ButtonScale {
     #[default]

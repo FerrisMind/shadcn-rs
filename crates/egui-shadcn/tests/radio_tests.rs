@@ -192,7 +192,6 @@ fn radio_group_default_value_applied_once_and_callback_fires() {
     assert_eq!(value, default_value);
     assert_eq!(callback_calls, 1);
 
-    // change value manually and ensure default is not reapplied on next pass
     value = "one".to_string();
     ctx.begin_pass(RawInput::default());
     egui::CentralPanel::default()

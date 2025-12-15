@@ -33,7 +33,6 @@ fn oklch_to_color32(oklch: Oklch) -> Color32 {
     let a = oklch.c * h_rad.cos();
     let b = oklch.c * h_rad.sin();
 
-    // OKLab -> LMS (non-linear)
     let l_ = oklch.l + 0.396_337_777_4 * a + 0.215_803_757_3 * b;
     let m_ = oklch.l - 0.105_561_345_8 * a - 0.063_854_172_8 * b;
     let s_ = oklch.l - 0.089_484_177_5 * a - 1.291_485_548_0 * b;
@@ -42,7 +41,6 @@ fn oklch_to_color32(oklch: Oklch) -> Color32 {
     let m = m_ * m_ * m_;
     let s = s_ * s_ * s_;
 
-    // LMS -> linear sRGB
     let r_lin = 4.076_741_662_1 * l - 3.307_711_591_3 * m + 0.230_969_929_2 * s;
     let g_lin = -1.268_438_004_6 * l + 2.609_757_401_1 * m - 0.341_319_396_5 * s;
     let b_lin = -0.004_196_086_3 * l - 0.703_418_614_7 * m + 1.707_614_701_0 * s;
@@ -268,7 +266,6 @@ fn assert_palette_matches_doc(
         &format!("{prefix}.sidebar_ring"),
     );
 
-    // Extension (not in shadcn docs): we keep `destructive_foreground` for compatibility.
     assert_eq!(
         actual.destructive_foreground.a(),
         255,
@@ -369,7 +366,6 @@ fn shadcn_neutral_matches_doc_light_and_dark() {
         "neutral.dark",
     );
 
-    // Also validate the shorthand constructors align to Neutral.
     assert_eq!(ColorPalette::default(), dark);
     assert_eq!(ColorPalette::dark(), dark);
     assert_eq!(ColorPalette::light(), light);
@@ -394,7 +390,6 @@ fn shadcn_other_base_colors_match_doc_light_and_dark() {
         Oklch::new(0.645, 0.246, 16.439),
     ];
 
-    // Stone
     let stone_light = ColorPalette::shadcn_light(ShadcnBaseColor::Stone);
     assert_palette_matches_doc(
         &stone_light,
@@ -469,7 +464,6 @@ fn shadcn_other_base_colors_match_doc_light_and_dark() {
         "stone.dark",
     );
 
-    // Zinc
     let zinc_light = ColorPalette::shadcn_light(ShadcnBaseColor::Zinc);
     assert_palette_matches_doc(
         &zinc_light,
@@ -544,7 +538,6 @@ fn shadcn_other_base_colors_match_doc_light_and_dark() {
         "zinc.dark",
     );
 
-    // Gray
     let gray_light = ColorPalette::shadcn_light(ShadcnBaseColor::Gray);
     assert_palette_matches_doc(
         &gray_light,
@@ -619,7 +612,6 @@ fn shadcn_other_base_colors_match_doc_light_and_dark() {
         "gray.dark",
     );
 
-    // Slate
     let slate_light = ColorPalette::shadcn_light(ShadcnBaseColor::Slate);
     assert_palette_matches_doc(
         &slate_light,

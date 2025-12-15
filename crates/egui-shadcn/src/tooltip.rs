@@ -303,10 +303,8 @@ pub struct TooltipProps<'a> {
 
     pub collision_padding: TooltipCollisionPadding,
 
-    /// Mirrors Radix Popper.Content `collisionBoundary` (simplified as a single `Rect`).
     pub collision_boundary: Option<Rect>,
 
-    /// Mirrors Radix Tooltip.Content `aria-label`.
     pub aria_label: Option<String>,
 
     pub high_contrast: bool,
@@ -322,16 +320,12 @@ pub struct TooltipProps<'a> {
 
     pub arrow_padding: f32,
 
-    /// Mirrors Radix Popper.Content `sticky`.
     pub sticky: TooltipSticky,
 
-    /// Mirrors Radix Popper.Content `hideWhenDetached`.
     pub hide_when_detached: bool,
 
-    /// Mirrors Radix Popper.Content `updatePositionStrategy`.
     pub update_position_strategy: TooltipUpdatePositionStrategy,
 
-    /// Mirrors Radix Portal `container` (mapped to egui layer order).
     pub container: Option<TooltipPortalContainer>,
 
     pub force_mount: bool,
@@ -346,13 +340,10 @@ pub struct TooltipProps<'a> {
 
     pub avoid_collisions: bool,
 
-    /// Mirrors Radix Tooltip.Root `onOpenChange`.
     pub on_open_change: Option<&'a mut dyn FnMut(bool)>,
 
-    /// Mirrors Radix Tooltip.Content `onEscapeKeyDown`.
     pub on_escape_key_down: Option<&'a mut dyn FnMut(&mut TooltipEscapeKeyDownEvent)>,
 
-    /// Mirrors Radix Tooltip.Content `onPointerDownOutside`.
     pub on_pointer_down_outside: Option<&'a mut dyn FnMut(&mut TooltipPointerDownOutsideEvent)>,
 }
 
