@@ -6,6 +6,11 @@ license.workspace = true
 description = "Shadcn-inspired component kit for egui"
 authors = ["FerrisMind"]
 repository = "https://github.com/FerrisMind/shadcn-rs"
+homepage = "https://github.com/FerrisMind/shadcn-rs"
+readme = "README.md"
+documentation = "https://docs.rs/egui-shadcn"
+keywords = ["egui", "ui", "components", "shadcn", "radix"]
+categories = ["gui", "visualization", "rendering::graphics-api", "game-development"]
 build = "build.rs"
 
 
