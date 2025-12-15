@@ -1,6 +1,6 @@
 use egui_shadcn::{
-    ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize, ScrollAreaType, ScrollDirection, Theme,
-    scroll_area,
+    ScrollAreaDir, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize, ScrollAreaType,
+    ScrollDirection, Theme, scroll_area,
 };
 
 fn init_logger() {
@@ -26,6 +26,34 @@ fn scroll_area_props_builder_sets_fields() {
     assert_eq!(props.scroll_type, ScrollAreaType::Always);
     assert_eq!(props.scroll_hide_delay_ms, Some(500.0));
     assert_eq!(props.auto_shrink, [true, false]);
+}
+
+#[test]
+fn scroll_area_radix_defaults_match_reference() {
+    let defaults = ScrollAreaProps::default();
+
+    assert_eq!(defaults.scroll_type, ScrollAreaType::Hover);
+    assert_eq!(defaults.scroll_hide_delay_ms, Some(600.0));
+    assert_eq!(defaults.as_child, false);
+    assert_eq!(defaults.dir, None);
+    assert_eq!(defaults.nonce, None);
+    assert_eq!(defaults.force_mount, [false, false]);
+}
+
+#[test]
+fn scroll_area_radix_api_fields_can_be_set() {
+    let props = ScrollAreaProps::default()
+        .as_child(true)
+        .with_dir(ScrollAreaDir::Rtl)
+        .with_nonce("abc123")
+        .with_force_mount([true, false])
+        .with_scroll_hide_delay(450.0);
+
+    assert!(props.as_child);
+    assert_eq!(props.dir, Some(ScrollAreaDir::Rtl));
+    assert_eq!(props.nonce.as_deref(), Some("abc123"));
+    assert_eq!(props.force_mount, [true, false]);
+    assert_eq!(props.scroll_hide_delay_ms, Some(450.0));
 }
 
 #[test]

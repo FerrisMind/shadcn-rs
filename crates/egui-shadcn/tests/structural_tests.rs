@@ -1,6 +1,7 @@
 use egui_shadcn::{
     CardProps, CardSize, CardVariant, ControlSize, ControlVariant, DialogProps, DialogSize,
-    PopoverAlign, PopoverPlacement, PopoverProps, ScrollAreaProps, ScrollDirection,
+    PopoverAlign, PopoverCollisionPadding, PopoverPlacement, PopoverProps, PopoverSide,
+    PopoverSticky, PopoverUpdatePositionStrategy, ScrollAreaProps, ScrollDirection,
     SeparatorOrientation, SeparatorProps, TabItem, TabsOrientation, TabsProps, TabsVariant, Theme,
     button, card, card::card_tokens, dialog, dialog::compute_dialog_rect,
     dialog::dialog_layout_tokens, popover, popover::compute_popover_rect, scroll_area, separator,
@@ -529,4 +530,60 @@ fn dialog_size_tokens_increase_padding() {
         "larger dialog sizes should increase padding"
     );
     assert_ne!(small.rounding, large.rounding);
+}
+
+#[test]
+fn popover_api_surface_matches_radix_reference() {
+    init_logger();
+
+    let ctx = egui::Context::default();
+    ctx.begin_pass(egui::RawInput::default());
+    let theme = Theme::default();
+
+    let mut open = false;
+    let mut open_changes = Vec::<bool>::new();
+    let mut on_open_change = |value: bool| open_changes.push(value);
+
+    let id_source = egui::Id::new("popover-api");
+    let _ = egui::CentralPanel::default()
+        .show(&ctx, |ui| {
+            let (trigger_resp, _inner) = popover(
+                ui,
+                &theme,
+                PopoverProps::new(id_source, &mut open)
+                    .default_open(true)
+                    .on_open_change(&mut on_open_change)
+                    .modal(false)
+                    .side(PopoverSide::Bottom)
+                    .side_offset(5.0)
+                    .align(PopoverAlign::Center)
+                    .align_offset(2.0)
+                    .avoid_collisions(true)
+                    .collision_padding(PopoverCollisionPadding::all(8.0))
+                    .sticky(PopoverSticky::Partial)
+                    .hide_when_detached(false)
+                    .update_position_strategy(PopoverUpdatePositionStrategy::Optimized)
+                    .force_mount(false),
+                |trigger_ui| {
+                    button(
+                        trigger_ui,
+                        &theme,
+                        "Trigger",
+                        ControlVariant::Outline,
+                        ControlSize::Md,
+                        true,
+                    )
+                },
+                |_content_ui| {},
+            );
+            trigger_resp
+        })
+        .inner;
+
+    let _ = ctx.end_pass();
+
+    assert!(
+        open_changes.is_empty(),
+        "no implicit open change on first render"
+    );
 }
