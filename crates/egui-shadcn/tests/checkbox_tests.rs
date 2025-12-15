@@ -4,6 +4,7 @@ use egui_shadcn::checkbox::{CheckboxCycle, CheckboxState};
 use egui_shadcn::tokens::{
     ColorPalette, ControlSize, ControlVariant, checkbox_metrics, checkbox_tokens,
 };
+use egui_shadcn::{CheckboxProps, CheckboxSize, CheckboxVariant, checkbox_with_props};
 
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -85,4 +86,57 @@ fn checkbox_tokens_high_contrast_adjusts_colors() {
     assert_ne!(normal.on.idle.bg_fill, high.on.idle.bg_fill);
     assert_ne!(normal.off.idle.bg_fill, high.off.idle.bg_fill);
     assert_ne!(normal.disabled.bg_fill, high.disabled.bg_fill);
+}
+
+#[test]
+fn checkbox_props_default_matches_radix_api() {
+    let props = CheckboxProps::default();
+    assert_eq!(
+        props.size,
+        CheckboxSize::Size2,
+        "Radix checkbox defaults to size 2"
+    );
+    assert_eq!(
+        props.variant,
+        CheckboxVariant::Surface,
+        "Radix checkbox defaults to surface variant"
+    );
+    assert!(!props.high_contrast, "highContrast is opt-in");
+    assert!(props.color.is_none(), "color defaults to palette accent");
+}
+
+#[test]
+fn checkbox_props_apply_color_override() {
+    let mut checked = false;
+    let ctx = egui::Context::default();
+    let theme = Theme::default();
+    let accent = egui::Color32::from_rgb(0, 200, 255);
+
+    ctx.begin_pass(egui::RawInput::default());
+    let _ = egui::CentralPanel::default()
+        .show(&ctx, |ui| {
+            checkbox(
+                ui,
+                &theme,
+                &mut checked,
+                "Color override",
+                ControlVariant::Secondary,
+                ControlSize::Md,
+                true,
+            );
+            let mut state = CheckboxState::Unchecked;
+            checkbox_with_props(
+                ui,
+                &theme,
+                &mut state,
+                "Props",
+                CheckboxProps::default()
+                    .with_color(accent)
+                    .with_variant(CheckboxVariant::Soft),
+            )
+        })
+        .inner;
+    let _ = ctx.end_pass();
+
+    assert_eq!(checked, false);
 }

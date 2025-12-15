@@ -234,10 +234,12 @@ fn select_item_option_creates_enabled_item() {
             value,
             label,
             disabled,
+            text_value,
         } => {
             assert_eq!(value, "val");
             assert_eq!(label, "Label");
             assert!(!disabled);
+            assert!(text_value.is_none());
         }
         _ => panic!("Expected Option variant"),
     }
@@ -253,10 +255,33 @@ fn select_item_option_disabled_creates_disabled_item() {
             value,
             label,
             disabled,
+            text_value,
         } => {
             assert_eq!(value, "val");
             assert_eq!(label, "Label");
             assert!(disabled);
+            assert!(text_value.is_none());
+        }
+        _ => panic!("Expected Option variant"),
+    }
+}
+
+#[test]
+fn select_item_option_with_text_value_sets_text_value() {
+    init_logger();
+    let item = SelectItem::option_with_text_value("val", "Label", "Text");
+
+    match item {
+        SelectItem::Option {
+            value,
+            label,
+            disabled,
+            text_value,
+        } => {
+            assert_eq!(value, "val");
+            assert_eq!(label, "Label");
+            assert!(!disabled);
+            assert_eq!(text_value.as_deref(), Some("Text"));
         }
         _ => panic!("Expected Option variant"),
     }
@@ -316,7 +341,7 @@ fn select_props_new_creates_default_props() {
     assert!(props.accent_color.is_none());
     assert_eq!(props.radius, SelectRadius::Medium);
     assert!(!props.high_contrast);
-    assert_eq!(props.position, PopupPosition::Popper);
+    assert_eq!(props.position, PopupPosition::ItemAligned);
 }
 
 #[test]
@@ -1107,4 +1132,15 @@ fn select_typeahead_matches_prefix_case_insensitive() {
     assert_eq!(match_a, Some(0));
     assert_eq!(match_b, Some(1));
     assert_eq!(match_c, Some(3));
+}
+
+#[test]
+fn select_typeahead_uses_text_value_when_set() {
+    let items = vec![
+        SelectItem::option_with_text_value("id-1", "Not a match", "Zebra"),
+        SelectItem::option("id-2", "Alpha"),
+    ];
+
+    let match_z = egui_shadcn::select::find_typeahead_match(&items, "ze");
+    assert_eq!(match_z, Some(0));
 }

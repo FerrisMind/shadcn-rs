@@ -1,8 +1,8 @@
 use egui::{Color32, Context, RawInput};
 use egui_shadcn::tokens::ColorPalette;
 use egui_shadcn::tooltip::{
-    TooltipAlign, TooltipAnimationState, TooltipOpenState, TooltipPosition, TooltipProps,
-    TooltipSide, TooltipState, TooltipStyle,
+    TooltipAlign, TooltipAnimationState, TooltipCollisionPadding, TooltipOpenState,
+    TooltipPosition, TooltipProps, TooltipSide, TooltipState, TooltipSticky, TooltipStyle,
 };
 use egui_shadcn::{Theme, tooltip};
 
@@ -69,7 +69,7 @@ fn tooltip_side_and_align_configuration() {
 fn tooltip_collision_padding_applied() {
     let props = TooltipProps::new("Test").collision_padding(15.0);
 
-    assert_eq!(props.collision_padding, 15.0);
+    assert_eq!(props.collision_padding, TooltipCollisionPadding::all(15.0));
 }
 
 #[test]
@@ -317,7 +317,7 @@ fn tooltip_default_animation_duration() {
 fn tooltip_sticky_configuration() {
     let props = TooltipProps::new("Sticky tooltip").sticky(true);
 
-    assert!(props.sticky);
+    assert_eq!(props.sticky, TooltipSticky::Always);
 }
 
 #[test]
@@ -409,7 +409,7 @@ fn tooltip_complex_configuration() {
     assert_eq!(props.align, TooltipAlign::Start);
     assert_eq!(props.side_offset, 8.0);
     assert_eq!(props.align_offset, 4.0);
-    assert_eq!(props.collision_padding, 12.0);
+    assert_eq!(props.collision_padding, TooltipCollisionPadding::all(12.0));
     assert_eq!(props.delay_ms, 500);
     assert_eq!(props.skip_delay_ms, 200);
     assert_eq!(props.animation_duration_ms, 100);
@@ -418,7 +418,7 @@ fn tooltip_complex_configuration() {
     assert_eq!(props.arrow_height, 6.0);
     assert_eq!(props.arrow_padding, 3.0);
     assert_eq!(props.max_width, 400.0);
-    assert!(props.sticky);
+    assert_eq!(props.sticky, TooltipSticky::Always);
     assert!(props.avoid_collisions);
     assert!(props.high_contrast);
 }

@@ -25,6 +25,13 @@ fn radio_group_props_defaults() {
     assert!(!props.disabled);
     assert!(!props.high_contrast);
     assert!(!props.show_separators);
+    assert!(props.name.is_none());
+    assert!(!props.required);
+    assert!(props.dir.is_none());
+    assert!(props.default_value.is_none());
+    assert!(props.on_value_change.is_none());
+    assert!(props.loop_focus);
+    assert!(!props.as_child);
 }
 
 #[test]
@@ -69,6 +76,16 @@ fn radio_option_builder_sets_icon_and_color() {
         .accent_color(egui::Color32::LIGHT_BLUE);
     assert!(option.icon.is_some());
     assert!(option.accent_color.is_some());
+}
+
+#[test]
+fn radio_option_supports_required_and_as_child() {
+    init_logger();
+    let option = RadioOption::new("value", "Label")
+        .required(true)
+        .as_child(true);
+    assert!(option.required);
+    assert!(option.as_child);
 }
 
 #[test]
@@ -144,6 +161,50 @@ fn radio_group_horizontal_with_separators() {
         .inner;
     let _ = ctx.end_pass();
     assert!(response.rect.width() >= 0.0);
+}
+
+#[test]
+fn radio_group_default_value_applied_once_and_callback_fires() {
+    init_logger();
+    let ctx = Context::default();
+    let theme = Theme::default();
+    let mut value = String::new();
+    let options = vec![
+        RadioOption::new("one".to_string(), "One"),
+        RadioOption::new("two".to_string(), "Two"),
+    ];
+    let mut callback_calls = 0usize;
+    let default_value = "two".to_string();
+
+    ctx.begin_pass(RawInput::default());
+    egui::CentralPanel::default()
+        .show(&ctx, |ui| {
+            RadioGroup::new("default_demo", &mut value, &options)
+                .default_value(default_value.clone())
+                .on_value_change(|new_val| {
+                    callback_calls += 1;
+                    assert_eq!(new_val, &default_value);
+                })
+                .show(ui, &theme)
+        })
+        .inner;
+    let _ = ctx.end_pass();
+    assert_eq!(value, default_value);
+    assert_eq!(callback_calls, 1);
+
+    // change value manually and ensure default is not reapplied on next pass
+    value = "one".to_string();
+    ctx.begin_pass(RawInput::default());
+    egui::CentralPanel::default()
+        .show(&ctx, |ui| {
+            RadioGroup::new("default_demo", &mut value, &options)
+                .default_value("ignored".to_string())
+                .show(ui, &theme)
+        })
+        .inner;
+    let _ = ctx.end_pass();
+    assert_eq!(value, "one");
+    assert_eq!(callback_calls, 1);
 }
 
 #[test]
