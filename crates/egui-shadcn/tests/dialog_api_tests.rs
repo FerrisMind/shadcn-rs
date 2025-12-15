@@ -1,4 +1,4 @@
-use egui_shadcn::{DialogAlign, DialogProps, DialogSize};
+use egui_shadcn::{DialogAlign, DialogProps, DialogSize, Theme, dialog_tokens_with_options};
 
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -35,4 +35,13 @@ fn dialog_as_child_is_opt_in() {
     let props = DialogProps::new(egui::Id::new("dialog-as-child"), &mut open).with_as_child(true);
 
     assert!(props.as_child, "with_as_child should enable flag");
+}
+
+#[test]
+fn dialog_tokens_match_shadcn_reference() {
+    init_logger();
+    let theme = Theme::default();
+    let tokens = dialog_tokens_with_options(&theme, DialogSize::Size3, false);
+    assert_eq!(tokens.background, theme.palette.background);
+    assert_eq!(tokens.border.color, theme.palette.border);
 }

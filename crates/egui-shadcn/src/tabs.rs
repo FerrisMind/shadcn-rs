@@ -748,13 +748,14 @@ struct TabsTokens {
 }
 
 fn resolve_tabs_tokens(palette: &ColorPalette, props: &TabsProps<'_>) -> TabsTokens {
-    let accent = props.accent_color.unwrap_or(palette.accent);
-    let focus_color = if props.high_contrast {
-        mix(accent, palette.foreground, 0.35)
-    } else {
-        mix(accent, palette.foreground, 0.15)
-    };
+    let focus_color = Color32::from_rgba_unmultiplied(
+        palette.ring.r(),
+        palette.ring.g(),
+        palette.ring.b(),
+        128,
+    );
     let focus_ring = DEFAULT_FOCUS.stroke(focus_color);
+    let accent = props.accent_color.unwrap_or(palette.accent);
 
     let (mut trigger_height, mut trigger_padding, font, _list_rounding, trigger_rounding) =
         match props.size {

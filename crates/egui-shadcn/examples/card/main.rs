@@ -293,7 +293,7 @@ fn render_project_card(
 
                     let items = vec![
                         SelectItem::option("next", "Next.js"),
-                        SelectItem::option("sveltekit", "SvelteKit"),
+                        SelectItem::option("remix", "Remix"),
                         SelectItem::option("astro", "Astro"),
                         SelectItem::option("nuxt", "Nuxt.js"),
                     ];

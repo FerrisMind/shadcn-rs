@@ -1,5 +1,4 @@
 use crate::theme::Theme;
-use crate::tokens::mix;
 use egui::{
     CornerRadius, Frame, Id, Margin, Order, Pos2, Rect, Response, Stroke, Ui, Vec2, pos2, vec2,
 };
@@ -492,8 +491,8 @@ pub fn popover<R>(
     if is_mounted {
         trace!("render popover {:?}", props.id_source);
         let palette = &theme.palette;
-        let bg = mix(palette.input, palette.background, 0.85).gamma_multiply(anim_t);
-        let border = mix(palette.border, palette.foreground, 0.15).gamma_multiply(anim_t);
+        let bg = palette.popover.gamma_multiply(anim_t);
+        let border = palette.border.gamma_multiply(anim_t);
         let rounding = CornerRadius::same(theme.radius.r3.round() as u8);
         let width = match (props.match_trigger_width, props.width) {
             (true, _) => trigger_response.rect.width().max(180.0),
@@ -559,6 +558,7 @@ pub fn popover<R>(
             .movable(false)
             .fixed_pos(animated_origin)
             .show(ui.ctx(), |popup_ui| {
+                popup_ui.visuals_mut().override_text_color = Some(palette.popover_foreground);
                 popup_ui.set_min_width(width);
                 popup_ui.set_max_height(position_rect.height());
                 let frame = Frame::popup(popup_ui.style())

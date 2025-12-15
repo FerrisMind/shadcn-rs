@@ -79,7 +79,14 @@ fn input_type_is_password() {
 fn input_style_from_palette() {
     let palette = ColorPalette::default();
     let style = InputStyle::from_palette(&palette, InputVariant::Surface);
-    assert_ne!(style.bg, Color32::TRANSPARENT);
+    assert_eq!(style.border, palette.input);
+    assert_eq!(style.border_focus, palette.ring);
+    assert_eq!(
+        style.focus_ring,
+        Color32::from_rgba_unmultiplied(palette.ring.r(), palette.ring.g(), palette.ring.b(), 128)
+    );
+    assert_eq!(style.selection_bg, palette.primary);
+    assert_eq!(style.selection_fg, palette.primary_foreground);
     assert_ne!(style.text_color, Color32::TRANSPARENT);
     assert_ne!(style.placeholder_color, Color32::TRANSPARENT);
 }
@@ -88,14 +95,14 @@ fn input_style_from_palette() {
 fn input_style_variant_surface() {
     let palette = ColorPalette::default();
     let style = InputStyle::from_palette(&palette, InputVariant::Surface);
-    assert_ne!(style.border, Color32::TRANSPARENT);
+    assert_eq!(style.border, palette.input);
 }
 
 #[test]
 fn input_style_variant_classic() {
     let palette = ColorPalette::default();
     let style = InputStyle::from_palette(&palette, InputVariant::Classic);
-    assert_ne!(style.border, Color32::TRANSPARENT);
+    assert_eq!(style.border, palette.input);
 }
 
 #[test]
@@ -108,7 +115,6 @@ fn input_style_variant_soft() {
 #[test]
 fn input_style_default() {
     let style = InputStyle::default();
-    assert_ne!(style.bg, Color32::TRANSPARENT);
     assert_ne!(style.text_color, Color32::TRANSPARENT);
 }
 

@@ -8,6 +8,7 @@ authors = ["FerrisMind"]
 repository = "https://github.com/FerrisMind/shadcn-rs"
 build = "build.rs"
 
+
 [features]
 default = []
 examples = []

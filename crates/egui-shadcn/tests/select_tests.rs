@@ -153,7 +153,7 @@ fn select_style_from_palette_with_accent_applies_accent_colors() {
     assert_ne!(accent_style.trigger_bg, base.trigger_bg);
     assert_eq!(accent_style.trigger_text, accent);
     assert_eq!(accent_style.item_solid_bg_hover, accent);
-    assert_eq!(accent_style.focus_ring_color.a(), 180);
+    assert_eq!(accent_style.focus_ring_color.a(), 128);
 }
 
 #[test]

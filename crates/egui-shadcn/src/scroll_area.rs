@@ -111,11 +111,12 @@ impl ScrollAreaColors {
         high_contrast: bool,
     ) -> Self {
         let accent = accent_override.unwrap_or(palette.accent);
-        let focus_color = if high_contrast {
-            mix(accent, palette.foreground, 0.35)
-        } else {
-            mix(accent, palette.foreground, 0.15)
-        };
+        let focus_color = Color32::from_rgba_unmultiplied(
+            palette.ring.r(),
+            palette.ring.g(),
+            palette.ring.b(),
+            128,
+        );
         let focus_ring = DEFAULT_FOCUS.stroke(focus_color);
 
         let track = mix(
@@ -135,7 +136,7 @@ impl ScrollAreaColors {
         );
         let mut thumb_active = mix(thumb, accent, if high_contrast { 0.35 } else { 0.2 });
 
-        if accent_override.is_some() {
+        if let Some(accent) = accent_override {
             thumb = mix(thumb, accent, if high_contrast { 0.35 } else { 0.25 });
             thumb_hover = mix(thumb_hover, accent, if high_contrast { 0.45 } else { 0.35 });
             thumb_active = mix(

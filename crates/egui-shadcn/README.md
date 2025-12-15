@@ -86,6 +86,8 @@ let theme = Theme::default();
 // Customize via theme tokens
 ```
 
+`ColorPalette` defaults match shadcn theming variables (OKLCH, `Neutral`). For other documented base palettes, use `ShadcnBaseColor` with `ColorPalette::shadcn_light(...)` / `ColorPalette::shadcn_dark(...)`.
+
 ## Examples
 
 Run examples to see components in action:
