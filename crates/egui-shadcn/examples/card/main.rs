@@ -5,6 +5,8 @@
 
 #[path = "../_shared/icon.rs"]
 mod icon;
+#[path = "../_shared/screenshot.rs"]
+mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::{Align2, FontData, FontDefinitions, FontFamily, FontId};
@@ -40,6 +42,7 @@ impl CardDemo {
 
 impl App for CardDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        screenshot::apply_screenshot_scale(ctx);
         ensure_lucide_font(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
             ui.spacing_mut().item_spacing.y = 16.0;

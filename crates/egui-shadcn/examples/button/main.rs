@@ -5,6 +5,8 @@
 
 #[path = "../_shared/icon.rs"]
 mod icon;
+#[path = "../_shared/screenshot.rs"]
+mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::{
@@ -283,81 +285,88 @@ fn render_demo(ui: &mut egui::Ui, theme: &Theme, kind: DemoKind) {
 
 impl App for ButtonDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        screenshot::apply_screenshot_scale(ctx);
         ensure_lucide_font(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
-            let scroll_props = ScrollAreaProps::default()
-                .with_id(ui.make_persistent_id("button-demo-scroll"))
-                .with_direction(ScrollDirection::Vertical)
-                .with_type(ScrollAreaType::Auto)
-                .with_max_size(ui.available_size());
+            let panel_rect = ui.max_rect();
+            let center = panel_rect.center();
+            let max_width = panel_rect.width().min(960.0);
 
-            scroll_area(ui, &self.theme, scroll_props, |ui| {
-                ui.spacing_mut().item_spacing.y = 16.0;
+            // Center content both horizontally and vertically in the window.
+            egui::Area::new("button_demo_center".into())
+                .anchor(egui::Align2::CENTER_CENTER, egui::Vec2::ZERO)
+                .fixed_pos(center)
+                .show(ui.ctx(), |area_ui| {
+                    area_ui.set_max_width(max_width);
 
-                let sections: &[(&str, &[(&str, DemoKind)])] = &[
-                    (
-                        "Variants",
-                        &[
-                            ("Primary (default)", DemoKind::Primary),
-                            ("Outline (text)", DemoKind::OutlineText),
-                            ("Secondary", DemoKind::Secondary),
-                            ("Ghost", DemoKind::Ghost),
-                            ("Destructive", DemoKind::Destructive),
-                            ("Link style", DemoKind::Link),
-                        ],
-                    ),
-                    (
-                        "Icons",
-                        &[
-                            ("Outline (icon-only)", DemoKind::OutlineIcon),
-                            ("Icon button (outline, circular)", DemoKind::IconCircular),
-                            ("Outline with leading icon", DemoKind::OutlineLeadingIcon),
-                            ("Outline icon (rounded full)", DemoKind::OutlineIconRounded),
-                        ],
-                    ),
-                    (
-                        "Sizes",
-                        &[
-                            ("Size Small (text)", DemoKind::SizeSmText),
-                            ("Size Small (icon)", DemoKind::SizeSmIcon),
-                            ("Size Default (text)", DemoKind::SizeMdText),
-                            ("Size Default (icon)", DemoKind::SizeMdIcon),
-                            ("Size Large (text)", DemoKind::SizeLgText),
-                            ("Size Large (icon)", DemoKind::SizeLgIcon),
-                        ],
-                    ),
-                    (
-                        "States",
-                        &[
-                            ("Loading state (disabled)", DemoKind::Loading),
-                            ("Default variant (solid)", DemoKind::DefaultSolid),
-                        ],
-                    ),
-                ];
+                    area_ui.vertical(|ui| {
+                        ui.spacing_mut().item_spacing.y = 16.0;
 
-                for (idx, (section_title, demos)) in sections.iter().enumerate() {
-                    Label::new(*section_title)
-                        .size(ControlSize::Sm)
-                        .show(ui, &self.theme);
+                        let sections: &[(&str, &[(&str, DemoKind)])] = &[
+                            (
+                                "Variants",
+                                &[
+                                    ("Primary (default)", DemoKind::Primary),
+                                    ("Outline (text)", DemoKind::OutlineText),
+                                    ("Secondary", DemoKind::Secondary),
+                                    ("Ghost", DemoKind::Ghost),
+                                    ("Destructive", DemoKind::Destructive),
+                                    ("Link style", DemoKind::Link),
+                                ],
+                            ),
+                            (
+                                "Icons",
+                                &[
+                                    ("Outline (icon-only)", DemoKind::OutlineIcon),
+                                    ("Icon button (outline, circular)", DemoKind::IconCircular),
+                                    ("Outline with leading icon", DemoKind::OutlineLeadingIcon),
+                                    ("Outline icon (rounded full)", DemoKind::OutlineIconRounded),
+                                ],
+                            ),
+                            (
+                                "Sizes",
+                                &[
+                                    ("Size Small (text)", DemoKind::SizeSmText),
+                                    ("Size Small (icon)", DemoKind::SizeSmIcon),
+                                    ("Size Default (text)", DemoKind::SizeMdText),
+                                    ("Size Default (icon)", DemoKind::SizeMdIcon),
+                                    ("Size Large (text)", DemoKind::SizeLgText),
+                                    ("Size Large (icon)", DemoKind::SizeLgIcon),
+                                ],
+                            ),
+                            (
+                                "States",
+                                &[
+                                    ("Loading state (disabled)", DemoKind::Loading),
+                                    ("Default variant (solid)", DemoKind::DefaultSolid),
+                                ],
+                            ),
+                        ];
 
-                    ui.horizontal_wrapped(|row| {
-                        row.spacing_mut().item_spacing = egui::Vec2::new(16.0, 24.0);
-                        for (title, kind) in *demos {
-                            row.allocate_ui(egui::Vec2::new(220.0, 96.0), |tile| {
-                                demo_tile(tile, &self.theme, title, |inner| {
-                                    render_demo(inner, &self.theme, *kind);
-                                });
+                        for (idx, (section_title, demos)) in sections.iter().enumerate() {
+                            Label::new(*section_title)
+                                .size(ControlSize::Sm)
+                                .show(ui, &self.theme);
+
+                            ui.horizontal_wrapped(|row| {
+                                row.spacing_mut().item_spacing = egui::Vec2::new(16.0, 24.0);
+                                for (title, kind) in *demos {
+                                    row.allocate_ui(egui::Vec2::new(220.0, 96.0), |tile| {
+                                        demo_tile(tile, &self.theme, title, |inner| {
+                                            render_demo(inner, &self.theme, *kind);
+                                        });
+                                    });
+                                }
                             });
+
+                            if idx + 1 < sections.len() {
+                                ui.add_space(8.0);
+                                separator(ui, &self.theme, SeparatorProps::default());
+                                ui.add_space(8.0);
+                            }
                         }
                     });
-
-                    if idx + 1 < sections.len() {
-                        ui.add_space(8.0);
-                        separator(ui, &self.theme, SeparatorProps::default());
-                        ui.add_space(8.0);
-                    }
-                }
-            });
+                });
         });
     }
 }

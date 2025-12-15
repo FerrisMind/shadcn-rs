@@ -5,6 +5,8 @@
 
 #[path = "../_shared/icon.rs"]
 mod icon;
+#[path = "../_shared/screenshot.rs"]
+mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui_shadcn::{
@@ -41,6 +43,7 @@ impl PopoverDemo {
 
 impl App for PopoverDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        screenshot::apply_screenshot_scale(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
             let mut open = self.open;
             let _ = popover(

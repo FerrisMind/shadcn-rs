@@ -1,10 +1,10 @@
-//! Shadcn-inspired UI компоненты для `egui`.
+#![cfg_attr(docsrs, feature(doc_cfg))]
+//! Shadcn-inspired UI components for `egui`.
 //!
-//! Предоставляет набор контролов (кнопки, формы, оверлеи, layout) с API, выровненным на Radix
-//! и палитрой shadcn. Все публичные элементы документированы в духе rustdoc, примеры пригодны
-//! к копированию.
+//! Provides buttons, form controls, overlays, and layout pieces with Radix-aligned APIs and
+//! shadcn theming tokens. All public items include copyable examples.
 //!
-//! # Пример
+//! # Example
 //! ```rust
 //! use egui::Ui;
 //! use egui_shadcn::{button, ControlSize, ControlVariant, Theme};
@@ -21,7 +21,7 @@
 //! }
 //! ```
 //!
-//! Дополнительные примеры см. в `examples/` и `crates/egui-shadcn/README.md`.
+//! More examples live in `examples/` and `crates/egui-shadcn/README.md`.
 
 pub mod button;
 pub mod card;

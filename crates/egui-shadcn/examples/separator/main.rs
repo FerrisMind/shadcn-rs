@@ -5,6 +5,8 @@
 
 #[path = "../_shared/icon.rs"]
 mod icon;
+#[path = "../_shared/screenshot.rs"]
+mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui_shadcn::{SeparatorOrientation, SeparatorProps, Theme, separator};
@@ -23,6 +25,7 @@ impl SeparatorDemo {
 
 impl App for SeparatorDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        screenshot::apply_screenshot_scale(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
             let panel_rect = ui.max_rect();
             let center = panel_rect.center();
