@@ -1,7 +1,9 @@
+use egui::Color32;
 use egui_shadcn::{
-    ScrollAreaDir, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize, ScrollAreaType,
-    ScrollDirection, Theme, scroll_area,
+    ScrollAreaColors, ScrollAreaDir, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize,
+    ScrollAreaType, ScrollDirection, DEFAULT_FOCUS, Theme, scroll_area,
 };
+use egui_shadcn::tokens::ColorPalette;
 
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -79,6 +81,21 @@ fn scroll_area_radius_corner_values() {
     assert_eq!(
         ScrollAreaRadius::Full.corner_radius(),
         CornerRadius::same(255)
+    );
+}
+
+#[test]
+fn scroll_area_focus_ring_matches_shadcn_tokens() {
+    let palette = ColorPalette::default();
+    let colors = ScrollAreaColors::from_palette(&palette, None, false);
+    assert_eq!(
+        colors.focus_ring,
+        DEFAULT_FOCUS.stroke(Color32::from_rgba_unmultiplied(
+            palette.ring.r(),
+            palette.ring.g(),
+            palette.ring.b(),
+            128
+        ))
     );
 }
 

@@ -1,6 +1,5 @@
 use crate::scroll_area::{ScrollAreaProps, ScrollDirection, scroll_area};
 use crate::theme::Theme;
-use crate::tokens::mix;
 use egui::{
     Align2, Color32, CornerRadius, FontId, Frame, Id, LayerId, Margin, Order, Rect, Sense, Stroke,
     StrokeKind, Ui, Vec2, pos2, vec2,
@@ -71,17 +70,8 @@ pub fn dialog_tokens_with_options(
     high_contrast: bool,
 ) -> DialogTokens {
     let palette = &theme.palette;
-    let background = mix(
-        palette.background,
-        palette.input,
-        if high_contrast { 0.6 } else { 0.55 },
-    );
-    let border_color = mix(
-        palette.border,
-        palette.foreground,
-        if high_contrast { 0.22 } else { 0.15 },
-    );
-    let border = Stroke::new(1.0, border_color);
+    let background = palette.background;
+    let border = Stroke::new(1.0, if high_contrast { palette.foreground } else { palette.border });
     let shadow_alpha = if high_contrast { 90 } else { 70 };
     let shadow = egui::epaint::Shadow {
         offset: [0, 4],
@@ -484,11 +474,7 @@ pub fn dialog<R>(
                                     );
 
                                     if close_resp.has_focus() {
-                                        let ring_color = mix(
-                                            theme.palette.border,
-                                            theme.palette.foreground,
-                                            0.3,
-                                        );
+                                        let ring_color = theme.palette.ring;
                                         let ring_rect = rect.expand(2.0);
                                         close_ui.painter().rect_stroke(
                                             ring_rect,
@@ -568,7 +554,7 @@ pub fn dialog<R>(
             );
 
             if close_resp.has_focus() {
-                let ring_color = mix(theme.palette.border, theme.palette.foreground, 0.3);
+                let ring_color = theme.palette.ring;
                 area_ui.painter().rect_stroke(
                     close_rect,
                     CornerRadius::same(2),

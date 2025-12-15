@@ -210,23 +210,19 @@ pub fn card_tokens_with_options(
 
     match resolved_variant {
         CardVariant::Surface => {
-            let background = mix(
-                palette.input,
-                palette.background,
-                if high_contrast { 0.75 } else { 0.65 },
-            );
+            let background = palette.card;
             let background_hover = mix(
                 background,
-                Color32::WHITE,
-                if high_contrast { 0.06 } else { 0.04 },
+                palette.foreground,
+                if high_contrast { 0.06 } else { 0.03 },
             );
-            let background_active = mix(background, palette.foreground, 0.06);
+            let background_active = mix(
+                background_hover,
+                palette.foreground,
+                if high_contrast { 0.08 } else { 0.04 },
+            );
 
-            let border_color = mix(
-                palette.border,
-                palette.background,
-                if high_contrast { 0.3 } else { 0.4 },
-            );
+            let border_color = palette.border;
             let stroke = Stroke::new(if high_contrast { 1.0 } else { 0.75 }, border_color);
             let stroke_hover =
                 Stroke::new(stroke.width, mix(border_color, palette.foreground, 0.08));
@@ -471,8 +467,9 @@ pub fn card(
         .shadow(shadow);
 
     let inner = frame.show(ui, |card_ui| {
+        card_ui.visuals_mut().override_text_color = Some(palette.card_foreground);
         if let Some(title) = &props.heading {
-            card_ui.heading(title);
+            card_ui.label(RichText::new(title).heading().color(palette.card_foreground));
         }
         if let Some(description) = &props.description {
             let text = RichText::new(description).color(palette.muted_foreground);
@@ -495,11 +492,12 @@ pub fn card(
         ctx.data_mut(|d| d.insert_temp(id.with("pressed"), pressed_now));
 
         if response.has_focus() {
-            let focus_color = if props.high_contrast {
-                mix(palette.accent, palette.foreground, 0.35)
-            } else {
-                mix(palette.accent, palette.foreground, 0.2)
-            };
+            let focus_color = Color32::from_rgba_unmultiplied(
+                palette.ring.r(),
+                palette.ring.g(),
+                palette.ring.b(),
+                128,
+            );
             ui.painter().rect_stroke(
                 response.rect,
                 props.rounding,

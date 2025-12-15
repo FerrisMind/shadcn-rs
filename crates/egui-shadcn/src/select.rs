@@ -324,16 +324,16 @@ impl SelectStyle {
                 palette.input.b(),
                 128,
             ),
-            trigger_border: palette.border,
+            trigger_border: palette.input,
             trigger_text: palette.foreground,
             trigger_placeholder: palette.muted_foreground,
             trigger_icon: palette.muted_foreground,
             trigger_rounding: CornerRadius::same(6),
 
             focus_ring_color: Color32::from_rgba_unmultiplied(
-                palette.border.r(),
-                palette.border.g(),
-                palette.border.b(),
+                palette.ring.r(),
+                palette.ring.g(),
+                palette.ring.b(),
                 128,
             ),
             focus_ring_width: 3.0,
@@ -348,7 +348,7 @@ impl SelectStyle {
 
             disabled_opacity: 0.5,
 
-            content_bg: palette.background,
+            content_bg: palette.popover,
             content_border: palette.border,
             content_rounding: CornerRadius::same(6),
             content_shadow: Color32::from_rgba_unmultiplied(
@@ -360,14 +360,10 @@ impl SelectStyle {
             content_padding: 4.0,
 
             item_bg: Color32::TRANSPARENT,
-            item_bg_hover: mix(palette.muted, palette.background, 0.5),
-            item_bg_selected: mix(
-                mix(palette.muted, palette.background, 0.5),
-                palette.primary,
-                0.12,
-            ),
-            item_text: palette.foreground,
-            item_text_hover: palette.foreground,
+            item_bg_hover: palette.accent,
+            item_bg_selected: palette.accent,
+            item_text: palette.popover_foreground,
+            item_text_hover: palette.accent_foreground,
             item_rounding: CornerRadius::same(3),
             item_padding: vec2(8.0, 6.0),
             item_icon_color: palette.muted_foreground,
@@ -401,7 +397,7 @@ impl SelectStyle {
         self.trigger_placeholder = mix(accent, palette.muted_foreground, 0.35);
         self.trigger_icon = accent;
         self.focus_ring_color =
-            Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 180);
+            Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 128);
 
         self.content_bg = mix(palette.input, accent, 0.15);
         self.content_border = accent_border;

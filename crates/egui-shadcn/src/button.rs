@@ -225,6 +225,12 @@ pub struct ButtonStyle {
 
 impl ButtonStyle {
     pub fn from_variant(palette: &ColorPalette, variant: ButtonVariant) -> Self {
+        let focus_ring = Color32::from_rgba_unmultiplied(
+            palette.ring.r(),
+            palette.ring.g(),
+            palette.ring.b(),
+            128,
+        );
         match variant {
             ButtonVariant::Default | ButtonVariant::Solid => Self {
                 bg: palette.primary,
@@ -235,7 +241,7 @@ impl ButtonStyle {
                 text_active: palette.primary_foreground,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
-                focus_ring: mix(palette.primary, palette.background, 0.35),
+                focus_ring,
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(8),
             },
@@ -248,7 +254,7 @@ impl ButtonStyle {
                 text_active: palette.primary_foreground,
                 border: mix(palette.primary, palette.background, 0.22),
                 border_hover: mix(palette.primary, palette.background, 0.27),
-                focus_ring: mix(palette.primary, palette.background, 0.4),
+                focus_ring,
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(8),
             },
@@ -278,12 +284,7 @@ impl ButtonStyle {
                     text_active: palette.foreground,
                     border: Color32::TRANSPARENT,
                     border_hover: Color32::TRANSPARENT,
-                    focus_ring: Color32::from_rgba_unmultiplied(
-                        palette.primary.r(),
-                        palette.primary.g(),
-                        palette.primary.b(),
-                        100,
-                    ),
+                    focus_ring,
                     disabled_opacity: 0.5,
                     rounding: CornerRadius::same(8),
                 }
@@ -324,44 +325,42 @@ impl ButtonStyle {
                         palette.primary.b(),
                         130,
                     ),
-                    focus_ring: Color32::from_rgba_unmultiplied(
-                        palette.primary.r(),
-                        palette.primary.g(),
-                        palette.primary.b(),
-                        100,
-                    ),
+                    focus_ring,
                     disabled_opacity: 0.5,
                     rounding: CornerRadius::same(8),
                 }
             }
-            ButtonVariant::Destructive => Self {
-                bg: palette.destructive,
-                bg_hover: mix(palette.destructive, Color32::WHITE, 0.1),
-                bg_active: mix(palette.destructive, Color32::WHITE, 0.15),
-                text: Color32::WHITE,
-                text_hover: Color32::WHITE,
-                text_active: Color32::WHITE,
-                border: Color32::TRANSPARENT,
-                border_hover: Color32::TRANSPARENT,
-                focus_ring: mix(palette.destructive, Color32::WHITE, 0.3),
-                disabled_opacity: 0.5,
-                rounding: CornerRadius::same(8),
-            },
+            ButtonVariant::Destructive => {
+                let destructive_ring = Color32::from_rgba_unmultiplied(
+                    palette.destructive.r(),
+                    palette.destructive.g(),
+                    palette.destructive.b(),
+                    51,
+                );
+                Self {
+                    bg: palette.destructive,
+                    bg_hover: mix(palette.destructive, Color32::WHITE, 0.1),
+                    bg_active: mix(palette.destructive, Color32::WHITE, 0.15),
+                    text: Color32::WHITE,
+                    text_hover: Color32::WHITE,
+                    text_active: Color32::WHITE,
+                    border: Color32::TRANSPARENT,
+                    border_hover: Color32::TRANSPARENT,
+                    focus_ring: destructive_ring,
+                    disabled_opacity: 0.5,
+                    rounding: CornerRadius::same(8),
+                }
+            }
             ButtonVariant::Outline => Self {
                 bg: Color32::TRANSPARENT,
-                bg_hover: palette.accent,
-                bg_active: mix(palette.accent, Color32::WHITE, 0.1),
-                text: palette.foreground,
-                text_hover: palette.foreground,
-                text_active: palette.foreground,
-                border: palette.border,
-                border_hover: mix(palette.border, palette.foreground, 0.1),
-                focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.border.r(),
-                    palette.border.g(),
-                    palette.border.b(),
-                    128,
-                ),
+                bg_hover: mix(palette.accent, Color32::WHITE, 0.08),
+                bg_active: mix(palette.accent, Color32::WHITE, 0.12),
+                text: palette.secondary_foreground,
+                text_hover: palette.secondary_foreground,
+                text_active: palette.secondary_foreground,
+                border: palette.secondary,
+                border_hover: palette.secondary,
+                focus_ring,
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(8),
             },
@@ -374,12 +373,7 @@ impl ButtonStyle {
                 text_active: palette.secondary_foreground,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
-                focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.secondary.r(),
-                    palette.secondary.g(),
-                    palette.secondary.b(),
-                    128,
-                ),
+                focus_ring,
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(8),
             },
@@ -392,12 +386,7 @@ impl ButtonStyle {
                 text_active: palette.foreground,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
-                focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.border.r(),
-                    palette.border.g(),
-                    palette.border.b(),
-                    128,
-                ),
+                focus_ring,
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(8),
             },
@@ -410,12 +399,7 @@ impl ButtonStyle {
                 text_active: palette.primary,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
-                focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.primary.r(),
-                    palette.primary.g(),
-                    palette.primary.b(),
-                    128,
-                ),
+                focus_ring,
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(8),
             },
@@ -472,6 +456,8 @@ impl ButtonStyle {
             ButtonVariant::Destructive => {}
             ButtonVariant::Outline => {
                 style.text = accent;
+                style.text_hover = accent;
+                style.text_active = accent;
                 style.border =
                     Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 180);
                 style.border_hover = accent;

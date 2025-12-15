@@ -141,40 +141,20 @@ impl TextareaStyle {
     pub fn from_palette(palette: &ColorPalette, variant: TextareaVariant) -> Self {
         match variant {
             TextareaVariant::Surface => Self {
-                bg: Color32::from_rgba_unmultiplied(
-                    palette.input.r(),
-                    palette.input.g(),
-                    palette.input.b(),
-                    77,
-                ),
-                bg_hover: Color32::from_rgba_unmultiplied(
-                    palette.input.r(),
-                    palette.input.g(),
-                    palette.input.b(),
-                    100,
-                ),
-                bg_focus: Color32::from_rgba_unmultiplied(
-                    palette.input.r(),
-                    palette.input.g(),
-                    palette.input.b(),
-                    120,
-                ),
-                border: palette.border,
-                border_hover: mix(palette.border, palette.foreground, 0.1),
-                border_focus: mix(palette.border, palette.foreground, 0.2),
+                bg: Color32::TRANSPARENT,
+                bg_hover: Color32::TRANSPARENT,
+                bg_focus: Color32::TRANSPARENT,
+                border: palette.input,
+                border_hover: palette.input,
+                border_focus: palette.ring,
                 text_color: palette.foreground,
                 placeholder_color: palette.muted_foreground,
-                selection_bg: Color32::from_rgba_unmultiplied(
-                    palette.primary.r(),
-                    palette.primary.g(),
-                    palette.primary.b(),
-                    64,
-                ),
-                selection_fg: palette.foreground,
+                selection_bg: palette.primary,
+                selection_fg: palette.primary_foreground,
                 focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.border.r(),
-                    palette.border.g(),
-                    palette.border.b(),
+                    palette.ring.r(),
+                    palette.ring.g(),
+                    palette.ring.b(),
                     128,
                 ),
                 focus_ring_width: 3.0,
@@ -183,32 +163,27 @@ impl TextareaStyle {
                     palette.destructive.r(),
                     palette.destructive.g(),
                     palette.destructive.b(),
-                    102,
+                    51,
                 ),
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(6),
             },
             TextareaVariant::Classic => Self {
-                bg: palette.input,
-                bg_hover: mix(palette.input, Color32::WHITE, 0.04),
-                bg_focus: mix(palette.input, Color32::WHITE, 0.08),
-                border: mix(palette.border, Color32::BLACK, 0.2),
-                border_hover: mix(palette.border, Color32::BLACK, 0.1),
-                border_focus: palette.border,
+                bg: palette.background,
+                bg_hover: palette.background,
+                bg_focus: palette.background,
+                border: palette.input,
+                border_hover: palette.input,
+                border_focus: palette.ring,
                 text_color: palette.foreground,
                 placeholder_color: palette.muted_foreground,
-                selection_bg: Color32::from_rgba_unmultiplied(
-                    palette.primary.r(),
-                    palette.primary.g(),
-                    palette.primary.b(),
-                    64,
-                ),
-                selection_fg: palette.foreground,
+                selection_bg: palette.primary,
+                selection_fg: palette.primary_foreground,
                 focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.border.r(),
-                    palette.border.g(),
-                    palette.border.b(),
-                    100,
+                    palette.ring.r(),
+                    palette.ring.g(),
+                    palette.ring.b(),
+                    128,
                 ),
                 focus_ring_width: 3.0,
                 invalid_border: palette.destructive,
@@ -216,7 +191,7 @@ impl TextareaStyle {
                     palette.destructive.r(),
                     palette.destructive.g(),
                     palette.destructive.b(),
-                    102,
+                    51,
                 ),
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(6),
@@ -244,23 +219,13 @@ impl TextareaStyle {
                 border_hover: Color32::TRANSPARENT,
                 border_focus: Color32::TRANSPARENT,
                 text_color: palette.foreground,
-                placeholder_color: Color32::from_rgba_unmultiplied(
-                    palette.foreground.r(),
-                    palette.foreground.g(),
-                    palette.foreground.b(),
-                    166,
-                ),
-                selection_bg: Color32::from_rgba_unmultiplied(
-                    palette.primary.r(),
-                    palette.primary.g(),
-                    palette.primary.b(),
-                    80,
-                ),
-                selection_fg: palette.foreground,
+                placeholder_color: palette.muted_foreground,
+                selection_bg: palette.primary,
+                selection_fg: palette.primary_foreground,
                 focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.primary.r(),
-                    palette.primary.g(),
-                    palette.primary.b(),
+                    palette.ring.r(),
+                    palette.ring.g(),
+                    palette.ring.b(),
                     128,
                 ),
                 focus_ring_width: 3.0,
@@ -269,7 +234,7 @@ impl TextareaStyle {
                     palette.destructive.r(),
                     palette.destructive.g(),
                     palette.destructive.b(),
-                    102,
+                    51,
                 ),
                 disabled_opacity: 0.5,
                 rounding: CornerRadius::same(6),
@@ -290,16 +255,17 @@ impl TextareaStyle {
                     Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 40);
                 style.bg_focus =
                     Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 50);
-                style.selection_bg =
-                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 80);
+                style.selection_bg = accent;
+                style.selection_fg = palette.primary_foreground;
                 style.focus_ring =
                     Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 128);
             }
             TextareaVariant::Surface | TextareaVariant::Classic => {
+                style.border_focus = accent;
                 style.focus_ring =
-                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 100);
-                style.selection_bg =
-                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 64);
+                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 128);
+                style.selection_bg = accent;
+                style.selection_fg = palette.primary_foreground;
             }
         }
         style
