@@ -21,14 +21,17 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 ```
 
 ## Componentes
-- `button` — variantes `Primary|Secondary|Ghost|Outline|Destructive|Link`; tamanhos `Sm|Md|Lg|IconSm|Icon|IconLg`.
-- `text_input` — cor do placeholder, `is_invalid`, `enabled`, anel de 3px e cores de seleção.
-- `select` — via `SelectProps`, placeholder, `is_invalid`, seta no texto e estado desabilitado.
-- `checkbox` — tamanhos e variantes.
-- `toggle` — variantes default/outline com cores de destaque.
-- `switch` — tamanhos de trilho/polegar alinhados ao shadcn.
-- `textarea` — anel de foco, preenchimento para erro e contador opcional.
-
+- Todos os componentes suportam variantes, tamanhos e personalização de tema.
+- Checkbox: API Radix Themes (`size 1..=3`, variantes `surface|classic|soft`, `color`, `high_contrast`).
+- Dialog: API Radix Themes Content (`size 1..=4`, alinhamento `start|center`, largura/min/max/altura, `as_child`).
+- Label: API Radix Label (`as_child`, `html_for`) + variantes/descrição/required.
+- Popover: API Radix Popover (estado Root, posicionamento Popper `side/align/offsets/collision`, Portal `container`, `force_mount`, callbacks de DismissableLayer).
+- Tooltip: API Radix Tooltip (atrasos do Provider, estado Root, posicionamento/colisão do Content, container do Portal, callbacks de fechamento).
+- Select: API Radix Select (estado Root, props de formulário, posicionamento `position/side/align/offsets/collision`, callbacks de fechamento, `text_value` por item para typeahead).
+- Radio Group: API Radix Radio Group (`as_child`, controlado/não controlado, `orientation`, `dir`, `loop_focus`, flags por item) + variantes em cartão/grade.
+- Tabs: API Radix Tabs Root/List/Trigger/Content (`as_child`, controlado/não controlado, `orientation`, `dir`, `activation_mode`, list `loop`, content `force_mount`) + extensões egui (variants, wrap/justify, scrollable, full_width, accent/high_contrast, compact/animate).
+- Switch: API Radix Switch Root/Thumb (`as_child`, controlado/não controlado, `name/value`, `required`) + extensões egui (size/style/high_contrast/animate/accent/custom radius/thumb color).
+- Scroll Area: API Radix Scroll Area (`type` padrão `hover`, `scroll_hide_delay` `600ms`, `as_child`, `dir`, `force_mount` por eixo) + extensões egui (size/radius/accent/high_contrast/colors_override/max_size/bar_visibility).
 ## Tema
 Os estados visuais vêm de `Theme::control` e `Theme::input`, baseados em `ColorPalette`.
 
