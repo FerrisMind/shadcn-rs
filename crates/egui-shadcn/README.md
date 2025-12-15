@@ -2,9 +2,7 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="assets/icons/shadcn-egui/icon-white.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="assets/icons/shadcn-egui/icon-black.svg" />
-    <img alt="egui-shadcn logo" src="assets/icons/shadcn-egui/icon-black.svg" width="180" />
+    <img alt="https://raw.githubusercontent.com/FerrisMind/shadcn-rs/master/crates/egui-shadcn/assets/icons/shadcn-egui/icon.svg" width="180" />
   </picture>
 </p>
 
