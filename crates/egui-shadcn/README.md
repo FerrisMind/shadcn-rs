@@ -28,7 +28,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-egui-shadcn = "0.1.0"
+egui-shadcn = "0.3.1"
 egui = "0.33"
 ```
 
@@ -37,6 +37,12 @@ Or from git:
 ```toml
 [dependencies]
 egui-shadcn = { git = "https://github.com/FerrisMind/shadcn-rs", package = "egui-shadcn" }
+```
+
+Or from crates.io:
+
+```toml
+cargo add egui-shadcn
 ```
 
 ## Quick Start
