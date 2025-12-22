@@ -138,5 +138,5 @@ fn checkbox_props_apply_color_override() {
         .inner;
     let _ = ctx.end_pass();
 
-    assert_eq!(checked, false);
+    assert!(!checked);
 }

@@ -16,12 +16,12 @@ fn switch_props_defaults_match_radix() {
     let props = SwitchProps::new(id, &mut checked, "Airplane mode");
 
     assert_eq!(props.default_checked, None);
-    assert_eq!(props.disabled, false);
-    assert_eq!(props.required, false);
+    assert!(!props.disabled);
+    assert!(!props.required);
     assert_eq!(props.name, None);
     assert_eq!(props.value, Some("on".to_string()));
-    assert_eq!(props.as_child, false);
-    assert_eq!(props.thumb_as_child, false);
+    assert!(!props.as_child);
+    assert!(!props.thumb_as_child);
     assert_eq!(props.size, SwitchSize::Two);
     assert_eq!(props.style, SwitchVariant::Surface);
     assert!(props.on_checked_change.is_none());
@@ -37,20 +37,18 @@ fn switch_default_checked_applied_once_and_callback_fires() {
     let mut calls = 0usize;
 
     ctx.begin_pass(RawInput::default());
-    egui::CentralPanel::default()
-        .show(&ctx, |ui| {
-            switch_with_props(
-                ui,
-                &theme,
-                SwitchProps::new(id, &mut checked, "Wi-Fi")
-                    .with_default_checked(true)
-                    .with_on_checked_change(|state| {
-                        calls += 1;
-                        assert!(state);
-                    }),
-            )
-        })
-        .inner;
+    egui::CentralPanel::default().show(&ctx, |ui| {
+        switch_with_props(
+            ui,
+            &theme,
+            SwitchProps::new(id, &mut checked, "Wi-Fi")
+                .with_default_checked(true)
+                .with_on_checked_change(|state| {
+                    calls += 1;
+                    assert!(state);
+                }),
+        )
+    });
     let _ = ctx.end_pass();
 
     assert!(checked);
@@ -58,15 +56,13 @@ fn switch_default_checked_applied_once_and_callback_fires() {
 
     checked = false;
     ctx.begin_pass(RawInput::default());
-    egui::CentralPanel::default()
-        .show(&ctx, |ui| {
-            switch_with_props(
-                ui,
-                &theme,
-                SwitchProps::new(id, &mut checked, "Wi-Fi").with_default_checked(true),
-            )
-        })
-        .inner;
+    egui::CentralPanel::default().show(&ctx, |ui| {
+        switch_with_props(
+            ui,
+            &theme,
+            SwitchProps::new(id, &mut checked, "Wi-Fi").with_default_checked(true),
+        )
+    });
     let _ = ctx.end_pass();
 
     assert!(!checked);

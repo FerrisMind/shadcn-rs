@@ -1,3 +1,5 @@
+#![allow(clippy::excessive_precision, clippy::too_many_arguments)]
+
 use egui::Color32;
 use egui_shadcn::{ColorPalette, ShadcnBaseColor};
 

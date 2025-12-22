@@ -1,24 +1,3 @@
-//! Textarea with shadcn styling, Radix-like variants, and sizing tokens.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{textarea_with_props, ControlSize, TextareaProps, TextareaVariant, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme, value: &mut String) {
-//!     textarea_with_props(
-//!         ui,
-//!         theme,
-//!         TextareaProps {
-//!             label: Some("Message".into()),
-//!             value,
-//!             variant: TextareaVariant::Surface,
-//!             size: ControlSize::Md,
-//!             ..Default::default()
-//!         },
-//!     );
-//! }
-//! ```
-
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, ControlSize, InputVariant, input_tokens, mix};
 use egui::{

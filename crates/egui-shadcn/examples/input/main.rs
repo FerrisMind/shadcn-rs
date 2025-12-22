@@ -101,10 +101,10 @@ impl App for InputDemo {
                             .size(InputSize::Size2)
                             .width(card_width)
                             .show(ui, &self.theme, &mut self.picture_path);
-                        if resp.clicked() {
-                            if let Some(path) = FileDialog::new().pick_file() {
-                                self.picture_path = path.display().to_string();
-                            }
+                        if resp.clicked()
+                            && let Some(path) = FileDialog::new().pick_file()
+                        {
+                            self.picture_path = path.display().to_string();
                         }
                     });
 

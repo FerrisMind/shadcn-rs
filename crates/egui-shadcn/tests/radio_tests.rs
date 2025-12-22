@@ -177,30 +177,26 @@ fn radio_group_default_value_applied_once_and_callback_fires() {
     let default_value = "two".to_string();
 
     ctx.begin_pass(RawInput::default());
-    egui::CentralPanel::default()
-        .show(&ctx, |ui| {
-            RadioGroup::new("default_demo", &mut value, &options)
-                .default_value(default_value.clone())
-                .on_value_change(|new_val| {
-                    callback_calls += 1;
-                    assert_eq!(new_val, &default_value);
-                })
-                .show(ui, &theme)
-        })
-        .inner;
+    egui::CentralPanel::default().show(&ctx, |ui| {
+        RadioGroup::new("default_demo", &mut value, &options)
+            .default_value(default_value.clone())
+            .on_value_change(|new_val| {
+                callback_calls += 1;
+                assert_eq!(new_val, &default_value);
+            })
+            .show(ui, &theme)
+    });
     let _ = ctx.end_pass();
     assert_eq!(value, default_value);
     assert_eq!(callback_calls, 1);
 
     value = "one".to_string();
     ctx.begin_pass(RawInput::default());
-    egui::CentralPanel::default()
-        .show(&ctx, |ui| {
-            RadioGroup::new("default_demo", &mut value, &options)
-                .default_value("ignored".to_string())
-                .show(ui, &theme)
-        })
-        .inner;
+    egui::CentralPanel::default().show(&ctx, |ui| {
+        RadioGroup::new("default_demo", &mut value, &options)
+            .default_value("ignored".to_string())
+            .show(ui, &theme)
+    });
     let _ = ctx.end_pass();
     assert_eq!(value, "one");
     assert_eq!(callback_calls, 1);

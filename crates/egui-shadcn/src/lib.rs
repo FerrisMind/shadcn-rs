@@ -1,32 +1,14 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
-//! Shadcn-inspired UI components for `egui`.
-//!
-//! Provides buttons, form controls, overlays, and layout pieces with Radix-aligned APIs and
-//! shadcn theming tokens. All public items include copyable examples.
-//!
-//! # Example
-//! ```rust
-//! use egui::Ui;
-//! use egui_shadcn::{button, ControlSize, ControlVariant, Theme};
-//!
-//! fn ui_example(ui: &mut Ui, theme: &Theme) {
-//!     button(
-//!         ui,
-//!         theme,
-//!         "Save",
-//!         ControlVariant::Primary,
-//!         ControlSize::Md,
-//!         true,
-//!     );
-//! }
-//! ```
-//!
-//! More examples live in `examples/` and `crates/egui-shadcn/README.md`.
 
 pub mod button;
+pub mod calendar;
 pub mod card;
 pub mod checkbox;
+pub mod collapsible;
+pub mod combobox;
+pub mod date_picker;
 pub mod dialog;
+pub mod icons;
 pub mod input;
 pub mod label;
 pub mod popover;
@@ -34,6 +16,8 @@ pub mod radio;
 pub mod scroll_area;
 pub mod select;
 pub mod separator;
+pub mod slider;
+pub mod spinner;
 pub mod switch;
 pub mod tabs;
 pub mod textarea;
@@ -41,19 +25,31 @@ pub mod theme;
 pub mod toggle;
 pub mod tokens;
 pub mod tooltip;
+pub mod typography;
 
 pub use button::{
-    Button, ButtonProps, ButtonRadius, ButtonSize, ButtonStyle, ButtonVariant, button,
+    Button, ButtonJustify, ButtonProps, ButtonRadius, ButtonSize, ButtonStyle, ButtonVariant,
+    button,
+};
+pub use calendar::{
+    CalendarCaptionLayout, CalendarMode, CalendarProps, calendar, calendar_with_props,
 };
 pub use card::{CardProps, CardSize, CardTokens, CardVariant, card, card_tokens_with_options};
 pub use checkbox::{
     CheckboxCycle, CheckboxOptions, CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant,
     checkbox, checkbox_state, checkbox_with_props,
 };
+pub use collapsible::{CollapsibleContentProps, CollapsibleContext, CollapsibleProps, collapsible};
+pub use combobox::{ComboboxProps, ComboboxSize, combobox, combobox_with_props};
+pub use date_picker::{
+    DatePickerIconPosition, DatePickerProps, DateRange, DateRangePickerProps, date_picker,
+    date_picker_with_props, date_range_picker, date_range_picker_with_props,
+};
 pub use dialog::{
     DialogAlign, DialogLayoutTokens, DialogProps, DialogSize, DialogTokens, compute_dialog_rect,
     dialog, dialog_layout_tokens, dialog_tokens_with_options,
 };
+pub use icons::{icon_calendar, icon_check, icon_chevrons_up_down};
 pub use input::{
     Input, InputConfig, InputProps, InputRadius, InputSize, InputStyle, InputType, InputVariant,
     resolve_input_style, text_input, text_input_with_config, text_input_with_props,
@@ -79,6 +75,11 @@ pub use select::{
     select_with_items,
 };
 pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separator};
+pub use slider::{
+    SliderOrientation, SliderProps, SliderRadius, SliderSize, SliderVariant, slider,
+    slider_with_props,
+};
+pub use spinner::{SpinnerProps, SpinnerSize, SpinnerVariant, spinner, spinner_with_content};
 pub use switch::{
     OnCheckedChange, SwitchOptions, SwitchProps, switch, switch_with_options, switch_with_props,
 };
@@ -105,4 +106,10 @@ pub use tooltip::{
     TooltipOpenState, TooltipPointerDownOutsideEvent, TooltipPortalContainer, TooltipPosition,
     TooltipProps, TooltipSide, TooltipState, TooltipSticky, TooltipStyle,
     TooltipUpdatePositionStrategy, tooltip,
+};
+pub use typography::{
+    BlockquoteProps, CodeProps, CodeVariant, HeadingAs, HeadingProps, KbdProps, LinkProps,
+    LinkUnderline, ResolvedTextStyle, ShadcnTypographyVariant, TextAlign, TextAs, TextProps,
+    TextTrim, TextWeight, TextWrap, TypographyColor, TypographyProps, blockquote, code, heading,
+    kbd, link, resolve_shadcn_style, text, typography,
 };

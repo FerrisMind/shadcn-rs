@@ -13,8 +13,8 @@ use egui::{
     FontData, FontDefinitions, FontFamily, FontId, RichText, text::LayoutJob, text::TextFormat,
 };
 use egui_shadcn::{
-    Button, ButtonRadius, ButtonSize, ButtonVariant, ControlSize, ControlVariant, Label, SeparatorProps, Theme, button,
-    separator,
+    Button, ButtonRadius, ButtonSize, ButtonVariant, ControlSize, ControlVariant, Label,
+    SeparatorProps, Theme, button, separator,
 };
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
@@ -291,7 +291,6 @@ impl App for ButtonDemo {
             let center = panel_rect.center();
             let max_width = panel_rect.width().min(960.0);
 
-            // Center content both horizontally and vertically in the window.
             egui::Area::new("button_demo_center".into())
                 .anchor(egui::Align2::CENTER_CENTER, egui::Vec2::ZERO)
                 .fixed_pos(center)

@@ -1,25 +1,3 @@
-//! Select dropdown aligned with Radix Select API: positioning, portal, and per-item text values.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{select, SelectPropsSimple, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme, value: &mut String) {
-//!     select(
-//!         ui,
-//!         theme,
-//!         SelectPropsSimple {
-//!             value,
-//!             items: vec![
-//!                 ("apple".into(), "Apple".into()),
-//!                 ("banana".into(), "Banana".into()),
-//!             ],
-//!             ..Default::default()
-//!         },
-//!     );
-//! }
-//! ```
-
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, ControlSize, mix};
 use egui::{
@@ -1272,6 +1250,8 @@ where
             }
         }
 
+        response.request_focus();
+
         if next_open {
             let item_height = style.item_padding.y * 2.0 + props.size.font_size();
             let separator_height = 9.0;
@@ -1382,7 +1362,7 @@ where
 
     let border_color = if props.is_invalid {
         style.invalid_border
-    } else if response.has_focus() || state.is_open {
+    } else if state.is_open {
         style.focus_ring_color
     } else {
         style.trigger_border
@@ -1396,7 +1376,7 @@ where
         StrokeKind::Inside,
     );
 
-    if (response.has_focus() || state.is_open) && props.enabled {
+    if state.is_open && props.enabled {
         let ring_rect = trigger_rect.expand(style.focus_ring_width * 0.5);
         let ring_color = if props.is_invalid {
             style.invalid_ring
