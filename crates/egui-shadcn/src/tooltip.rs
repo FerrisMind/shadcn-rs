@@ -1,20 +1,3 @@
-//! Tooltip overlay following Radix Tooltip API: provider delays, positioning, and dismiss hooks.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{tooltip, TooltipProps, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme) {
-//!     tooltip(
-//!         ui,
-//!         theme,
-//!         TooltipProps::default(),
-//!         |ui| ui.button("Hover me"),
-//!         |ui| ui.label("Helpful hint"),
-//!     );
-//! }
-//! ```
-
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, DEFAULT_MOTION, ease_out_cubic, mix};
 use egui::epaint::Shadow;

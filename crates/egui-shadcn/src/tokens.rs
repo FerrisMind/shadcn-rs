@@ -1,14 +1,3 @@
-//! Token definitions for shadcn-style palettes, radii, motion, and control/input states.
-//! Used by all components; keep values in sync with shadcn and Radix references.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::tokens::{ColorPalette, variant_tokens};
-//!
-//! let palette = ColorPalette::shadcn_dark();
-//! let button_tokens = variant_tokens(&palette, egui_shadcn::ControlVariant::Primary);
-//! ```
-
 use egui::{Color32, CornerRadius, FontId, Stroke, Vec2};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -283,7 +272,6 @@ impl Oklch {
 
     #[allow(clippy::excessive_precision)]
     fn to_color32(self) -> Color32 {
-
         let h_rad = self.h_deg.to_radians();
         let a = self.c * h_rad.cos();
         let b = self.c * h_rad.sin();

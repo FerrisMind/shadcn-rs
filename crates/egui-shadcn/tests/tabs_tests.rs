@@ -53,21 +53,19 @@ fn tabs_default_value_applies_once_and_calls_callback() {
     let theme = Theme::default();
 
     ctx.begin_pass(RawInput::default());
-    egui::CentralPanel::default()
-        .show(&ctx, |ui| {
-            tabs(
-                ui,
-                &theme,
-                TabsProps::new(id, &items, &mut active)
-                    .with_default_value(default_value.clone())
-                    .with_on_value_change(|val| {
-                        calls += 1;
-                        assert_eq!(val, &default_value);
-                    }),
-                |_ui, _tab| {},
-            )
-        })
-        .inner;
+    egui::CentralPanel::default().show(&ctx, |ui| {
+        tabs(
+            ui,
+            &theme,
+            TabsProps::new(id, &items, &mut active)
+                .with_default_value(default_value.clone())
+                .with_on_value_change(|val| {
+                    calls += 1;
+                    assert_eq!(val, &default_value);
+                }),
+            |_ui, _tab| {},
+        )
+    });
     let _ = ctx.end_pass();
 
     assert_eq!(active, default_value);
@@ -75,20 +73,18 @@ fn tabs_default_value_applies_once_and_calls_callback() {
 
     active = "tab1".to_string();
     ctx.begin_pass(RawInput::default());
-    egui::CentralPanel::default()
-        .show(&ctx, |ui| {
-            tabs(
-                ui,
-                &theme,
-                TabsProps::new(id, &items, &mut active)
-                    .with_default_value("should_not_apply".to_string())
-                    .with_on_value_change(|_val| {
-                        calls += 1;
-                    }),
-                |_ui, _tab| {},
-            )
-        })
-        .inner;
+    egui::CentralPanel::default().show(&ctx, |ui| {
+        tabs(
+            ui,
+            &theme,
+            TabsProps::new(id, &items, &mut active)
+                .with_default_value("should_not_apply".to_string())
+                .with_on_value_change(|_val| {
+                    calls += 1;
+                }),
+            |_ui, _tab| {},
+        )
+    });
     let _ = ctx.end_pass();
 
     assert_eq!(active, "tab1");

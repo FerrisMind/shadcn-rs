@@ -1,21 +1,3 @@
-//! Checkbox with Radix-aligned API, tri-state support, and high-contrast variants.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{checkbox, CheckboxCycle, CheckboxState, CheckboxVariant, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme, state: &mut CheckboxState) {
-//!     checkbox(
-//!         ui,
-//!         theme,
-//!         "Accept terms",
-//!         CheckboxVariant::Classic,
-//!         CheckboxCycle::Binary,
-//!         state,
-//!     );
-//! }
-//! ```
-
 use crate::theme::{Theme, widget_visuals};
 use crate::tokens::{
     ColorPalette, ControlSize, ControlVariant, ToggleState, ToggleTokens, VariantTokens,

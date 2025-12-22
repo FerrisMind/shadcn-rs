@@ -1,24 +1,3 @@
-//! Scroll area with Radix-like API: axis control, type (hover/auto), and size tokens.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{scroll_area, ScrollAreaProps, ScrollAreaType, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme) {
-//!     scroll_area(
-//!         ui,
-//!         theme,
-//!         ScrollAreaProps {
-//!             r#type: ScrollAreaType::Hover,
-//!             ..Default::default()
-//!         },
-//!         |ui| {
-//!             ui.label("Scrollable content");
-//!         },
-//!     );
-//! }
-//! ```
-
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, DEFAULT_FOCUS, ease_out_cubic, mix};
 use egui::scroll_area::{

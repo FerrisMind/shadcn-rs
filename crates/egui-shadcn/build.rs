@@ -1,8 +1,8 @@
 //! Build script for `egui-shadcn`.
-//! 
+//!
 //! - On Windows: embeds the application icon from `assets/icons/shadcn-egui/icon.ico`.
 //! - On other platforms: no-op.
-//! 
+//!
 //! Warnings are emitted via `cargo:warning` when the icon is missing or cannot be set; the build
 //! should continue to keep CI green.
 

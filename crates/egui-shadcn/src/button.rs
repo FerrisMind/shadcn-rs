@@ -1,26 +1,8 @@
-//! Shadcn-style button for egui: variants, sizes, and focus ring aligned with Radix patterns.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{button, ControlSize, ControlVariant, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme) {
-//!     button(
-//!         ui,
-//!         theme,
-//!         "Save",
-//!         ControlVariant::Primary,
-//!         ControlSize::Md,
-//!         true,
-//!     );
-//! }
-//! ```
-
 use crate::theme::Theme;
 use crate::tokens::{ColorPalette, ControlSize, ControlVariant, ease_out_cubic, mix};
 use egui::{
-    Color32, CornerRadius, FontId, Painter, Pos2, Response, Sense, Stroke, StrokeKind, Ui, Vec2,
-    WidgetText, pos2, vec2,
+    Color32, CornerRadius, FontId, Painter, Pos2, Rect, Response, Sense, Stroke, StrokeKind,
+    TextStyle, TextWrapMode, Ui, Vec2, WidgetText, pos2, vec2,
 };
 use log::trace;
 
@@ -367,19 +349,9 @@ impl ButtonStyle {
                     rounding: CornerRadius::same(8),
                 }
             }
-            ButtonVariant::Outline => Self {
-                bg: Color32::TRANSPARENT,
-                bg_hover: mix(palette.accent, Color32::WHITE, 0.08),
-                bg_active: mix(palette.accent, Color32::WHITE, 0.12),
-                text: palette.secondary_foreground,
-                text_hover: palette.secondary_foreground,
-                text_active: palette.secondary_foreground,
-                border: palette.secondary,
-                border_hover: palette.secondary,
-                focus_ring,
-                disabled_opacity: 0.5,
-                rounding: CornerRadius::same(8),
-            },
+            ButtonVariant::Outline => {
+                outline_variant_style(palette, palette.accent, palette.border)
+            }
             ButtonVariant::Secondary => Self {
                 bg: palette.secondary,
                 bg_hover: mix(palette.secondary, Color32::WHITE, 0.08),
@@ -471,12 +443,7 @@ impl ButtonStyle {
             }
             ButtonVariant::Destructive => {}
             ButtonVariant::Outline => {
-                style.text = accent;
-                style.text_hover = accent;
-                style.text_active = accent;
-                style.border =
-                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 180);
-                style.border_hover = accent;
+                style = outline_variant_style(palette, accent, accent);
             }
             ButtonVariant::Secondary => {}
             ButtonVariant::Ghost => {
@@ -500,6 +467,29 @@ impl ButtonStyle {
         self.bg_hover = mix(self.bg_hover, palette.foreground, 0.15);
         self.text = palette.foreground;
         self
+    }
+}
+
+fn outline_variant_style(
+    palette: &ColorPalette,
+    accent: Color32,
+    border_color: Color32,
+) -> ButtonStyle {
+    let focus_ring =
+        Color32::from_rgba_unmultiplied(palette.ring.r(), palette.ring.g(), palette.ring.b(), 128);
+    let accent_text = compute_contrast_color(accent, palette);
+    ButtonStyle {
+        bg: palette.background,
+        bg_hover: accent,
+        bg_active: accent,
+        text: accent_text,
+        text_hover: accent_text,
+        text_active: accent_text,
+        border: border_color,
+        border_hover: accent,
+        focus_ring,
+        disabled_opacity: 0.5,
+        rounding: CornerRadius::same(8),
     }
 }
 
@@ -539,23 +529,43 @@ fn resolve_style(theme: &Theme, props: &ButtonProps<'_>) -> ButtonStyle {
     style
 }
 
-fn desired_button_size(props: &ButtonProps<'_>) -> Vec2 {
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ButtonJustify {
+    Start,
+
+    #[default]
+    Center,
+
+    Between,
+}
+
+fn desired_button_size(ui: &Ui, props: &ButtonProps<'_>) -> Vec2 {
     let height = props.size.height();
 
     let width = if props.size.is_icon() {
         props.size.icon_width()
     } else {
-        let label_text = props.label.text().to_string();
-        let approx_char_width = props.size.font_size() * 0.6;
-        let text_width = approx_char_width * label_text.chars().count() as f32;
+        let text_galley = props.label.clone().into_galley(
+            ui,
+            Some(TextWrapMode::Extend),
+            f32::INFINITY,
+            TextStyle::Button,
+        );
+        let text_width = text_galley.size().x;
 
-        let icon_width = if props.icon.is_some() || props.loading {
+        let leading_width = if props.icon.is_some() || props.loading {
             props.size.icon_size() + props.size.gap()
         } else {
             0.0
         };
 
-        text_width + icon_width + props.size.padding_x() * 2.0
+        let trailing_width = if props.trailing_icon.is_some() {
+            props.size.gap() + props.size.icon_size()
+        } else {
+            0.0
+        };
+
+        text_width + leading_width + trailing_width + props.size.padding_x() * 2.0
     };
 
     let base_width = width.max(40.0);
@@ -663,60 +673,89 @@ fn paint_text_button(
     painter: &Painter,
     props: &ButtonProps<'_>,
     text_color: Color32,
-    center: Pos2,
+    rect: Rect,
 ) {
     let icon_size = props.size.icon_size();
     let gap = props.size.gap();
 
-    let label_text = props.label.text().to_string();
-    let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
-    let text_width = text_galley.rect.width();
+    let text_galley = props.label.clone().into_galley(
+        ui,
+        Some(TextWrapMode::Extend),
+        f32::INFINITY,
+        TextStyle::Button,
+    );
+    let text_width = text_galley.size().x;
+
+    let leading_width = if props.loading || props.icon.is_some() {
+        icon_size + gap
+    } else {
+        0.0
+    };
+
+    let trailing_width = if props.trailing_icon.is_some() {
+        gap + icon_size
+    } else {
+        0.0
+    };
+
+    let content_width = leading_width + text_width + trailing_width;
+    let center = rect.center();
+    let padding_x = props.size.padding_x();
+
+    let start_x = match props.justify {
+        ButtonJustify::Center => center.x - content_width / 2.0,
+        ButtonJustify::Start | ButtonJustify::Between => rect.left() + padding_x,
+    };
+
+    let text_y = center.y - text_galley.size().y / 2.0;
+
+    let trailing_anchor_x =
+        if props.justify == ButtonJustify::Between && props.trailing_icon.is_some() {
+            rect.right() - padding_x
+        } else {
+            start_x + content_width
+        };
 
     if props.loading {
-        let total_width = icon_size + gap + text_width;
-        let start_x = center.x - total_width / 2.0;
-
         let spinner_center = pos2(start_x + icon_size / 2.0, center.y);
         let t = ui.ctx().input(|i| i.time) as f32;
         draw_spinner(painter, spinner_center, icon_size, text_color, t * 2.0);
         ui.ctx().request_repaint();
 
-        let text_pos = pos2(
-            start_x + icon_size + gap,
-            center.y - text_galley.rect.height() / 2.0,
-        );
+        let text_pos = pos2(start_x + icon_size + gap, text_y);
         painter.galley(text_pos, text_galley, text_color);
     } else if let Some(icon_fn) = props.icon {
-        let total_width = icon_size + gap + text_width;
-        let start_x = center.x - total_width / 2.0;
-
         let icon_center = pos2(start_x + icon_size / 2.0, center.y);
         icon_fn(painter, icon_center, icon_size, text_color);
 
-        let text_pos = pos2(
-            start_x + icon_size + gap,
-            center.y - text_galley.rect.height() / 2.0,
-        );
+        let text_pos = pos2(start_x + icon_size + gap, text_y);
         painter.galley(text_pos, text_galley, text_color);
     } else {
-        let text_pos = pos2(
-            center.x - text_width / 2.0,
-            center.y - text_galley.rect.height() / 2.0,
-        );
+        let text_pos = pos2(start_x, text_y);
         painter.galley(text_pos, text_galley, text_color);
+    }
+
+    if let Some(trailing_icon) = props.trailing_icon {
+        let icon_center = pos2(trailing_anchor_x - icon_size / 2.0, center.y);
+        trailing_icon(painter, icon_center, icon_size, text_color);
     }
 }
 
 fn paint_link_underline(
+    ui: &Ui,
     painter: &Painter,
     props: &ButtonProps<'_>,
     text_color: Color32,
     center: Pos2,
 ) {
-    let label_text = props.label.text().to_string();
-    let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
-    let text_width = text_galley.rect.width();
-    let text_bottom = center.y + text_galley.rect.height() / 2.0 - 2.0;
+    let text_galley = props.label.clone().into_galley(
+        ui,
+        Some(TextWrapMode::Extend),
+        f32::INFINITY,
+        TextStyle::Button,
+    );
+    let text_width = text_galley.size().x;
+    let text_bottom = center.y + text_galley.size().y / 2.0 - 2.0;
     let underline_y = text_bottom + 2.0;
 
     painter.line_segment(
@@ -753,6 +792,11 @@ pub struct ButtonProps<'a> {
     #[allow(clippy::type_complexity)]
     pub icon: Option<&'a dyn Fn(&Painter, Pos2, f32, Color32)>,
 
+    #[allow(clippy::type_complexity)]
+    pub trailing_icon: Option<&'a dyn Fn(&Painter, Pos2, f32, Color32)>,
+
+    pub justify: ButtonJustify,
+
     pub min_width: Option<f32>,
 }
 
@@ -769,6 +813,11 @@ impl<'a> std::fmt::Debug for ButtonProps<'a> {
             .field("accent_color", &self.accent_color)
             .field("style", &self.style)
             .field("icon", &self.icon.as_ref().map(|_| "<fn>"))
+            .field(
+                "trailing_icon",
+                &self.trailing_icon.as_ref().map(|_| "<fn>"),
+            )
+            .field("justify", &self.justify)
             .finish()
     }
 }
@@ -787,6 +836,8 @@ impl<'a> ButtonProps<'a> {
             accent_color: None,
             style: None,
             icon: None,
+            trailing_icon: None,
+            justify: ButtonJustify::default(),
             min_width: None,
         }
     }
@@ -844,6 +895,16 @@ impl<'a> ButtonProps<'a> {
 
     pub fn icon(mut self, icon: &'a dyn Fn(&Painter, Pos2, f32, Color32)) -> Self {
         self.icon = Some(icon);
+        self
+    }
+
+    pub fn trailing_icon(mut self, icon: &'a dyn Fn(&Painter, Pos2, f32, Color32)) -> Self {
+        self.trailing_icon = Some(icon);
+        self
+    }
+
+    pub fn justify(mut self, justify: ButtonJustify) -> Self {
+        self.justify = justify;
         self
     }
 
@@ -925,6 +986,16 @@ impl<'a> Button<'a> {
         self
     }
 
+    pub fn trailing_icon(mut self, icon: &'a dyn Fn(&Painter, Pos2, f32, Color32)) -> Self {
+        self.props.trailing_icon = Some(icon);
+        self
+    }
+
+    pub fn justify(mut self, justify: ButtonJustify) -> Self {
+        self.props.justify = justify;
+        self
+    }
+
     pub fn min_width(mut self, width: f32) -> Self {
         self.props.min_width = Some(width);
         self
@@ -966,52 +1037,59 @@ fn button_with_props(ui: &mut Ui, theme: &Theme, props: ButtonProps<'_>) -> Resp
         props.variant, props.size, props.enabled, props.loading
     );
 
-    let style = resolve_style(theme, &props);
-    let effectively_disabled = !props.enabled || props.loading;
+    ui.scope(|ui| {
+        let mut scoped_style = ui.style().as_ref().clone();
+        scoped_style
+            .text_styles
+            .insert(TextStyle::Button, props.size.font());
+        ui.set_style(scoped_style);
 
-    let desired_size = desired_button_size(&props);
-    let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
+        let style = resolve_style(theme, &props);
+        let effectively_disabled = !props.enabled || props.loading;
 
-    let painter = ui.painter();
+        let desired_size = desired_button_size(ui, &props);
+        let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
-    let is_hovered = response.hovered() && !effectively_disabled;
-    let is_pressed = response.is_pointer_button_down_on() && !effectively_disabled;
-    let has_focus = response.has_focus() && !effectively_disabled;
+        let painter = ui.painter();
 
-    let anim_duration = theme.motion.base_ms / 1000.0;
-    let active_t = ui.ctx().animate_bool_with_time_and_easing(
-        response.id.with("active"),
-        is_pressed,
-        anim_duration,
-        ease_out_cubic,
-    );
-    let hover_t = ui.ctx().animate_bool_with_time_and_easing(
-        response.id.with("hover"),
-        is_hovered,
-        anim_duration,
-        ease_out_cubic,
-    );
+        let is_hovered = response.hovered() && !effectively_disabled;
+        let is_pressed = response.is_pointer_button_down_on() && !effectively_disabled;
+        let has_focus = response.has_focus() && !effectively_disabled;
 
-    let bg_color = background_color(&style, effectively_disabled, hover_t, active_t);
-    let text_color = text_color(&style, effectively_disabled, hover_t, active_t);
-    let border_color = border_color(&style, effectively_disabled, hover_t);
+        let anim_duration = theme.motion.base_ms / 1000.0;
+        let active_t = ui.ctx().animate_bool_with_time_and_easing(
+            response.id.with("active"),
+            is_pressed,
+            anim_duration,
+            ease_out_cubic,
+        );
+        let hover_t = ui.ctx().animate_bool_with_time_and_easing(
+            response.id.with("hover"),
+            is_hovered,
+            anim_duration,
+            ease_out_cubic,
+        );
 
-    paint_background(painter, rect, &style, bg_color, border_color);
-    paint_focus_ring(painter, rect, &style, has_focus);
+        let bg_color = background_color(&style, effectively_disabled, hover_t, active_t);
+        let text_color = text_color(&style, effectively_disabled, hover_t, active_t);
+        let border_color = border_color(&style, effectively_disabled, hover_t);
 
-    let center = rect.center();
+        paint_background(painter, rect, &style, bg_color, border_color);
+        paint_focus_ring(painter, rect, &style, has_focus);
 
-    if props.size.is_icon() {
-        paint_icon_button(ui, painter, &props, text_color, center);
-    } else {
-        paint_text_button(ui, painter, &props, text_color, center);
-    }
+        if props.size.is_icon() {
+            paint_icon_button(ui, painter, &props, text_color, rect.center());
+        } else {
+            paint_text_button(ui, painter, &props, text_color, rect);
+        }
 
-    if props.variant == ButtonVariant::Link && is_hovered {
-        paint_link_underline(painter, &props, text_color, center);
-    }
+        if props.variant == ButtonVariant::Link && is_hovered {
+            paint_link_underline(ui, painter, &props, text_color, rect.center());
+        }
 
-    response
+        response
+    })
+    .inner
 }
 
 pub fn button(

@@ -1,19 +1,3 @@
-//! Separator for structuring layouts with shadcn spacing and sizes.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{separator, SeparatorOrientation, SeparatorSize, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme) {
-//!     separator(
-//!         ui,
-//!         theme,
-//!         SeparatorOrientation::Horizontal,
-//!         SeparatorSize::Md,
-//!     );
-//! }
-//! ```
-
 use crate::theme::Theme;
 use crate::tokens::mix;
 use egui::{Color32, Response, Sense, Stroke, Ui, Vec2, pos2};

@@ -61,9 +61,9 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 ## Components
 
 - **Form Controls**: `button`, `text_input`, `select`, `checkbox`, `radio_group`, `switch`, `toggle`, `textarea`
-- **Layout**: `card`, `separator`, `tabs`, `scroll_area`
+- **Layout**: `card`, `separator`, `tabs`, `scroll_area`, `collapsible`
 - **Overlays**: `dialog`, `popover`, `tooltip`
-- **Typography**: `label`
+- **Typography**: `label`, `text`, `heading`, `link`, `code`, `kbd`, `blockquote`, `typography` (shadcn variants)
 
 - All components support variants, sizes, and theme customization.
 - Checkbox: Radix Themes API (`size 1..=3`, variants `surface|classic|soft`, `color`, `high_contrast`).
@@ -76,6 +76,7 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 - Tabs: Radix Tabs Root/List/Trigger/Content API (`as_child`, controlled/uncontrolled, `orientation`, `dir`, `activation_mode`, list `loop`, content `force_mount`) plus egui extensions (variants, wrap/justify, scrollable, full_width, accent/high_contrast, compact/animate).
 - Switch: Radix Switch Root/Thumb API (`as_child`, controlled/uncontrolled, `name/value`, `required`) plus egui extensions (size/style/high_contrast/animate/accent/custom radius/thumb color).
 - Scroll Area: Radix Scroll Area API (`type` default `hover`, `scroll_hide_delay` default `600ms`, `as_child`, `dir`, `force_mount` per axis) plus egui extensions (size/radius/accent/high_contrast/colors_override/max_size/bar_visibility).
+- Typography: Radix Themes-like API for `Text`, `Heading`, `Link`, `Code`, `Kbd`, `Blockquote` plus shadcn-aligned `typography` variants (`H1/H2/H3/H4/P/Lead/Large/Small/Muted/InlineCode/Blockquote`).
 
 ## Theming
 
@@ -96,12 +97,14 @@ Run examples to see components in action:
 
 ```bash
 cargo run --example button      # Button variants and sizes
+cargo run --example collapsible # Collapsible (Radix-like)
 cargo run --example input       # Text input with config
 cargo run --example select      # Select dropdown
 cargo run --example checkbox    # Checkbox with tri-state
 cargo run --example switch      # Switch component
 cargo run --example toggle      # Toggle button
 cargo run --example popover     # Popover component
+cargo run --example typography  # Typography system demo
 ```
 
 See `examples/` directory for all available examples.

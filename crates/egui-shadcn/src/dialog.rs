@@ -1,27 +1,3 @@
-//! Dialog overlay with Radix-like layout controls, alignments, and portal/container options.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{dialog, DialogAlign, DialogProps, DialogSize, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme, open: &mut bool) {
-//!     dialog(
-//!         ui,
-//!         theme,
-//!         DialogProps {
-//!             open,
-//!             title: Some("Confirm"),
-//!             size: DialogSize::Size3,
-//!             align: DialogAlign::Center,
-//!             ..Default::default()
-//!         },
-//!         |ui| {
-//!             ui.label("Are you sure?");
-//!         },
-//!     );
-//! }
-//! ```
-
 use crate::scroll_area::{ScrollAreaProps, ScrollDirection, scroll_area};
 use crate::theme::Theme;
 use egui::{
@@ -95,7 +71,14 @@ pub fn dialog_tokens_with_options(
 ) -> DialogTokens {
     let palette = &theme.palette;
     let background = palette.background;
-    let border = Stroke::new(1.0, if high_contrast { palette.foreground } else { palette.border });
+    let border = Stroke::new(
+        1.0,
+        if high_contrast {
+            palette.foreground
+        } else {
+            palette.border
+        },
+    );
     let shadow_alpha = if high_contrast { 90 } else { 70 };
     let shadow = egui::epaint::Shadow {
         offset: [0, 4],

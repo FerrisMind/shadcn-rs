@@ -1,9 +1,9 @@
 use egui::Color32;
-use egui_shadcn::{
-    ScrollAreaColors, ScrollAreaDir, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize,
-    ScrollAreaType, ScrollDirection, DEFAULT_FOCUS, Theme, scroll_area,
-};
 use egui_shadcn::tokens::ColorPalette;
+use egui_shadcn::{
+    DEFAULT_FOCUS, ScrollAreaColors, ScrollAreaDir, ScrollAreaProps, ScrollAreaRadius,
+    ScrollAreaSize, ScrollAreaType, ScrollDirection, Theme, scroll_area,
+};
 
 fn init_logger() {
     let _ = env_logger::builder().is_test(true).try_init();
@@ -36,7 +36,7 @@ fn scroll_area_radix_defaults_match_reference() {
 
     assert_eq!(defaults.scroll_type, ScrollAreaType::Hover);
     assert_eq!(defaults.scroll_hide_delay_ms, Some(600.0));
-    assert_eq!(defaults.as_child, false);
+    assert!(!defaults.as_child);
     assert_eq!(defaults.dir, None);
     assert_eq!(defaults.nonce, None);
     assert_eq!(defaults.force_mount, [false, false]);

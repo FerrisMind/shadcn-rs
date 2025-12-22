@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="480" viewBox="0 0 720 480">
+  <rect width="720" height="480" fill="#0b0b0c" />
+  <text x="40" y="80" fill="#ffffff" font-size="28" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">
+    Date Picker
+  </text>
+  <rect x="240" y="200" width="240" height="44" rx="8" fill="#0b0b0c" stroke="#2a2a2d" stroke-width="2" />
+  <rect x="252" y="212" width="20" height="20" rx="4" fill="none" stroke="#a1a1aa" stroke-width="2" />
+  <text x="284" y="228" fill="#a1a1aa" font-size="16" font-family="system-ui, -apple-system, Segoe UI, Roboto, Arial">
+    Pick a date
+  </text>
+</svg>
+

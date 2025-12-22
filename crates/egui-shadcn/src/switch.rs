@@ -1,21 +1,3 @@
-//! Switch control mirroring Radix Switch API with shadcn styling and sizing.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{switch, SwitchProps, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme, checked: &mut bool) {
-//!     switch(
-//!         ui,
-//!         theme,
-//!         SwitchProps {
-//!             checked,
-//!             ..Default::default()
-//!         },
-//!     );
-//! }
-//! ```
-
 use crate::label::Label;
 use crate::theme::Theme;
 use crate::tokens::{

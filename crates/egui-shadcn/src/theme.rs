@@ -1,14 +1,3 @@
-//! Theme and visuals helpers shared across components. Provides control/input palettes and state
-//! visuals aligned with shadcn tokens.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{theme::ColorPalette, Theme};
-//!
-//! let palette = ColorPalette::shadcn_light();
-//! let theme = Theme::from_palette(palette);
-//! ```
-
 use crate::tokens::{
     ColorPalette, ControlSize, ControlVariant, DEFAULT_FOCUS, DEFAULT_MOTION, DEFAULT_RADIUS,
     FocusTokens, InputTokens, InputVariant, MotionTokens, RadiusScale, StateColors, VariantTokens,

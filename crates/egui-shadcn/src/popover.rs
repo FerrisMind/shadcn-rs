@@ -1,25 +1,3 @@
-//! Popover overlay mirroring Radix Popover API with positioning and portal options.
-//!
-//! # Example
-//! ```rust
-//! use egui_shadcn::{popover, PopoverProps, Theme};
-//!
-//! fn ui(ui: &mut egui::Ui, theme: &Theme, open: &mut bool) {
-//!     popover(
-//!         ui,
-//!         theme,
-//!         PopoverProps {
-//!             open,
-//!             ..Default::default()
-//!         },
-//!         |ui| ui.button("Trigger"),
-//!         |ui| {
-//!             ui.label("Popover content");
-//!         },
-//!     );
-//! }
-//! ```
-
 use crate::theme::Theme;
 use egui::{
     CornerRadius, Frame, Id, Margin, Order, Pos2, Rect, Response, Stroke, Ui, Vec2, pos2, vec2,
@@ -210,6 +188,7 @@ pub struct PopoverProps<'a> {
     pub match_trigger_width: bool,
     pub constrain_to_screen: bool,
     pub animate: bool,
+    pub content_padding: Margin,
 }
 
 impl std::fmt::Debug for PopoverProps<'_> {
@@ -238,6 +217,7 @@ impl std::fmt::Debug for PopoverProps<'_> {
             .field("match_trigger_width", &self.match_trigger_width)
             .field("constrain_to_screen", &self.constrain_to_screen)
             .field("animate", &self.animate)
+            .field("content_padding", &self.content_padding)
             .field("on_open_change", &self.on_open_change.is_some())
             .field("on_escape_key_down", &self.on_escape_key_down.is_some())
             .field(
@@ -285,6 +265,7 @@ impl<'a> PopoverProps<'a> {
             match_trigger_width: false,
             constrain_to_screen: true,
             animate: true,
+            content_padding: Margin::symmetric(12, 10),
         }
     }
 
@@ -451,6 +432,11 @@ impl<'a> PopoverProps<'a> {
         self
     }
 
+    pub fn with_content_padding(mut self, padding: Margin) -> Self {
+        self.content_padding = padding;
+        self
+    }
+
     pub fn match_trigger_width(mut self, match_width: bool) -> Self {
         self.match_trigger_width = match_width;
         self
@@ -587,7 +573,7 @@ pub fn popover<R>(
                     .fill(bg)
                     .stroke(Stroke::new(1.0, border))
                     .corner_radius(rounding)
-                    .inner_margin(Margin::symmetric(12, 10));
+                    .inner_margin(props.content_padding);
 
                 let frame_resp = frame.show(popup_ui, |content_ui| {
                     if is_visible {
