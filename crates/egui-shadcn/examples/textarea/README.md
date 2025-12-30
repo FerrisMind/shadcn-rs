@@ -16,6 +16,7 @@ Demonstrates the `Textarea` component with labels, helper text, and form integra
 - Textarea with label and helper text
 - Textarea with button ("Send message")
 - Form with textarea, label, helper text, and submit button
+- Resize modes (`none`, `vertical`, `horizontal`, `both`)
 
 ## Run
 

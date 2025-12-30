@@ -60,7 +60,7 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 
 ## Components
 
-- **Form Controls**: `button`, `text_input`, `select`, `checkbox`, `radio_group`, `switch`, `toggle`, `textarea`
+- **Form Controls**: `button`, `text_input`, `select`, `checkbox`, `radio_group`, `switch`, `toggle`, `textarea`, `slider`
 - **Layout**: `card`, `separator`, `tabs`, `scroll_area`, `collapsible`
 - **Overlays**: `dialog`, `popover`, `tooltip`
 - **Typography**: `label`, `text`, `heading`, `link`, `code`, `kbd`, `blockquote`, `typography` (shadcn variants)
@@ -75,6 +75,8 @@ fn ui_example(ui: &mut egui::Ui, theme: &Theme) {
 - Radio Group: Radix Radio Group API (`as_child`, controlled/uncontrolled, `orientation`, `dir`, `loop_focus`, per-item flags) plus card/grid variants.
 - Tabs: Radix Tabs Root/List/Trigger/Content API (`as_child`, controlled/uncontrolled, `orientation`, `dir`, `activation_mode`, list `loop`, content `force_mount`) plus egui extensions (variants, wrap/justify, scrollable, full_width, accent/high_contrast, compact/animate).
 - Switch: Radix Switch Root/Thumb API (`as_child`, controlled/uncontrolled, `name/value`, `required`) plus egui extensions (size/style/high_contrast/animate/accent/custom radius/thumb color).
+- Slider: Radix Themes API (`size 1..=3`, variants `surface|classic|soft`, `color`, `high_contrast`, `radius`) plus egui extensions (orientation, `min_steps_between_thumbs`, `show_value_tooltip`, `animate`).
+- Textarea: Radix Themes API (`size 1..=3`, variants `surface|classic|soft`, `color`, `radius`, `resize` none|vertical|horizontal|both) plus egui extensions (rows, character counter, max length, read-only).
 - Scroll Area: Radix Scroll Area API (`type` default `hover`, `scroll_hide_delay` default `600ms`, `as_child`, `dir`, `force_mount` per axis) plus egui extensions (size/radius/accent/high_contrast/colors_override/max_size/bar_visibility).
 - Typography: Radix Themes-like API for `Text`, `Heading`, `Link`, `Code`, `Kbd`, `Blockquote` plus shadcn-aligned `typography` variants (`H1/H2/H3/H4/P/Lead/Large/Small/Muted/InlineCode/Blockquote`).
 
@@ -103,6 +105,7 @@ cargo run --example select      # Select dropdown
 cargo run --example checkbox    # Checkbox with tri-state
 cargo run --example switch      # Switch component
 cargo run --example toggle      # Toggle button
+cargo run --example slider      # Slider component
 cargo run --example popover     # Popover component
 cargo run --example typography  # Typography system demo
 ```
@@ -112,6 +115,10 @@ See `examples/` directory for all available examples.
 ## Documentation
 
 See individual component examples in `examples/` directory for detailed usage.
+
+## Migration notes
+
+- `TextareaProps`/`TextareaBuilder` now use `resize: TextareaResize` instead of `resizable: bool`. Replace direct field access with `.resize(TextareaResize::...)` (or `.resizable(true|false)`).
 
 ## License
 

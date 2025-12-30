@@ -1,8 +1,10 @@
 use crate::theme::Theme;
-use crate::tokens::{ColorPalette, ControlSize, InputVariant, input_tokens, mix};
+use crate::tokens::{
+    ColorPalette, ControlSize, InputVariant as TokenInputVariant, ease_out_cubic, input_tokens, mix,
+};
 use egui::{
     Color32, CornerRadius, FontId, Rect, Response, Sense, Stroke, StrokeKind, TextEdit, TextStyle,
-    Ui, UiBuilder, Vec2, WidgetText, pos2, vec2,
+    Ui, UiBuilder, Vec2, Vec2b, WidgetText, pos2, vec2,
 };
 use log::trace;
 use std::fmt::Debug;
@@ -31,9 +33,9 @@ pub enum TextareaSize {
 impl TextareaSize {
     pub fn min_height(self) -> f32 {
         match self {
-            TextareaSize::Size1 => 64.0,
-            TextareaSize::Size2 => 80.0,
-            TextareaSize::Size3 => 96.0,
+            TextareaSize::Size1 => 48.0,
+            TextareaSize::Size2 => 64.0,
+            TextareaSize::Size3 => 80.0,
         }
     }
 
@@ -42,6 +44,14 @@ impl TextareaSize {
             TextareaSize::Size1 => 12.0,
             TextareaSize::Size2 => 14.0,
             TextareaSize::Size3 => 16.0,
+        }
+    }
+
+    pub fn line_height(self) -> f32 {
+        match self {
+            TextareaSize::Size1 => 16.0,
+            TextareaSize::Size2 => 20.0,
+            TextareaSize::Size3 => 24.0,
         }
     }
 
@@ -102,6 +112,37 @@ impl TextareaRadius {
     }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum TextareaResize {
+    None,
+    Vertical,
+    Horizontal,
+
+    #[default]
+    Both,
+}
+
+impl TextareaResize {
+    pub fn resizable_axes(self) -> Vec2b {
+        match self {
+            TextareaResize::None => Vec2b::FALSE,
+            TextareaResize::Vertical => Vec2b::new(false, true),
+            TextareaResize::Horizontal => Vec2b::new(true, false),
+            TextareaResize::Both => Vec2b::TRUE,
+        }
+    }
+}
+
+impl From<TextareaVariant> for TokenInputVariant {
+    fn from(variant: TextareaVariant) -> Self {
+        match variant {
+            TextareaVariant::Surface => TokenInputVariant::Surface,
+            TextareaVariant::Classic => TokenInputVariant::Classic,
+            TextareaVariant::Soft => TokenInputVariant::Soft,
+        }
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct TextareaStyle {
     pub bg: Color32,
@@ -139,24 +180,32 @@ pub struct TextareaStyle {
 
 impl TextareaStyle {
     pub fn from_palette(palette: &ColorPalette, variant: TextareaVariant) -> Self {
+        let token_variant = TokenInputVariant::from(variant);
+        let tokens = input_tokens(palette, token_variant);
+        let focus_ring = Color32::from_rgba_unmultiplied(
+            palette.ring.r(),
+            palette.ring.g(),
+            palette.ring.b(),
+            128,
+        );
+        let disabled_border = mix(palette.border, palette.muted_foreground, 0.5);
+        let visible_border = mix(disabled_border, palette.foreground, 0.25);
+        let soft_bg = mix(palette.accent, palette.background, 0.4);
+        let soft_bg_hover = mix(soft_bg, Color32::WHITE, 0.08);
+        let soft_bg_focus = mix(soft_bg, focus_ring, 0.2);
         match variant {
             TextareaVariant::Surface => Self {
                 bg: Color32::TRANSPARENT,
                 bg_hover: Color32::TRANSPARENT,
                 bg_focus: Color32::TRANSPARENT,
-                border: palette.input,
-                border_hover: palette.input,
+                border: visible_border,
+                border_hover: visible_border,
                 border_focus: palette.ring,
-                text_color: palette.foreground,
-                placeholder_color: palette.muted_foreground,
-                selection_bg: palette.primary,
-                selection_fg: palette.primary_foreground,
-                focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.ring.r(),
-                    palette.ring.g(),
-                    palette.ring.b(),
-                    128,
-                ),
+                text_color: tokens.idle.fg_stroke.color,
+                placeholder_color: tokens.placeholder,
+                selection_bg: tokens.selection_bg,
+                selection_fg: tokens.selection_fg,
+                focus_ring,
                 focus_ring_width: 3.0,
                 invalid_border: palette.destructive,
                 invalid_ring: Color32::from_rgba_unmultiplied(
@@ -172,19 +221,14 @@ impl TextareaStyle {
                 bg: palette.background,
                 bg_hover: palette.background,
                 bg_focus: palette.background,
-                border: palette.input,
-                border_hover: palette.input,
+                border: visible_border,
+                border_hover: visible_border,
                 border_focus: palette.ring,
-                text_color: palette.foreground,
-                placeholder_color: palette.muted_foreground,
-                selection_bg: palette.primary,
-                selection_fg: palette.primary_foreground,
-                focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.ring.r(),
-                    palette.ring.g(),
-                    palette.ring.b(),
-                    128,
-                ),
+                text_color: tokens.idle.fg_stroke.color,
+                placeholder_color: tokens.placeholder,
+                selection_bg: tokens.selection_bg,
+                selection_fg: tokens.selection_fg,
+                focus_ring,
                 focus_ring_width: 3.0,
                 invalid_border: palette.destructive,
                 invalid_ring: Color32::from_rgba_unmultiplied(
@@ -197,37 +241,17 @@ impl TextareaStyle {
                 rounding: CornerRadius::same(6),
             },
             TextareaVariant::Soft => Self {
-                bg: Color32::from_rgba_unmultiplied(
-                    palette.primary.r(),
-                    palette.primary.g(),
-                    palette.primary.b(),
-                    30,
-                ),
-                bg_hover: Color32::from_rgba_unmultiplied(
-                    palette.primary.r(),
-                    palette.primary.g(),
-                    palette.primary.b(),
-                    40,
-                ),
-                bg_focus: Color32::from_rgba_unmultiplied(
-                    palette.primary.r(),
-                    palette.primary.g(),
-                    palette.primary.b(),
-                    50,
-                ),
+                bg: soft_bg,
+                bg_hover: soft_bg_hover,
+                bg_focus: soft_bg_focus,
                 border: Color32::TRANSPARENT,
                 border_hover: Color32::TRANSPARENT,
                 border_focus: Color32::TRANSPARENT,
-                text_color: palette.foreground,
-                placeholder_color: palette.muted_foreground,
-                selection_bg: palette.primary,
-                selection_fg: palette.primary_foreground,
-                focus_ring: Color32::from_rgba_unmultiplied(
-                    palette.ring.r(),
-                    palette.ring.g(),
-                    palette.ring.b(),
-                    128,
-                ),
+                text_color: tokens.idle.fg_stroke.color,
+                placeholder_color: tokens.placeholder,
+                selection_bg: tokens.selection_bg,
+                selection_fg: tokens.selection_fg,
+                focus_ring,
                 focus_ring_width: 3.0,
                 invalid_border: palette.destructive,
                 invalid_ring: Color32::from_rgba_unmultiplied(
@@ -248,22 +272,19 @@ impl TextareaStyle {
         accent: Color32,
     ) -> Self {
         let mut style = Self::from_palette(palette, variant);
+        let accent_ring = Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 128);
         match variant {
             TextareaVariant::Soft => {
-                style.bg = Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 30);
-                style.bg_hover =
-                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 40);
-                style.bg_focus =
-                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 50);
-                style.selection_bg = accent;
+                style.bg = mix(accent, palette.background, 0.4);
+                style.bg_hover = mix(style.bg, Color32::WHITE, 0.08);
+                style.bg_focus = mix(style.bg, accent_ring, 0.2);
+                style.selection_bg = mix(accent, Color32::WHITE, 0.12);
                 style.selection_fg = palette.primary_foreground;
-                style.focus_ring =
-                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 128);
+                style.focus_ring = accent_ring;
             }
             TextareaVariant::Surface | TextareaVariant::Classic => {
                 style.border_focus = accent;
-                style.focus_ring =
-                    Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 128);
+                style.focus_ring = accent_ring;
                 style.selection_bg = accent;
                 style.selection_fg = palette.primary_foreground;
             }
@@ -302,6 +323,8 @@ where
 
     pub radius: TextareaRadius,
 
+    pub resize: TextareaResize,
+
     pub enabled: bool,
 
     pub read_only: bool,
@@ -321,7 +344,6 @@ where
     pub accent_color: Option<Color32>,
 
     pub high_contrast: bool,
-    pub resizable: bool,
 }
 
 impl<'a, Id: Hash + Debug> TextareaProps<'a, Id> {
@@ -333,6 +355,7 @@ impl<'a, Id: Hash + Debug> TextareaProps<'a, Id> {
             variant: TextareaVariant::Surface,
             size: TextareaSize::Size2,
             radius: TextareaRadius::Medium,
+            resize: TextareaResize::Both,
             enabled: true,
             read_only: false,
             is_invalid: false,
@@ -343,7 +366,6 @@ impl<'a, Id: Hash + Debug> TextareaProps<'a, Id> {
             style: None,
             accent_color: None,
             high_contrast: false,
-            resizable: true,
         }
     }
 
@@ -364,6 +386,11 @@ impl<'a, Id: Hash + Debug> TextareaProps<'a, Id> {
 
     pub fn radius(mut self, radius: TextareaRadius) -> Self {
         self.radius = radius;
+        self
+    }
+
+    pub fn resize(mut self, resize: TextareaResize) -> Self {
+        self.resize = resize;
         self
     }
 
@@ -418,7 +445,11 @@ impl<'a, Id: Hash + Debug> TextareaProps<'a, Id> {
     }
 
     pub fn resizable(mut self, resizable: bool) -> Self {
-        self.resizable = resizable;
+        self.resize = if resizable {
+            TextareaResize::Both
+        } else {
+            TextareaResize::None
+        };
         self
     }
 }
@@ -431,6 +462,7 @@ impl<'a, Id: Hash + Debug> TextareaBuilder<'a, Id> {
             variant: TextareaVariant::Surface,
             size: TextareaSize::Size2,
             radius: TextareaRadius::Medium,
+            resize: TextareaResize::Both,
             enabled: true,
             read_only: false,
             is_invalid: false,
@@ -441,7 +473,6 @@ impl<'a, Id: Hash + Debug> TextareaBuilder<'a, Id> {
             style: None,
             accent_color: None,
             high_contrast: false,
-            resizable: true,
         }
     }
 }
@@ -455,6 +486,7 @@ where
     pub variant: TextareaVariant,
     pub size: TextareaSize,
     pub radius: TextareaRadius,
+    pub resize: TextareaResize,
     pub enabled: bool,
     pub read_only: bool,
     pub is_invalid: bool,
@@ -465,7 +497,6 @@ where
     pub style: Option<TextareaStyle>,
     pub accent_color: Option<Color32>,
     pub high_contrast: bool,
-    pub resizable: bool,
 }
 
 impl<'a, Id: Hash + Debug> TextareaBuilder<'a, Id> {
@@ -486,6 +517,11 @@ impl<'a, Id: Hash + Debug> TextareaBuilder<'a, Id> {
 
     pub fn radius(mut self, radius: TextareaRadius) -> Self {
         self.radius = radius;
+        self
+    }
+
+    pub fn resize(mut self, resize: TextareaResize) -> Self {
+        self.resize = resize;
         self
     }
 
@@ -540,7 +576,11 @@ impl<'a, Id: Hash + Debug> TextareaBuilder<'a, Id> {
     }
 
     pub fn resizable(mut self, resizable: bool) -> Self {
-        self.resizable = resizable;
+        self.resize = if resizable {
+            TextareaResize::Both
+        } else {
+            TextareaResize::None
+        };
         self
     }
 
@@ -552,6 +592,7 @@ impl<'a, Id: Hash + Debug> TextareaBuilder<'a, Id> {
             variant: self.variant,
             size: self.size,
             radius: self.radius,
+            resize: self.resize,
             enabled: self.enabled,
             read_only: self.read_only,
             is_invalid: self.is_invalid,
@@ -562,7 +603,6 @@ impl<'a, Id: Hash + Debug> TextareaBuilder<'a, Id> {
             style: self.style,
             accent_color: self.accent_color,
             high_contrast: self.high_contrast,
-            resizable: self.resizable,
         };
         textarea_with_props(ui, theme, props)
     }
@@ -585,6 +625,15 @@ where
         }
     });
 
+    let apply_opacity = |color: Color32, opacity: f32| -> Color32 {
+        Color32::from_rgba_unmultiplied(
+            color.r(),
+            color.g(),
+            color.b(),
+            (color.a() as f32 * opacity) as u8,
+        )
+    };
+
     if props.high_contrast {
         style = style.with_high_contrast();
     }
@@ -595,7 +644,7 @@ where
     let effectively_disabled = !props.enabled || props.read_only;
 
     let min_height = if let Some(rows) = props.rows {
-        let line_height = props.size.font_size() * 1.4;
+        let line_height = props.size.line_height();
         line_height * rows as f32 + props.size.padding().y * 2.0
     } else {
         props.size.min_height()
@@ -606,13 +655,24 @@ where
     let id = ui.make_persistent_id(&props.id_source);
     let desired_size = vec2(width, min_height);
 
-    let (rect, response) = if props.resizable {
+    let resize_axes = props.resize.resizable_axes();
+    let (rect, response) = if resize_axes.any() {
         let resize_id = id.with("resize");
-        let resize = egui::Resize::default()
+        let mut resize = egui::Resize::default()
             .id(resize_id)
             .default_size(desired_size)
             .min_size(vec2(64.0, min_height))
             .with_stroke(false);
+
+        if !resize_axes.x {
+            resize = resize.min_width(desired_size.x).max_width(desired_size.x);
+        }
+
+        if !resize_axes.y {
+            resize = resize.min_height(min_height).max_height(min_height);
+        }
+
+        resize = resize.resizable(resize_axes);
 
         let mut final_rect = Rect::NOTHING;
         let mut final_response = None;
@@ -646,29 +706,34 @@ where
 
     let has_focus = response.has_focus() || ui.memory(|m| m.has_focus(id.with("edit")));
 
+    let anim_duration = theme.motion.base_ms / 1000.0;
+    let hover_t = ui.ctx().animate_bool_with_time_and_easing(
+        id.with("hover"),
+        response.hovered() && !effectively_disabled,
+        anim_duration,
+        ease_out_cubic,
+    );
+    let focus_t = ui.ctx().animate_bool_with_time_and_easing(
+        id.with("focus"),
+        has_focus && !effectively_disabled,
+        anim_duration,
+        ease_out_cubic,
+    );
+
     let bg_color = if effectively_disabled {
-        Color32::from_rgba_unmultiplied(
-            style.bg.r(),
-            style.bg.g(),
-            style.bg.b(),
-            (style.bg.a() as f32 * style.disabled_opacity) as u8,
-        )
-    } else if has_focus {
-        style.bg_focus
-    } else if response.hovered() {
-        style.bg_hover
+        apply_opacity(style.bg, style.disabled_opacity)
     } else {
-        style.bg
+        let hover_bg = mix(style.bg, style.bg_hover, hover_t);
+        mix(hover_bg, style.bg_focus, focus_t)
     };
 
     let border_color = if props.is_invalid {
         style.invalid_border
-    } else if has_focus {
-        style.border_focus
-    } else if response.hovered() && !effectively_disabled {
-        style.border_hover
-    } else {
+    } else if effectively_disabled {
         style.border
+    } else {
+        let hover_border = mix(style.border, style.border_hover, hover_t);
+        mix(hover_border, style.border_focus, focus_t)
     };
 
     {
@@ -684,30 +749,28 @@ where
             );
         }
 
-        if has_focus && !effectively_disabled {
+        if focus_t > 0.0 && !effectively_disabled {
             let ring_color = if props.is_invalid {
                 style.invalid_ring
             } else {
                 style.focus_ring
             };
-            painter.rect_stroke(
-                rect,
-                style.rounding,
-                Stroke::new(style.focus_ring_width, ring_color),
-                StrokeKind::Outside,
-            );
+            let ring_width = style.focus_ring_width * focus_t;
+            if ring_width > 0.0 {
+                painter.rect_stroke(
+                    rect,
+                    style.rounding,
+                    Stroke::new(ring_width, apply_opacity(ring_color, focus_t)),
+                    StrokeKind::Outside,
+                );
+            }
         }
     }
 
     let inner_rect = rect.shrink2(props.size.padding());
 
     let text_color = if effectively_disabled {
-        Color32::from_rgba_unmultiplied(
-            style.text_color.r(),
-            style.text_color.g(),
-            style.text_color.b(),
-            (style.text_color.a() as f32 * 0.6) as u8,
-        )
+        apply_opacity(style.text_color, 0.6)
     } else {
         style.text_color
     };
@@ -715,7 +778,8 @@ where
     let placeholder_colored: WidgetText = props.placeholder.into();
     let placeholder_colored = placeholder_colored.color(style.placeholder_color);
 
-    let tokens = input_tokens(&theme.palette, InputVariant::Surface);
+    let token_variant = TokenInputVariant::from(props.variant);
+    let tokens = input_tokens(&theme.palette, token_variant);
 
     let response = ui.scope_builder(UiBuilder::new().max_rect(inner_rect), |inner_ui| {
         inner_ui.set_clip_rect(inner_rect);
@@ -783,7 +847,7 @@ where
         painter.galley(counter_pos, counter_galley, style.placeholder_color);
     }
 
-    if props.resizable {
+    if resize_axes.any() {
         let painter = ui.painter();
         let grip_color = style.placeholder_color;
         let grip_padding = 3.0;

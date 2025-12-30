@@ -9,7 +9,9 @@ mod icon;
 mod screenshot;
 
 use eframe::{App, Frame, egui};
-use egui_shadcn::{ControlSize, ControlVariant, Textarea, TextareaSize, Theme, button};
+use egui_shadcn::{
+    ControlSize, ControlVariant, Label, Textarea, TextareaResize, TextareaSize, Theme, button,
+};
 
 struct TextareaDemo {
     theme: Theme,
@@ -55,7 +57,7 @@ impl App for TextareaDemo {
                 .num_columns(3)
                 .spacing(egui::vec2(24.0, 18.0))
                 .show(ui, |grid| {
-                    let area_width = 280.0;
+                    let area_width = 320.0;
 
                     example_card(grid, "Textarea", |ui| {
                         ui.set_min_width(area_width);
@@ -64,7 +66,7 @@ impl App for TextareaDemo {
                             .placeholder("Type your message here.")
                             .size(TextareaSize::Size2)
                             .width(area_width)
-                            .resizable(true)
+                            .resize(TextareaResize::Both)
                             .show(ui, &self.theme, &mut self.message_demo);
                     });
 
@@ -75,38 +77,44 @@ impl App for TextareaDemo {
                             .placeholder("Type your message here.")
                             .size(TextareaSize::Size2)
                             .width(area_width)
-                            .resizable(true)
+                            .resize(TextareaResize::Both)
                             .enabled(false)
                             .show(ui, &self.theme, &mut self.message_disabled);
                     });
 
                     example_card(grid, "With label", |ui| {
-                        ui.spacing_mut().item_spacing.y = 14.0;
+                        ui.spacing_mut().item_spacing.y = 12.0;
                         ui.set_min_width(area_width);
                         ui.set_max_width(area_width);
-                        ui.label(egui::RichText::new("Your message").size(13.0));
                         let message_id = ui.make_persistent_id("textarea-with-label");
+                        Label::new("Your message")
+                            .for_id(message_id)
+                            .size(ControlSize::Sm)
+                            .show(ui, &self.theme);
                         Textarea::new(message_id)
                             .placeholder("Type your message here.")
                             .size(TextareaSize::Size2)
                             .width(area_width)
-                            .resizable(true)
+                            .resize(TextareaResize::Both)
                             .show(ui, &self.theme, &mut self.message_with_label);
                         ui.add_space(16.0);
                     });
                     grid.end_row();
 
                     example_card(grid, "With helper text", |ui| {
-                        ui.spacing_mut().item_spacing.y = 16.0;
+                        ui.spacing_mut().item_spacing.y = 12.0;
                         ui.set_min_width(area_width);
                         ui.set_max_width(area_width);
                         let message_id = ui.make_persistent_id("textarea-with-text");
-                        ui.label(egui::RichText::new("Your Message").size(13.0));
+                        Label::new("Your Message")
+                            .for_id(message_id)
+                            .size(ControlSize::Sm)
+                            .show(ui, &self.theme);
                         Textarea::new(message_id)
                             .placeholder("Type your message here.")
                             .size(TextareaSize::Size2)
                             .width(area_width)
-                            .resizable(true)
+                            .resize(TextareaResize::Both)
                             .show(ui, &self.theme, &mut self.message_with_text);
                         ui.add_space(16.0);
                         ui.label(
@@ -117,7 +125,7 @@ impl App for TextareaDemo {
                     });
 
                     example_card(grid, "With button", |ui| {
-                        ui.spacing_mut().item_spacing.y = 16.0;
+                        ui.spacing_mut().item_spacing.y = 8.0;
                         ui.set_min_width(area_width);
                         ui.set_max_width(area_width);
                         let message_id = ui.make_persistent_id("textarea-with-button");
@@ -125,9 +133,9 @@ impl App for TextareaDemo {
                             .placeholder("Type your message here.")
                             .size(TextareaSize::Size2)
                             .width(area_width)
-                            .resizable(true)
+                            .resize(TextareaResize::Both)
                             .show(ui, &self.theme, &mut self.message_with_button);
-                        ui.add_space(18.0);
+                        ui.add_space(12.0);
                         let _ = button(
                             ui,
                             &self.theme,
@@ -139,16 +147,19 @@ impl App for TextareaDemo {
                     });
 
                     example_card(grid, "Form", |ui| {
-                        ui.spacing_mut().item_spacing.y = 16.0;
+                        ui.spacing_mut().item_spacing.y = 12.0;
                         ui.set_min_width(area_width);
                         ui.set_max_width(area_width);
                         let bio_id = ui.make_persistent_id("textarea-bio");
-                        ui.label(egui::RichText::new("Bio").size(13.0));
+                        Label::new("Bio")
+                            .for_id(bio_id)
+                            .size(ControlSize::Sm)
+                            .show(ui, &self.theme);
                         Textarea::new(bio_id)
                             .placeholder("Tell us a little bit about yourself")
                             .size(TextareaSize::Size2)
                             .width(area_width)
-                            .resizable(false)
+                            .resize(TextareaResize::None)
                             .show(ui, &self.theme, &mut self.bio_text);
                         ui.add_space(18.0);
                         ui.label(

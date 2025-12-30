@@ -2,8 +2,8 @@ use egui::Color32;
 use egui_shadcn::Theme;
 use egui_shadcn::tokens::ColorPalette;
 use egui_shadcn::{
-    Textarea, TextareaProps, TextareaRadius, TextareaSize, TextareaStyle, TextareaVariant,
-    textarea_with_props,
+    Textarea, TextareaProps, TextareaRadius, TextareaResize, TextareaSize, TextareaStyle,
+    TextareaVariant, textarea_with_props,
 };
 
 fn init_logger() {
@@ -12,9 +12,9 @@ fn init_logger() {
 
 #[test]
 fn textarea_size_trigger_height() {
-    assert_eq!(TextareaSize::Size1.min_height(), 64.0);
-    assert_eq!(TextareaSize::Size2.min_height(), 80.0);
-    assert_eq!(TextareaSize::Size3.min_height(), 96.0);
+    assert_eq!(TextareaSize::Size1.min_height(), 48.0);
+    assert_eq!(TextareaSize::Size2.min_height(), 64.0);
+    assert_eq!(TextareaSize::Size3.min_height(), 80.0);
 }
 
 #[test]
@@ -102,6 +102,7 @@ fn textarea_props_builder_default() {
     assert_eq!(props.size, TextareaSize::Size2);
     assert_eq!(props.variant, TextareaVariant::Surface);
     assert_eq!(props.radius, TextareaRadius::Medium);
+    assert_eq!(props.resize, TextareaResize::Both);
     assert!(props.enabled);
     assert!(!props.is_invalid);
     assert!(!props.read_only);
@@ -193,10 +194,18 @@ fn textarea_props_builder_rows() {
 }
 
 #[test]
+fn textarea_props_builder_resize() {
+    let mut value = String::new();
+    let props = TextareaProps::new("test_id", &mut value).resize(TextareaResize::Vertical);
+    assert_eq!(props.resize, TextareaResize::Vertical);
+}
+
+#[test]
 fn textarea_builder_new() {
     let textarea = Textarea::new("builder_test");
     assert_eq!(textarea.size, TextareaSize::Size2);
     assert_eq!(textarea.variant, TextareaVariant::Surface);
+    assert_eq!(textarea.resize, TextareaResize::Both);
 }
 
 #[test]
