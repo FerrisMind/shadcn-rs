@@ -12,8 +12,8 @@ use eframe::{App, Frame, egui};
 use egui::{CornerRadius, FontId};
 use egui_shadcn::{
     CardProps, CardVariant, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize, ScrollAreaType,
-    ScrollDirection, ShadcnTypographyVariant, TextAlign, Theme, TypographyProps, blockquote, card,
-    code, link, scroll_area, text, typography,
+    ScrollDirection, ShadcnTypographyVariant, Theme, TypographyProps, blockquote, card, link,
+    scroll_area, text, typography,
 };
 
 struct TypographyDemo {
@@ -40,20 +40,14 @@ impl TypographyDemo {
         let row_h = 28.0;
         let border = egui::Stroke::new(1.0, self.theme.palette.border);
 
-        let mut row_index = 0usize;
-        let mut paint_row = |ui: &mut egui::Ui, cells: [(&str, bool); 2]| {
-            let bg = if row_index % 2 == 1 {
-                self.theme.palette.muted
-            } else {
-                egui::Color32::TRANSPARENT
-            };
-            row_index += 1;
-
+        let paint_row =
+            |ui: &mut egui::Ui, cells: [(&str, bool); 2], background: egui::Color32| {
             ui.horizontal(|ui| {
                 for (text_value, bold) in cells {
                     let (rect, _) =
                         ui.allocate_exact_size(egui::vec2(col_w, row_h), egui::Sense::hover());
-                    ui.painter().rect_filled(rect, CornerRadius::same(0), bg);
+                    ui.painter()
+                        .rect_filled(rect, CornerRadius::same(0), background);
                     ui.painter().rect_stroke(
                         rect,
                         CornerRadius::same(0),
@@ -73,9 +67,14 @@ impl TypographyDemo {
             });
         };
 
-        paint_row(ui, header);
-        for row in rows {
-            paint_row(ui, row);
+        paint_row(ui, header, egui::Color32::TRANSPARENT);
+        for (index, row) in rows.iter().enumerate() {
+            let bg = if index % 2 == 1 {
+                self.theme.palette.muted
+            } else {
+                egui::Color32::TRANSPARENT
+            };
+            paint_row(ui, *row, bg);
         }
     }
 
@@ -93,32 +92,34 @@ impl TypographyDemo {
                 card_ui.set_min_size(card_size);
                 card_ui.set_max_size(card_size);
 
-                scroll_area(
-                    card_ui,
-                    &self.theme,
-                    ScrollAreaProps {
-                        scroll_type: ScrollAreaType::Auto,
-                        direction: ScrollDirection::Vertical,
-                        size: ScrollAreaSize::Size2,
-                        radius: ScrollAreaRadius::Small,
-                        max_size: Some(card_size),
-                        ..Default::default()
-                    },
-                    |ui| {
-                        typography(
-                            ui,
-                            &self.theme,
-                            TypographyProps::new("Taxing Laughter: The Joke Tax Chronicles")
-                                .variant(ShadcnTypographyVariant::H1)
-                                .align(TextAlign::Center),
-                        );
+                card_ui.vertical(|card_ui| {
+                    scroll_area(
+                        card_ui,
+                        &self.theme,
+                        ScrollAreaProps {
+                            scroll_type: ScrollAreaType::Auto,
+                            direction: ScrollDirection::Vertical,
+                            size: ScrollAreaSize::Size2,
+                            radius: ScrollAreaRadius::Small,
+                            max_size: Some(card_size),
+                            auto_shrink: [false; 2],
+                            ..Default::default()
+                        },
+                        |ui| {
+                            ui.set_width(ui.available_width());
+                            typography(
+                                ui,
+                                &self.theme,
+                                TypographyProps::new("Taxing Laughter: The Joke Tax Chronicles")
+                                    .variant(ShadcnTypographyVariant::H1),
+                            );
 
                         ui.add_space(24.0);
                         typography(
                             ui,
                             &self.theme,
                             TypographyProps::new(
-                                "Once upon a time, in a far-off land, there was a very lazy king who\nspent all day lounging on his throne. One day, his advisors came to him\nwith a problem: the kingdom was running out of money.",
+                                "Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging on his throne. One day, his advisors came to him with a problem: the kingdom was running out of money.",
                             )
                             .variant(ShadcnTypographyVariant::Lead),
                         );
@@ -163,7 +164,7 @@ impl TypographyDemo {
                             ui,
                             &self.theme,
                             egui_shadcn::BlockquoteProps::new(
-                                "\"After all,\" he said, \"everyone enjoys a good joke, so\nit's only fair that they should pay for the privilege.\"",
+                                "\"After all,\" he said, \"everyone enjoys a good joke, so it's only fair that they should pay for the privilege.\"",
                             ),
                         );
 
@@ -180,25 +181,29 @@ impl TypographyDemo {
                             ui,
                             &self.theme,
                             TypographyProps::new(
-                                "The king's subjects were not amused. They grumbled and complained,\nbut the king was firm:",
+                                "The king's subjects were not amused. They grumbled and complained, but the king was firm:",
                             ),
                         );
 
                         ui.add_space(24.0);
-                        ui.add_space(4.0);
                         ui.horizontal(|ui| {
                             ui.add_space(24.0);
                             ui.vertical(|ui| {
-                                for item in [
+                                for (index, item) in [
                                     "1st level of puns: 5 gold coins",
                                     "2nd level of jokes: 10 gold coins",
                                     "3rd level of one-liners : 20 gold coins",
-                                ] {
+                                ]
+                                .iter()
+                                .enumerate()
+                                {
                                     ui.horizontal(|ui| {
                                         ui.label("•");
-                                        typography(ui, &self.theme, TypographyProps::new(item));
+                                        typography(ui, &self.theme, TypographyProps::new(*item));
                                     });
-                                    ui.add_space(8.0);
+                                    if index + 1 < 3 {
+                                        ui.add_space(8.0);
+                                    }
                                 }
                             });
                         });
@@ -208,7 +213,7 @@ impl TypographyDemo {
                             ui,
                             &self.theme,
                             TypographyProps::new(
-                                "As a result, people stopped telling jokes, and the kingdom fell into a\ngloom. But there was one person who refused to let the king's\nfoolishness get him down: a court jester named Jokester.",
+                                "As a result, people stopped telling jokes, and the kingdom fell into a gloom. But there was one person who refused to let the king's foolishness get him down: a court jester named Jokester.",
                             ),
                         );
 
@@ -225,7 +230,7 @@ impl TypographyDemo {
                             ui,
                             &self.theme,
                             TypographyProps::new(
-                                "Jokester began sneaking into the castle in the middle of the night and\nleaving jokes all over the place: under the king's pillow, in his\nsoup, even in the royal toilet. The king was furious, but he\ncouldn't seem to stop Jokester.",
+                                "Jokester began sneaking into the castle in the middle of the night and leaving jokes all over the place: under the king's pillow, in his soup, even in the royal toilet. The king was furious, but he couldn't seem to stop Jokester.",
                             ),
                         );
 
@@ -234,7 +239,7 @@ impl TypographyDemo {
                             ui,
                             &self.theme,
                             TypographyProps::new(
-                                "And then, one day, the people of the kingdom discovered that the jokes\nleft by Jokester were so funny that they couldn't help but laugh.\nAnd once they started laughing, they couldn't stop.",
+                                "And then, one day, the people of the kingdom discovered that the jokes left by Jokester were so funny that they couldn't help but laugh. And once they started laughing, they couldn't stop.",
                             ),
                         );
 
@@ -251,12 +256,11 @@ impl TypographyDemo {
                             ui,
                             &self.theme,
                             TypographyProps::new(
-                                "The people of the kingdom, feeling uplifted by the laughter, started to\ntell jokes and puns again, and soon the entire kingdom was in on the\njoke.",
+                                "The people of the kingdom, feeling uplifted by the laughter, started to tell jokes and puns again, and soon the entire kingdom was in on the joke.",
                             ),
                         );
 
                         ui.add_space(24.0);
-                        ui.add_space(8.0);
                         self.render_table(ui);
                         ui.add_space(24.0);
 
@@ -264,7 +268,7 @@ impl TypographyDemo {
                             ui,
                             &self.theme,
                             TypographyProps::new(
-                                "The king, seeing how much happier his subjects were, realized the error\nof his ways and repealed the joke tax. Jokester was declared a hero, and\nthe kingdom lived happily ever after.",
+                                "The king, seeing how much happier his subjects were, realized the error of his ways and repealed the joke tax. Jokester was declared a hero, and the kingdom lived happily ever after.",
                             ),
                         );
                         ui.add_space(24.0);
@@ -272,29 +276,14 @@ impl TypographyDemo {
                             ui,
                             &self.theme,
                             TypographyProps::new(
-                                "The moral of the story is: never underestimate the power of a good laugh\nand always be careful of bad ideas.",
+                                "The moral of the story is: never underestimate the power of a good laugh and always be careful of bad ideas.",
                             ),
                         );
 
-                        ui.add_space(32.0);
-                        ui.separator();
-                        ui.add_space(24.0);
-
-                        typography(
-                            ui,
-                            &self.theme,
-                            TypographyProps::new("Inline code")
-                                .variant(ShadcnTypographyVariant::H4),
-                        );
-                        ui.add_space(16.0);
-                        let _ = code(
-                            ui,
-                            &self.theme,
-                            egui_shadcn::CodeProps::new("@radix-ui/react-alert-dialog")
-                                .variant(egui_shadcn::CodeVariant::Soft),
-                        );
-                    },
-                );
+                            ui.add_space(24.0);
+                        },
+                    );
+                });
             },
         );
     }
@@ -323,3 +312,6 @@ fn main() -> eframe::Result<()> {
         Box::new(|_cc| Ok(Box::new(TypographyDemo::new()))),
     )
 }
+
+
+

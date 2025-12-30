@@ -1,5 +1,5 @@
 use crate::theme::Theme;
-use crate::tokens::{ColorPalette, ControlSize, mix};
+use crate::tokens::{ColorPalette, ControlSize, ease_out_cubic, mix};
 use crate::tooltip::{TooltipProps, TooltipSide, tooltip};
 use egui::{
     Color32, CornerRadius, CursorIcon, Key, Rect, Response, Sense, Stroke, StrokeKind, Ui, Vec2,
@@ -23,14 +23,14 @@ pub enum SliderSize {
 impl SliderSize {
     pub fn track_size(self) -> f32 {
         match self {
-            SliderSize::Size1 => 6.0,
-            SliderSize::Size2 => 8.0,
-            SliderSize::Size3 => 10.0,
+            SliderSize::Size1 => 4.0,
+            SliderSize::Size2 => 6.0,
+            SliderSize::Size3 => 8.0,
         }
     }
 
     pub fn thumb_size(self) -> f32 {
-        self.track_size() + 4.0
+        self.track_size() * 2.0 + 4.0
     }
 
     pub fn thumb_hit_size(self) -> f32 {
@@ -64,11 +64,11 @@ pub enum SliderRadius {
 
     Small,
 
-    #[default]
     Medium,
 
     Large,
 
+    #[default]
     Full,
 }
 
@@ -92,10 +92,10 @@ pub struct SliderTokens {
     pub range_bg: Color32,
     pub range_border: Stroke,
     pub thumb_bg: Color32,
-    pub thumb_shadow: Stroke,
+    pub thumb_border: Stroke,
     pub thumb_disabled_bg: Color32,
     pub thumb_disabled_border: Stroke,
-    pub focus_ring: Stroke,
+    pub ring_color: Color32,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -138,8 +138,13 @@ pub fn slider_tokens(palette: &ColorPalette, options: SliderTokenOptions) -> Sli
     };
 
     let thumb_bg = Color32::WHITE;
-    let thumb_shadow = match options.variant {
-        SliderVariant::Surface => Stroke::new(1.0, Color32::from_rgba_unmultiplied(0, 0, 0, 100)),
+    let accent_border = if options.high_contrast {
+        mix(options.accent, Color32::BLACK, 0.2)
+    } else {
+        options.accent
+    };
+    let thumb_border = match options.variant {
+        SliderVariant::Surface => Stroke::new(1.0, accent_border),
         SliderVariant::Classic => Stroke::new(1.0, Color32::from_rgba_unmultiplied(0, 0, 0, 76)),
         SliderVariant::Soft => Stroke::new(1.0, Color32::from_rgba_unmultiplied(0, 0, 0, 76)),
     };
@@ -148,14 +153,11 @@ pub fn slider_tokens(palette: &ColorPalette, options: SliderTokenOptions) -> Sli
     let thumb_disabled_border =
         Stroke::new(1.0, mix(palette.border, palette.muted_foreground, 0.5));
 
-    let focus_ring = Stroke::new(
-        3.0,
-        Color32::from_rgba_unmultiplied(
-            options.accent.r(),
-            options.accent.g(),
-            options.accent.b(),
-            128,
-        ),
+    let ring_color = Color32::from_rgba_unmultiplied(
+        palette.ring.r(),
+        palette.ring.g(),
+        palette.ring.b(),
+        128,
     );
 
     SliderTokens {
@@ -164,10 +166,10 @@ pub fn slider_tokens(palette: &ColorPalette, options: SliderTokenOptions) -> Sli
         range_bg,
         range_border,
         thumb_bg,
-        thumb_shadow,
+        thumb_border,
         thumb_disabled_bg,
         thumb_disabled_border,
-        focus_ring,
+        ring_color,
     }
 }
 
@@ -194,6 +196,7 @@ pub struct SliderProps<'a, Id> {
     pub width: Option<f32>,
     pub height: Option<f32>,
     pub orientation: SliderOrientation,
+    pub animate: bool,
     pub show_value_tooltip: bool,
     pub on_value_change: Option<SliderValueChangeCallback<'a>>,
 }
@@ -212,12 +215,13 @@ impl<'a, Id: Hash + Debug> SliderProps<'a, Id> {
             disabled: false,
             size: SliderSize::Size2,
             variant: SliderVariant::Surface,
-            radius: SliderRadius::Medium,
+            radius: SliderRadius::Full,
             high_contrast: false,
             accent: None,
             width: None,
             height: None,
             orientation: SliderOrientation::Horizontal,
+            animate: true,
             show_value_tooltip: false,
             on_value_change: None,
         }
@@ -268,6 +272,11 @@ impl<'a, Id: Hash + Debug> SliderProps<'a, Id> {
         self
     }
 
+    pub fn color(mut self, color: Color32) -> Self {
+        self.accent = Some(color);
+        self
+    }
+
     pub fn width(mut self, width: f32) -> Self {
         self.width = Some(width);
         self
@@ -280,6 +289,11 @@ impl<'a, Id: Hash + Debug> SliderProps<'a, Id> {
 
     pub fn orientation(mut self, orientation: SliderOrientation) -> Self {
         self.orientation = orientation;
+        self
+    }
+
+    pub fn animate(mut self, animate: bool) -> Self {
+        self.animate = animate;
         self
     }
 
@@ -389,8 +403,8 @@ where
     Id: Hash + Debug,
 {
     trace!(
-        "Rendering slider size={:?} variant={:?} disabled={} values={:?} orientation={:?}",
-        props.size, props.variant, props.disabled, props.values, props.orientation
+        "Rendering slider size={:?} variant={:?} disabled={} values={:?} orientation={:?} animate={}",
+        props.size, props.variant, props.disabled, props.values, props.orientation, props.animate
     );
 
     if props.values.is_empty() {
@@ -409,16 +423,8 @@ where
     let thumb_hit_size = props.size.thumb_hit_size();
 
     let is_vertical = props.orientation == SliderOrientation::Vertical;
-    let default_width = if is_vertical {
-        thumb_hit_size.max(track_size)
-    } else {
-        200.0
-    };
-    let default_height = if is_vertical {
-        200.0
-    } else {
-        thumb_hit_size.max(track_size)
-    };
+    let default_width = if is_vertical { thumb_size } else { 200.0 };
+    let default_height = if is_vertical { 176.0 } else { thumb_size };
 
     let width = props.width.unwrap_or(default_width);
     let height = props.height.unwrap_or(default_height);
@@ -455,6 +461,7 @@ where
             accent,
         },
     );
+    let anim_duration = theme.motion.fast_ms / 1000.0;
     let min_gap = min_steps_gap(props.step, props.min_steps_between_thumbs);
 
     let focused_thumb_id = id.with("focused_thumb");
@@ -537,6 +544,10 @@ where
     let mut focused_thumb_idx = ui
         .ctx()
         .memory_mut(|m| m.data.get_persisted::<usize>(focused_thumb_id).unwrap_or(0));
+    let dragged_thumb_id = id.with("dragged_thumb");
+    let mut dragged_thumb_idx = ui
+        .ctx()
+        .memory_mut(|m| m.data.get_persisted::<Option<usize>>(dragged_thumb_id).unwrap_or(None));
 
     if response.clicked() && !props.disabled {
         let pointer_pos = ui.input(|i| i.pointer.hover_pos());
@@ -589,8 +600,6 @@ where
         }
     }
 
-    let mut dragged_thumb: Option<usize> = None;
-
     if response.drag_started() && !props.disabled {
         let pointer_pos = ui.input(|i| i.pointer.hover_pos());
         if let Some(pos) = pointer_pos {
@@ -612,13 +621,21 @@ where
             }
 
             if closest_dist < thumb_hit_size * 0.5 {
-                dragged_thumb = Some(closest_idx);
+                dragged_thumb_idx = Some(closest_idx);
                 ui.memory_mut(|m| m.data.insert_persisted(focused_thumb_id, closest_idx));
+                ui.memory_mut(|m| m.data.insert_persisted(dragged_thumb_id, dragged_thumb_idx));
             }
         }
     }
 
-    if let Some(thumb_idx) = dragged_thumb
+    let pointer_released = ui.input(|i| i.pointer.any_released());
+    if pointer_released {
+        dragged_thumb_idx = None;
+        ui.memory_mut(|m| m.data.insert_persisted(dragged_thumb_id, dragged_thumb_idx));
+    }
+
+    if let Some(thumb_idx) = dragged_thumb_idx
+        && response.dragged()
         && response.is_pointer_button_down_on()
     {
         let pointer_pos = ui.input(|i| i.pointer.hover_pos());
@@ -711,17 +728,13 @@ where
         let thumb_border = if props.disabled {
             tokens.thumb_disabled_border
         } else {
-            tokens.thumb_shadow
+            tokens.thumb_border
         };
 
         let is_focused = response.has_focus() && !props.disabled && focused_thumb_idx == idx;
-        let show_tooltip = props.show_value_tooltip && (response.hovered() || is_focused);
-
-        let thumb_response_opt = if show_tooltip {
-            Some(ui.allocate_response(thumb_hit_rect.size(), Sense::hover()))
-        } else {
-            None
-        };
+        let thumb_response = ui.interact(thumb_hit_rect, id.with(("thumb", idx)), Sense::hover());
+        let show_tooltip =
+            props.show_value_tooltip && !props.disabled && (thumb_response.hovered() || is_focused);
 
         let thumb_painter = ui.painter();
         thumb_painter.rect_filled(thumb_rect, thumb_rounding, thumb_bg);
@@ -734,17 +747,30 @@ where
             );
         }
 
-        if is_focused {
+        let show_ring = !props.disabled && (thumb_response.hovered() || is_focused);
+        let ring_t = if props.animate {
+            ui.ctx().animate_bool_with_time_and_easing(
+                id.with(("thumb-ring", idx)),
+                show_ring,
+                anim_duration,
+                ease_out_cubic,
+            )
+        } else if show_ring {
+            1.0
+        } else {
+            0.0
+        };
+
+        if ring_t > 0.0 {
             thumb_painter.rect_stroke(
-                thumb_hit_rect,
+                thumb_rect,
                 thumb_rounding,
-                tokens.focus_ring,
+                Stroke::new(4.0 * ring_t, tokens.ring_color),
                 StrokeKind::Outside,
             );
         }
 
-        if let Some(thumb_response) = thumb_response_opt {
-            let _ = thumb_painter;
+        if show_tooltip {
             let value_text = format!("{:.0}", value);
             let _ = tooltip(
                 &thumb_response,
@@ -814,6 +840,33 @@ mod tests {
     fn min_steps_gap_scales_with_step() {
         let gap = min_steps_gap(Some(2.5), Some(3));
         assert!((gap - 7.5).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn slider_size_metrics_match_reference() {
+        assert_eq!(SliderSize::Size2.track_size(), 6.0);
+        assert_eq!(SliderSize::Size2.thumb_size(), 16.0);
+        assert_eq!(SliderSize::Size2.thumb_hit_size(), 48.0);
+    }
+
+    #[test]
+    fn slider_tokens_use_ring_color() {
+        let palette = ColorPalette::default();
+        let tokens = slider_tokens(
+            &palette,
+            SliderTokenOptions {
+                variant: SliderVariant::Surface,
+                high_contrast: false,
+                accent: palette.primary,
+            },
+        );
+        let expected = Color32::from_rgba_unmultiplied(
+            palette.ring.r(),
+            palette.ring.g(),
+            palette.ring.b(),
+            128,
+        );
+        assert_eq!(tokens.ring_color, expected);
     }
 
     #[test]

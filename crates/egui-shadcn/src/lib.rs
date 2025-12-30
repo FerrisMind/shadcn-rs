@@ -1,5 +1,10 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 
+pub mod accordion;
+pub mod alert;
+pub mod alert_dialog;
+pub mod avatar;
+pub mod badge;
 pub mod button;
 pub mod calendar;
 pub mod card;
@@ -12,10 +17,13 @@ pub mod icons;
 pub mod input;
 pub mod label;
 pub mod popover;
+pub mod progress;
 pub mod radio;
+pub mod resizable;
 pub mod scroll_area;
 pub mod select;
 pub mod separator;
+pub mod skeleton;
 pub mod slider;
 pub mod spinner;
 pub mod switch;
@@ -27,6 +35,14 @@ pub mod tokens;
 pub mod tooltip;
 pub mod typography;
 
+pub use accordion::{
+    AccordionContext, AccordionItemContext, AccordionItemProps, AccordionProps, AccordionState,
+    AccordionType, accordion, accordion_item,
+};
+pub use alert::{AlertProps, AlertVariant, alert};
+pub use alert_dialog::{AlertDialogProps, AlertDialogResult, alert_dialog};
+pub use avatar::{AvatarProps, AvatarSize, AvatarVariant, avatar};
+pub use badge::{BadgeProps, BadgeSize, BadgeVariant, badge};
 pub use button::{
     Button, ButtonJustify, ButtonProps, ButtonRadius, ButtonSize, ButtonStyle, ButtonVariant,
     button,
@@ -63,6 +79,11 @@ pub use radio::{
     GridLayout, RadioCardVariant, RadioDirection, RadioGroup, RadioGroupProps, RadioOption,
     radio_group,
 };
+pub use progress::{ProgressProps, ProgressSize, ProgressVariant, progress};
+pub use resizable::{
+    ResizableContext, ResizableDirection, ResizableHandleProps, ResizablePanelGroupProps,
+    ResizablePanelProps, resizable_handle, resizable_panel, resizable_panel_group,
+};
 pub use scroll_area::{
     ScrollAreaColors, ScrollAreaDir, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize,
     ScrollAreaType, ScrollDirection, scroll_area,
@@ -75,6 +96,7 @@ pub use select::{
     select_with_items,
 };
 pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separator};
+pub use skeleton::{SkeletonProps, skeleton, skeleton_text};
 pub use slider::{
     SliderOrientation, SliderProps, SliderRadius, SliderSize, SliderVariant, slider,
     slider_with_props,
@@ -88,8 +110,8 @@ pub use tabs::{
     TabsJustify, TabsListLoop, TabsOrientation, TabsProps, TabsSize, TabsVariant, TabsWrap, tabs,
 };
 pub use textarea::{
-    TextareaBuilder, TextareaBuilder as Textarea, TextareaProps, TextareaRadius, TextareaSize,
-    TextareaStyle, TextareaVariant, textarea_with_props,
+    TextareaBuilder, TextareaBuilder as Textarea, TextareaProps, TextareaRadius, TextareaResize,
+    TextareaSize, TextareaStyle, TextareaVariant, textarea_with_props,
 };
 pub use theme::{ControlVisuals, InputVisuals, Theme};
 pub use toggle::toggle;
