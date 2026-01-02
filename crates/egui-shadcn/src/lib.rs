@@ -14,9 +14,11 @@ pub mod combobox;
 pub mod context_menu;
 pub mod date_picker;
 pub mod dialog;
+pub mod dropdown_menu;
 pub mod icons;
 pub mod input;
 pub mod label;
+pub mod menu_primitives;
 pub mod popover;
 pub mod progress;
 pub mod radio;
@@ -31,6 +33,7 @@ pub mod switch;
 pub mod tabs;
 pub mod textarea;
 pub mod theme;
+pub mod toast;
 pub mod toggle;
 pub mod tokens;
 pub mod tooltip;
@@ -73,12 +76,26 @@ pub use dialog::{
     DialogAlign, DialogLayoutTokens, DialogProps, DialogSize, DialogTokens, compute_dialog_rect,
     dialog, dialog_layout_tokens, dialog_tokens_with_options,
 };
+pub use dropdown_menu::{
+    DropdownMenuCheckboxItemProps, DropdownMenuItemProps, DropdownMenuItemVariant,
+    DropdownMenuLabelProps, DropdownMenuProps, DropdownMenuRadioGroupProps,
+    DropdownMenuRadioItemProps, DropdownMenuSubProps, DropdownMenuTokens, DropdownMenuTriggerProps,
+    DropdownMenuTriggerResponse, dropdown_menu, dropdown_menu_checkbox_item, dropdown_menu_group,
+    dropdown_menu_item, dropdown_menu_label, dropdown_menu_radio_group, dropdown_menu_radio_item,
+    dropdown_menu_separator, dropdown_menu_shortcut, dropdown_menu_sub, dropdown_menu_tokens,
+    dropdown_menu_trigger,
+};
 pub use icons::{icon_calendar, icon_check, icon_chevrons_up_down};
 pub use input::{
     Input, InputConfig, InputProps, InputRadius, InputSize, InputStyle, InputType, InputVariant,
     resolve_input_style, text_input, text_input_with_config, text_input_with_props,
 };
 pub use label::{Label, LabelProps, LabelVariant, label, label_with_props};
+pub use menu_primitives::{
+    MenuCheckboxItemProps, MenuItemProps, MenuItemVariant, MenuLabelProps, MenuRadioGroupProps,
+    MenuRadioItemProps, MenuSubProps, MenuTokens, menu_checkbox_item, menu_item, menu_label,
+    menu_radio_group, menu_radio_item, menu_separator, menu_shortcut, menu_sub, menu_tokens,
+};
 pub use popover::{
     PopoverAlign, PopoverCollisionPadding, PopoverPlacement, PopoverPortalContainer, PopoverProps,
     PopoverSide, PopoverSticky, PopoverUpdatePositionStrategy, popover,
@@ -122,6 +139,7 @@ pub use textarea::{
     TextareaSize, TextareaStyle, TextareaVariant, textarea_with_props,
 };
 pub use theme::{ControlVisuals, InputVisuals, Theme};
+pub use toast::{Toast, ToastPosition, ToastPromise, ToastVariant, Toaster};
 pub use toggle::toggle;
 pub use tokens::{
     ColorPalette, ControlSize, ControlVariant, DEFAULT_FOCUS, DEFAULT_MOTION, DEFAULT_RADIUS,
