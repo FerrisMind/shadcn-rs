@@ -11,6 +11,7 @@ pub mod card;
 pub mod checkbox;
 pub mod collapsible;
 pub mod combobox;
+pub mod command;
 pub mod context_menu;
 pub mod date_picker;
 pub mod dialog;
@@ -63,6 +64,11 @@ pub use checkbox::{
 };
 pub use collapsible::{CollapsibleContentProps, CollapsibleContext, CollapsibleProps, collapsible};
 pub use combobox::{ComboboxProps, ComboboxSize, combobox, combobox_with_props};
+pub use command::{
+    CommandContext, CommandDialogProps, CommandGroupProps, CommandInputProps, CommandItemProps,
+    CommandListProps, CommandProps, OnCommandSelect, command, command_dialog, command_empty,
+    command_group, command_input, command_item, command_list, command_separator, command_shortcut,
+};
 pub use context_menu::{
     ContextMenuCheckboxItemProps, ContextMenuItemProps, ContextMenuItemVariant,
     ContextMenuLabelProps, ContextMenuRadioGroupProps, ContextMenuRadioItemProps,
