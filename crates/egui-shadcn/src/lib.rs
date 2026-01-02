@@ -30,6 +30,7 @@ pub mod skeleton;
 pub mod slider;
 pub mod spinner;
 pub mod switch;
+pub mod table;
 pub mod tabs;
 pub mod textarea;
 pub mod theme;
@@ -129,6 +130,11 @@ pub use slider::{
 pub use spinner::{SpinnerProps, SpinnerSize, SpinnerVariant, spinner, spinner_with_content};
 pub use switch::{
     OnCheckedChange, SwitchOptions, SwitchProps, switch, switch_with_options, switch_with_props,
+};
+pub use table::{
+    TableCellProps, TableContext, TableProps, TableRowProps, TableRowResponse, TableSize,
+    TableVariant, table, table_body, table_caption, table_cell, table_footer, table_head,
+    table_header, table_row,
 };
 pub use tabs::{
     TabItem, TabsActivationMode, TabsContentForceMount, TabsDirection, TabsDirectionality,
