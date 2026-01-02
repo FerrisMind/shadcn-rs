@@ -29,11 +29,7 @@ impl SpinnerExample {
     }
 }
 
-fn centered_card_content(
-    ui: &mut egui::Ui,
-    min_height: f32,
-    content: impl FnOnce(&mut egui::Ui),
-) {
+fn centered_card_content(ui: &mut egui::Ui, min_height: f32, content: impl FnOnce(&mut egui::Ui)) {
     ui.allocate_ui_with_layout(
         egui::vec2(ui.available_width(), min_height),
         Layout::centered_and_justified(Direction::LeftToRight),
@@ -128,15 +124,16 @@ impl App for SpinnerExample {
                                 let _ = card(
                                     ui,
                                     &self.theme,
-                                    CardProps::default()
-                                        .with_heading("Lucide loader-circle"),
+                                    CardProps::default().with_heading("Lucide loader-circle"),
                                     |ui| {
                                         centered_card_content(ui, card_height, |ui| {
                                             let _ = spinner(
                                                 ui,
                                                 &self.theme,
                                                 SpinnerProps::default()
-                                                    .with_variant(SpinnerVariant::LucideLoaderCircle)
+                                                    .with_variant(
+                                                        SpinnerVariant::LucideLoaderCircle,
+                                                    )
                                                     .with_size(SpinnerSize::Size2),
                                             );
                                         });

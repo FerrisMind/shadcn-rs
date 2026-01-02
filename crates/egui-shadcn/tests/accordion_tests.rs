@@ -162,7 +162,7 @@ fn accordion_state_multiple_default_values() {
 #[test]
 fn accordion_renders_without_panic() {
     init_logger();
-    use egui_shadcn::{accordion, AccordionProps};
+    use egui_shadcn::{AccordionProps, accordion};
 
     let ctx = egui::Context::default();
     ctx.begin_pass(egui::RawInput::default());
@@ -187,7 +187,7 @@ fn accordion_renders_without_panic() {
 #[test]
 fn accordion_with_items_renders() {
     init_logger();
-    use egui_shadcn::{accordion, accordion_item, AccordionItemProps, AccordionProps};
+    use egui_shadcn::{AccordionItemProps, AccordionProps, accordion, accordion_item};
 
     let ctx = egui::Context::default();
     ctx.begin_pass(egui::RawInput::default());
@@ -241,7 +241,7 @@ fn accordion_with_items_renders() {
 #[test]
 fn accordion_default_value_applied() {
     init_logger();
-    use egui_shadcn::{accordion, AccordionProps};
+    use egui_shadcn::{AccordionProps, accordion};
 
     let ctx = egui::Context::default();
     ctx.begin_pass(egui::RawInput::default());

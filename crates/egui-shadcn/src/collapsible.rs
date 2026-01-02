@@ -20,11 +20,7 @@ fn store_inner_state(ctx: &Context, id: Id, state: CollapsibleInnerState) {
     ctx.data_mut(|d| d.insert_persisted(id, state));
 }
 
-fn compute_animated_max_height(
-    openness: f32,
-    open: bool,
-    known_open_height: Option<f32>,
-) -> f32 {
+fn compute_animated_max_height(openness: f32, open: bool, known_open_height: Option<f32>) -> f32 {
     if openness <= 0.0 {
         0.0
     } else if openness >= 1.0 {
@@ -137,14 +133,15 @@ impl<'a> CollapsibleContext<'a> {
         if self.disabled || open == *self.open {
             trace!(
                 "collapsible set_open ignored disabled={} current_open={} next_open={}",
-                self.disabled,
-                *self.open,
-                open
+                self.disabled, *self.open, open
             );
             return;
         }
 
-        trace!("collapsible set_open current_open={} next_open={}", *self.open, open);
+        trace!(
+            "collapsible set_open current_open={} next_open={}",
+            *self.open, open
+        );
         *self.open = open;
         if let Some(cb) = self.on_open_change.as_mut() {
             cb(open);
@@ -166,7 +163,9 @@ impl<'a> CollapsibleContext<'a> {
         let response = ui
             .push_id(self.id_source.with("trigger"), |ui| add_trigger(ui))
             .inner;
-        let (primary_clicked, interact_pos) = ui.ctx().input(|i| (i.pointer.primary_clicked(), i.pointer.interact_pos()));
+        let (primary_clicked, interact_pos) = ui
+            .ctx()
+            .input(|i| (i.pointer.primary_clicked(), i.pointer.interact_pos()));
         let hit = interact_pos.is_some_and(|p| response.rect.contains(p));
         trace!(
             "collapsible trigger: open={} clicked={} hovered={} primary_clicked={} interact_pos={:?} hit={} rect={:?} enabled={}",
@@ -230,11 +229,7 @@ impl<'a> CollapsibleContext<'a> {
 
         trace!(
             "collapsible content: open={} animate={} force_mount={} openness={} open_height={:?}",
-            *self.open,
-            self.animate,
-            content_props.force_mount,
-            openness,
-            state.open_height
+            *self.open, self.animate, content_props.force_mount, openness, state.open_height
         );
 
         let mut add_body = Some(add_body);
@@ -255,7 +250,7 @@ impl<'a> CollapsibleContext<'a> {
                             add_body
                                 .take()
                                 .expect("collapsible content body should only be called once")(
-                                ui,
+                                ui
                             )
                         })
                     })
@@ -284,7 +279,9 @@ impl<'a> CollapsibleContext<'a> {
                         }
                         add_body
                             .take()
-                            .expect("collapsible content body should only be called once")(ui)
+                            .expect("collapsible content body should only be called once")(
+                            ui
+                        )
                     })
                 })
                 .inner;
@@ -302,10 +299,8 @@ impl<'a> CollapsibleContext<'a> {
 
         let measure_height = state.open_height.unwrap_or(4096.0).max(10.0);
 
-        let measure_rect = egui::Rect::from_min_size(
-            outer_rect.min,
-            vec2(outer_rect.width(), measure_height),
-        );
+        let measure_rect =
+            egui::Rect::from_min_size(outer_rect.min, vec2(outer_rect.width(), measure_height));
 
         let child_layout = egui::Layout::top_down(Align::Min).with_main_align(Align::Min);
         let inner = ui
@@ -323,7 +318,9 @@ impl<'a> CollapsibleContext<'a> {
                     let inner = child_ui.push_id(self.id_source.with("content"), |ui| {
                         add_body
                             .take()
-                            .expect("collapsible content body should only be called once")(ui)
+                            .expect("collapsible content body should only be called once")(
+                            ui
+                        )
                     });
 
                     (inner.inner, inner.response.rect.height().max(0.0))

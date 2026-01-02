@@ -40,7 +40,7 @@ impl AvatarSize {
             AvatarSize::Size9 => 96.0,
         }
     }
-    
+
     fn font_size(self) -> f32 {
         self.to_pixels() * 0.4
     }
@@ -114,12 +114,15 @@ pub fn avatar(ui: &mut Ui, theme: &Theme, props: AvatarProps<'_>) {
     ui.painter().circle_filled(center, radius, bg_color);
 
     // Fallback text (centered)
-    let text = props.fallback.chars().take(2).collect::<String>().to_uppercase();
-    let galley = ui.painter().layout_no_wrap(
-        text,
-        egui::FontId::proportional(font_size),
-        text_color,
-    );
+    let text = props
+        .fallback
+        .chars()
+        .take(2)
+        .collect::<String>()
+        .to_uppercase();
+    let galley =
+        ui.painter()
+            .layout_no_wrap(text, egui::FontId::proportional(font_size), text_color);
     let text_pos = center - galley.size() / 2.0;
     ui.painter().galley(text_pos, galley, text_color);
 }

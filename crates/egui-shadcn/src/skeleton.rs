@@ -87,7 +87,8 @@ pub fn skeleton(ui: &mut Ui, theme: &Theme, props: SkeletonProps) {
     // Clip shimmer to skeleton bounds
     let clipped_shimmer = shimmer_rect.intersect(rect);
     if clipped_shimmer.is_positive() {
-        ui.painter().rect_filled(clipped_shimmer, rounding, highlight_color);
+        ui.painter()
+            .rect_filled(clipped_shimmer, rounding, highlight_color);
     }
 
     ui.ctx().request_repaint();
@@ -104,7 +105,11 @@ pub fn skeleton_text(ui: &mut Ui, theme: &Theme, lines: usize, line_height: f32)
             } else {
                 ui.available_width()
             };
-            skeleton(ui, theme, SkeletonProps::new().width(width).height(line_height));
+            skeleton(
+                ui,
+                theme,
+                SkeletonProps::new().width(width).height(line_height),
+            );
         }
     });
 }
@@ -123,10 +128,7 @@ mod tests {
 
     #[test]
     fn skeleton_props_builder() {
-        let props = SkeletonProps::new()
-            .width(100.0)
-            .height(50.0)
-            .circle(true);
+        let props = SkeletonProps::new().width(100.0).height(50.0).circle(true);
 
         assert_eq!(props.width, Some(100.0));
         assert_eq!(props.height, Some(50.0));

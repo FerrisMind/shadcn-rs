@@ -89,18 +89,9 @@ pub fn progress(ui: &mut Ui, theme: &Theme, props: ProgressProps) {
     let accent = props.color.unwrap_or(theme.palette.primary);
 
     let (bg_color, fg_color) = match props.variant {
-        ProgressVariant::Classic => (
-            theme.palette.muted, 
-            accent,
-        ),
-        ProgressVariant::Surface => (
-            theme.palette.muted.gamma_multiply(0.5), 
-            accent,
-        ),
-        ProgressVariant::Soft => (
-            accent.gamma_multiply(0.2), 
-            accent,
-        ),
+        ProgressVariant::Classic => (theme.palette.muted, accent),
+        ProgressVariant::Surface => (theme.palette.muted.gamma_multiply(0.5), accent),
+        ProgressVariant::Soft => (accent.gamma_multiply(0.2), accent),
     };
 
     let height = match props.size {
@@ -112,7 +103,8 @@ pub fn progress(ui: &mut Ui, theme: &Theme, props: ProgressProps) {
     let available_width = ui.available_width();
     let rounding = height / 2.0;
 
-    let (rect, _response) = ui.allocate_exact_size(Vec2::new(available_width, height), egui::Sense::hover());
+    let (rect, _response) =
+        ui.allocate_exact_size(Vec2::new(available_width, height), egui::Sense::hover());
 
     // Background
     ui.painter().rect_filled(rect, rounding, bg_color);
@@ -123,10 +115,8 @@ pub fn progress(ui: &mut Ui, theme: &Theme, props: ProgressProps) {
         let progress_width = rect.width() * progress;
 
         if progress_width > 0.0 {
-            let progress_rect = egui::Rect::from_min_size(
-                rect.min,
-                Vec2::new(progress_width, height),
-            );
+            let progress_rect =
+                egui::Rect::from_min_size(rect.min, Vec2::new(progress_width, height));
             ui.painter().rect_filled(progress_rect, rounding, fg_color);
         }
     } else {

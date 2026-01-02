@@ -5,8 +5,8 @@
 //! alert_dialog(ui, &theme, AlertDialogProps::new(&mut open, "Are you sure?", "This cannot be undone."));
 //! ```
 
-use crate::dialog::{DialogProps, DialogSize, dialog};
 use crate::button::{Button, ButtonVariant};
+use crate::dialog::{DialogProps, DialogSize, dialog};
 use crate::theme::Theme;
 use egui::{RichText, Ui};
 
@@ -72,7 +72,7 @@ pub enum AlertDialogResult {
 /// Render an alert dialog for confirmation.
 pub fn alert_dialog(ui: &mut Ui, theme: &Theme, props: AlertDialogProps<'_>) -> AlertDialogResult {
     use std::cell::Cell;
-    
+
     if !*props.open {
         return AlertDialogResult::None;
     }
@@ -83,7 +83,7 @@ pub fn alert_dialog(ui: &mut Ui, theme: &Theme, props: AlertDialogProps<'_>) -> 
     let cancel_text = props.cancel_text;
     let action_text = props.action_text;
     let action_variant = props.action_variant;
-    
+
     // Use Cell to allow mutation inside closure
     let result = Cell::new(AlertDialogResult::None);
     let should_close = Cell::new(false);
