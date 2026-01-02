@@ -26,6 +26,7 @@ egui = { workspace = true }
 log = { workspace = true }
 lucide-icons = "0.555.0"
 chrono = "0.4"
+regex = "1.11"
 
 [dev-dependencies]
 env_logger = { workspace = true }

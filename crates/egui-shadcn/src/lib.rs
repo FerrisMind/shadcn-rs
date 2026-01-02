@@ -16,6 +16,7 @@ pub mod context_menu;
 pub mod date_picker;
 pub mod dialog;
 pub mod dropdown_menu;
+pub mod form;
 pub mod icons;
 pub mod input;
 pub mod label;
@@ -92,6 +93,12 @@ pub use dropdown_menu::{
     dropdown_menu_item, dropdown_menu_label, dropdown_menu_radio_group, dropdown_menu_radio_item,
     dropdown_menu_separator, dropdown_menu_shortcut, dropdown_menu_sub, dropdown_menu_tokens,
     dropdown_menu_trigger,
+};
+pub use form::{
+    FieldState, FieldValue, FormControl, FormDescription, FormDescriptionProps, FormItem,
+    FormItemContext, FormItemProps, FormLabel, FormLabelProps, FormMessage, FormMessageProps,
+    FormState, ValidationMode, Validator, compose, email, form_control, form_description,
+    form_item, form_label, form_message, max_length, min_length, none, pattern, required,
 };
 pub use icons::{icon_calendar, icon_check, icon_chevrons_up_down};
 pub use input::{
