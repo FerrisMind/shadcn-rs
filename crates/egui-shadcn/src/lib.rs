@@ -19,6 +19,7 @@ pub mod icons;
 pub mod input;
 pub mod label;
 pub mod menu_primitives;
+pub mod pagination;
 pub mod popover;
 pub mod progress;
 pub mod radio;
@@ -96,6 +97,10 @@ pub use menu_primitives::{
     MenuCheckboxItemProps, MenuItemProps, MenuItemVariant, MenuLabelProps, MenuRadioGroupProps,
     MenuRadioItemProps, MenuSubProps, MenuTokens, menu_checkbox_item, menu_item, menu_label,
     menu_radio_group, menu_radio_item, menu_separator, menu_shortcut, menu_sub, menu_tokens,
+};
+pub use pagination::{
+    OnPageChange, PaginationLinkProps, PaginationProps, pagination, pagination_content,
+    pagination_ellipsis, pagination_item, pagination_link, pagination_next, pagination_previous,
 };
 pub use popover::{
     PopoverAlign, PopoverCollisionPadding, PopoverPlacement, PopoverPortalContainer, PopoverProps,
