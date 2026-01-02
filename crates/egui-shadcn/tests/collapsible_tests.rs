@@ -70,21 +70,26 @@ fn collapsible_content_force_mount_controls_mounting() {
     ctx.begin_pass(egui::RawInput::default());
     egui::CentralPanel::default().show(&ctx, |ui| {
         let id = ui.make_persistent_id("collapsible-force-mount");
-        collapsible(ui, &theme, CollapsibleProps::new(id, &mut open), |ui, api| {
-            let none = api.content(ui, |_| {
-                ran += 1;
-            });
-            assert!(none.is_none());
-
-            let some = api.content_with_props(
-                ui,
-                CollapsibleContentProps::new().force_mount(true),
-                |_| {
+        collapsible(
+            ui,
+            &theme,
+            CollapsibleProps::new(id, &mut open),
+            |ui, api| {
+                let none = api.content(ui, |_| {
                     ran += 1;
-                },
-            );
-            assert!(some.is_some());
-        });
+                });
+                assert!(none.is_none());
+
+                let some = api.content_with_props(
+                    ui,
+                    CollapsibleContentProps::new().force_mount(true),
+                    |_| {
+                        ran += 1;
+                    },
+                );
+                assert!(some.is_some());
+            },
+        );
     });
     let _ = ctx.end_pass();
 
@@ -133,11 +138,16 @@ fn collapsible_trigger_toggles_on_click() {
     ctx.begin_pass(egui::RawInput::default());
     egui::CentralPanel::default().show(&ctx, |ui| {
         let id = ui.make_persistent_id("collapsible-click");
-        collapsible(ui, &theme, CollapsibleProps::new(id, &mut open), |ui, api| {
-            let resp = api.trigger(ui, |ui| ui.button("Toggle"));
-            trigger_rect = Some(resp.rect);
-            let _ = api.content(ui, |_| {});
-        });
+        collapsible(
+            ui,
+            &theme,
+            CollapsibleProps::new(id, &mut open),
+            |ui, api| {
+                let resp = api.trigger(ui, |ui| ui.button("Toggle"));
+                trigger_rect = Some(resp.rect);
+                let _ = api.content(ui, |_| {});
+            },
+        );
     });
     let _ = ctx.end_pass();
     assert!(!open);
@@ -163,10 +173,15 @@ fn collapsible_trigger_toggles_on_click() {
     ctx.begin_pass(input);
     egui::CentralPanel::default().show(&ctx, |ui| {
         let id = ui.make_persistent_id("collapsible-click");
-        collapsible(ui, &theme, CollapsibleProps::new(id, &mut open), |ui, api| {
-            let _ = api.trigger(ui, |ui| ui.button("Toggle"));
-            let _ = api.content(ui, |_| {});
-        });
+        collapsible(
+            ui,
+            &theme,
+            CollapsibleProps::new(id, &mut open),
+            |ui, api| {
+                let _ = api.trigger(ui, |ui| ui.button("Toggle"));
+                let _ = api.content(ui, |_| {});
+            },
+        );
     });
     let _ = ctx.end_pass();
 
@@ -186,15 +201,20 @@ fn collapsible_trigger_toggles_on_click_with_shadcn_button() {
     ctx.begin_pass(egui::RawInput::default());
     egui::CentralPanel::default().show(&ctx, |ui| {
         let id = ui.make_persistent_id("collapsible-click-shadcn-button");
-        collapsible(ui, &theme, CollapsibleProps::new(id, &mut open), |ui, api| {
-            let button = Button::new("")
-                .variant(ButtonVariant::Ghost)
-                .size(ButtonSize::IconSm)
-                .icon(&icon_chevrons_up_down);
-            let resp = api.trigger(ui, |ui| button.show(ui, &theme));
-            trigger_rect = Some(resp.rect);
-            let _ = api.content(ui, |_| {});
-        });
+        collapsible(
+            ui,
+            &theme,
+            CollapsibleProps::new(id, &mut open),
+            |ui, api| {
+                let button = Button::new("")
+                    .variant(ButtonVariant::Ghost)
+                    .size(ButtonSize::IconSm)
+                    .icon(&icon_chevrons_up_down);
+                let resp = api.trigger(ui, |ui| button.show(ui, &theme));
+                trigger_rect = Some(resp.rect);
+                let _ = api.content(ui, |_| {});
+            },
+        );
     });
     let _ = ctx.end_pass();
     assert!(!open);
@@ -220,16 +240,24 @@ fn collapsible_trigger_toggles_on_click_with_shadcn_button() {
     ctx.begin_pass(input);
     egui::CentralPanel::default().show(&ctx, |ui| {
         let id = ui.make_persistent_id("collapsible-click-shadcn-button");
-        collapsible(ui, &theme, CollapsibleProps::new(id, &mut open), |ui, api| {
-            let button = Button::new("")
-                .variant(ButtonVariant::Ghost)
-                .size(ButtonSize::IconSm)
-                .icon(&icon_chevrons_up_down);
-            let _ = api.trigger(ui, |ui| button.show(ui, &theme));
-            let _ = api.content(ui, |_| {});
-        });
+        collapsible(
+            ui,
+            &theme,
+            CollapsibleProps::new(id, &mut open),
+            |ui, api| {
+                let button = Button::new("")
+                    .variant(ButtonVariant::Ghost)
+                    .size(ButtonSize::IconSm)
+                    .icon(&icon_chevrons_up_down);
+                let _ = api.trigger(ui, |ui| button.show(ui, &theme));
+                let _ = api.content(ui, |_| {});
+            },
+        );
     });
     let _ = ctx.end_pass();
 
-    assert!(open, "clicking the shadcn button trigger should toggle open=true");
+    assert!(
+        open,
+        "clicking the shadcn button trigger should toggle open=true"
+    );
 }

@@ -280,8 +280,14 @@ pub fn resizable_handle(
     let _handle_id = ctx.id.with(("handle", handle_index));
 
     let (handle_size, cursor) = match ctx.direction {
-        ResizableDirection::Horizontal => (Vec2::new(4.0, ui.available_height()), CursorIcon::ResizeHorizontal),
-        ResizableDirection::Vertical => (Vec2::new(ui.available_width(), 4.0), CursorIcon::ResizeVertical),
+        ResizableDirection::Horizontal => (
+            Vec2::new(4.0, ui.available_height()),
+            CursorIcon::ResizeHorizontal,
+        ),
+        ResizableDirection::Vertical => (
+            Vec2::new(ui.available_width(), 4.0),
+            CursorIcon::ResizeVertical,
+        ),
     };
 
     let (rect, response) = ui.allocate_exact_size(handle_size, Sense::drag());
@@ -305,7 +311,8 @@ pub fn resizable_handle(
         let grip_size = Vec2::splat(8.0);
         let grip_rect = egui::Rect::from_center_size(rect.center(), grip_size);
 
-        ui.painter().rect_filled(grip_rect, 2.0, theme.palette.border);
+        ui.painter()
+            .rect_filled(grip_rect, 2.0, theme.palette.border);
 
         // Draw grip lines
         let line_color = theme.palette.muted_foreground;

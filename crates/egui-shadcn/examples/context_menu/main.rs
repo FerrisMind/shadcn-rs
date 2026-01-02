@@ -11,10 +11,10 @@ mod screenshot;
 use eframe::{App, Frame, egui};
 use egui::{CentralPanel, Sense};
 use egui_shadcn::{
-    context_menu, context_menu_checkbox_item, context_menu_item, context_menu_label,
-    context_menu_radio_item, context_menu_separator, context_menu_sub,
     ContextMenuCheckboxItemProps, ContextMenuItemProps, ContextMenuItemVariant,
-    ContextMenuLabelProps, ContextMenuRadioItemProps, ContextMenuSubProps, Theme,
+    ContextMenuLabelProps, ContextMenuRadioItemProps, ContextMenuSubProps, Theme, context_menu,
+    context_menu_checkbox_item, context_menu_item, context_menu_label, context_menu_radio_item,
+    context_menu_separator, context_menu_sub,
 };
 
 struct ContextMenuExample {
@@ -47,7 +47,7 @@ impl App for ContextMenuExample {
             ui.add_space(8.0);
 
             // Trigger area for context menu
-            let trigger_rect = ui.available_rect_before_wrap();
+            let _trigger_rect = ui.available_rect_before_wrap();
             let desired_size = egui::vec2(300.0, 150.0);
             let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
@@ -56,6 +56,7 @@ impl App for ContextMenuExample {
                 rect,
                 4.0,
                 egui::Stroke::new(1.0, self.theme.palette.border),
+                egui::StrokeKind::Inside,
             );
             ui.painter().text(
                 rect.center(),
@@ -74,9 +75,11 @@ impl App for ContextMenuExample {
                     ContextMenuItemProps::new("Back")
                         .with_shortcut("⌘[")
                         .inset(true),
-                ).clicked() {
+                )
+                .clicked()
+                {
                     println!("Back clicked");
-                    ui.close_menu();
+                    ui.close();
                 }
 
                 if context_menu_item(
@@ -86,9 +89,11 @@ impl App for ContextMenuExample {
                         .with_shortcut("⌘]")
                         .inset(true)
                         .disabled(true),
-                ).clicked() {
+                )
+                .clicked()
+                {
                     println!("Forward clicked");
-                    ui.close_menu();
+                    ui.close();
                 }
 
                 if context_menu_item(
@@ -97,9 +102,11 @@ impl App for ContextMenuExample {
                     ContextMenuItemProps::new("Reload")
                         .with_shortcut("⌘R")
                         .inset(true),
-                ).clicked() {
+                )
+                .clicked()
+                {
                     println!("Reload clicked");
-                    ui.close_menu();
+                    ui.close();
                 }
 
                 // Submenu
@@ -108,22 +115,46 @@ impl App for ContextMenuExample {
                     &self.theme,
                     ContextMenuSubProps::new("More Tools").inset(true),
                     |ui| {
-                        if context_menu_item(ui, &self.theme, ContextMenuItemProps::new("Save Page...")).clicked() {
+                        if context_menu_item(
+                            ui,
+                            &self.theme,
+                            ContextMenuItemProps::new("Save Page..."),
+                        )
+                        .clicked()
+                        {
                             println!("Save Page clicked");
-                            ui.close_menu();
+                            ui.close();
                         }
-                        if context_menu_item(ui, &self.theme, ContextMenuItemProps::new("Create Shortcut...")).clicked() {
+                        if context_menu_item(
+                            ui,
+                            &self.theme,
+                            ContextMenuItemProps::new("Create Shortcut..."),
+                        )
+                        .clicked()
+                        {
                             println!("Create Shortcut clicked");
-                            ui.close_menu();
+                            ui.close();
                         }
-                        if context_menu_item(ui, &self.theme, ContextMenuItemProps::new("Name Window...")).clicked() {
+                        if context_menu_item(
+                            ui,
+                            &self.theme,
+                            ContextMenuItemProps::new("Name Window..."),
+                        )
+                        .clicked()
+                        {
                             println!("Name Window clicked");
-                            ui.close_menu();
+                            ui.close();
                         }
                         context_menu_separator(ui, &self.theme);
-                        if context_menu_item(ui, &self.theme, ContextMenuItemProps::new("Developer Tools")).clicked() {
+                        if context_menu_item(
+                            ui,
+                            &self.theme,
+                            ContextMenuItemProps::new("Developer Tools"),
+                        )
+                        .clicked()
+                        {
                             println!("Developer Tools clicked");
-                            ui.close_menu();
+                            ui.close();
                         }
                         context_menu_separator(ui, &self.theme);
                         if context_menu_item(
@@ -131,9 +162,11 @@ impl App for ContextMenuExample {
                             &self.theme,
                             ContextMenuItemProps::new("Delete")
                                 .with_variant(ContextMenuItemVariant::Destructive),
-                        ).clicked() {
+                        )
+                        .clicked()
+                        {
                             println!("Delete clicked");
-                            ui.close_menu();
+                            ui.close();
                         }
                     },
                 );
@@ -145,7 +178,9 @@ impl App for ContextMenuExample {
                     ui,
                     &self.theme,
                     ContextMenuCheckboxItemProps::new("Show Bookmarks", self.show_bookmarks),
-                ).clicked() {
+                )
+                .clicked()
+                {
                     self.show_bookmarks = !self.show_bookmarks;
                 }
 
@@ -153,20 +188,28 @@ impl App for ContextMenuExample {
                     ui,
                     &self.theme,
                     ContextMenuCheckboxItemProps::new("Show Full URLs", self.show_full_urls),
-                ).clicked() {
+                )
+                .clicked()
+                {
                     self.show_full_urls = !self.show_full_urls;
                 }
 
                 context_menu_separator(ui, &self.theme);
 
                 // Radio group
-                context_menu_label(ui, &self.theme, ContextMenuLabelProps::new("People").inset(true));
+                context_menu_label(
+                    ui,
+                    &self.theme,
+                    ContextMenuLabelProps::new("People").inset(true),
+                );
 
                 if context_menu_radio_item(
                     ui,
                     &self.theme,
                     ContextMenuRadioItemProps::new("Pedro Duarte", "pedro", &self.selected_person),
-                ).clicked() {
+                )
+                .clicked()
+                {
                     self.selected_person = "pedro".to_string();
                 }
 
@@ -174,7 +217,9 @@ impl App for ContextMenuExample {
                     ui,
                     &self.theme,
                     ContextMenuRadioItemProps::new("Colm Tuite", "colm", &self.selected_person),
-                ).clicked() {
+                )
+                .clicked()
+                {
                     self.selected_person = "colm".to_string();
                 }
             });

@@ -254,9 +254,14 @@ pub fn accordion<'a, IdType: Hash, R>(
 
     // Apply default value on first render
     let init_id = id.with("default-initialized");
-    let initialized = ui.ctx().data(|d| d.get_temp::<bool>(init_id)).unwrap_or(false);
+    let initialized = ui
+        .ctx()
+        .data(|d| d.get_temp::<bool>(init_id))
+        .unwrap_or(false);
     if !initialized {
-        if let Some(default) = &props.default_value && props.value.is_none() {
+        if let Some(default) = &props.default_value
+            && props.value.is_none()
+        {
             *props.value = Some(default.clone());
         }
         ui.ctx().data_mut(|d| d.insert_temp(init_id, true));
@@ -298,9 +303,7 @@ pub fn accordion_item<'a, R>(
 
     trace!(
         "accordion_item value={} is_open={} disabled={}",
-        props.value,
-        is_open,
-        is_disabled
+        props.value, is_open, is_disabled
     );
 
     let item_ctx = AccordionItemContext {
@@ -318,10 +321,12 @@ pub fn accordion_item<'a, R>(
         }
 
         // Trigger area
-        let trigger_response = ui.horizontal(|ui| {
-            ui.set_width(ui.available_width());
-            add_trigger(ui, &item_ctx)
-        }).inner;
+        let trigger_response = ui
+            .horizontal(|ui| {
+                ui.set_width(ui.available_width());
+                add_trigger(ui, &item_ctx)
+            })
+            .inner;
 
         // Handle click on trigger
         if trigger_response.clicked() && !is_disabled {

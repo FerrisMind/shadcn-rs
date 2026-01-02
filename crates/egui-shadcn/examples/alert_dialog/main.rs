@@ -11,7 +11,7 @@ mod screenshot;
 use eframe::{App, Frame, egui};
 use egui::CentralPanel;
 use egui_shadcn::{
-    alert_dialog, AlertDialogProps, AlertDialogResult, Button, ButtonVariant, Theme,
+    AlertDialogProps, AlertDialogResult, Button, ButtonVariant, Theme, alert_dialog,
 };
 
 struct AlertDialogExample {

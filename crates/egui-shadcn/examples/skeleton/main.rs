@@ -10,9 +10,7 @@ mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::CentralPanel;
-use egui_shadcn::{
-    skeleton, skeleton_text, SkeletonProps, Theme,
-};
+use egui_shadcn::{SkeletonProps, Theme, skeleton, skeleton_text};
 
 struct SkeletonExample {
     theme: Theme,
@@ -42,22 +40,42 @@ impl App for SkeletonExample {
             ui.label("Card-like layout:");
             ui.horizontal(|ui| {
                 // Avatar skeleton (circle)
-                skeleton(ui, &self.theme, SkeletonProps::new().width(48.0).height(48.0).circle(true));
+                skeleton(
+                    ui,
+                    &self.theme,
+                    SkeletonProps::new().width(48.0).height(48.0).circle(true),
+                );
                 ui.add_space(12.0);
                 ui.vertical(|ui| {
-                    skeleton(ui, &self.theme, SkeletonProps::new().width(200.0).height(16.0));
+                    skeleton(
+                        ui,
+                        &self.theme,
+                        SkeletonProps::new().width(200.0).height(16.0),
+                    );
                     ui.add_space(8.0);
-                    skeleton(ui, &self.theme, SkeletonProps::new().width(150.0).height(14.0));
+                    skeleton(
+                        ui,
+                        &self.theme,
+                        SkeletonProps::new().width(150.0).height(14.0),
+                    );
                 });
             });
 
             ui.add_space(24.0);
             ui.label("Image placeholder:");
-            skeleton(ui, &self.theme, SkeletonProps::new().width(300.0).height(180.0));
+            skeleton(
+                ui,
+                &self.theme,
+                SkeletonProps::new().width(300.0).height(180.0),
+            );
 
             ui.add_space(24.0);
             ui.label("Button placeholder:");
-            skeleton(ui, &self.theme, SkeletonProps::new().width(120.0).height(36.0));
+            skeleton(
+                ui,
+                &self.theme,
+                SkeletonProps::new().width(120.0).height(36.0),
+            );
 
             ui.add_space(24.0);
             ui.label("Input field placeholder:");

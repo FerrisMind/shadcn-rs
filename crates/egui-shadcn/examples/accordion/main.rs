@@ -12,9 +12,7 @@ mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::{CentralPanel, FontId, RichText, vec2};
-use egui_shadcn::{
-    AccordionItemProps, AccordionProps, Theme, accordion, accordion_item,
-};
+use egui_shadcn::{AccordionItemProps, AccordionProps, Theme, accordion, accordion_item};
 
 struct AccordionDemo {
     theme: Theme,
@@ -205,35 +203,36 @@ impl App for AccordionDemo {
 }
 
 /// Helper function to render accordion trigger with chevron icon
-fn accordion_trigger(ui: &mut egui::Ui, theme: &Theme, title: &str, is_open: bool) -> egui::Response {
+fn accordion_trigger(
+    ui: &mut egui::Ui,
+    theme: &Theme,
+    title: &str,
+    is_open: bool,
+) -> egui::Response {
     let response = ui.with_layout(
         egui::Layout::left_to_right(egui::Align::Center).with_main_justify(true),
         |ui| {
             ui.add_space(0.0);
-            
+
             let text = RichText::new(title)
                 .font(FontId::proportional(14.0))
                 .strong();
-            
+
             ui.label(text);
-            
+
             // Chevron icon that rotates when open
             let icon_color = theme.palette.muted_foreground;
-            
+
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
                 ui.add_space(4.0);
-                
+
                 // Simple chevron using text
                 let chevron = if is_open { "▲" } else { "▼" };
-                ui.label(
-                    RichText::new(chevron)
-                        .size(10.0)
-                        .color(icon_color)
-                );
+                ui.label(RichText::new(chevron).size(10.0).color(icon_color));
             });
         },
     );
-    
+
     // Make the whole area clickable
     let rect = response.response.rect.expand2(vec2(0.0, 8.0));
     ui.allocate_rect(rect, egui::Sense::click())

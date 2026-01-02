@@ -153,12 +153,8 @@ pub fn slider_tokens(palette: &ColorPalette, options: SliderTokenOptions) -> Sli
     let thumb_disabled_border =
         Stroke::new(1.0, mix(palette.border, palette.muted_foreground, 0.5));
 
-    let ring_color = Color32::from_rgba_unmultiplied(
-        palette.ring.r(),
-        palette.ring.g(),
-        palette.ring.b(),
-        128,
-    );
+    let ring_color =
+        Color32::from_rgba_unmultiplied(palette.ring.r(), palette.ring.g(), palette.ring.b(), 128);
 
     SliderTokens {
         track_bg,
@@ -545,9 +541,11 @@ where
         .ctx()
         .memory_mut(|m| m.data.get_persisted::<usize>(focused_thumb_id).unwrap_or(0));
     let dragged_thumb_id = id.with("dragged_thumb");
-    let mut dragged_thumb_idx = ui
-        .ctx()
-        .memory_mut(|m| m.data.get_persisted::<Option<usize>>(dragged_thumb_id).unwrap_or(None));
+    let mut dragged_thumb_idx = ui.ctx().memory_mut(|m| {
+        m.data
+            .get_persisted::<Option<usize>>(dragged_thumb_id)
+            .unwrap_or(None)
+    });
 
     if response.clicked() && !props.disabled {
         let pointer_pos = ui.input(|i| i.pointer.hover_pos());

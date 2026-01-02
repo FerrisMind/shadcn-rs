@@ -83,26 +83,14 @@ pub fn badge(ui: &mut Ui, theme: &Theme, props: BadgeProps<'_>) {
     let accent = props.color.unwrap_or(theme.palette.primary);
 
     let (bg_color, text_color, border_color) = match props.variant {
-        BadgeVariant::Solid => (
-            accent,
-            Color32::WHITE,
-            accent,
-        ),
-        BadgeVariant::Soft => (
-            accent.gamma_multiply(0.15),
-            accent,
-            Color32::TRANSPARENT,
-        ),
+        BadgeVariant::Solid => (accent, Color32::WHITE, accent),
+        BadgeVariant::Soft => (accent.gamma_multiply(0.15), accent, Color32::TRANSPARENT),
         BadgeVariant::Surface => (
             theme.palette.muted.gamma_multiply(0.5),
             accent,
             theme.palette.border,
         ),
-        BadgeVariant::Outline => (
-            Color32::TRANSPARENT,
-            accent,
-            accent,
-        ),
+        BadgeVariant::Outline => (Color32::TRANSPARENT, accent, accent),
     };
 
     let (font_size, padding) = match props.size {
@@ -112,7 +100,7 @@ pub fn badge(ui: &mut Ui, theme: &Theme, props: BadgeProps<'_>) {
     };
 
     let rounding = theme.radius.r6; // Use r6 as pill shape
-    
+
     egui::Frame::NONE
         .fill(bg_color)
         .stroke(egui::Stroke::new(1.0, border_color))

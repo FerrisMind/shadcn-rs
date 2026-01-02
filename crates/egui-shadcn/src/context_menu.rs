@@ -3,11 +3,10 @@
 //! Provides a context menu that appears on secondary (right) click.
 //! Built on top of egui's response.context_menu() with shadcn styling.
 
-use crate::separator::{separator, SeparatorOrientation, SeparatorProps};
+use crate::separator::{SeparatorOrientation, SeparatorProps, separator};
 use crate::theme::Theme;
 use egui::{
-    Color32, CornerRadius, CursorIcon, Frame, Id, Margin, Order, Response, RichText, Sense, Stroke,
-    Ui, Vec2,
+    Color32, CornerRadius, CursorIcon, Frame, Margin, Order, Response, Sense, Stroke, Ui, Vec2,
 };
 
 // ============================================================================
@@ -127,7 +126,10 @@ pub struct ContextMenuLabelProps<'a> {
 
 impl<'a> ContextMenuLabelProps<'a> {
     pub fn new(label: &'a str) -> Self {
-        Self { label, inset: false }
+        Self {
+            label,
+            inset: false,
+        }
     }
 
     pub fn inset(mut self, inset: bool) -> Self {
@@ -186,7 +188,9 @@ pub fn context_menu_item(ui: &mut Ui, theme: &Theme, props: ContextMenuItemProps
 
     let (text_color, hover_bg) = match props.variant {
         ContextMenuItemVariant::Default => (tokens.text, tokens.hover_bg),
-        ContextMenuItemVariant::Destructive => (tokens.text_destructive, tokens.hover_bg_destructive),
+        ContextMenuItemVariant::Destructive => {
+            (tokens.text_destructive, tokens.hover_bg_destructive)
+        }
     };
 
     let available_width = ui.available_width();
@@ -194,7 +198,8 @@ pub fn context_menu_item(ui: &mut Ui, theme: &Theme, props: ContextMenuItemProps
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
     if ui.is_rect_visible(rect) {
-        let visuals = if props.disabled {
+        // Note: visuals could be used for additional styling if needed
+        let _visuals = if props.disabled {
             ui.visuals().widgets.inactive
         } else if response.hovered() {
             ui.visuals().widgets.hovered
@@ -204,10 +209,15 @@ pub fn context_menu_item(ui: &mut Ui, theme: &Theme, props: ContextMenuItemProps
 
         // Background on hover
         if response.hovered() && !props.disabled {
-            ui.painter().rect_filled(rect, tokens.item_rounding, hover_bg);
+            ui.painter()
+                .rect_filled(rect, tokens.item_rounding, hover_bg);
         }
 
-        let opacity = if props.disabled { tokens.disabled_opacity } else { 1.0 };
+        let opacity = if props.disabled {
+            tokens.disabled_opacity
+        } else {
+            1.0
+        };
 
         // Icon area (if inset)
         let text_start_x = rect.left() + tokens.item_padding.left as f32 + inset_padding;
@@ -239,7 +249,10 @@ pub fn context_menu_item(ui: &mut Ui, theme: &Theme, props: ContextMenuItemProps
 
         // Shortcut
         if let Some(shortcut) = props.shortcut {
-            let shortcut_pos = egui::pos2(rect.right() - tokens.item_padding.right as f32, rect.center().y);
+            let shortcut_pos = egui::pos2(
+                rect.right() - tokens.item_padding.right as f32,
+                rect.center().y,
+            );
             ui.painter().text(
                 shortcut_pos,
                 egui::Align2::RIGHT_CENTER,
@@ -274,10 +287,15 @@ pub fn context_menu_checkbox_item(
 
     if ui.is_rect_visible(rect) {
         if response.hovered() && !props.disabled {
-            ui.painter().rect_filled(rect, tokens.item_rounding, tokens.hover_bg);
+            ui.painter()
+                .rect_filled(rect, tokens.item_rounding, tokens.hover_bg);
         }
 
-        let opacity = if props.disabled { tokens.disabled_opacity } else { 1.0 };
+        let opacity = if props.disabled {
+            tokens.disabled_opacity
+        } else {
+            1.0
+        };
 
         // Checkbox indicator area
         let check_rect = egui::Rect::from_min_size(
@@ -332,17 +350,23 @@ pub fn context_menu_radio_item(
 
     if ui.is_rect_visible(rect) {
         if response.hovered() && !props.disabled {
-            ui.painter().rect_filled(rect, tokens.item_rounding, tokens.hover_bg);
+            ui.painter()
+                .rect_filled(rect, tokens.item_rounding, tokens.hover_bg);
         }
 
-        let opacity = if props.disabled { tokens.disabled_opacity } else { 1.0 };
+        let opacity = if props.disabled {
+            tokens.disabled_opacity
+        } else {
+            1.0
+        };
 
         // Radio indicator area
         let radio_center = egui::pos2(rect.left() + 15.0, rect.center().y);
 
         if is_selected {
             // Draw filled circle
-            ui.painter().circle_filled(radio_center, 4.0, tokens.text.gamma_multiply(opacity));
+            ui.painter()
+                .circle_filled(radio_center, 4.0, tokens.text.gamma_multiply(opacity));
         }
 
         // Label
@@ -367,7 +391,11 @@ pub fn context_menu_radio_item(
 // Label
 // ============================================================================
 
-pub fn context_menu_label(ui: &mut Ui, theme: &Theme, props: ContextMenuLabelProps<'_>) -> Response {
+pub fn context_menu_label(
+    ui: &mut Ui,
+    theme: &Theme,
+    props: ContextMenuLabelProps<'_>,
+) -> Response {
     let tokens = context_menu_tokens(theme);
     let inset_padding = if props.inset { 24.0 } else { 0.0 };
 
@@ -422,11 +450,11 @@ pub fn context_menu_shortcut(ui: &mut Ui, theme: &Theme, text: &str) -> Response
     );
     let desired_size = galley.size();
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
-    
+
     if ui.is_rect_visible(rect) {
         ui.painter().galley(rect.min, galley, tokens.text_muted);
     }
-    
+
     response
 }
 
@@ -478,10 +506,15 @@ pub fn context_menu_sub<R>(
 
     if ui.is_rect_visible(rect) {
         if is_open {
-            ui.painter().rect_filled(rect, tokens.item_rounding, tokens.hover_bg);
+            ui.painter()
+                .rect_filled(rect, tokens.item_rounding, tokens.hover_bg);
         }
 
-        let opacity = if props.disabled { tokens.disabled_opacity } else { 1.0 };
+        let opacity = if props.disabled {
+            tokens.disabled_opacity
+        } else {
+            1.0
+        };
 
         // Label
         let label_pos = egui::pos2(
@@ -556,11 +589,7 @@ pub fn context_menu_sub<R>(
 ///     }
 /// });
 /// ```
-pub fn context_menu<R>(
-    response: &Response,
-    theme: &Theme,
-    add_contents: impl FnOnce(&mut Ui) -> R,
-) -> Option<R> {
+pub fn context_menu(response: &Response, theme: &Theme, add_contents: impl FnOnce(&mut Ui)) {
     let tokens = context_menu_tokens(theme);
 
     response.context_menu(|ui| {
@@ -568,9 +597,9 @@ pub fn context_menu<R>(
         ui.visuals_mut().override_text_color = Some(tokens.text);
         ui.spacing_mut().item_spacing = Vec2::new(0.0, 2.0);
         ui.set_min_width(tokens.min_width);
-        
-        add_contents(ui)
-    }).map(|inner| inner.inner)
+
+        add_contents(ui);
+    });
 }
 
 // ============================================================================
@@ -592,7 +621,7 @@ impl<'a> ContextMenuRadioGroupProps<'a> {
 /// Returns the selected value if changed.
 pub fn context_menu_radio_group<'a, R>(
     ui: &mut Ui,
-    theme: &Theme,
+    _theme: &Theme,
     value: &'a str,
     add_contents: impl FnOnce(&mut Ui, &'a str) -> R,
 ) -> R {

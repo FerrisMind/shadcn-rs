@@ -10,9 +10,7 @@ mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::CentralPanel;
-use egui_shadcn::{
-    alert, AlertProps, AlertVariant, Theme,
-};
+use egui_shadcn::{AlertProps, AlertVariant, Theme, alert};
 
 struct AlertExample {
     theme: Theme,
@@ -35,31 +33,51 @@ impl App for AlertExample {
             ui.add_space(16.0);
 
             ui.label("Default Alert:");
-            alert(ui, &self.theme, AlertProps::new("This is a default alert message."));
+            alert(
+                ui,
+                &self.theme,
+                AlertProps::new("This is a default alert message."),
+            );
             ui.add_space(12.0);
 
             ui.label("Info Alert:");
-            alert(ui, &self.theme, AlertProps::new("Heads up! This is an informational message.")
-                .variant(AlertVariant::Info)
-                .title("Info"));
+            alert(
+                ui,
+                &self.theme,
+                AlertProps::new("Heads up! This is an informational message.")
+                    .variant(AlertVariant::Info)
+                    .title("Info"),
+            );
             ui.add_space(12.0);
 
             ui.label("Success Alert:");
-            alert(ui, &self.theme, AlertProps::new("Your changes have been saved successfully.")
-                .variant(AlertVariant::Success)
-                .title("Success"));
+            alert(
+                ui,
+                &self.theme,
+                AlertProps::new("Your changes have been saved successfully.")
+                    .variant(AlertVariant::Success)
+                    .title("Success"),
+            );
             ui.add_space(12.0);
 
             ui.label("Warning Alert:");
-            alert(ui, &self.theme, AlertProps::new("Please review your settings before continuing.")
-                .variant(AlertVariant::Warning)
-                .title("Warning"));
+            alert(
+                ui,
+                &self.theme,
+                AlertProps::new("Please review your settings before continuing.")
+                    .variant(AlertVariant::Warning)
+                    .title("Warning"),
+            );
             ui.add_space(12.0);
 
             ui.label("Destructive Alert:");
-            alert(ui, &self.theme, AlertProps::new("This action cannot be undone. Data will be permanently deleted.")
-                .variant(AlertVariant::Destructive)
-                .title("Error"));
+            alert(
+                ui,
+                &self.theme,
+                AlertProps::new("This action cannot be undone. Data will be permanently deleted.")
+                    .variant(AlertVariant::Destructive)
+                    .title("Error"),
+            );
         });
     }
 }

@@ -83,11 +83,11 @@ pub use popover::{
     PopoverAlign, PopoverCollisionPadding, PopoverPlacement, PopoverPortalContainer, PopoverProps,
     PopoverSide, PopoverSticky, PopoverUpdatePositionStrategy, popover,
 };
+pub use progress::{ProgressProps, ProgressSize, ProgressVariant, progress};
 pub use radio::{
     GridLayout, RadioCardVariant, RadioDirection, RadioGroup, RadioGroupProps, RadioOption,
     radio_group,
 };
-pub use progress::{ProgressProps, ProgressSize, ProgressVariant, progress};
 pub use resizable::{
     ResizableContext, ResizableDirection, ResizableHandleProps, ResizablePanelGroupProps,
     ResizablePanelProps, resizable_handle, resizable_panel, resizable_panel_group,

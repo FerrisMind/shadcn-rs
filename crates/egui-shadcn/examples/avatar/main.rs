@@ -10,9 +10,7 @@ mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::{CentralPanel, Color32};
-use egui_shadcn::{
-    avatar, AvatarProps, AvatarSize, AvatarVariant, Theme,
-};
+use egui_shadcn::{AvatarProps, AvatarSize, AvatarVariant, Theme, avatar};
 
 struct AvatarExample {
     theme: Theme,
@@ -36,43 +34,118 @@ impl App for AvatarExample {
 
             ui.label("Sizes (1-9):");
             ui.horizontal(|ui| {
-                avatar(ui, &self.theme, AvatarProps::new("S1").size(AvatarSize::Size1));
-                avatar(ui, &self.theme, AvatarProps::new("S2").size(AvatarSize::Size2));
-                avatar(ui, &self.theme, AvatarProps::new("S3").size(AvatarSize::Size3));
-                avatar(ui, &self.theme, AvatarProps::new("S4").size(AvatarSize::Size4));
-                avatar(ui, &self.theme, AvatarProps::new("S5").size(AvatarSize::Size5));
-                avatar(ui, &self.theme, AvatarProps::new("S6").size(AvatarSize::Size6));
-                avatar(ui, &self.theme, AvatarProps::new("S7").size(AvatarSize::Size7));
-                avatar(ui, &self.theme, AvatarProps::new("S8").size(AvatarSize::Size8));
-                avatar(ui, &self.theme, AvatarProps::new("S9").size(AvatarSize::Size9));
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S1").size(AvatarSize::Size1),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S2").size(AvatarSize::Size2),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S3").size(AvatarSize::Size3),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S4").size(AvatarSize::Size4),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S5").size(AvatarSize::Size5),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S6").size(AvatarSize::Size6),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S7").size(AvatarSize::Size7),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S8").size(AvatarSize::Size8),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("S9").size(AvatarSize::Size9),
+                );
             });
 
             ui.add_space(16.0);
             ui.label("Soft variant (default):");
             ui.horizontal(|ui| {
-                avatar(ui, &self.theme, AvatarProps::new("JD").size(AvatarSize::Size5));
-                avatar(ui, &self.theme, AvatarProps::new("AB").size(AvatarSize::Size5)
-                    .color(Color32::from_rgb(239, 68, 68)));
-                avatar(ui, &self.theme, AvatarProps::new("CD").size(AvatarSize::Size5)
-                    .color(Color32::from_rgb(34, 197, 94)));
-                avatar(ui, &self.theme, AvatarProps::new("EF").size(AvatarSize::Size5)
-                    .color(Color32::from_rgb(59, 130, 246)));
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("JD").size(AvatarSize::Size5),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("AB")
+                        .size(AvatarSize::Size5)
+                        .color(Color32::from_rgb(239, 68, 68)),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("CD")
+                        .size(AvatarSize::Size5)
+                        .color(Color32::from_rgb(34, 197, 94)),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("EF")
+                        .size(AvatarSize::Size5)
+                        .color(Color32::from_rgb(59, 130, 246)),
+                );
             });
 
             ui.add_space(16.0);
             ui.label("Solid variant:");
             ui.horizontal(|ui| {
-                avatar(ui, &self.theme, AvatarProps::new("JD").size(AvatarSize::Size5)
-                    .variant(AvatarVariant::Solid));
-                avatar(ui, &self.theme, AvatarProps::new("AB").size(AvatarSize::Size5)
-                    .variant(AvatarVariant::Solid)
-                    .color(Color32::from_rgb(239, 68, 68)));
-                avatar(ui, &self.theme, AvatarProps::new("CD").size(AvatarSize::Size5)
-                    .variant(AvatarVariant::Solid)
-                    .color(Color32::from_rgb(34, 197, 94)));
-                avatar(ui, &self.theme, AvatarProps::new("EF").size(AvatarSize::Size5)
-                    .variant(AvatarVariant::Solid)
-                    .color(Color32::from_rgb(59, 130, 246)));
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("JD")
+                        .size(AvatarSize::Size5)
+                        .variant(AvatarVariant::Solid),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("AB")
+                        .size(AvatarSize::Size5)
+                        .variant(AvatarVariant::Solid)
+                        .color(Color32::from_rgb(239, 68, 68)),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("CD")
+                        .size(AvatarSize::Size5)
+                        .variant(AvatarVariant::Solid)
+                        .color(Color32::from_rgb(34, 197, 94)),
+                );
+                avatar(
+                    ui,
+                    &self.theme,
+                    AvatarProps::new("EF")
+                        .size(AvatarSize::Size5)
+                        .variant(AvatarVariant::Solid)
+                        .color(Color32::from_rgb(59, 130, 246)),
+                );
             });
         });
     }

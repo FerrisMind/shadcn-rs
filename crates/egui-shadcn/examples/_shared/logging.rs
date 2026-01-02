@@ -33,4 +33,3 @@ pub fn init_file_logger(example_name: &str) -> io::Result<PathBuf> {
 
     Ok(path)
 }
-

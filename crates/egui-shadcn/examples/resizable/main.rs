@@ -13,8 +13,8 @@ mod screenshot;
 use eframe::{App, Frame, egui};
 use egui::{CentralPanel, Color32, RichText};
 use egui_shadcn::{
-    ResizableDirection, ResizableHandleProps, ResizablePanelGroupProps, ResizablePanelProps,
-    Theme, resizable_handle, resizable_panel, resizable_panel_group,
+    ResizableDirection, ResizableHandleProps, ResizablePanelGroupProps, ResizablePanelProps, Theme,
+    resizable_handle, resizable_panel, resizable_panel_group,
 };
 
 struct ResizableDemo {
@@ -54,15 +54,33 @@ impl App for ResizableDemo {
                     ResizablePanelGroupProps::new("horizontal-demo"),
                     &mut self.horizontal_sizes,
                     |ui, ctx| {
-                        resizable_panel(ui, ctx, ResizablePanelProps::new(50.0).min_size(20.0), 0, |ui| {
-                            panel_content(ui, "Left Panel", Color32::from_rgb(59, 130, 246));
-                        });
+                        resizable_panel(
+                            ui,
+                            ctx,
+                            ResizablePanelProps::new(50.0).min_size(20.0),
+                            0,
+                            |ui| {
+                                panel_content(ui, "Left Panel", Color32::from_rgb(59, 130, 246));
+                            },
+                        );
 
-                        resizable_handle(ui, &theme, ctx, ResizableHandleProps::new().with_handle(true), 0);
+                        resizable_handle(
+                            ui,
+                            &theme,
+                            ctx,
+                            ResizableHandleProps::new().with_handle(true),
+                            0,
+                        );
 
-                        resizable_panel(ui, ctx, ResizablePanelProps::new(50.0).min_size(20.0), 1, |ui| {
-                            panel_content(ui, "Right Panel", Color32::from_rgb(34, 197, 94));
-                        });
+                        resizable_panel(
+                            ui,
+                            ctx,
+                            ResizablePanelProps::new(50.0).min_size(20.0),
+                            1,
+                            |ui| {
+                                panel_content(ui, "Right Panel", Color32::from_rgb(34, 197, 94));
+                            },
+                        );
                     },
                 );
             });
@@ -85,7 +103,13 @@ impl App for ResizableDemo {
                             panel_content(ui, "Top Panel", Color32::from_rgb(168, 85, 247));
                         });
 
-                        resizable_handle(ui, &theme, ctx, ResizableHandleProps::new().with_handle(true), 0);
+                        resizable_handle(
+                            ui,
+                            &theme,
+                            ctx,
+                            ResizableHandleProps::new().with_handle(true),
+                            0,
+                        );
 
                         resizable_panel(ui, ctx, ResizablePanelProps::new(70.0), 1, |ui| {
                             panel_content(ui, "Bottom Panel", Color32::from_rgb(236, 72, 153));
@@ -97,16 +121,23 @@ impl App for ResizableDemo {
             ui.add_space(16.0);
 
             // Show current sizes
-            ui.label(format!("Horizontal sizes: {:.1}% / {:.1}%", self.horizontal_sizes[0], self.horizontal_sizes[1]));
-            ui.label(format!("Vertical sizes: {:.1}% / {:.1}%", self.vertical_sizes[0], self.vertical_sizes[1]));
+            ui.label(format!(
+                "Horizontal sizes: {:.1}% / {:.1}%",
+                self.horizontal_sizes[0], self.horizontal_sizes[1]
+            ));
+            ui.label(format!(
+                "Vertical sizes: {:.1}% / {:.1}%",
+                self.vertical_sizes[0], self.vertical_sizes[1]
+            ));
         });
     }
 }
 
 fn panel_content(ui: &mut egui::Ui, label: &str, color: Color32) {
     let rect = ui.available_rect_before_wrap();
-    ui.painter().rect_filled(rect, 4.0, color.gamma_multiply(0.2));
-    
+    ui.painter()
+        .rect_filled(rect, 4.0, color.gamma_multiply(0.2));
+
     ui.centered_and_justified(|ui| {
         ui.label(RichText::new(label).color(color).size(14.0).strong());
     });

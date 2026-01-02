@@ -15,7 +15,10 @@ fn init_logger() {
 #[test]
 fn resizable_direction_horizontal_is_default() {
     use egui_shadcn::ResizableDirection;
-    assert_eq!(ResizableDirection::default(), ResizableDirection::Horizontal);
+    assert_eq!(
+        ResizableDirection::default(),
+        ResizableDirection::Horizontal
+    );
 }
 
 #[test]
@@ -120,7 +123,7 @@ fn resizable_handle_props_with_grip() {
 #[test]
 fn resizable_panel_group_renders() {
     init_logger();
-    use egui_shadcn::{resizable_panel_group, ResizablePanelGroupProps};
+    use egui_shadcn::{ResizablePanelGroupProps, resizable_panel_group};
 
     let ctx = egui::Context::default();
     ctx.begin_pass(egui::RawInput::default());
@@ -147,8 +150,8 @@ fn resizable_panel_group_renders() {
 fn resizable_with_two_panels_renders() {
     init_logger();
     use egui_shadcn::{
-        resizable_handle, resizable_panel, resizable_panel_group, ResizableHandleProps,
-        ResizablePanelGroupProps, ResizablePanelProps,
+        ResizableHandleProps, ResizablePanelGroupProps, ResizablePanelProps, resizable_handle,
+        resizable_panel, resizable_panel_group,
     };
 
     let ctx = egui::Context::default();

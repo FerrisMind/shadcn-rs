@@ -40,8 +40,7 @@ impl TypographyDemo {
         let row_h = 28.0;
         let border = egui::Stroke::new(1.0, self.theme.palette.border);
 
-        let paint_row =
-            |ui: &mut egui::Ui, cells: [(&str, bool); 2], background: egui::Color32| {
+        let paint_row = |ui: &mut egui::Ui, cells: [(&str, bool); 2], background: egui::Color32| {
             ui.horizontal(|ui| {
                 for (text_value, bold) in cells {
                     let (rect, _) =
@@ -312,6 +311,3 @@ fn main() -> eframe::Result<()> {
         Box::new(|_cc| Ok(Box::new(TypographyDemo::new()))),
     )
 }
-
-
-
