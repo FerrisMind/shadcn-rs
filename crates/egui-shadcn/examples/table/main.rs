@@ -9,7 +9,7 @@ mod icon;
 mod screenshot;
 
 use eframe::{App, Frame, egui};
-use egui::{Align, CentralPanel, Label, Layout, RichText};
+use egui::{Align, CentralPanel, Layout, RichText};
 use egui_shadcn::{
     TableCellProps, TableProps, TableRowProps, Theme, table, table_body, table_caption, table_cell,
     table_footer, table_head, table_header, table_row,
@@ -96,10 +96,8 @@ impl App for TableExample {
                         TableRowProps::new("header").hoverable(false),
                         |ui| {
                             table_head(ui, ctx, TableCellProps::new(), |ui| {
-                                ui.add_sized(
-                                    [100.0, 0.0],
-                                    Label::new(RichText::new("Invoice").strong()),
-                                );
+                                ui.set_min_width(100.0);
+                                ui.label(RichText::new("Invoice").strong());
                             });
                             table_head(ui, ctx, TableCellProps::new(), |ui| {
                                 ui.label(RichText::new("Status").strong());
@@ -120,10 +118,8 @@ impl App for TableExample {
                     for invoice in INVOICES.iter() {
                         table_row(ui, ctx, TableRowProps::new(invoice.invoice), |ui| {
                             table_cell(ui, ctx, TableCellProps::new(), |ui| {
-                                ui.add_sized(
-                                    [100.0, 0.0],
-                                    Label::new(RichText::new(invoice.invoice).strong()),
-                                );
+                                ui.set_min_width(100.0);
+                                ui.label(RichText::new(invoice.invoice).strong());
                             });
                             table_cell(ui, ctx, TableCellProps::new(), |ui| {
                                 ui.label(invoice.payment_status);
@@ -147,6 +143,7 @@ impl App for TableExample {
                         TableRowProps::new("footer").hoverable(false),
                         |ui| {
                             table_cell(ui, ctx, TableCellProps::new(), |ui| {
+                                ui.set_min_width(100.0);
                                 ui.label(RichText::new("Total").strong());
                             });
                             table_cell(ui, ctx, TableCellProps::new(), |ui| {
