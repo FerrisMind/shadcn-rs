@@ -55,6 +55,8 @@ pub enum ButtonRadius {
     Large,
 
     Full,
+
+    Custom(CornerRadius),
 }
 
 impl ButtonRadius {
@@ -65,6 +67,7 @@ impl ButtonRadius {
             ButtonRadius::Medium => CornerRadius::same(8),
             ButtonRadius::Large => CornerRadius::same(12),
             ButtonRadius::Full => CornerRadius::same(255),
+            ButtonRadius::Custom(r) => r,
         }
     }
 }

@@ -7,6 +7,7 @@ pub mod avatar;
 pub mod badge;
 pub mod breadcrumb;
 pub mod button;
+pub mod button_group;
 pub mod calendar;
 pub mod card;
 pub mod checkbox;
@@ -33,6 +34,7 @@ pub mod resizable;
 pub mod scroll_area;
 pub mod select;
 pub mod separator;
+pub mod sidebar;
 pub mod skeleton;
 pub mod slider;
 pub mod spinner;
@@ -43,6 +45,7 @@ pub mod textarea;
 pub mod theme;
 pub mod toast;
 pub mod toggle;
+pub mod toggle_group;
 pub mod tokens;
 pub mod tooltip;
 pub mod typography;
@@ -64,6 +67,7 @@ pub use button::{
     Button, ButtonJustify, ButtonProps, ButtonRadius, ButtonSize, ButtonStyle, ButtonVariant,
     button,
 };
+pub use button_group::{ButtonGroup, ButtonGroupOrientation, button_group};
 pub use calendar::{
     CalendarCaptionLayout, CalendarMode, CalendarProps, calendar, calendar_with_props,
 };
@@ -160,6 +164,13 @@ pub use select::{
     select_with_items,
 };
 pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separator};
+pub use sidebar::{
+    SidebarContext, SidebarGroupLabelProps, SidebarGroupProps, SidebarMenuButtonProps,
+    SidebarMenuButtonSize, SidebarProps, SidebarProviderProps, SidebarResponse, SidebarSide,
+    sidebar, sidebar_content, sidebar_footer, sidebar_group, sidebar_group_content,
+    sidebar_group_label, sidebar_header, sidebar_menu, sidebar_menu_button, sidebar_menu_item,
+    sidebar_provider, sidebar_trigger,
+};
 pub use skeleton::{SkeletonProps, skeleton, skeleton_text};
 pub use slider::{
     SliderOrientation, SliderProps, SliderRadius, SliderSize, SliderVariant, slider,
@@ -185,6 +196,7 @@ pub use textarea::{
 pub use theme::{ControlVisuals, InputVisuals, Theme};
 pub use toast::{Toast, ToastPosition, ToastPromise, ToastVariant, Toaster};
 pub use toggle::toggle;
+pub use toggle_group::{ToggleGroupContext, ToggleGroupProps, toggle_group, toggle_group_item};
 pub use tokens::{
     ColorPalette, ControlSize, ControlVariant, DEFAULT_FOCUS, DEFAULT_MOTION, DEFAULT_RADIUS,
     FocusTokens, InputTokens, InputVariant as TokenInputVariant, MotionTokens, RadiusScale,
