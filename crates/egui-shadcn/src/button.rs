@@ -353,7 +353,7 @@ impl ButtonStyle {
                 }
             }
             ButtonVariant::Outline => {
-                outline_variant_style(palette, palette.accent, palette.border)
+                outline_variant_style(palette, palette.accent, palette.input)
             }
             ButtonVariant::Secondary => Self {
                 bg: palette.secondary,
@@ -475,21 +475,48 @@ impl ButtonStyle {
 
 fn outline_variant_style(
     palette: &ColorPalette,
-    accent: Color32,
-    border_color: Color32,
+    _accent: Color32,
+    _border_color: Color32,
 ) -> ButtonStyle {
     let focus_ring =
         Color32::from_rgba_unmultiplied(palette.ring.r(), palette.ring.g(), palette.ring.b(), 128);
-    let accent_text = compute_contrast_color(accent, palette);
+    
+    // Согласно Radix UI Themes (референс для shadcn/ui):
+    // - Фон прозрачный
+    // - Border: на основе accent цвета с alpha ~50% (accent-a8 в Radix)
+    // - Текст: foreground цвет
+    // - Hover: заметный полупрозрачный фон
+    let bg_transparent = Color32::TRANSPARENT;
+    let bg_hover_subtle = Color32::from_rgba_unmultiplied(
+        palette.foreground.r(),
+        palette.foreground.g(),
+        palette.foreground.b(),
+        55, // ~10% непрозрачности для заметного hover
+    );
+    let bg_active_subtle = Color32::from_rgba_unmultiplied(
+        palette.foreground.r(),
+        palette.foreground.g(),
+        palette.foreground.b(),
+        68, // ~15% непрозрачности для active
+    );
+    
+    // Граница на основе foreground с хорошей видимостью (~50% альфа)
+    let border_visible = Color32::from_rgba_unmultiplied(
+        palette.foreground.r(),
+        palette.foreground.g(),
+        palette.foreground.b(),
+        128, // 50% непрозрачности для хорошей видимости
+    );
+    
     ButtonStyle {
-        bg: palette.background,
-        bg_hover: accent,
-        bg_active: accent,
-        text: accent_text,
-        text_hover: accent_text,
-        text_active: accent_text,
-        border: border_color,
-        border_hover: accent,
+        bg: bg_transparent,
+        bg_hover: bg_hover_subtle,
+        bg_active: bg_active_subtle,
+        text: palette.foreground,
+        text_hover: palette.foreground,
+        text_active: palette.foreground,
+        border: border_visible,
+        border_hover: border_visible,
         focus_ring,
         disabled_opacity: 0.5,
         rounding: CornerRadius::same(8),
