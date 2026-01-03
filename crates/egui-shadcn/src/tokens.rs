@@ -1487,23 +1487,73 @@ pub fn toggle_button_tokens(palette: &ColorPalette, variant: ToggleVariant) -> T
             disabled,
         },
         ToggleVariant::Outline => {
-            let border = Stroke::new(1.0, palette.border);
+            // Согласно Radix UI Themes: видимая граница на основе foreground, полупрозрачный hover
+            let border_visible = Stroke::new(
+                1.0,
+                Color32::from_rgba_unmultiplied(
+                    palette.foreground.r(),
+                    palette.foreground.g(),
+                    palette.foreground.b(),
+                    128, // 50% непрозрачности для хорошей видимости
+                ),
+            );
+            let bg_hover = Color32::from_rgba_unmultiplied(
+                palette.foreground.r(),
+                palette.foreground.g(),
+                palette.foreground.b(),
+                55, // ~21% непрозрачности для заметного hover
+            );
+            let bg_active = Color32::from_rgba_unmultiplied(
+                palette.foreground.r(),
+                palette.foreground.g(),
+                palette.foreground.b(),
+                68, // ~27% непрозрачности для active
+            );
+
             VariantTokens {
-                idle: StateColors::with_border(Color32::TRANSPARENT, palette.foreground, border),
+                idle: StateColors::with_border(
+                    Color32::TRANSPARENT,
+                    palette.foreground,
+                    border_visible,
+                ),
+                hovered: StateColors::with_border(bg_hover, palette.foreground, border_visible),
+                active: StateColors::with_border(bg_active, palette.foreground, border_visible),
+                disabled,
+            }
+        }
+    };
+    let on = match variant {
+        ToggleVariant::Default => accent_tokens(palette),
+        ToggleVariant::Outline => {
+            // Для Outline в состоянии ON: сохраняем видимую границу, но делаем фон accent
+            let border_visible = Stroke::new(
+                1.0,
+                Color32::from_rgba_unmultiplied(
+                    palette.foreground.r(),
+                    palette.foreground.g(),
+                    palette.foreground.b(),
+                    128,
+                ),
+            );
+            let bg_on = palette.accent;
+            let bg_on_hover = mix(palette.accent, Color32::WHITE, 0.08);
+            let bg_on_active = mix(palette.accent, palette.foreground, 0.12);
+
+            VariantTokens {
+                idle: StateColors::with_border(bg_on, palette.accent_foreground, border_visible),
                 hovered: StateColors::with_border(
-                    palette.accent,
+                    bg_on_hover,
                     palette.accent_foreground,
-                    Stroke::new(border.width, palette.accent),
+                    border_visible,
                 ),
                 active: StateColors::with_border(
-                    mix(palette.accent, palette.foreground, 0.12),
+                    bg_on_active,
                     palette.accent_foreground,
-                    Stroke::new(border.width, mix(palette.accent, palette.foreground, 0.12)),
+                    border_visible,
                 ),
                 disabled,
             }
         }
     };
-    let on = accent_tokens(palette);
     ToggleButtonTokens { off, on }
 }

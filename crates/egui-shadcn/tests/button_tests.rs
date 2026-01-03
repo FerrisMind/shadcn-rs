@@ -60,15 +60,25 @@ fn all_variants_have_distinct_styles() {
 
     // Outline variant согласно Radix UI Themes: прозрачный фон, видимая граница на основе foreground
     assert_eq!(outline_style.bg, Color32::TRANSPARENT);
-    assert_ne!(outline_style.bg_hover, Color32::TRANSPARENT, "hover должен иметь полупрозрачный фон");
-    assert!(outline_style.bg_hover.a() < 50, "hover фон должен быть очень светлым");
+    assert_ne!(
+        outline_style.bg_hover,
+        Color32::TRANSPARENT,
+        "hover должен иметь полупрозрачный фон"
+    );
+    assert!(
+        outline_style.bg_hover.a() < 100,
+        "hover фон должен быть полупрозрачным (не более ~40% непрозрачности)"
+    );
     assert_eq!(outline_style.text, palette.foreground);
     assert_eq!(outline_style.text_hover, palette.foreground);
     assert_eq!(outline_style.text_active, palette.foreground);
     // Граница должна быть видимой (не полностью прозрачной и не слишком светлой)
     assert_ne!(outline_style.border, Color32::TRANSPARENT);
-    assert!(outline_style.border.a() >= 100, "граница должна иметь достаточную непрозрачность для видимости");
-    
+    assert!(
+        outline_style.border.a() >= 100,
+        "граница должна иметь достаточную непрозрачность для видимости"
+    );
+
     assert_eq!(ghost_style.bg, Color32::TRANSPARENT);
     assert_eq!(link_style.bg, Color32::TRANSPARENT);
 

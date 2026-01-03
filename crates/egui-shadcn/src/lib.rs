@@ -200,7 +200,9 @@ pub use textarea::{
 pub use theme::{ControlVisuals, InputVisuals, Theme};
 pub use toast::{Toast, ToastPosition, ToastPromise, ToastVariant, Toaster};
 pub use toggle::toggle;
-pub use toggle_group::{ToggleGroupContext, ToggleGroupProps, toggle_group, toggle_group_item};
+pub use toggle_group::{
+    ToggleGroupContext, ToggleGroupProps, toggle_group, toggle_group_item, toggle_group_item_last,
+};
 pub use tokens::{
     ColorPalette, ControlSize, ControlVariant, DEFAULT_FOCUS, DEFAULT_MOTION, DEFAULT_RADIUS,
     FocusTokens, InputTokens, InputVariant as TokenInputVariant, MotionTokens, RadiusScale,
