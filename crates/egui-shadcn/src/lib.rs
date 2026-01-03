@@ -23,6 +23,7 @@ pub mod form;
 pub mod hover_card;
 pub mod icons;
 pub mod input;
+pub mod input_otp;
 pub mod label;
 pub mod menu_primitives;
 pub mod navigation_menu;
@@ -122,6 +123,9 @@ pub use icons::{icon_calendar, icon_check, icon_chevrons_up_down};
 pub use input::{
     Input, InputConfig, InputProps, InputRadius, InputSize, InputStyle, InputType, InputVariant,
     resolve_input_style, text_input, text_input_with_config, text_input_with_props,
+};
+pub use input_otp::{
+    InputOTPContext, InputOTPProps, input_otp, input_otp_group, input_otp_separator, input_otp_slot,
 };
 pub use label::{Label, LabelProps, LabelVariant, label, label_with_props};
 pub use menu_primitives::{
