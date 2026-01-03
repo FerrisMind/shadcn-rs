@@ -13,6 +13,7 @@ pub mod collapsible;
 pub mod combobox;
 pub mod command;
 pub mod context_menu;
+pub mod data_table;
 pub mod date_picker;
 pub mod dialog;
 pub mod dropdown_menu;
@@ -76,6 +77,10 @@ pub use context_menu::{
     ContextMenuSubProps, ContextMenuTokens, context_menu, context_menu_checkbox_item,
     context_menu_item, context_menu_label, context_menu_radio_group, context_menu_radio_item,
     context_menu_separator, context_menu_shortcut, context_menu_sub, context_menu_tokens,
+};
+pub use data_table::{
+    DataTableAlign, DataTableColumn, DataTableProps, DataTableResponse, SortDirection, SortValue,
+    data_table,
 };
 pub use date_picker::{
     DatePickerIconPosition, DatePickerProps, DateRange, DateRangePickerProps, date_picker,
