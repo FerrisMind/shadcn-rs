@@ -19,6 +19,7 @@ pub mod date_picker;
 pub mod dialog;
 pub mod dropdown_menu;
 pub mod form;
+pub mod hover_card;
 pub mod icons;
 pub mod input;
 pub mod label;
@@ -111,6 +112,7 @@ pub use form::{
     FormState, ValidationMode, Validator, compose, email, form_control, form_description,
     form_item, form_label, form_message, max_length, min_length, none, pattern, required,
 };
+pub use hover_card::{HoverCardProps, hover_card, hover_card_content, hover_card_trigger};
 pub use icons::{icon_calendar, icon_check, icon_chevrons_up_down};
 pub use input::{
     Input, InputConfig, InputProps, InputRadius, InputSize, InputStyle, InputType, InputVariant,
