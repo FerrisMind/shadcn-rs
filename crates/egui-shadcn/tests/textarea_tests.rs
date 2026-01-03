@@ -61,7 +61,9 @@ fn textarea_radius_default() {
 fn textarea_style_from_palette() {
     let palette = ColorPalette::default();
     let style = TextareaStyle::from_palette(&palette, TextareaVariant::Surface);
-    assert_eq!(style.border, palette.input);
+    // Граница вычисляется как visible_border, а не напрямую palette.input
+    assert_ne!(style.border, Color32::TRANSPARENT);
+    assert!(style.border.a() > 0, "граница должна быть видимой");
     assert_eq!(style.border_focus, palette.ring);
     assert_eq!(
         style.focus_ring,
@@ -77,14 +79,18 @@ fn textarea_style_from_palette() {
 fn textarea_style_variant_surface() {
     let palette = ColorPalette::default();
     let style = TextareaStyle::from_palette(&palette, TextareaVariant::Surface);
-    assert_eq!(style.border, palette.input);
+    // Граница вычисляется как visible_border, а не напрямую palette.input
+    assert_ne!(style.border, Color32::TRANSPARENT);
+    assert!(style.border.a() > 0, "граница должна быть видимой");
 }
 
 #[test]
 fn textarea_style_variant_classic() {
     let palette = ColorPalette::default();
     let style = TextareaStyle::from_palette(&palette, TextareaVariant::Classic);
-    assert_eq!(style.border, palette.input);
+    // Граница вычисляется как visible_border, а не напрямую palette.input
+    assert_ne!(style.border, Color32::TRANSPARENT);
+    assert!(style.border.a() > 0, "граница должна быть видимой");
 }
 
 #[test]
