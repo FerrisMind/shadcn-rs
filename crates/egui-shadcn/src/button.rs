@@ -352,9 +352,7 @@ impl ButtonStyle {
                     rounding: CornerRadius::same(8),
                 }
             }
-            ButtonVariant::Outline => {
-                outline_variant_style(palette, palette.accent, palette.input)
-            }
+            ButtonVariant::Outline => outline_variant_style(palette, palette.accent, palette.input),
             ButtonVariant::Secondary => Self {
                 bg: palette.secondary,
                 bg_hover: mix(palette.secondary, Color32::WHITE, 0.08),
@@ -480,7 +478,7 @@ fn outline_variant_style(
 ) -> ButtonStyle {
     let focus_ring =
         Color32::from_rgba_unmultiplied(palette.ring.r(), palette.ring.g(), palette.ring.b(), 128);
-    
+
     // Согласно Radix UI Themes (референс для shadcn/ui):
     // - Фон прозрачный
     // - Border: на основе accent цвета с alpha ~50% (accent-a8 в Radix)
@@ -499,7 +497,7 @@ fn outline_variant_style(
         palette.foreground.b(),
         68, // ~15% непрозрачности для active
     );
-    
+
     // Граница на основе foreground с хорошей видимостью (~50% альфа)
     let border_visible = Color32::from_rgba_unmultiplied(
         palette.foreground.r(),
@@ -507,7 +505,7 @@ fn outline_variant_style(
         palette.foreground.b(),
         128, // 50% непрозрачности для хорошей видимости
     );
-    
+
     ButtonStyle {
         bg: bg_transparent,
         bg_hover: bg_hover_subtle,

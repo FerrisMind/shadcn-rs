@@ -92,16 +92,16 @@ pub fn input_otp(
         for event in events {
             match event {
                 Event::Text(text) | Event::Paste(text) => {
-                    if !text.is_empty() {
-                        if apply_text(
+                    if !text.is_empty()
+                        && apply_text(
                             &mut chars,
                             &mut cursor,
                             &text,
                             props.max_length,
                             props.pattern,
-                        ) {
-                            changed = true;
-                        }
+                        )
+                    {
+                        changed = true;
                     }
                 }
                 Event::Key {
@@ -121,9 +121,7 @@ pub fn input_otp(
                         }
                     }
                     Key::ArrowLeft => {
-                        if cursor > 0 {
-                            cursor -= 1;
-                        }
+                        cursor = cursor.saturating_sub(1);
                     }
                     Key::ArrowRight => {
                         if cursor < chars.len().min(props.max_length) {
@@ -147,10 +145,11 @@ pub fn input_otp(
         }
     }
 
-    if changed && chars.len() == props.max_length {
-        if let Some(cb) = props.on_complete.as_mut() {
-            (cb.0)(value.as_str());
-        }
+    if changed
+        && chars.len() == props.max_length
+        && let Some(cb) = props.on_complete.as_mut()
+    {
+        (cb.0)(value.as_str());
     }
 
     ui.ctx().data_mut(|d| d.insert_temp(id, state));

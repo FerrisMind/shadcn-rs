@@ -23,6 +23,20 @@ pub fn toggle(
     size: ControlSize,
     enabled: bool,
 ) -> Response {
+    toggle_with_radius(ui, theme, on, label, variant, size, enabled, None)
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn toggle_with_radius(
+    ui: &mut Ui,
+    theme: &Theme,
+    on: &mut bool,
+    label: impl Into<WidgetText>,
+    variant: ToggleVariant,
+    size: ControlSize,
+    enabled: bool,
+    custom_radius: Option<egui::epaint::CornerRadius>,
+) -> Response {
     trace!(
         "Rendering toggle(button) variant={:?} size={:?} enabled={}",
         variant, size, enabled
@@ -59,7 +73,8 @@ pub fn toggle(
         active: lerp_state(&tokens.off.active, &tokens.on.active),
         disabled: disabled_blended,
     };
-    let widgets = crate::theme::widgets_from_variant(&blended, size.rounding(), size.expansion());
+    let rounding = custom_radius.unwrap_or_else(|| size.rounding());
+    let widgets = crate::theme::widgets_from_variant(&blended, rounding, size.expansion());
 
     theme.scoped(ui, widgets, |scoped_ui| {
         let mut style = scoped_ui.style().as_ref().clone();

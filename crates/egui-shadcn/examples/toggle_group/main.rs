@@ -10,6 +10,7 @@ use eframe::{App, Frame, egui};
 use egui::{FontData, FontDefinitions, FontFamily, FontId, RichText, vec2};
 use egui_shadcn::{
     ControlSize, Theme, ToggleGroupProps, ToggleVariant, toggle_group, toggle_group_item,
+    toggle_group_item_last,
 };
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
@@ -49,6 +50,11 @@ struct ToggleGroupDemo {
     lg_bold: bool,
     lg_italic: bool,
     lg_underline: bool,
+
+    // Custom spacing state
+    spacing_bold: bool,
+    spacing_italic: bool,
+    spacing_underline: bool,
 }
 
 impl ToggleGroupDemo {
@@ -71,6 +77,9 @@ impl ToggleGroupDemo {
             lg_bold: false,
             lg_italic: true,
             lg_underline: false,
+            spacing_bold: false,
+            spacing_italic: true,
+            spacing_underline: false,
         }
     }
 }
@@ -138,7 +147,7 @@ impl App for ToggleGroupDemo {
                                 &mut self.multi_italic,
                                 lucide_icon(Icon::Italic, 16.0),
                             );
-                            toggle_group_item(
+                            toggle_group_item_last(
                                 ui,
                                 &self.theme,
                                 ctx,
@@ -171,7 +180,7 @@ impl App for ToggleGroupDemo {
                                     &mut self.outline_italic,
                                     lucide_icon(Icon::Italic, 16.0),
                                 );
-                                toggle_group_item(
+                                toggle_group_item_last(
                                     ui,
                                     &self.theme,
                                     ctx,
@@ -221,7 +230,7 @@ impl App for ToggleGroupDemo {
 
                             let mut underline_on =
                                 self.single_value == Some(InlineChoice::Underline);
-                            if toggle_group_item(
+                            if toggle_group_item_last(
                                 ui,
                                 &self.theme,
                                 ctx,
@@ -264,7 +273,7 @@ impl App for ToggleGroupDemo {
                                     &mut self.sm_italic,
                                     lucide_icon(Icon::Italic, 14.0),
                                 );
-                                toggle_group_item(
+                                toggle_group_item_last(
                                     ui,
                                     &self.theme,
                                     ctx,
@@ -298,7 +307,7 @@ impl App for ToggleGroupDemo {
                                     &mut self.lg_italic,
                                     lucide_icon(Icon::Italic, 20.0),
                                 );
-                                toggle_group_item(
+                                toggle_group_item_last(
                                     ui,
                                     &self.theme,
                                     ctx,
@@ -313,13 +322,6 @@ impl App for ToggleGroupDemo {
                     example_card(grid, "Disabled (Simulated)", |ui| {
                         ui.add_enabled_ui(false, |ui| {
                             toggle_group(ui, ToggleGroupProps::default(), |ui, ctx| {
-                                // Note: toggle_group_item enables explicitly via true in impl
-                                // I need to update toggle_group_item to take enabled or use ui.is_enabled()
-                                // For now, I'll rely on ui.add_enabled_ui wrapper if the component respects it.
-                                // But toggle implementation hardcodes `true` for enabled.
-                                // I should fix toggle_group_item to respect ui.is_enabled() or take a parameter.
-                                // Let's modify toggle_group_item to check ui.is_enabled().
-
                                 toggle_group_item(
                                     ui,
                                     &self.theme,
@@ -334,7 +336,7 @@ impl App for ToggleGroupDemo {
                                     &mut self.disabled_italic,
                                     lucide_icon(Icon::Italic, 16.0),
                                 );
-                                toggle_group_item(
+                                toggle_group_item_last(
                                     ui,
                                     &self.theme,
                                     ctx,
@@ -353,21 +355,21 @@ impl App for ToggleGroupDemo {
                                 ui,
                                 &self.theme,
                                 ctx,
-                                &mut self.multi_bold,
+                                &mut self.spacing_bold,
                                 lucide_icon(Icon::Bold, 16.0),
                             );
                             toggle_group_item(
                                 ui,
                                 &self.theme,
                                 ctx,
-                                &mut self.multi_italic,
+                                &mut self.spacing_italic,
                                 lucide_icon(Icon::Italic, 16.0),
                             );
-                            toggle_group_item(
+                            toggle_group_item_last(
                                 ui,
                                 &self.theme,
                                 ctx,
-                                &mut self.multi_underline,
+                                &mut self.spacing_underline,
                                 lucide_icon(Icon::Underline, 16.0),
                             );
                         });
