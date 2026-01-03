@@ -5,6 +5,7 @@ pub mod alert;
 pub mod alert_dialog;
 pub mod avatar;
 pub mod badge;
+pub mod breadcrumb;
 pub mod button;
 pub mod calendar;
 pub mod card;
@@ -52,6 +53,11 @@ pub use alert::{AlertProps, AlertVariant, alert};
 pub use alert_dialog::{AlertDialogProps, AlertDialogResult, alert_dialog};
 pub use avatar::{AvatarProps, AvatarSize, AvatarVariant, avatar};
 pub use badge::{BadgeProps, BadgeSize, BadgeVariant, badge};
+pub use breadcrumb::{
+    BreadcrumbContext, BreadcrumbMetrics, BreadcrumbProps, BreadcrumbTokens, breadcrumb,
+    breadcrumb_ellipsis, breadcrumb_item, breadcrumb_link, breadcrumb_list, breadcrumb_page,
+    breadcrumb_separator,
+};
 pub use button::{
     Button, ButtonJustify, ButtonProps, ButtonRadius, ButtonSize, ButtonStyle, ButtonVariant,
     button,
