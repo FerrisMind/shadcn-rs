@@ -64,6 +64,8 @@ pub struct InputOTPContext<'a> {
     pub focused: bool,
     pub theme: &'a Theme,
     pub enabled: bool,
+    group_slot_count: std::cell::Cell<usize>,
+    group_first_index: std::cell::Cell<Option<usize>>,
 }
 
 pub fn input_otp(
@@ -162,10 +164,12 @@ pub fn input_otp(
         focused: state.focused,
         theme,
         enabled: ui.is_enabled(),
+        group_slot_count: std::cell::Cell::new(0),
+        group_first_index: std::cell::Cell::new(None),
     };
 
-    let inner = ui.horizontal(|ui| {
-        ui.spacing_mut().item_spacing = vec2(8.0, 0.0);
+    let inner = ui.with_layout(egui::Layout::left_to_right(egui::Align::Center), |ui| {
+        ui.spacing_mut().item_spacing = vec2(2.0, 0.0);
         add_contents(ui, &context);
     });
 
@@ -203,6 +207,31 @@ pub fn input_otp_group(ui: &mut Ui, add_contents: impl FnOnce(&mut Ui)) -> Respo
 }
 
 pub fn input_otp_slot(ui: &mut Ui, context: &InputOTPContext, index: usize) -> Response {
+    input_otp_slot_impl(ui, context, index, false)
+}
+
+pub fn input_otp_slot_last(ui: &mut Ui, context: &InputOTPContext, index: usize) -> Response {
+    let result = input_otp_slot_impl(ui, context, index, true);
+    // Сбрасываем счетчик после последнего слота в группе
+    context.group_slot_count.set(0);
+    context.group_first_index.set(None);
+    result
+}
+
+fn input_otp_slot_impl(
+    ui: &mut Ui,
+    context: &InputOTPContext,
+    index: usize,
+    is_last_in_group: bool,
+) -> Response {
+    // Трекинг позиции внутри текущей группы
+    let group_position = context.group_slot_count.get();
+    context.group_slot_count.set(group_position + 1);
+
+    if context.group_first_index.get().is_none() {
+        context.group_first_index.set(Some(index));
+    }
+
     let size = Vec2::splat(36.0);
     let (rect, response) = ui.allocate_exact_size(size, Sense::click());
 
@@ -220,7 +249,8 @@ pub fn input_otp_slot(ui: &mut Ui, context: &InputOTPContext, index: usize) -> R
     let slot_char = context.value.chars().nth(index);
 
     let palette = &context.theme.palette;
-    let rounding = corner_radius_for_slot(context.theme, index, context.max_length);
+    // Используем позицию внутри группы и флаг is_last
+    let rounding = corner_radius_for_slot_in_group(context.theme, group_position, is_last_in_group);
 
     let mut border_color = if is_active {
         palette.ring
@@ -346,28 +376,40 @@ fn apply_text(
     changed
 }
 
-fn corner_radius_for_slot(theme: &Theme, index: usize, max_length: usize) -> CornerRadius {
+fn corner_radius_for_slot_in_group(
+    theme: &Theme,
+    position_in_group: usize,
+    is_last: bool,
+) -> CornerRadius {
     let radius = theme.radius.r2.round() as u8;
-    if max_length <= 1 {
-        return CornerRadius::same(radius);
-    }
 
-    if index == 0 {
-        CornerRadius {
-            nw: radius,
-            sw: radius,
-            ne: 0,
-            se: 0,
+    match (position_in_group, is_last) {
+        (0, true) => {
+            // Единственный слот в группе - скругляем все углы
+            CornerRadius::same(radius)
         }
-    } else if index + 1 == max_length {
-        CornerRadius {
-            nw: 0,
-            sw: 0,
-            ne: radius,
-            se: radius,
+        (0, false) => {
+            // Первый слот в группе - скругляем только левые углы
+            CornerRadius {
+                nw: radius,
+                sw: radius,
+                ne: 0,
+                se: 0,
+            }
         }
-    } else {
-        CornerRadius::same(0)
+        (_, true) => {
+            // Последний слот в группе - скругляем только правые углы
+            CornerRadius {
+                nw: 0,
+                sw: 0,
+                ne: radius,
+                se: radius,
+            }
+        }
+        _ => {
+            // Средние слоты - без скруглений
+            CornerRadius::same(0)
+        }
     }
 }
 
