@@ -27,6 +27,7 @@ log = { workspace = true }
 lucide-icons = "0.555.0"
 chrono = "0.4"
 regex = "1.11"
+egui_plot = { version = "0.34", optional = true }
 
 [dev-dependencies]
 env_logger = { workspace = true }
@@ -35,6 +36,9 @@ rfd = "0.16"
 
 [build-dependencies]
 winres = "0.1"
+
+[features]
+plot = ["egui_plot"]
 
 [[example]]
 name = "command_dialog"

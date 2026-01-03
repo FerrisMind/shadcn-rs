@@ -12,6 +12,8 @@ pub mod button_group;
 pub mod calendar;
 pub mod card;
 pub mod carousel;
+#[cfg(feature = "plot")]
+pub mod chart;
 pub mod checkbox;
 pub mod collapsible;
 pub mod combobox;
@@ -81,6 +83,11 @@ pub use carousel::{
     CarouselContentProps, CarouselContentResponse, CarouselContext, CarouselItemProps,
     CarouselItemResponse, CarouselOptions, CarouselOrientation, CarouselProps, CarouselResponse,
     carousel, carousel_content, carousel_item, carousel_next, carousel_previous,
+};
+#[cfg(feature = "plot")]
+pub use chart::{
+    BarChart, ChartIndicator, ChartLegend, ChartLegendItem, ChartProps, ChartResponse,
+    ChartTooltip, ChartTooltipItem, LineChart, ShadcnChart, chart,
 };
 pub use checkbox::{
     CheckboxCycle, CheckboxOptions, CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant,
