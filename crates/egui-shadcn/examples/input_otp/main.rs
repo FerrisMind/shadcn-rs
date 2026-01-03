@@ -13,7 +13,7 @@ use egui::{CentralPanel, RichText};
 use egui_shadcn::{
     ControlSize, ControlVariant, FormControl, FormDescription, FormItem, FormLabel, FormMessage,
     FormState, InputOTPProps, Theme, ValidationMode, button, compose, input_otp, input_otp_group,
-    input_otp_separator, input_otp_slot, min_length, required,
+    input_otp_separator, input_otp_slot, input_otp_slot_last, min_length, required,
 };
 use regex::Regex;
 
@@ -125,15 +125,15 @@ fn render_input_otp_demo(ui: &mut egui::Ui, theme: &Theme, value: &mut String) {
     let props = InputOTPProps::new(6);
     let _ = input_otp(ui, theme, value, props, |ui, ctx| {
         input_otp_group(ui, |ui| {
-            for index in 0..3 {
-                input_otp_slot(ui, ctx, index);
-            }
+            input_otp_slot(ui, ctx, 0);
+            input_otp_slot(ui, ctx, 1);
+            input_otp_slot_last(ui, ctx, 2);
         });
         input_otp_separator(ui, theme);
         input_otp_group(ui, |ui| {
-            for index in 3..6 {
-                input_otp_slot(ui, ctx, index);
-            }
+            input_otp_slot(ui, ctx, 3);
+            input_otp_slot(ui, ctx, 4);
+            input_otp_slot_last(ui, ctx, 5);
         });
     });
 }
@@ -142,9 +142,10 @@ fn render_input_otp_pattern(ui: &mut egui::Ui, theme: &Theme, value: &mut String
     let props = InputOTPProps::new(6).pattern(pattern);
     let _ = input_otp(ui, theme, value, props, |ui, ctx| {
         input_otp_group(ui, |ui| {
-            for index in 0..6 {
+            for index in 0..5 {
                 input_otp_slot(ui, ctx, index);
             }
+            input_otp_slot_last(ui, ctx, 5);
         });
     });
 }
@@ -153,21 +154,18 @@ fn render_input_otp_separator(ui: &mut egui::Ui, theme: &Theme, value: &mut Stri
     let props = InputOTPProps::new(6);
     let _ = input_otp(ui, theme, value, props, |ui, ctx| {
         input_otp_group(ui, |ui| {
-            for index in 0..2 {
-                input_otp_slot(ui, ctx, index);
-            }
+            input_otp_slot(ui, ctx, 0);
+            input_otp_slot_last(ui, ctx, 1);
         });
         input_otp_separator(ui, theme);
         input_otp_group(ui, |ui| {
-            for index in 2..4 {
-                input_otp_slot(ui, ctx, index);
-            }
+            input_otp_slot(ui, ctx, 2);
+            input_otp_slot_last(ui, ctx, 3);
         });
         input_otp_separator(ui, theme);
         input_otp_group(ui, |ui| {
-            for index in 4..6 {
-                input_otp_slot(ui, ctx, index);
-            }
+            input_otp_slot(ui, ctx, 4);
+            input_otp_slot_last(ui, ctx, 5);
         });
     });
 }
@@ -177,9 +175,10 @@ fn render_input_otp_controlled(ui: &mut egui::Ui, theme: &Theme, value: &mut Str
         let props = InputOTPProps::new(6);
         let _ = input_otp(ui, theme, value, props, |ui, ctx| {
             input_otp_group(ui, |ui| {
-                for index in 0..6 {
+                for index in 0..5 {
                     input_otp_slot(ui, ctx, index);
                 }
+                input_otp_slot_last(ui, ctx, 5);
             });
         });
 
@@ -226,9 +225,10 @@ fn render_input_otp_form(
                 let props = InputOTPProps::new(6);
                 let _ = input_otp(ui, theme, value, props, |ui, ctx| {
                     input_otp_group(ui, |ui| {
-                        for index in 0..6 {
+                        for index in 0..5 {
                             input_otp_slot(ui, ctx, index);
                         }
+                        input_otp_slot_last(ui, ctx, 5);
                     });
                 });
             })

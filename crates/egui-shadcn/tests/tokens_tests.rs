@@ -136,11 +136,29 @@ fn toggle_outline_tokens_apply_accent_on_hover() {
     init_logger();
     let palette = ColorPalette::default();
     let tokens = toggle_button_tokens(&palette, ToggleVariant::Outline);
-    assert_eq!(tokens.off.idle.border.color, palette.border);
-    assert_eq!(tokens.off.hovered.bg_fill, palette.accent);
-    assert_eq!(
-        tokens.off.hovered.fg_stroke.color,
-        palette.accent_foreground
+
+    // Согласно Radix UI Themes: граница видимая на основе foreground
+    assert_ne!(tokens.off.idle.border.color, Color32::TRANSPARENT);
+    assert!(
+        tokens.off.idle.border.color.a() >= 100,
+        "граница должна быть видимой"
+    );
+
+    // Hover фон полупрозрачный (не плотный accent)
+    assert_ne!(tokens.off.hovered.bg_fill, Color32::TRANSPARENT);
+    assert!(
+        tokens.off.hovered.bg_fill.a() < 100,
+        "hover фон должен быть полупрозрачным"
+    );
+
+    // Текст остается foreground во всех состояниях
+    assert_eq!(tokens.off.hovered.fg_stroke.color, palette.foreground);
+
+    // ON состояние: граница всё еще видима
+    assert_ne!(tokens.on.idle.border.color, Color32::TRANSPARENT);
+    assert!(
+        tokens.on.idle.border.color.a() >= 100,
+        "граница в ON состоянии должна быть видимой"
     );
 }
 

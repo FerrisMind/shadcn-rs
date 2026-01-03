@@ -3,6 +3,7 @@
 pub mod accordion;
 pub mod alert;
 pub mod alert_dialog;
+pub mod aspect_ratio;
 pub mod avatar;
 pub mod badge;
 pub mod breadcrumb;
@@ -10,6 +11,7 @@ pub mod button;
 pub mod button_group;
 pub mod calendar;
 pub mod card;
+pub mod carousel;
 pub mod checkbox;
 pub mod collapsible;
 pub mod combobox;
@@ -35,6 +37,7 @@ pub mod resizable;
 pub mod scroll_area;
 pub mod select;
 pub mod separator;
+pub mod sheet;
 pub mod sidebar;
 pub mod skeleton;
 pub mod slider;
@@ -57,6 +60,7 @@ pub use accordion::{
 };
 pub use alert::{AlertProps, AlertVariant, alert};
 pub use alert_dialog::{AlertDialogProps, AlertDialogResult, alert_dialog};
+pub use aspect_ratio::{AspectRatioProps, aspect_ratio};
 pub use avatar::{AvatarProps, AvatarSize, AvatarVariant, avatar};
 pub use badge::{BadgeProps, BadgeSize, BadgeVariant, badge};
 pub use breadcrumb::{
@@ -73,6 +77,11 @@ pub use calendar::{
     CalendarCaptionLayout, CalendarMode, CalendarProps, calendar, calendar_with_props,
 };
 pub use card::{CardProps, CardSize, CardTokens, CardVariant, card, card_tokens_with_options};
+pub use carousel::{
+    CarouselContentProps, CarouselContentResponse, CarouselContext, CarouselItemProps,
+    CarouselItemResponse, CarouselOptions, CarouselOrientation, CarouselProps, CarouselResponse,
+    carousel, carousel_content, carousel_item, carousel_next, carousel_previous,
+};
 pub use checkbox::{
     CheckboxCycle, CheckboxOptions, CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant,
     checkbox, checkbox_state, checkbox_with_props,
@@ -125,7 +134,8 @@ pub use input::{
     resolve_input_style, text_input, text_input_with_config, text_input_with_props,
 };
 pub use input_otp::{
-    InputOTPContext, InputOTPProps, input_otp, input_otp_group, input_otp_separator, input_otp_slot,
+    InputOTPContext, InputOTPProps, input_otp, input_otp_group, input_otp_separator,
+    input_otp_slot, input_otp_slot_last,
 };
 pub use label::{Label, LabelProps, LabelVariant, label, label_with_props};
 pub use menu_primitives::{
@@ -168,6 +178,10 @@ pub use select::{
     select_with_items,
 };
 pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separator};
+pub use sheet::{
+    SheetContext, SheetProps, SheetSide, sheet, sheet_content, sheet_description, sheet_footer,
+    sheet_header, sheet_title, sheet_trigger,
+};
 pub use sidebar::{
     SidebarContext, SidebarGroupLabelProps, SidebarGroupProps, SidebarMenuButtonProps,
     SidebarMenuButtonSize, SidebarProps, SidebarProviderProps, SidebarResponse, SidebarSide,
