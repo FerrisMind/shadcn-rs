@@ -197,7 +197,6 @@ mod app {
                                     egui::Id::new("chart-line-tooltip"),
                                     pos,
                                 );
-                        }
                     }
                 });
 
@@ -325,13 +324,12 @@ mod app {
                                     color: theme.palette.chart_2,
                                 },
                             ];
-                            ChartTooltip::new(&items).title(label).show(
-                                content.ctx(),
-                                theme,
-                                egui::Id::new("chart-tooltip-default-ui"),
-                                pos,
-                            );
-                        }
+                        ChartTooltip::new(&items).title(label).show(
+                            content.ctx(),
+                            theme,
+                            egui::Id::new("chart-tooltip-default-ui"),
+                            pos,
+                        );
                     }
                 });
             },
