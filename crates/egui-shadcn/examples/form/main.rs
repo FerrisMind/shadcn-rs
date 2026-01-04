@@ -84,12 +84,14 @@ impl App for FormExample {
                 ui,
                 &self.theme,
                 &mut self.submit_form,
-                &mut self.username,
-                &mut self.email,
-                &mut self.bio,
-                &mut self.department,
-                &mut self.accept_terms,
-                &mut self.submit_message,
+                SubmitFormFields {
+                    username: &mut self.username,
+                    email_value: &mut self.email,
+                    bio: &mut self.bio,
+                    department: &mut self.department,
+                    accept_terms: &mut self.accept_terms,
+                    submit_message: &mut self.submit_message,
+                },
             );
 
             ui.add_space(28.0);
@@ -103,12 +105,14 @@ impl App for FormExample {
             render_validation_modes(
                 ui,
                 &self.theme,
-                &mut self.change_form,
-                &mut self.blur_form,
-                &mut self.change_name,
-                &mut self.change_note,
-                &mut self.blur_name,
-                &mut self.blur_note,
+                ValidationModeFields {
+                    change_form: &mut self.change_form,
+                    blur_form: &mut self.blur_form,
+                    change_name: &mut self.change_name,
+                    change_note: &mut self.change_note,
+                    blur_name: &mut self.blur_name,
+                    blur_note: &mut self.blur_note,
+                },
             );
         });
     }
@@ -126,17 +130,29 @@ fn render_section_title(ui: &mut egui::Ui, theme: &Theme, title: &str, descripti
     });
 }
 
+struct SubmitFormFields<'a> {
+    username: &'a mut String,
+    email_value: &'a mut String,
+    bio: &'a mut String,
+    department: &'a mut Option<String>,
+    accept_terms: &'a mut bool,
+    submit_message: &'a mut Option<String>,
+}
+
 fn render_submit_form(
     ui: &mut egui::Ui,
     theme: &Theme,
     form: &mut FormState,
-    username: &mut String,
-    email_value: &mut String,
-    bio: &mut String,
-    department: &mut Option<String>,
-    accept_terms: &mut bool,
-    submit_message: &mut Option<String>,
+    fields: SubmitFormFields<'_>,
 ) {
+    let SubmitFormFields {
+        username,
+        email_value,
+        bio,
+        department,
+        accept_terms,
+        submit_message,
+    } = fields;
     form.field(
         "username",
         compose(vec![
@@ -310,16 +326,24 @@ fn render_submit_form(
     }
 }
 
-fn render_validation_modes(
-    ui: &mut egui::Ui,
-    theme: &Theme,
-    change_form: &mut FormState,
-    blur_form: &mut FormState,
-    change_name: &mut String,
-    change_note: &mut String,
-    blur_name: &mut String,
-    blur_note: &mut String,
-) {
+struct ValidationModeFields<'a> {
+    change_form: &'a mut FormState,
+    blur_form: &'a mut FormState,
+    change_name: &'a mut String,
+    change_note: &'a mut String,
+    blur_name: &'a mut String,
+    blur_note: &'a mut String,
+}
+
+fn render_validation_modes(ui: &mut egui::Ui, theme: &Theme, fields: ValidationModeFields<'_>) {
+    let ValidationModeFields {
+        change_form,
+        blur_form,
+        change_name,
+        change_note,
+        blur_name,
+        blur_note,
+    } = fields;
     change_form.field(
         "change_name",
         compose(vec![

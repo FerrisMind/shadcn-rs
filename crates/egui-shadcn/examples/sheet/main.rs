@@ -123,50 +123,49 @@ fn render_sheet_demo(
                     );
                 });
 
-                content_ui
-                    .vertical(|body_ui| {
-                        body_ui.spacing_mut().item_spacing.y = 16.0;
-                        body_ui.horizontal(|row| {
-                            let label_width = 80.0;
-                            let input_size = InputSize::Size2;
-                            let name_id = row.make_persistent_id("sheet-demo-name");
-                            row.allocate_ui_with_layout(
-                                vec2(label_width, input_size.height()),
-                                egui::Layout::right_to_left(egui::Align::Center),
-                                |label_ui| {
-                                    Label::new("Name")
-                                        .for_id(name_id)
-                                        .size(ControlSize::Sm)
-                                        .show(label_ui, theme);
-                                },
-                            );
-                            row.add_space(12.0);
-                            Input::new(name_id)
-                                .size(input_size)
-                                .width(row.available_width())
-                                .show(row, theme, name);
-                        });
-                        body_ui.horizontal(|row| {
-                            let label_width = 80.0;
-                            let input_size = InputSize::Size2;
-                            let username_id = row.make_persistent_id("sheet-demo-username");
-                            row.allocate_ui_with_layout(
-                                vec2(label_width, input_size.height()),
-                                egui::Layout::right_to_left(egui::Align::Center),
-                                |label_ui| {
-                                    Label::new("Username")
-                                        .for_id(username_id)
-                                        .size(ControlSize::Sm)
-                                        .show(label_ui, theme);
-                                },
-                            );
-                            row.add_space(12.0);
-                            Input::new(username_id)
-                                .size(input_size)
-                                .width(row.available_width())
-                                .show(row, theme, username);
-                        });
+                let _ = content_ui.vertical(|body_ui| {
+                    body_ui.spacing_mut().item_spacing.y = 16.0;
+                    body_ui.horizontal(|row| {
+                        let label_width = 80.0;
+                        let input_size = InputSize::Size2;
+                        let name_id = row.make_persistent_id("sheet-demo-name");
+                        row.allocate_ui_with_layout(
+                            vec2(label_width, input_size.height()),
+                            egui::Layout::right_to_left(egui::Align::Center),
+                            |label_ui| {
+                                Label::new("Name")
+                                    .for_id(name_id)
+                                    .size(ControlSize::Sm)
+                                    .show(label_ui, theme);
+                            },
+                        );
+                        row.add_space(12.0);
+                        Input::new(name_id)
+                            .size(input_size)
+                            .width(row.available_width())
+                            .show(row, theme, name);
                     });
+                    body_ui.horizontal(|row| {
+                        let label_width = 80.0;
+                        let input_size = InputSize::Size2;
+                        let username_id = row.make_persistent_id("sheet-demo-username");
+                        row.allocate_ui_with_layout(
+                            vec2(label_width, input_size.height()),
+                            egui::Layout::right_to_left(egui::Align::Center),
+                            |label_ui| {
+                                Label::new("Username")
+                                    .for_id(username_id)
+                                    .size(ControlSize::Sm)
+                                    .show(label_ui, theme);
+                            },
+                        );
+                        row.add_space(12.0);
+                        Input::new(username_id)
+                            .size(input_size)
+                            .width(row.available_width())
+                            .show(row, theme, username);
+                    });
+                });
 
                 sheet_footer(content_ui, |footer_ui| {
                     footer_ui.horizontal(|row| {
@@ -251,7 +250,7 @@ fn render_sheet_side(
                                 );
                             });
 
-                            content_ui
+                            let _ = content_ui
                                 .vertical(|body_ui| {
                                     body_ui.spacing_mut().item_spacing.y = 12.0;
                                     let input_size = InputSize::Size2;
