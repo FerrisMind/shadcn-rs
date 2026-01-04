@@ -1,10 +1,12 @@
 use std::sync::OnceLock;
 
+#[cfg_attr(not(feature = "plot"), allow(dead_code))]
 pub fn screenshot_mode() -> bool {
     static FLAG: OnceLock<bool> = OnceLock::new();
     *FLAG.get_or_init(|| std::env::args().any(|arg| arg == "--screenshot"))
 }
 
+#[cfg_attr(not(feature = "plot"), allow(dead_code))]
 pub fn apply_screenshot_scale(ctx: &egui::Context) {
     if !screenshot_mode() {
         return;

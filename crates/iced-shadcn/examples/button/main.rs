@@ -3,9 +3,15 @@ use iced::widget::{column, container, row, text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{ButtonSize, ButtonVariant, Spinner, Theme, button, button_content, spinner};
+use lucide_icons::LUCIDE_FONT_BYTES;
+use lucide_icons::iced::{
+    icon_arrow_up, icon_arrow_up_right, icon_circle_fading_arrow_up, icon_git_branch,
+};
 
 pub fn main() -> iced::Result {
-    iced::application(Example::default, Example::update, Example::view).run()
+    iced::application(Example::default, Example::update, Example::view)
+        .font(LUCIDE_FONT_BYTES)
+        .run()
 }
 
 #[derive(Default)]
@@ -77,8 +83,8 @@ impl Example {
             theme,
         );
 
-        let icon_button = button(
-            "^",
+        let icon_button = button_content(
+            icon_circle_fading_arrow_up().size(16),
             Some(Message::Pressed),
             ButtonVariant::Outline,
             ButtonSize::Icon,
@@ -93,8 +99,8 @@ impl Example {
                 ButtonSize::Md,
                 theme,
             ),
-            button(
-                "^",
+            button_content(
+                icon_arrow_up().size(16),
                 Some(Message::Pressed),
                 ButtonVariant::Outline,
                 ButtonSize::Icon,
@@ -112,8 +118,8 @@ impl Example {
                 ButtonSize::Sm,
                 theme,
             ),
-            button(
-                "^",
+            button_content(
+                icon_arrow_up_right().size(12),
                 Some(Message::Pressed),
                 ButtonVariant::Outline,
                 ButtonSize::IconSm,
@@ -130,8 +136,8 @@ impl Example {
                 ButtonSize::Md,
                 theme,
             ),
-            button(
-                "^",
+            button_content(
+                icon_arrow_up_right().size(14),
                 Some(Message::Pressed),
                 ButtonVariant::Outline,
                 ButtonSize::Icon,
@@ -148,8 +154,8 @@ impl Example {
                 ButtonSize::Lg,
                 theme,
             ),
-            button(
-                "^",
+            button_content(
+                icon_arrow_up_right().size(16),
                 Some(Message::Pressed),
                 ButtonVariant::Outline,
                 ButtonSize::IconLg,
@@ -163,7 +169,7 @@ impl Example {
             .align_y(Alignment::Start);
 
         let with_icon = {
-            let label = row![text("^").size(12), text("New Branch").size(12),]
+            let label = row![icon_git_branch().size(12), text("New Branch").size(12),]
                 .spacing(6)
                 .align_y(Alignment::Center);
 
@@ -202,8 +208,8 @@ impl Example {
             rounded_theme.radius.sm = 999.0;
             rounded_theme.radius.md = 999.0;
             rounded_theme.radius.lg = 999.0;
-            button(
-                "^",
+            button_content(
+                icon_arrow_up().size(16),
                 Some(Message::Pressed),
                 ButtonVariant::Outline,
                 ButtonSize::Icon,

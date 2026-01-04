@@ -183,20 +183,20 @@ mod app {
                         && let Some((_, label, value)) =
                             lookup_value(&MONTH_LABELS, &LINE_VALUES, point.x)
                     {
-                            let items = [ChartTooltipItem {
-                                label: "Desktop".to_string(),
-                                value,
-                                color: theme.palette.chart_1,
-                            }];
-                            ChartTooltip::new(&items)
-                                .title(label)
-                                .hide_label(true)
-                                .show(
-                                    content.ctx(),
-                                    theme,
-                                    egui::Id::new("chart-line-tooltip"),
-                                    pos,
-                                );
+                        let items = [ChartTooltipItem {
+                            label: "Desktop".to_string(),
+                            value,
+                            color: theme.palette.chart_1,
+                        }];
+                        ChartTooltip::new(&items)
+                            .title(label)
+                            .hide_label(true)
+                            .show(
+                                content.ctx(),
+                                theme,
+                                egui::Id::new("chart-line-tooltip"),
+                                pos,
+                            );
                     }
                 });
 
@@ -311,19 +311,19 @@ mod app {
                         && let Some((index, label, running_value)) =
                             lookup_value(&WEEKDAY_LABELS, &RUNNING_VALUES, point.x)
                     {
-                            let swimming_value = SWIMMING_VALUES[index];
-                            let items = [
-                                ChartTooltipItem {
-                                    label: "Running".to_string(),
-                                    value: running_value,
-                                    color: theme.palette.chart_1,
-                                },
-                                ChartTooltipItem {
-                                    label: "Swimming".to_string(),
-                                    value: format!("{:.0}", swimming_value),
-                                    color: theme.palette.chart_2,
-                                },
-                            ];
+                        let swimming_value = SWIMMING_VALUES[index];
+                        let items = [
+                            ChartTooltipItem {
+                                label: "Running".to_string(),
+                                value: running_value,
+                                color: theme.palette.chart_1,
+                            },
+                            ChartTooltipItem {
+                                label: "Swimming".to_string(),
+                                value: format!("{:.0}", swimming_value),
+                                color: theme.palette.chart_2,
+                            },
+                        ];
                         ChartTooltip::new(&items).title(label).show(
                             content.ctx(),
                             theme,
