@@ -1,0 +1,11 @@
+[package]
+name = "iced-shadcn"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Shadcn-inspired component kit for iced"
+
+[dependencies]
+iced = { version = "0.14", features = ["canvas", "tokio"] }
