@@ -1,7 +1,8 @@
-use iced::widget::{column, container, row, text};
-use iced::{Element, Length};
+use iced::border::Border;
+use iced::widget::{column, container, row, space};
+use iced::{Alignment, Background, Element, Length};
 
-use iced_shadcn::{SeparatorOrientation, Theme, separator};
+use iced_shadcn::{SeparatorOrientation, TextVariant, Theme, separator, text};
 
 pub fn main() -> iced::Result {
     iced::application(Example::default, Example::update, Example::view).run()
@@ -19,28 +20,54 @@ impl Example {
     fn update(&mut self, _message: Message) {}
 
     fn view(&self) -> Element<'_, Message> {
-        let horizontal = column![
-            text("Above the separator").size(14),
-            separator(SeparatorOrientation::Horizontal, &self.theme),
-            text("Below the separator").size(14),
-        ]
-        .spacing(12);
+        let muted = self.theme.palette.muted;
+        let border = self.theme.palette.border;
+        let radius = self.theme.radius.md;
 
-        let vertical = row![
-            text("Left").size(14),
+        let heading = column![
+            text("Radix Primitives", TextVariant::Small, &self.theme),
+            text(
+                "An open-source UI component library.",
+                TextVariant::Muted,
+                &self.theme,
+            ),
+        ]
+        .spacing(4);
+
+        let nav = row![
+            text("Blog", TextVariant::Small, &self.theme),
             container(separator(SeparatorOrientation::Vertical, &self.theme))
-                .height(Length::Fixed(48.0)),
-            text("Right").size(14),
+                .height(Length::Fixed(20.0)),
+            text("Docs", TextVariant::Small, &self.theme),
+            container(separator(SeparatorOrientation::Vertical, &self.theme))
+                .height(Length::Fixed(20.0)),
+            text("Source", TextVariant::Small, &self.theme),
         ]
-        .spacing(12);
+        .spacing(16)
+        .align_y(Alignment::Center);
 
-        let content = column![horizontal, vertical].spacing(24);
+        let content = column![
+            heading,
+            space().height(Length::Fixed(16.0)),
+            separator(SeparatorOrientation::Horizontal, &self.theme),
+            space().height(Length::Fixed(16.0)),
+            nav,
+        ]
+        .spacing(0);
 
         container(content)
             .padding(24)
             .width(Length::Fill)
-            .center_x(Length::Fill)
-            .center_y(Length::Fill)
+            .height(Length::Fill)
+            .style(move |_theme| iced::widget::container::Style {
+                background: Some(Background::Color(muted)),
+                border: Border {
+                    radius: radius.into(),
+                    width: 1.0,
+                    color: border,
+                },
+                ..iced::widget::container::Style::default()
+            })
             .into()
     }
 }

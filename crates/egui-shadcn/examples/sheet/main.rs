@@ -166,8 +166,7 @@ fn render_sheet_demo(
                                 .width(row.available_width())
                                 .show(row, theme, username);
                         });
-                    })
-                    .response;
+                    });
 
                 sheet_footer(content_ui, |footer_ui| {
                     footer_ui.horizontal(|row| {
@@ -277,8 +276,7 @@ fn render_sheet_side(
                                         .size(input_size)
                                         .width(body_ui.available_width())
                                         .show(body_ui, theme, &mut usernames[idx]);
-                                })
-                                .response;
+                                });
 
                             sheet_footer(content_ui, |footer_ui| {
                                 if button(

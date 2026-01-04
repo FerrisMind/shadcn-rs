@@ -9,3 +9,4 @@ description = "Shadcn-inspired component kit for iced"
 
 [dependencies]
 iced = { version = "0.14", features = ["canvas", "tokio"] }
+lucide-icons = { workspace = true }

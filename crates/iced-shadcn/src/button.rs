@@ -8,6 +8,8 @@ use crate::theme::Theme;
 #[derive(Clone, Copy, Debug)]
 pub enum ButtonVariant {
     Default,
+    Secondary,
+    Destructive,
     Outline,
     Ghost,
     Link,
@@ -18,6 +20,9 @@ pub enum ButtonSize {
     Sm,
     Md,
     Lg,
+    IconSm,
+    Icon,
+    IconLg,
 }
 
 impl ButtonSize {
@@ -26,6 +31,9 @@ impl ButtonSize {
             ButtonSize::Sm => [6.0, 12.0],
             ButtonSize::Md => [8.0, 16.0],
             ButtonSize::Lg => [10.0, 20.0],
+            ButtonSize::IconSm => [6.0, 6.0],
+            ButtonSize::Icon => [8.0, 8.0],
+            ButtonSize::IconLg => [10.0, 10.0],
         }
     }
 
@@ -34,6 +42,9 @@ impl ButtonSize {
             ButtonSize::Sm => 12,
             ButtonSize::Md => 14,
             ButtonSize::Lg => 16,
+            ButtonSize::IconSm => 12,
+            ButtonSize::Icon => 14,
+            ButtonSize::IconLg => 16,
         }
     }
 }
@@ -46,6 +57,16 @@ pub fn button<'a, Message: Clone>(
     theme: &Theme,
 ) -> button_widget::Button<'a, Message> {
     let content = iced_text(label).size(size.text_size());
+    button_content(content, on_press, variant, size, theme)
+}
+
+pub fn button_content<'a, Message: Clone>(
+    content: impl Into<iced::Element<'a, Message>>,
+    on_press: Option<Message>,
+    variant: ButtonVariant,
+    size: ButtonSize,
+    theme: &Theme,
+) -> button_widget::Button<'a, Message> {
     let mut widget = iced_button(content).padding(size.padding());
 
     if let Some(message) = on_press {
@@ -70,6 +91,16 @@ fn button_style(
             palette.primary_foreground,
             palette.primary,
         ),
+        ButtonVariant::Secondary => (
+            Some(Background::Color(palette.secondary)),
+            palette.secondary_foreground,
+            palette.secondary,
+        ),
+        ButtonVariant::Destructive => (
+            Some(Background::Color(palette.destructive)),
+            palette.destructive_foreground,
+            palette.destructive,
+        ),
         ButtonVariant::Outline => (None, palette.foreground, palette.border),
         ButtonVariant::Ghost => (None, palette.foreground, Color::TRANSPARENT),
         ButtonVariant::Link => (None, palette.primary, Color::TRANSPARENT),
@@ -79,14 +110,20 @@ fn button_style(
         button_widget::Status::Hovered => {
             if matches!(variant, ButtonVariant::Default) {
                 background = Some(Background::Color(palette.foreground));
-            } else if matches!(variant, ButtonVariant::Outline | ButtonVariant::Ghost) {
+            } else if matches!(
+                variant,
+                ButtonVariant::Secondary | ButtonVariant::Outline | ButtonVariant::Ghost
+            ) {
                 background = Some(Background::Color(palette.muted));
             }
         }
         button_widget::Status::Pressed => {
             if matches!(variant, ButtonVariant::Default) {
                 background = Some(Background::Color(palette.foreground));
-            } else if matches!(variant, ButtonVariant::Outline | ButtonVariant::Ghost) {
+            } else if matches!(
+                variant,
+                ButtonVariant::Secondary | ButtonVariant::Outline | ButtonVariant::Ghost
+            ) {
                 background = Some(Background::Color(palette.muted));
             }
         }

@@ -24,7 +24,7 @@ include = [
 [dependencies]
 egui = { workspace = true }
 log = { workspace = true }
-lucide-icons = "0.555.0"
+lucide-icons = { workspace = true }
 chrono = "0.4"
 regex = "1.11"
 egui_plot = { version = "0.34", optional = true }
