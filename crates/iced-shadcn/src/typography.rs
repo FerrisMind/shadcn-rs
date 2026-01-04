@@ -1,6 +1,8 @@
 use iced::Color;
+use iced::Font;
+use iced::font::Weight;
 use iced::widget::Text;
-use iced::widget::text::{IntoFragment, Style};
+use iced::widget::text::{IntoFragment, LineHeight, Style};
 
 use crate::theme::Theme;
 
@@ -10,6 +12,7 @@ pub enum TextVariant {
     H2,
     H3,
     H4,
+    Lead,
     Large,
     Body,
     Small,
@@ -24,6 +27,7 @@ impl TextVariant {
             TextVariant::H2 => 30,
             TextVariant::H3 => 24,
             TextVariant::H4 => 20,
+            TextVariant::Lead => 20,
             TextVariant::Large => 18,
             TextVariant::Body => 16,
             TextVariant::Small => 14,
@@ -34,15 +38,49 @@ impl TextVariant {
 
     fn color(self, theme: &Theme) -> Color {
         match self {
-            TextVariant::Muted => theme.palette.muted_foreground,
+            TextVariant::Lead | TextVariant::Muted => theme.palette.muted_foreground,
             _ => theme.palette.foreground,
+        }
+    }
+
+    fn font(self) -> Option<Font> {
+        let weight = match self {
+            TextVariant::H1 => Weight::ExtraBold,
+            TextVariant::H2 | TextVariant::H3 | TextVariant::H4 => Weight::Semibold,
+            TextVariant::Large => Weight::Semibold,
+            TextVariant::Small | TextVariant::Label => Weight::Medium,
+            _ => return None,
+        };
+
+        Some(Font {
+            weight,
+            ..Font::DEFAULT
+        })
+    }
+
+    fn line_height(self) -> Option<LineHeight> {
+        match self {
+            TextVariant::Lead | TextVariant::Body | TextVariant::Muted => {
+                Some(LineHeight::Relative(1.75))
+            }
+            _ => None,
         }
     }
 }
 
 pub fn text<'a>(content: impl IntoFragment<'a>, variant: TextVariant, theme: &Theme) -> Text<'a> {
     let color = variant.color(theme);
-    Text::new(content)
+    let mut widget = Text::new(content)
         .size(variant.size())
-        .style(move |_theme| Style { color: Some(color) })
+        .style(move |_theme| Style { color: Some(color) });
+
+    if let Some(line_height) = variant.line_height() {
+        widget = widget.line_height(line_height);
+    }
+
+    if let Some(font) = variant.font() {
+        widget = widget.font(font);
+    }
+
+    widget
 }

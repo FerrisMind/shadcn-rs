@@ -3,8 +3,10 @@
     windows_subsystem = "windows"
 )]
 
+#[cfg(feature = "plot")]
 #[path = "../_shared/icon.rs"]
 mod icon;
+#[cfg(feature = "plot")]
 #[path = "../_shared/screenshot.rs"]
 mod screenshot;
 
@@ -178,10 +180,9 @@ mod app {
                     });
 
                     if let (Some(point), Some(pos)) = (response.hovered_point, response.pointer_pos)
-                    {
-                        if let Some((_, label, value)) =
+                        && let Some((_, label, value)) =
                             lookup_value(&MONTH_LABELS, &LINE_VALUES, point.x)
-                        {
+                    {
                             let items = [ChartTooltipItem {
                                 label: "Desktop".to_string(),
                                 value,
@@ -240,25 +241,23 @@ mod app {
                     });
 
                     if let (Some(point), Some(pos)) = (response.hovered_point, response.pointer_pos)
-                    {
-                        if let Some((_, label, value)) =
+                        && let Some((_, label, value)) =
                             lookup_value(&MONTH_LABELS, &LINE_VALUES, point.x)
-                        {
-                            let items = [ChartTooltipItem {
-                                label: "Desktop".to_string(),
-                                value,
-                                color: theme.palette.chart_1,
-                            }];
-                            ChartTooltip::new(&items)
-                                .title(label)
-                                .hide_label(true)
-                                .show(
-                                    content.ctx(),
-                                    theme,
-                                    egui::Id::new("chart-bar-tooltip"),
-                                    pos,
-                                );
-                        }
+                    {
+                        let items = [ChartTooltipItem {
+                            label: "Desktop".to_string(),
+                            value,
+                            color: theme.palette.chart_1,
+                        }];
+                        ChartTooltip::new(&items)
+                            .title(label)
+                            .hide_label(true)
+                            .show(
+                                content.ctx(),
+                                theme,
+                                egui::Id::new("chart-bar-tooltip"),
+                                pos,
+                            );
                     }
                 });
 
@@ -310,10 +309,9 @@ mod app {
                     });
 
                     if let (Some(point), Some(pos)) = (response.hovered_point, response.pointer_pos)
-                    {
-                        if let Some((index, label, running_value)) =
+                        && let Some((index, label, running_value)) =
                             lookup_value(&WEEKDAY_LABELS, &RUNNING_VALUES, point.x)
-                        {
+                    {
                             let swimming_value = SWIMMING_VALUES[index];
                             let items = [
                                 ChartTooltipItem {
@@ -380,33 +378,31 @@ mod app {
                     });
 
                     if let (Some(point), Some(pos)) = (response.hovered_point, response.pointer_pos)
-                    {
-                        if let Some((index, label, desktop_value)) =
+                        && let Some((index, label, desktop_value)) =
                             lookup_value(&MONTH_LABELS, &LINE_VALUES, point.x)
-                        {
-                            let mobile_value = MOBILE_VALUES[index];
-                            let items = [
-                                ChartTooltipItem {
-                                    label: "Mobile".to_string(),
-                                    value: format!("{:.0}", mobile_value),
-                                    color: theme.palette.chart_2,
-                                },
-                                ChartTooltipItem {
-                                    label: "Desktop".to_string(),
-                                    value: desktop_value,
-                                    color: theme.palette.chart_1,
-                                },
-                            ];
-                            ChartTooltip::new(&items)
-                                .title(label)
-                                .indicator(ChartIndicator::Line)
-                                .show(
-                                    content.ctx(),
-                                    theme,
-                                    egui::Id::new("chart-legend-tooltip"),
-                                    pos,
-                                );
-                        }
+                    {
+                        let mobile_value = MOBILE_VALUES[index];
+                        let items = [
+                            ChartTooltipItem {
+                                label: "Mobile".to_string(),
+                                value: format!("{:.0}", mobile_value),
+                                color: theme.palette.chart_2,
+                            },
+                            ChartTooltipItem {
+                                label: "Desktop".to_string(),
+                                value: desktop_value,
+                                color: theme.palette.chart_1,
+                            },
+                        ];
+                        ChartTooltip::new(&items)
+                            .title(label)
+                            .indicator(ChartIndicator::Line)
+                            .show(
+                                content.ctx(),
+                                theme,
+                                egui::Id::new("chart-legend-tooltip"),
+                                pos,
+                            );
                     }
 
                     content.add_space(8.0);
@@ -457,10 +453,10 @@ mod app {
                     .width(0.7)
                     .fill(color)
                     .stroke(egui::Stroke::new(1.0, egui::Color32::TRANSPARENT));
-                if let Some(base_values) = base {
-                    if let Some(offset) = base_values.get(idx) {
-                        bar = bar.base_offset(*offset);
-                    }
+                if let Some(base_values) = base
+                    && let Some(offset) = base_values.get(idx)
+                {
+                    bar = bar.base_offset(*offset);
                 }
                 bar
             })

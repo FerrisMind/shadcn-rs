@@ -8,7 +8,7 @@ pub mod theme;
 pub mod tokens;
 pub mod typography;
 
-pub use button::{ButtonSize, ButtonVariant, button};
+pub use button::{ButtonSize, ButtonVariant, button, button_content};
 pub use carousel::{
     CarouselContentProps, CarouselOptions, CarouselOrientation, CarouselState, carousel_content,
     carousel_next, carousel_previous,
