@@ -1,7 +1,7 @@
 use iced::widget::{Column, Id, Row, container, scrollable};
 use iced::{Element, Length, Size, Task};
 
-use crate::button::{ButtonSize, ButtonVariant, button};
+use crate::button::{ButtonProps, ButtonSize, ButtonVariant, button};
 use crate::theme::Theme;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -229,7 +229,7 @@ pub fn carousel_content<'a, Message: 'a>(
         .height(height)
 }
 
-pub fn carousel_previous<'a, Message: Clone>(
+pub fn carousel_previous<'a, Message: Clone + 'a>(
     on_press: Option<Message>,
     enabled: bool,
     orientation: CarouselOrientation,
@@ -244,13 +244,14 @@ pub fn carousel_previous<'a, Message: Clone>(
     button(
         label,
         on_press,
-        ButtonVariant::Outline,
-        ButtonSize::Sm,
+        ButtonProps::new()
+            .variant(ButtonVariant::Outline)
+            .size(ButtonSize::One),
         theme,
     )
 }
 
-pub fn carousel_next<'a, Message: Clone>(
+pub fn carousel_next<'a, Message: Clone + 'a>(
     on_press: Option<Message>,
     enabled: bool,
     orientation: CarouselOrientation,
@@ -265,8 +266,9 @@ pub fn carousel_next<'a, Message: Clone>(
     button(
         label,
         on_press,
-        ButtonVariant::Outline,
-        ButtonSize::Sm,
+        ButtonProps::new()
+            .variant(ButtonVariant::Outline)
+            .size(ButtonSize::One),
         theme,
     )
 }

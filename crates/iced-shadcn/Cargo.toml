@@ -9,6 +9,7 @@ description = "Shadcn-inspired component kit for iced"
 
 [dependencies]
 iced = { version = "0.14", features = ["canvas", "tokio"] }
+lucide-icons = { version = "0.562", features = ["iced"] }
 
 [dev-dependencies]
-lucide-icons = { workspace = true, features = ["iced"] }
+rfd = "0.16"
