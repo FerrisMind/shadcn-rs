@@ -14,7 +14,6 @@ description = "Shadcn and Radix UI-inspired component library for the Rust GUI (
 egui = "0.33"
 log = "0.4"
 env_logger = "0.11"
-lucide-icons = "0.562"
 
 [profile.dev]
 incremental = true

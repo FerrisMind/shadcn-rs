@@ -1,8 +1,13 @@
 use iced::border::Border;
-use iced::widget::{column, container, row, text};
-use iced::{Alignment, Background, Element, Length};
+use iced::time::{self, Duration};
+use iced::widget::text::{Rich, Span};
+use iced::widget::{column, container, mouse_area, row, text};
+use iced::{Alignment, Background, Element, Length, Subscription, mouse};
 
-use iced_shadcn::{ButtonSize, ButtonVariant, Spinner, Theme, button, button_content, spinner};
+use iced_shadcn::{
+    AccentColor, ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, Spinner, SpinnerSize, Theme,
+    button, button_content, icon_button, spinner,
+};
 use lucide_icons::LUCIDE_FONT_BYTES;
 use lucide_icons::iced::{
     icon_arrow_up, icon_arrow_up_right, icon_circle_fading_arrow_up, icon_git_branch,
@@ -10,6 +15,7 @@ use lucide_icons::iced::{
 
 pub fn main() -> iced::Result {
     iced::application(Example::default, Example::update, Example::view)
+        .subscription(Example::subscription)
         .font(LUCIDE_FONT_BYTES)
         .run()
 }
@@ -17,112 +23,214 @@ pub fn main() -> iced::Result {
 #[derive(Default)]
 struct Example {
     theme: Theme,
+    progress: f32,
+    link_hovered: bool,
 }
 
 #[derive(Debug, Clone)]
 enum Message {
+    Tick,
     Pressed,
+    LinkHover(bool),
 }
 
 impl Example {
     fn update(&mut self, message: Message) {
-        let _ = message;
+        match message {
+            Message::Tick => {
+                self.progress = (self.progress + 0.02) % 1.0;
+            }
+            Message::Pressed => {}
+            Message::LinkHover(hovered) => {
+                self.link_hovered = hovered;
+            }
+        }
+    }
+
+    fn subscription(&self) -> Subscription<Message> {
+        time::every(Duration::from_millis(16)).map(|_| Message::Tick)
     }
 
     fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
-        let muted = theme.palette.muted;
+        let background = theme.palette.background;
         let border = theme.palette.border;
         let radius = theme.radius.md;
+        let progress = self.progress;
 
-        let default_button = button(
-            "Button",
-            Some(Message::Pressed),
-            ButtonVariant::Default,
-            ButtonSize::Md,
+        let demo = preview(
             theme,
+            row![
+                button(
+                    "Button",
+                    Some(Message::Pressed),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Two),
+                    theme,
+                ),
+                icon_button(
+                    icon_arrow_up().size(16),
+                    Some(Message::Pressed),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Two),
+                    theme,
+                ),
+            ]
+            .spacing(8)
+            .align_y(Alignment::Center),
         );
 
-        let outline_button = button(
-            "Outline",
-            Some(Message::Pressed),
-            ButtonVariant::Outline,
-            ButtonSize::Md,
+        let default_button = preview(
             theme,
-        );
-
-        let ghost_button = button(
-            "Ghost",
-            Some(Message::Pressed),
-            ButtonVariant::Ghost,
-            ButtonSize::Md,
-            theme,
-        );
-
-        let destructive_button = button(
-            "Destructive",
-            Some(Message::Pressed),
-            ButtonVariant::Destructive,
-            ButtonSize::Md,
-            theme,
-        );
-
-        let secondary_button = button(
-            "Secondary",
-            Some(Message::Pressed),
-            ButtonVariant::Secondary,
-            ButtonSize::Md,
-            theme,
-        );
-
-        let link_button = button(
-            "Link",
-            Some(Message::Pressed),
-            ButtonVariant::Link,
-            ButtonSize::Md,
-            theme,
-        );
-
-        let icon_button = button_content(
-            icon_circle_fading_arrow_up().size(16),
-            Some(Message::Pressed),
-            ButtonVariant::Outline,
-            ButtonSize::Icon,
-            theme,
-        );
-
-        let demo = row![
             button(
                 "Button",
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::Md,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Solid)
+                    .size(ButtonSize::Two),
                 theme,
             ),
-            button_content(
-                icon_arrow_up().size(16),
+        );
+
+        let secondary_button = preview(
+            theme,
+            button(
+                "Secondary",
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::Icon,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Soft)
+                    .size(ButtonSize::Two),
                 theme,
             ),
-        ]
-        .spacing(8)
-        .align_y(Alignment::Center);
+        );
+
+        let destructive_button = preview(
+            theme,
+            button(
+                "Destructive",
+                Some(Message::Pressed),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Solid)
+                    .size(ButtonSize::Two)
+                    .color(AccentColor::Red),
+                theme,
+            ),
+        );
+
+        let outline_button = preview(
+            theme,
+            button(
+                "Outline",
+                Some(Message::Pressed),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Two),
+                theme,
+            ),
+        );
+
+        let ghost_button = preview(
+            theme,
+            button(
+                "Ghost",
+                Some(Message::Pressed),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Ghost)
+                    .size(ButtonSize::Two),
+                theme,
+            ),
+        );
+
+        let link_label =
+            Rich::<(), Message>::with_spans(vec![Span::new("Link").underline(self.link_hovered)])
+                .size(14);
+        let link_button = {
+            let button = button_content(
+                link_label,
+                Some(Message::Pressed),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Link)
+                    .size(ButtonSize::Two),
+                theme,
+            );
+            preview(
+                theme,
+                mouse_area(button)
+                    .on_enter(Message::LinkHover(true))
+                    .on_exit(Message::LinkHover(false))
+                    .interaction(mouse::Interaction::Pointer),
+            )
+        };
+
+        let icon_only = preview(
+            theme,
+            icon_button(
+                icon_circle_fading_arrow_up().size(16),
+                Some(Message::Pressed),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Two),
+                theme,
+            ),
+        );
+
+        let with_icon = preview(
+            theme,
+            button_content(
+                row![icon_git_branch().size(12), text("New Branch").size(12)]
+                    .spacing(8)
+                    .align_y(Alignment::Center),
+                Some(Message::Pressed),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::One),
+                theme,
+            ),
+        );
+
+        let loading_button = preview(
+            theme,
+            button_content(
+                row![
+                    spinner(
+                        Spinner::new(theme)
+                            .progress(progress)
+                            .size(SpinnerSize::One)
+                            .color(theme.palette.muted_foreground),
+                    ),
+                    text("Submit")
+                        .size(12)
+                        .style(|_theme| iced::widget::text::Style {
+                            color: Some(theme.palette.muted_foreground),
+                        }),
+                ]
+                .spacing(8)
+                .align_y(Alignment::Center),
+                None,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::One),
+                theme,
+            ),
+        );
 
         let size_sm = row![
             button(
                 "Small",
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::Sm,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::One),
                 theme,
             ),
-            button_content(
+            icon_button(
                 icon_arrow_up_right().size(12),
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::IconSm,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::One),
                 theme,
             ),
         ]
@@ -132,15 +240,17 @@ impl Example {
             button(
                 "Default",
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::Md,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Two),
                 theme,
             ),
-            button_content(
+            icon_button(
                 icon_arrow_up_right().size(14),
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::Icon,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Two),
                 theme,
             ),
         ]
@@ -150,105 +260,84 @@ impl Example {
             button(
                 "Large",
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::Lg,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Three),
                 theme,
             ),
-            button_content(
+            icon_button(
                 icon_arrow_up_right().size(16),
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::IconLg,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Three),
                 theme,
             ),
         ]
         .spacing(8);
 
-        let sizes = row![size_sm, size_md, size_lg]
-            .spacing(24)
-            .align_y(Alignment::Start);
+        let sizes = preview(
+            theme,
+            row![size_sm, size_md, size_lg]
+                .spacing(32)
+                .align_y(Alignment::Start),
+        );
 
-        let with_icon = {
-            let label = row![icon_git_branch().size(12), text("New Branch").size(12),]
-                .spacing(6)
-                .align_y(Alignment::Center);
-
-            button_content(
-                label,
-                Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::Sm,
-                theme,
-            )
-        };
-
-        let loading_button = {
-            let spinner_widget = spinner(
-                Spinner::new(theme)
-                    .size(14.0)
-                    .stroke_width(2.0)
-                    .color(theme.palette.muted_foreground),
-            );
-            let label = row![
-                spinner_widget,
-                text("Submit")
-                    .size(12)
-                    .style(|_theme| iced::widget::text::Style {
-                        color: Some(theme.palette.muted_foreground),
-                    }),
-            ]
-            .spacing(6)
-            .align_y(Alignment::Center);
-
-            button_content(label, None, ButtonVariant::Outline, ButtonSize::Sm, theme)
-        };
-
-        let rounded_button = {
-            let mut rounded_theme = theme.clone();
-            rounded_theme.radius.sm = 999.0;
-            rounded_theme.radius.md = 999.0;
-            rounded_theme.radius.lg = 999.0;
-            button_content(
+        let rounded = preview(
+            theme,
+            icon_button(
                 icon_arrow_up().size(16),
                 Some(Message::Pressed),
-                ButtonVariant::Outline,
-                ButtonSize::Icon,
-                &rounded_theme,
-            )
-        };
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Two)
+                    .radius(ButtonRadius::Full),
+                theme,
+            ),
+        );
 
-        let as_child = button(
-            "Login",
-            Some(Message::Pressed),
-            ButtonVariant::Default,
-            ButtonSize::Md,
+        let as_child = preview(
             theme,
+            button(
+                "Login",
+                Some(Message::Pressed),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Solid)
+                    .size(ButtonSize::Two),
+                theme,
+            ),
         );
 
         let content = column![
-            default_button,
-            outline_button,
-            ghost_button,
-            destructive_button,
-            secondary_button,
-            link_button,
-            icon_button,
-            sizes,
-            demo,
-            with_icon,
-            loading_button,
-            rounded_button,
-            as_child,
+            row![demo, default_button]
+                .spacing(20)
+                .align_y(Alignment::Center),
+            row![secondary_button, destructive_button]
+                .spacing(20)
+                .align_y(Alignment::Center),
+            row![outline_button, ghost_button]
+                .spacing(20)
+                .align_y(Alignment::Center),
+            row![link_button, icon_only]
+                .spacing(20)
+                .align_y(Alignment::Center),
+            row![with_icon, loading_button]
+                .spacing(20)
+                .align_y(Alignment::Center),
+            row![sizes, rounded].spacing(20).align_y(Alignment::Center),
+            row![as_child].spacing(20).align_y(Alignment::Center),
         ]
         .spacing(20)
-        .align_x(Alignment::Start);
+        .align_x(Alignment::Center);
 
         container(content)
             .padding(24)
             .width(Length::Fill)
             .height(Length::Fill)
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .style(move |_theme| iced::widget::container::Style {
-                background: Some(Background::Color(muted)),
+                background: Some(Background::Color(background)),
                 border: Border {
                     radius: radius.into(),
                     width: 1.0,
@@ -258,4 +347,26 @@ impl Example {
             })
             .into()
     }
+}
+
+fn preview<'a, Message: 'a>(
+    theme: &Theme,
+    content: impl Into<Element<'a, Message>>,
+) -> iced::widget::Container<'a, Message> {
+    let background = theme.palette.card;
+    let border = theme.palette.border;
+    let radius = theme.radius.md;
+
+    container(content)
+        .padding(20)
+        .width(Length::Fill)
+        .style(move |_theme| iced::widget::container::Style {
+            background: Some(Background::Color(background)),
+            border: Border {
+                radius: radius.into(),
+                width: 1.0,
+                color: border,
+            },
+            ..iced::widget::container::Style::default()
+        })
 }

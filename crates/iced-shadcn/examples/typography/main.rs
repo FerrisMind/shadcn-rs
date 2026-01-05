@@ -1,10 +1,96 @@
 use iced::border::Border;
 use iced::font;
-use iced::widget::text::{LineHeight, Rich, Span};
+use iced::widget::text::{IntoFragment, LineHeight, Rich, Span};
 use iced::widget::{column, container, row, rule, scrollable, space, text as iced_text};
 use iced::{Alignment, Background, Color, Element, Font, Length};
 
-use iced_shadcn::{SeparatorOrientation, TextVariant, Theme, separator, text as shadcn_text};
+use iced_shadcn::{
+    HeadingProps, SeparatorOrientation, SeparatorProps, SeparatorSize, TextAlign, TextProps,
+    TextSize, TextWeight, Theme, heading, separator, text,
+};
+
+#[derive(Clone, Copy, Debug)]
+enum TextVariant {
+    H1,
+    H2,
+    H3,
+    H4,
+    Lead,
+    Large,
+    Body,
+    Small,
+    Muted,
+}
+
+fn shadcn_text<'a>(
+    content: impl IntoFragment<'a>,
+    variant: TextVariant,
+    theme: &'a Theme,
+) -> iced::widget::Text<'a> {
+    match variant {
+        TextVariant::H1 => heading(
+            content,
+            HeadingProps::new()
+                .size(TextSize::Eight)
+                .weight(TextWeight::Bold),
+            theme,
+        ),
+        TextVariant::H2 => heading(
+            content,
+            HeadingProps::new()
+                .size(TextSize::Seven)
+                .weight(TextWeight::Medium),
+            theme,
+        ),
+        TextVariant::H3 => heading(
+            content,
+            HeadingProps::new()
+                .size(TextSize::Six)
+                .weight(TextWeight::Medium),
+            theme,
+        ),
+        TextVariant::H4 => heading(
+            content,
+            HeadingProps::new()
+                .size(TextSize::Five)
+                .weight(TextWeight::Medium),
+            theme,
+        ),
+        TextVariant::Lead => iced_text(content)
+            .size(20)
+            .line_height(LineHeight::Relative(1.75))
+            .style(|_theme| iced::widget::text::Style {
+                color: Some(theme.palette.muted_foreground),
+            }),
+        TextVariant::Large => text(
+            content,
+            TextProps::new()
+                .size(TextSize::Four)
+                .weight(TextWeight::Medium),
+            theme,
+        ),
+        TextVariant::Body => iced_text(content)
+            .size(16)
+            .line_height(LineHeight::Relative(1.75))
+            .style(|_theme| iced::widget::text::Style {
+                color: Some(theme.palette.foreground),
+            }),
+        TextVariant::Small => text(
+            content,
+            TextProps::new()
+                .size(TextSize::Two)
+                .weight(TextWeight::Medium),
+            theme,
+        ),
+        TextVariant::Muted => {
+            iced_text(content)
+                .size(14)
+                .style(|_theme| iced::widget::text::Style {
+                    color: Some(theme.palette.muted_foreground),
+                })
+        }
+    }
+}
 
 pub fn main() -> iced::Result {
     iced::application(Example::default, Example::update, Example::view).run()
@@ -23,13 +109,9 @@ impl Example {
 
     fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
-        let muted = theme.palette.muted;
+        let background = theme.palette.background;
         let border = theme.palette.border;
         let radius = theme.radius.md;
-        let link_font = Font {
-            weight: font::Weight::Medium,
-            ..Font::DEFAULT
-        };
 
         let paragraph_with_link = Rich::<(), Message>::with_spans(vec![
             Span::new("The king thought long and hard, and finally came up with ")
@@ -37,213 +119,216 @@ impl Example {
             Span::new("a brilliant plan")
                 .color(theme.palette.primary)
                 .underline(true)
-                .font(link_font),
+                .font(Font {
+                    weight: font::Weight::Medium,
+                    ..Font::DEFAULT
+                }),
             Span::new(": he would tax the jokes in the kingdom.").color(theme.palette.foreground),
         ])
         .size(16)
         .line_height(LineHeight::Relative(1.75))
         .width(Length::Fill);
 
-        let blockquote = blockquote_widget(theme);
+        let demo_table = table_view(theme, true);
 
-        let list = column![
-            list_item("1st level of puns: 5 gold coins", theme),
-            list_item("2nd level of jokes: 10 gold coins", theme),
-            list_item("3rd level of one-liners : 20 gold coins", theme),
-        ]
-        .spacing(8);
+        let demo = preview(
+            theme,
+            column![
+                shadcn_text(
+                    "Taxing Laughter: The Joke Tax Chronicles",
+                    TextVariant::H1,
+                    theme,
+                ),
+                v_space(24.0),
+                shadcn_text(
+                    "Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging on his throne. One day, his advisors came to him with a problem: the kingdom was running out of money.",
+                    TextVariant::Lead,
+                    theme,
+                )
+                .width(Length::Fill),
+                v_space(40.0),
+                column![
+                    shadcn_text("The King's Plan", TextVariant::H2, theme),
+                    separator(
+                        SeparatorProps::new()
+                            .orientation(SeparatorOrientation::Horizontal)
+                            .size(SeparatorSize::Four),
+                        theme,
+                    ),
+                ]
+                .spacing(8),
+                v_space(24.0),
+                paragraph_with_link,
+                v_space(24.0),
+                blockquote_widget(theme),
+                v_space(32.0),
+                shadcn_text("The Joke Tax", TextVariant::H3, theme),
+                v_space(24.0),
+                shadcn_text(
+                    "The king's subjects were not amused. They grumbled and complained, but the king was firm:",
+                    TextVariant::Body,
+                    theme,
+                )
+                .width(Length::Fill),
+                v_space(24.0),
+                container(list_view(theme)).padding(iced::padding::left(24.0)),
+                v_space(24.0),
+                shadcn_text(
+                    "As a result, people stopped telling jokes, and the kingdom fell into a gloom. But there was one person who refused to let the king's foolishness get him down: a court jester named Jokester.",
+                    TextVariant::Body,
+                    theme,
+                )
+                .width(Length::Fill),
+                v_space(32.0),
+                shadcn_text("Jokester's Revolt", TextVariant::H3, theme),
+                v_space(24.0),
+                shadcn_text(
+                    "Jokester began sneaking into the castle in the middle of the night and leaving jokes all over the place: under the king's pillow, in his soup, even in the royal toilet. The king was furious, but he couldn't seem to stop Jokester.",
+                    TextVariant::Body,
+                    theme,
+                )
+                .width(Length::Fill),
+                v_space(24.0),
+                shadcn_text(
+                    "And then, one day, the people of the kingdom discovered that the jokes left by Jokester were so funny that they couldn't help but laugh. And once they started laughing, they couldn't stop.",
+                    TextVariant::Body,
+                    theme,
+                )
+                .width(Length::Fill),
+                v_space(32.0),
+                shadcn_text("The People's Rebellion", TextVariant::H3, theme),
+                v_space(24.0),
+                shadcn_text(
+                    "The people of the kingdom, feeling uplifted by the laughter, started to tell jokes and puns again, and soon the entire kingdom was in on the joke.",
+                    TextVariant::Body,
+                    theme,
+                )
+                .width(Length::Fill),
+                v_space(24.0),
+                demo_table,
+                v_space(24.0),
+                shadcn_text(
+                    "The king, seeing how much happier his subjects were, realized the error of his ways and repealed the joke tax. Jokester was declared a hero, and the kingdom lived happily ever after.",
+                    TextVariant::Body,
+                    theme,
+                )
+                .width(Length::Fill),
+                v_space(24.0),
+                shadcn_text(
+                    "The moral of the story is: never underestimate the power of a good laugh and always be careful of bad ideas.",
+                    TextVariant::Body,
+                    theme,
+                )
+                .width(Length::Fill),
+            ]
+            .spacing(0)
+            .width(Length::Fill),
+        );
 
-        let table = column![
-            table_row(theme, ["King's Treasury", "People's happiness"], true, None,),
-            table_row(theme, ["Empty", "Overflowing"], false, None),
-            table_row(
-                theme,
-                ["Modest", "Satisfied"],
-                false,
-                Some(theme.palette.muted),
-            ),
-            table_row(theme, ["Full", "Ecstatic"], false, None),
-        ]
-        .spacing(0)
-        .width(Length::Fill);
+        let h1 = preview(
+            theme,
+            container(
+                heading(
+                    "Taxing Laughter: The Joke Tax Chronicles",
+                    HeadingProps::new()
+                        .size(TextSize::Eight)
+                        .weight(TextWeight::Bold)
+                        .align(TextAlign::Center),
+                    theme,
+                )
+                .width(Length::Fill),
+            )
+            .width(Length::Fill),
+        );
 
-        let inline_code = Rich::<(), Message>::with_spans(vec![
-            Span::new("@radix-ui/react-alert-dialog")
-                .size(14)
-                .font(Font::MONOSPACE)
-                .background(theme.palette.muted)
-                .border(Border {
-                    radius: theme.radius.sm.into(),
-                    width: 1.0,
-                    color: theme.palette.border,
-                })
-                .padding([2.0, 4.0]),
-        ]);
-
-        let standalone_list = column![
-            list_item("1st level of puns: 5 gold coins", theme),
-            list_item("2nd level of jokes: 10 gold coins", theme),
-            list_item("3rd level of one-liners : 20 gold coins", theme),
-        ]
-        .spacing(8);
-
-        let standalone_table = column![
-            table_row(theme, ["King's Treasury", "People's happiness"], true, None,),
-            table_row(theme, ["Empty", "Overflowing"], false, None),
-            table_row(
-                theme,
-                ["Modest", "Satisfied"],
-                false,
-                Some(theme.palette.muted),
-            ),
-            table_row(theme, ["Full", "Ecstatic"], false, None),
-        ]
-        .spacing(0)
-        .width(Length::Fill);
-
-        let standalone = column![
-            container(shadcn_text(
-                "Taxing Laughter: The Joke Tax Chronicles",
-                TextVariant::H1,
-                theme,
-            ))
-            .width(Length::Fill)
-            .center_x(Length::Fill),
-            v_space(24.0),
+        let h2 = preview(
+            theme,
             column![
                 shadcn_text("The People of the Kingdom", TextVariant::H2, theme),
-                separator(SeparatorOrientation::Horizontal, theme),
+                separator(
+                    SeparatorProps::new()
+                        .orientation(SeparatorOrientation::Horizontal)
+                        .size(SeparatorSize::Four),
+                    theme,
+                ),
             ]
             .spacing(8),
-            v_space(24.0),
-            shadcn_text("The Joke Tax", TextVariant::H3, theme),
-            v_space(24.0),
+        );
+
+        let h3 = preview(theme, shadcn_text("The Joke Tax", TextVariant::H3, theme));
+        let h4 = preview(
+            theme,
             shadcn_text("People stopped telling jokes", TextVariant::H4, theme),
-            v_space(24.0),
+        );
+
+        let paragraph = preview(
+            theme,
             shadcn_text(
                 "The king, seeing how much happier his subjects were, realized the error of his ways and repealed the joke tax.",
                 TextVariant::Body,
                 theme,
             )
             .width(Length::Fill),
-            v_space(24.0),
+        );
+
+        let blockquote = preview(theme, blockquote_widget(theme));
+        let table = preview(theme, table_view(theme, true));
+        let list = preview(
+            theme,
+            container(list_view(theme)).padding(iced::padding::left(24.0)),
+        );
+
+        let inline_code = preview(theme, inline_code(theme));
+
+        let lead = preview(
+            theme,
             shadcn_text(
                 "A modal dialog that interrupts the user with important content and expects a response.",
                 TextVariant::Lead,
                 theme,
             )
             .width(Length::Fill),
-            v_space(24.0),
+        );
+
+        let large = preview(
+            theme,
             shadcn_text("Are you absolutely sure?", TextVariant::Large, theme),
-            v_space(24.0),
+        );
+
+        let small = preview(
+            theme,
             shadcn_text("Email address", TextVariant::Small, theme),
-            v_space(24.0),
+        );
+        let muted = preview(
+            theme,
             shadcn_text("Enter your email address.", TextVariant::Muted, theme),
-            v_space(24.0),
-            inline_code,
-            v_space(24.0),
-            blockquote_widget(theme),
-            v_space(24.0),
-            container(standalone_list).padding(iced::padding::left(24.0)),
-            v_space(24.0),
-            standalone_table,
-        ]
-        .spacing(0);
+        );
 
         let content = column![
-            shadcn_text(
-                "Taxing Laughter: The Joke Tax Chronicles",
-                TextVariant::H1,
-                theme,
-            ),
-            v_space(24.0),
-            shadcn_text(
-                "Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging on his throne. One day, his advisors came to him with a problem: the kingdom was running out of money.",
-                TextVariant::Lead,
-                theme,
-            )
-            .width(Length::Fill),
-            v_space(40.0),
-            column![
-                shadcn_text("The King's Plan", TextVariant::H2, theme),
-                separator(SeparatorOrientation::Horizontal, theme),
-            ]
-            .spacing(8),
-            v_space(24.0),
-            paragraph_with_link,
-            v_space(24.0),
-            blockquote,
-            v_space(32.0),
-            shadcn_text("The Joke Tax", TextVariant::H3, theme),
-            v_space(24.0),
-            shadcn_text(
-                "The king's subjects were not amused. They grumbled and complained, but the king was firm:",
-                TextVariant::Body,
-                theme,
-            )
-            .width(Length::Fill),
-            v_space(24.0),
-            container(list).padding(iced::padding::left(24.0)),
-            v_space(24.0),
-            shadcn_text(
-                "As a result, people stopped telling jokes, and the kingdom fell into a gloom. But there was one person who refused to let the king's foolishness get him down: a court jester named Jokester.",
-                TextVariant::Body,
-                theme,
-            )
-            .width(Length::Fill),
-            v_space(32.0),
-            shadcn_text("Jokester's Revolt", TextVariant::H3, theme),
-            v_space(24.0),
-            shadcn_text(
-                "Jokester began sneaking into the castle in the middle of the night and leaving jokes all over the place: under the king's pillow, in his soup, even in the royal toilet. The king was furious, but he couldn't seem to stop Jokester.",
-                TextVariant::Body,
-                theme,
-            )
-            .width(Length::Fill),
-            v_space(24.0),
-            shadcn_text(
-                "And then, one day, the people of the kingdom discovered that the jokes left by Jokester were so funny that they couldn't help but laugh. And once they started laughing, they couldn't stop.",
-                TextVariant::Body,
-                theme,
-            )
-            .width(Length::Fill),
-            v_space(32.0),
-            shadcn_text("The People's Rebellion", TextVariant::H3, theme),
-            v_space(24.0),
-            shadcn_text(
-                "The people of the kingdom, feeling uplifted by the laughter, started to tell jokes and puns again, and soon the entire kingdom was in on the joke.",
-                TextVariant::Body,
-                theme,
-            )
-            .width(Length::Fill),
-            v_space(24.0),
-            table,
-            v_space(24.0),
-            shadcn_text(
-                "The king, seeing how much happier his subjects were, realized the error of his ways and repealed the joke tax. Jokester was declared a hero, and the kingdom lived happily ever after.",
-                TextVariant::Body,
-                theme,
-            )
-            .width(Length::Fill),
-            v_space(24.0),
-            shadcn_text(
-                "The moral of the story is: never underestimate the power of a good laugh and always be careful of bad ideas.",
-                TextVariant::Body,
-                theme,
-            )
-            .width(Length::Fill),
-            v_space(48.0),
-            standalone,
+            row![demo].spacing(20).align_y(Alignment::Center),
+            row![h1, h2].spacing(20).align_y(Alignment::Center),
+            row![h3, h4].spacing(20).align_y(Alignment::Center),
+            row![paragraph, blockquote]
+                .spacing(20)
+                .align_y(Alignment::Center),
+            row![table, list].spacing(20).align_y(Alignment::Center),
+            row![inline_code, lead]
+                .spacing(20)
+                .align_y(Alignment::Center),
+            row![large, small].spacing(20).align_y(Alignment::Center),
+            row![muted].spacing(20).align_y(Alignment::Center),
         ]
-        .spacing(0)
-        .width(Length::Fill);
+        .spacing(20)
+        .align_x(Alignment::Center);
 
         container(scrollable(content))
             .padding(24)
             .width(Length::Fill)
             .height(Length::Fill)
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .style(move |_theme| iced::widget::container::Style {
-                background: Some(Background::Color(muted)),
+                background: Some(Background::Color(background)),
                 border: Border {
                     radius: radius.into(),
                     width: 1.0,
@@ -255,11 +340,33 @@ impl Example {
     }
 }
 
+fn preview<'a, Message: 'a>(
+    theme: &Theme,
+    content: impl Into<Element<'a, Message>>,
+) -> iced::widget::Container<'a, Message> {
+    let background = theme.palette.card;
+    let border = theme.palette.border;
+    let radius = theme.radius.md;
+
+    container(content)
+        .padding(20)
+        .width(Length::Fill)
+        .style(move |_theme| iced::widget::container::Style {
+            background: Some(Background::Color(background)),
+            border: Border {
+                radius: radius.into(),
+                width: 1.0,
+                color: border,
+            },
+            ..iced::widget::container::Style::default()
+        })
+}
+
 fn v_space(height: f32) -> iced::widget::Space {
     space().height(Length::Fixed(height))
 }
 
-fn list_item<'a, Message>(content: &'a str, theme: &Theme) -> iced::widget::Row<'a, Message> {
+fn list_item<'a, Message>(content: &'a str, theme: &'a Theme) -> iced::widget::Row<'a, Message> {
     row![
         shadcn_text("•", TextVariant::Body, theme),
         shadcn_text(content, TextVariant::Body, theme).width(Length::Fill),
@@ -268,7 +375,16 @@ fn list_item<'a, Message>(content: &'a str, theme: &Theme) -> iced::widget::Row<
     .align_y(Alignment::Start)
 }
 
-fn blockquote_widget<'a, Message: 'a>(theme: &Theme) -> iced::widget::Row<'a, Message> {
+fn list_view<'a, Message: 'a>(theme: &'a Theme) -> iced::widget::Column<'a, Message> {
+    column![
+        list_item("1st level of puns: 5 gold coins", theme),
+        list_item("2nd level of jokes: 10 gold coins", theme),
+        list_item("3rd level of one-liners : 20 gold coins", theme),
+    ]
+    .spacing(8)
+}
+
+fn blockquote_widget<'a, Message: 'a>(theme: &'a Theme) -> iced::widget::Row<'a, Message> {
     row![
         rule::vertical(2).style({
             let border = theme.palette.border;
@@ -292,6 +408,32 @@ fn blockquote_widget<'a, Message: 'a>(theme: &Theme) -> iced::widget::Row<'a, Me
     ]
     .spacing(24)
     .align_y(Alignment::Start)
+}
+
+fn table_view<'a, Message: 'a>(
+    theme: &'a Theme,
+    with_header: bool,
+) -> iced::widget::Column<'a, Message> {
+    let header = table_row(theme, ["King's Treasury", "People's happiness"], true, None);
+
+    let body = column![
+        table_row(theme, ["Empty", "Overflowing"], false, None),
+        table_row(
+            theme,
+            ["Modest", "Satisfied"],
+            false,
+            Some(theme.palette.muted)
+        ),
+        table_row(theme, ["Full", "Ecstatic"], false, None),
+    ]
+    .spacing(0)
+    .width(Length::Fill);
+
+    if with_header {
+        column![header, body].spacing(0).width(Length::Fill)
+    } else {
+        body
+    }
 }
 
 fn table_row<'a, Message: 'a>(
@@ -336,7 +478,7 @@ fn table_row<'a, Message: 'a>(
 }
 
 fn table_cell<'a, Message>(
-    theme: &Theme,
+    theme: &'a Theme,
     content: iced::widget::Text<'a>,
     background: Option<Color>,
 ) -> iced::widget::Container<'a, Message> {
@@ -355,4 +497,20 @@ fn table_cell<'a, Message>(
             border,
             ..iced::widget::container::Style::default()
         })
+}
+
+fn inline_code<'a>(theme: &Theme) -> Rich<'a, (), Message> {
+    Rich::<(), Message>::with_spans(vec![
+        Span::new("@radix-ui/react-alert-dialog")
+            .size(14)
+            .font(Font::MONOSPACE)
+            .color(theme.palette.foreground)
+            .background(theme.palette.input)
+            .border(Border {
+                radius: theme.radius.sm.into(),
+                width: 1.0,
+                color: theme.palette.border,
+            })
+            .padding([2.0, 4.0]),
+    ])
 }

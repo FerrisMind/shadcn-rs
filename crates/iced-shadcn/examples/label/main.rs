@@ -26,25 +26,30 @@ impl Example {
     }
 
     fn view(&self) -> Element<'_, Message> {
-        let muted = self.theme.palette.muted;
-        let border = self.theme.palette.border;
-        let radius = self.theme.radius.md;
+        let theme = &self.theme;
+        let background = theme.palette.background;
+        let border = theme.palette.border;
+        let radius = theme.radius.md;
 
         let content = row![
             checkbox(self.accepted)
                 .label("")
                 .on_toggle(Message::Toggled),
-            label("Accept terms and conditions", &self.theme),
+            label("Accept terms and conditions", theme),
         ]
-        .spacing(8)
-        .align_y(Alignment::Center);
+            .spacing(8)
+            .align_y(Alignment::Center);
 
-        container(content)
+        let preview = preview(theme, content);
+
+        container(preview)
             .padding(24)
             .width(Length::Fill)
             .height(Length::Fill)
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
             .style(move |_theme| iced::widget::container::Style {
-                background: Some(Background::Color(muted)),
+                background: Some(Background::Color(background)),
                 border: Border {
                     radius: radius.into(),
                     width: 1.0,
@@ -54,4 +59,26 @@ impl Example {
             })
             .into()
     }
+}
+
+fn preview<'a, Message: 'a>(
+    theme: &Theme,
+    content: impl Into<Element<'a, Message>>,
+) -> iced::widget::Container<'a, Message> {
+    let background = theme.palette.card;
+    let border = theme.palette.border;
+    let radius = theme.radius.md;
+
+    container(content)
+        .padding(20)
+        .width(Length::Fill)
+        .style(move |_theme| iced::widget::container::Style {
+            background: Some(Background::Color(background)),
+            border: Border {
+                radius: radius.into(),
+                width: 1.0,
+                color: border,
+            },
+            ..iced::widget::container::Style::default()
+        })
 }
