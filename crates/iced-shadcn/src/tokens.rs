@@ -115,6 +115,23 @@ pub fn accent_soft_foreground(palette: &Palette, color: AccentColor) -> Color {
     }
 }
 
+pub(crate) fn is_dark(palette: &Palette) -> bool {
+    fn to_linear(channel: f32) -> f32 {
+        if channel <= 0.04045 {
+            channel / 12.92
+        } else {
+            ((channel + 0.055) / 1.055).powf(2.4)
+        }
+    }
+
+    let r = to_linear(palette.background.r);
+    let g = to_linear(palette.background.g);
+    let b = to_linear(palette.background.b);
+    let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+    luminance < 0.5
+}
+
 impl Palette {
     pub fn dark() -> Self {
         Self::shadcn_dark(ShadcnBaseColor::Neutral)
