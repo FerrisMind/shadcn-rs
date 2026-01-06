@@ -8,7 +8,7 @@ repository.workspace = true
 description = "Shadcn-inspired component kit for iced"
 
 [dependencies]
-iced = { version = "0.14", features = ["canvas", "tokio"] }
+iced = { version = "0.14", features = ["advanced", "canvas", "tokio"] }
 lucide-icons = { version = "0.562", features = ["iced"] }
 
 [dev-dependencies]
