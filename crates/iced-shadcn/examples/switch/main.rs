@@ -3,8 +3,8 @@ use iced::widget::{column, container, row, scrollable, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    AccentColor, ButtonRadius, SwitchProps, SwitchSize, SwitchVariant, Theme, label, switch, text,
-    TextProps, TextSize, TextWeight,
+    AccentColor, ButtonProps, ButtonRadius, ButtonVariant, SwitchProps, SwitchSize, SwitchVariant,
+    Theme, button, label, switch, text, TextProps, TextSize, TextWeight,
 };
 
 pub fn main() -> iced::Result {
@@ -19,6 +19,7 @@ struct Example {
 #[derive(Debug, Clone)]
 enum Message {
     Toggle(usize, bool),
+    Noop,
 }
 
 impl Example {
@@ -29,6 +30,7 @@ impl Example {
                     *state = value;
                 }
             }
+            Message::Noop => {}
         }
     }
 
@@ -76,6 +78,182 @@ impl Example {
             .align_y(Alignment::Start),
         ]
         .spacing(16)
+        .align_x(Alignment::Start);
+
+        let form_header = column![
+            text(
+                "Email Notifications",
+                TextProps::new()
+                    .size(TextSize::Three)
+                    .weight(TextWeight::Medium),
+                theme
+            ),
+            muted_text("Manage your email preferences.", theme),
+        ]
+        .spacing(4);
+
+        let form_items = column![
+            form_item(
+                row![
+                    container(column![
+                        label("Marketing emails", theme),
+                        muted_text(
+                            "Receive emails about new products, features, and more.",
+                            theme
+                        ),
+                    ])
+                    .width(Length::Fill),
+                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+                ]
+                .spacing(12)
+                .align_y(Alignment::Center),
+                theme,
+            ),
+            form_item(
+                row![
+                    container(column![
+                        label("Security emails", theme),
+                        muted_text("Receive emails about your account security.", theme),
+                    ])
+                    .width(Length::Fill),
+                    make_switch(
+                        next_index(),
+                        SwitchProps::new()
+                            .size(SwitchSize::Two)
+                            .disabled(true),
+                    ),
+                ]
+                .spacing(12)
+                .align_y(Alignment::Center),
+                theme,
+            ),
+        ]
+        .spacing(12);
+
+        let form_actions = row![button(
+            "Submit",
+            Some(Message::Noop),
+            ButtonProps::new(),
+            theme
+        )];
+
+        let form_content = column![form_header, form_items, form_actions]
+            .spacing(12)
+            .align_x(Alignment::Start);
+
+        let field_content = row![
+            container(column![
+                label("Multi-factor authentication", theme),
+                muted_text(
+                    "Enable multi-factor authentication. If you do not have a two-factor device, \
+you can use a one-time code sent to your email.",
+                    theme
+                ),
+            ])
+            .width(Length::Fill),
+            make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+        ]
+        .spacing(12)
+        .align_y(Alignment::Center);
+
+        let rhf_header = column![
+            text(
+                "Security Settings",
+                TextProps::new()
+                    .size(TextSize::Three)
+                    .weight(TextWeight::Medium),
+                theme
+            ),
+            muted_text("Manage your account security preferences.", theme),
+        ]
+        .spacing(4);
+
+        let rhf_content = column![
+            rhf_header,
+            form_item(
+                row![
+                    container(column![
+                        label("Multi-factor authentication", theme),
+                        muted_text(
+                            "Enable multi-factor authentication to secure your account.",
+                            theme
+                        ),
+                    ])
+                    .width(Length::Fill),
+                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+                ]
+                .spacing(12)
+                .align_y(Alignment::Center),
+                theme,
+            ),
+            row![
+                button(
+                    "Reset",
+                    Some(Message::Noop),
+                    ButtonProps::new().variant(ButtonVariant::Outline),
+                    theme
+                ),
+                button(
+                    "Save",
+                    Some(Message::Noop),
+                    ButtonProps::new(),
+                    theme
+                ),
+            ]
+            .spacing(8)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(12)
+        .align_x(Alignment::Start);
+
+        let tanstack_header = column![
+            text(
+                "Security Settings",
+                TextProps::new()
+                    .size(TextSize::Three)
+                    .weight(TextWeight::Medium),
+                theme
+            ),
+            muted_text("Enable multi-factor authentication to secure your account.", theme),
+        ]
+        .spacing(4);
+
+        let tanstack_content = column![
+            tanstack_header,
+            form_item(
+                row![
+                    container(column![
+                        label("Multi-factor authentication", theme),
+                        muted_text(
+                            "Receive a one-time code if you do not have a two-factor device.",
+                            theme
+                        ),
+                    ])
+                    .width(Length::Fill),
+                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+                ]
+                .spacing(12)
+                .align_y(Alignment::Center),
+                theme,
+            ),
+            row![
+                button(
+                    "Reset",
+                    Some(Message::Noop),
+                    ButtonProps::new().variant(ButtonVariant::Outline),
+                    theme
+                ),
+                button(
+                    "Save",
+                    Some(Message::Noop),
+                    ButtonProps::new(),
+                    theme
+                ),
+            ]
+            .spacing(8)
+            .align_y(Alignment::Center),
+        ]
+        .spacing(12)
         .align_x(Alignment::Start);
 
         let variants_header = row![
@@ -247,6 +425,10 @@ impl Example {
 
         let content = column![
             section(theme, "Demo", demo_content),
+            section(theme, "Switch Form", form_content),
+            section(theme, "Field", field_content),
+            section(theme, "Form (React Hook Form)", rhf_content),
+            section(theme, "Form (Tanstack)", tanstack_content),
             section(theme, "Variants", variants_content),
             section(theme, "Sizes", sizes_content),
             section(theme, "Alignment", alignment_content),
@@ -341,6 +523,11 @@ fn default_states() -> Vec<bool> {
 
     states.push(false);
     states.push(true);
+    states.push(false);
+    states.push(true);
+    states.push(false);
+    states.push(false);
+    states.push(false);
 
     for _variant in VARIANTS {
         for _high_contrast in [false, true] {
@@ -417,6 +604,27 @@ fn caption<'a>(
     iced_text(content)
         .size(12)
         .style(move |_theme| iced::widget::text::Style { color: Some(color) })
+}
+
+fn form_item<'a, Message: 'a>(
+    content: impl Into<Element<'a, Message>>,
+    theme: &Theme,
+) -> iced::widget::Container<'a, Message> {
+    let background = theme.palette.background;
+    let border = theme.palette.border;
+    let radius = theme.radius.md;
+
+    container(content)
+        .padding(12)
+        .style(move |_theme| iced::widget::container::Style {
+            background: Some(Background::Color(background)),
+            border: Border {
+                radius: radius.into(),
+                width: 1.0,
+                color: border,
+            },
+            ..iced::widget::container::Style::default()
+        })
 }
 
 fn variant_label(variant: SwitchVariant) -> &'static str {

@@ -75,19 +75,76 @@ impl AccentColor {
     }
 }
 
-pub fn accent_color(palette: &Palette, color: AccentColor) -> Color {
-    if color.is_destructive() {
-        palette.destructive
+#[derive(Clone, Copy, Debug)]
+struct AccentSwatch {
+    accent: Color,
+    text: Color,
+    soft: Color,
+    contrast: Color,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct AccentPalette {
+    light: AccentSwatch,
+    dark: AccentSwatch,
+}
+
+const ACCENT_PALETTES: [AccentPalette; 26] = include!("accent_palette.rs");
+
+fn accent_palette(color: AccentColor) -> AccentPalette {
+    let index = match color {
+        AccentColor::Gray => 0,
+        AccentColor::Gold => 1,
+        AccentColor::Bronze => 2,
+        AccentColor::Brown => 3,
+        AccentColor::Yellow => 4,
+        AccentColor::Amber => 5,
+        AccentColor::Orange => 6,
+        AccentColor::Tomato => 7,
+        AccentColor::Red => 8,
+        AccentColor::Ruby => 9,
+        AccentColor::Crimson => 10,
+        AccentColor::Pink => 11,
+        AccentColor::Plum => 12,
+        AccentColor::Purple => 13,
+        AccentColor::Violet => 14,
+        AccentColor::Iris => 15,
+        AccentColor::Indigo => 16,
+        AccentColor::Blue => 17,
+        AccentColor::Cyan => 18,
+        AccentColor::Teal => 19,
+        AccentColor::Jade => 20,
+        AccentColor::Green => 21,
+        AccentColor::Grass => 22,
+        AccentColor::Lime => 23,
+        AccentColor::Mint => 24,
+        AccentColor::Sky => 25,
+    };
+    ACCENT_PALETTES[index]
+}
+
+fn accent_swatch(palette: &Palette, color: AccentColor) -> AccentSwatch {
+    let accents = accent_palette(color);
+    if is_dark(palette) {
+        accents.dark
     } else {
+        accents.light
+    }
+}
+
+pub fn accent_color(palette: &Palette, color: AccentColor) -> Color {
+    if matches!(color, AccentColor::Gray) {
         palette.primary
+    } else {
+        accent_swatch(palette, color).accent
     }
 }
 
 pub fn accent_foreground(palette: &Palette, color: AccentColor) -> Color {
-    if color.is_destructive() {
-        palette.destructive_foreground
-    } else {
+    if matches!(color, AccentColor::Gray) {
         palette.primary_foreground
+    } else {
+        accent_swatch(palette, color).contrast
     }
 }
 
@@ -95,23 +152,23 @@ pub fn accent_text(palette: &Palette, color: AccentColor) -> Color {
     if matches!(color, AccentColor::Gray) {
         palette.foreground
     } else {
-        accent_color(palette, color)
+        accent_swatch(palette, color).text
     }
 }
 
 pub fn accent_soft(palette: &Palette, color: AccentColor) -> Color {
-    if color.is_destructive() {
-        palette.destructive
-    } else {
+    if matches!(color, AccentColor::Gray) {
         palette.secondary
+    } else {
+        accent_swatch(palette, color).soft
     }
 }
 
 pub fn accent_soft_foreground(palette: &Palette, color: AccentColor) -> Color {
-    if color.is_destructive() {
-        palette.destructive_foreground
-    } else {
+    if matches!(color, AccentColor::Gray) {
         palette.secondary_foreground
+    } else {
+        accent_swatch(palette, color).text
     }
 }
 
