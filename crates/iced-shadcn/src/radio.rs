@@ -101,7 +101,11 @@ where
         .style(move |_iced_theme, status| radio_style(&theme, props, status))
 }
 
-fn radio_style(theme: &Theme, props: RadioProps, status: radio_widget::Status) -> radio_widget::Style {
+fn radio_style(
+    theme: &Theme,
+    props: RadioProps,
+    status: radio_widget::Status,
+) -> radio_widget::Style {
     let palette = theme.palette;
     let accent = accent_color(&palette, props.color);
     let text_color = accent_text(&palette, props.color);

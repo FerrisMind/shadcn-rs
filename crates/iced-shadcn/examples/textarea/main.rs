@@ -56,9 +56,7 @@ impl Example {
                 &self.content_disabled,
                 "Type your message here.",
                 None::<fn(text_editor::Action) -> Message>,
-                TextareaProps::new()
-                    .size(TextareaSize::Two)
-                    .disabled(true),
+                TextareaProps::new().size(TextareaSize::Two).disabled(true),
                 theme,
             )
             .width(420.0),

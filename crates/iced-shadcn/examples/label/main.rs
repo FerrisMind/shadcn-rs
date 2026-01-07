@@ -37,8 +37,8 @@ impl Example {
                 .on_toggle(Message::Toggled),
             label("Accept terms and conditions", theme),
         ]
-            .spacing(8)
-            .align_y(Alignment::Center);
+        .spacing(8)
+        .align_y(Alignment::Center);
 
         let preview = preview(theme, content);
 

@@ -8,9 +8,7 @@ use lucide_icons::Icon as LucideIcon;
 
 use crate::button::ButtonRadius;
 use crate::theme::Theme;
-use crate::tokens::{
-    AccentColor, accent_color, accent_foreground, accent_soft, is_dark,
-};
+use crate::tokens::{AccentColor, accent_color, accent_foreground, accent_soft, is_dark};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SelectSize {
@@ -146,11 +144,7 @@ where
         .menu_style(move |_iced_theme| select_menu_style(&theme_for_menu, props))
 }
 
-fn select_style(
-    theme: &Theme,
-    props: SelectProps,
-    status: pick_list::Status,
-) -> pick_list::Style {
+fn select_style(theme: &Theme, props: SelectProps, status: pick_list::Status) -> pick_list::Style {
     let palette = theme.palette;
     let radius = select_radius(theme, props);
     let text_color = palette.foreground;

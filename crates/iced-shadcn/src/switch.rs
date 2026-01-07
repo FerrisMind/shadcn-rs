@@ -6,11 +6,11 @@ use iced::Rectangle;
 use iced::Shadow;
 use iced::Size;
 use iced::Vector;
-use iced::border;
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::widget::Tree;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
+use iced::border;
 use iced::mouse;
 use iced::time::{Duration, Instant};
 use iced::widget::{button as button_widget, button};
@@ -184,9 +184,7 @@ where
             snap: false,
         });
 
-    if !disabled
-        && let Some(on_toggle) = on_toggle
-    {
+    if !disabled && let Some(on_toggle) = on_toggle {
         widget = widget.on_press(on_toggle(!is_checked));
     }
 
@@ -400,9 +398,8 @@ where
         };
         let track_color = mix_color(self.colors_off.track, self.colors_on.track, progress);
         let thumb_color = mix_color(self.colors_off.thumb, self.colors_on.thumb, progress);
-        let available_width = (track_bounds.width
-            - (self.metrics.thumb + self.metrics.thumb_inset_x * 2.0))
-            .max(0.0);
+        let available_width =
+            (track_bounds.width - (self.metrics.thumb + self.metrics.thumb_inset_x * 2.0)).max(0.0);
         let thumb_x = track_bounds.x + self.metrics.thumb_inset_x + (available_width * progress);
         let thumb_bounds = Rectangle {
             x: thumb_x,
