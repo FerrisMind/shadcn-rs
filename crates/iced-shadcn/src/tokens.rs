@@ -77,10 +77,12 @@ impl AccentColor {
 
 #[derive(Clone, Copy, Debug)]
 struct AccentSwatch {
+    low: Color,
     accent: Color,
     text: Color,
     soft: Color,
     contrast: Color,
+    strong: Color,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -133,43 +135,31 @@ fn accent_swatch(palette: &Palette, color: AccentColor) -> AccentSwatch {
 }
 
 pub fn accent_color(palette: &Palette, color: AccentColor) -> Color {
-    if matches!(color, AccentColor::Gray) {
-        palette.primary
-    } else {
-        accent_swatch(palette, color).accent
-    }
+    accent_swatch(palette, color).accent
 }
 
 pub fn accent_foreground(palette: &Palette, color: AccentColor) -> Color {
-    if matches!(color, AccentColor::Gray) {
-        palette.primary_foreground
-    } else {
-        accent_swatch(palette, color).contrast
-    }
+    accent_swatch(palette, color).contrast
 }
 
 pub fn accent_text(palette: &Palette, color: AccentColor) -> Color {
-    if matches!(color, AccentColor::Gray) {
-        palette.foreground
-    } else {
-        accent_swatch(palette, color).text
-    }
+    accent_swatch(palette, color).text
 }
 
 pub fn accent_soft(palette: &Palette, color: AccentColor) -> Color {
-    if matches!(color, AccentColor::Gray) {
-        palette.secondary
-    } else {
-        accent_swatch(palette, color).soft
-    }
+    accent_swatch(palette, color).soft
 }
 
 pub fn accent_soft_foreground(palette: &Palette, color: AccentColor) -> Color {
-    if matches!(color, AccentColor::Gray) {
-        palette.secondary_foreground
-    } else {
-        accent_swatch(palette, color).text
-    }
+    accent_swatch(palette, color).text
+}
+
+pub fn accent_low(palette: &Palette, color: AccentColor) -> Color {
+    accent_swatch(palette, color).low
+}
+
+pub fn accent_high(palette: &Palette, color: AccentColor) -> Color {
+    accent_swatch(palette, color).strong
 }
 
 pub(crate) fn is_dark(palette: &Palette) -> bool {
