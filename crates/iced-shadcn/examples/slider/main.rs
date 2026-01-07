@@ -58,7 +58,7 @@ impl Example {
 
         let range_index = next_index();
         let range_values = &self.values[range_index];
-        let low = range_values.get(0).copied().unwrap_or(0.0);
+        let low = range_values.first().copied().unwrap_or(0.0);
         let high = range_values.get(1).copied().unwrap_or(0.0);
         let range_slider = slider(
             0.0..=1000.0,

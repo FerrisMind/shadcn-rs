@@ -4,7 +4,8 @@ use iced::{Alignment, Background, Color, Element, Length};
 
 use iced_shadcn::{
     AccentColor, ButtonProps, ButtonSize, CheckboxProps, CheckboxSize, CheckboxState,
-    CheckboxVariant, TextProps, TextSize, TextWeight, Theme, button, checkbox, label, text,
+    CheckboxVariant, LabelProps, TextProps, TextSize, TextWeight, Theme, button, checkbox, label,
+    label_with_props, text,
 };
 use iced_shadcn::tokens::accent_color;
 use lucide_icons::LUCIDE_FONT_BYTES;
@@ -175,7 +176,11 @@ impl Example {
                     .disabled(true),
                 theme,
             ),
-            disabled_label("Accept terms and conditions", theme),
+            label_with_props(
+                "Accept terms and conditions",
+                LabelProps::new().disabled(true),
+                theme,
+            ),
         ]
         .spacing(12)
         .align_y(Alignment::Center);
@@ -559,18 +564,15 @@ const ALIGNMENT_ROWS: [(u32, CheckboxSize); 6] = [
 ];
 
 fn default_states() -> Vec<CheckboxState> {
-    let mut states = Vec::new();
-
-    states.push(CheckboxState::Unchecked);
-    states.push(CheckboxState::Checked);
-    states.push(CheckboxState::Checked);
-
-    states.push(CheckboxState::Unchecked);
-
-    states.push(CheckboxState::Checked);
-
-    states.push(CheckboxState::Checked);
-    states.push(CheckboxState::Checked);
+    let mut states = vec![
+        CheckboxState::Unchecked,
+        CheckboxState::Checked,
+        CheckboxState::Checked,
+        CheckboxState::Unchecked,
+        CheckboxState::Checked,
+        CheckboxState::Checked,
+        CheckboxState::Checked,
+    ];
     for _ in 0..(FORM_ITEMS.len() - 2) {
         states.push(CheckboxState::Unchecked);
     }
@@ -640,16 +642,6 @@ fn muted_text<'a>(
     let color = theme.palette.muted_foreground;
     iced_text(content)
         .size(13)
-        .style(move |_theme| iced::widget::text::Style { color: Some(color) })
-}
-
-fn disabled_label<'a>(
-    content: impl iced::widget::text::IntoFragment<'a>,
-    theme: &Theme,
-) -> iced::widget::Text<'a> {
-    let color = apply_opacity(theme.palette.foreground, 0.7);
-    iced_text(content)
-        .size(14)
         .style(move |_theme| iced::widget::text::Style { color: Some(color) })
 }
 

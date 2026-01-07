@@ -502,15 +502,7 @@ const ALIGNMENT_ITEMS: [(SwitchSize, TextSize); 6] = [
 ];
 
 fn default_states() -> Vec<bool> {
-    let mut states = Vec::new();
-
-    states.push(false);
-    states.push(true);
-    states.push(false);
-    states.push(true);
-    states.push(false);
-    states.push(false);
-    states.push(false);
+    let mut states = vec![false, true, false, true, false, false, false];
 
     for _variant in VARIANTS {
         for _high_contrast in [false, true] {

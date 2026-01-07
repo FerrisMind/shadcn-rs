@@ -158,23 +158,12 @@ enum SliderStatus {
     Dragged,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 struct SliderState {
     is_dragging: bool,
     active_thumb: Option<usize>,
     hovered_thumb: Option<usize>,
     keyboard_modifiers: keyboard::Modifiers,
-}
-
-impl Default for SliderState {
-    fn default() -> Self {
-        Self {
-            is_dragging: false,
-            active_thumb: None,
-            hovered_thumb: None,
-            keyboard_modifiers: keyboard::Modifiers::default(),
-        }
-    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -380,15 +369,15 @@ where
         min_distance: f64,
     ) {
         let next = clamp_value_for_thumb(&self.values, index, start, end, min_distance, candidate);
-        if let Some(next) = T::from_f64(next) {
-            if !approx_eq(self.values[index].into(), next.into()) {
-                let mut updated = self.values.clone();
-                updated[index] = next;
-                if let Some(handler) = &self.on_change {
-                    shell.publish(handler(updated.clone()));
-                }
-                self.values = updated;
+        if let Some(next) = T::from_f64(next)
+            && !approx_eq(self.values[index].into(), next.into())
+        {
+            let mut updated = self.values.clone();
+            updated[index] = next;
+            if let Some(handler) = &self.on_change {
+                shell.publish(handler(updated.clone()));
             }
+            self.values = updated;
         }
     }
 }
@@ -451,8 +440,8 @@ where
         match event {
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if let Some(cursor_position) = cursor.position_over(bounds) {
-                    if let Some(index) = nearest_thumb(
+                if let Some(cursor_position) = cursor.position_over(bounds)
+                    && let Some(index) = nearest_thumb(
                         &self.values,
                         *self.range.start(),
                         *self.range.end(),
@@ -461,25 +450,25 @@ where
                         self.inverted,
                         self.props.size.thumb_size(),
                         cursor_position,
-                    ) {
-                        state.active_thumb = Some(index);
-                        state.is_dragging = true;
-                        let step = self.step_value(state.keyboard_modifiers);
-                        let min_distance = self.min_distance(step);
-                        let start = (*self.range.start()).into();
-                        let end = (*self.range.end()).into();
-                        let candidate = position_to_value(
-                            cursor_position,
-                            bounds,
-                            self.orientation,
-                            self.inverted,
-                            start,
-                            end,
-                            step,
-                        );
-                        self.apply_value(shell, index, candidate, start, end, min_distance);
-                        shell.capture_event();
-                    }
+                    )
+                {
+                    state.active_thumb = Some(index);
+                    state.is_dragging = true;
+                    let step = self.step_value(state.keyboard_modifiers);
+                    let min_distance = self.min_distance(step);
+                    let start = (*self.range.start()).into();
+                    let end = (*self.range.end()).into();
+                    let candidate = position_to_value(
+                        cursor_position,
+                        bounds,
+                        self.orientation,
+                        self.inverted,
+                        start,
+                        end,
+                        step,
+                    );
+                    self.apply_value(shell, index, candidate, start, end, min_distance);
+                    shell.capture_event();
                 }
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
@@ -515,21 +504,19 @@ where
                         }
                         shell.capture_event();
                     }
+                } else if let Some(cursor_position) = cursor.position_over(bounds) {
+                    state.hovered_thumb = nearest_thumb(
+                        &self.values,
+                        *self.range.start(),
+                        *self.range.end(),
+                        bounds,
+                        self.orientation,
+                        self.inverted,
+                        self.props.size.thumb_size(),
+                        cursor_position,
+                    );
                 } else {
-                    if let Some(cursor_position) = cursor.position_over(bounds) {
-                        state.hovered_thumb = nearest_thumb(
-                            &self.values,
-                            *self.range.start(),
-                            *self.range.end(),
-                            bounds,
-                            self.orientation,
-                            self.inverted,
-                            self.props.size.thumb_size(),
-                            cursor_position,
-                        );
-                    } else {
-                        state.hovered_thumb = None;
-                    }
+                    state.hovered_thumb = None;
                 }
             }
             Event::Mouse(mouse::Event::WheelScrolled { delta })
@@ -863,6 +850,7 @@ fn clamp_value_for_thumb<T: Into<f64> + Copy>(
     candidate.clamp(min_value, max_value)
 }
 
+#[allow(clippy::too_many_arguments)]
 fn nearest_thumb<T: Into<f64> + Copy>(
     values: &[T],
     start: T,
@@ -925,7 +913,7 @@ fn thumb_positions<T: Into<f64> + Copy>(
         .iter()
         .map(|value| {
             let raw: f64 = (*value).into();
-            let normalized: f64 = ((raw - min) / span).max(0.0).min(1.0);
+            let normalized: f64 = ((raw - min) / span).clamp(0.0, 1.0);
             let base = match orientation {
                 SliderOrientation::Horizontal => normalized,
                 SliderOrientation::Vertical => 1.0 - normalized,
@@ -985,6 +973,7 @@ fn thumb_rects<T: Into<f64> + Copy>(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn track_and_range_bounds<T: Into<f64> + Copy>(
     bounds: Rectangle,
     orientation: SliderOrientation,
