@@ -473,51 +473,50 @@ fn spinner_input_group<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Col
     .align_y(Alignment::Center)
     .width(Length::Fill);
 
-    let second =
-        column![
-            container(text("Send a message...").size(14).style(|_theme| {
-                iced::widget::text::Style {
+    let second = column![
+        container(text("Send a message...").size(14).style(|_theme| {
+            iced::widget::text::Style {
+                color: Some(theme.palette.muted_foreground),
+            }
+        }),)
+        .padding([10.0, 12.0])
+        .width(Length::Fill)
+        .style(move |_theme| iced::widget::container::Style {
+            background: Some(Background::Color(theme.palette.background)),
+            border: Border {
+                radius: theme.radius.sm.into(),
+                width: 1.0,
+                color: theme.palette.border,
+            },
+            ..iced::widget::container::Style::default()
+        }),
+        row![
+            spinner(
+                Spinner::new(theme)
+                    .progress(progress)
+                    .size(SpinnerSize::One)
+                    .color(theme.palette.muted_foreground),
+            ),
+            text("Validating...")
+                .size(12)
+                .style(|_theme| iced::widget::text::Style {
                     color: Some(theme.palette.muted_foreground),
-                }
-            }),)
-            .padding([10.0, 12.0])
-            .width(Length::Fill)
-            .style(move |_theme| iced::widget::container::Style {
-                background: Some(Background::Color(theme.palette.background)),
-                border: Border {
-                    radius: theme.radius.sm.into(),
-                    width: 1.0,
-                    color: theme.palette.border,
-                },
-                ..iced::widget::container::Style::default()
-            }),
-            row![
-                spinner(
-                    Spinner::new(theme)
-                        .progress(progress)
-                        .size(SpinnerSize::One)
-                        .color(theme.palette.muted_foreground),
-                ),
-                text("Validating...")
-                    .size(12)
-                    .style(|_theme| iced::widget::text::Style {
-                        color: Some(theme.palette.muted_foreground),
-                    }),
-                space().width(Length::Fill),
-                button_content(
-                    row![icon_arrow_up().size(12)].align_y(Alignment::Center),
-                    Some(Message::Pressed),
-                    ButtonProps::new()
-                        .variant(ButtonVariant::Solid)
-                        .size(ButtonSize::One),
-                    theme,
-                ),
-            ]
-            .spacing(8)
-            .align_y(Alignment::Center),
+                }),
+            space().width(Length::Fill),
+            button_content(
+                row![icon_arrow_up().size(12)].align_y(Alignment::Center),
+                Some(Message::Pressed),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Solid)
+                    .size(ButtonSize::One),
+                theme,
+            ),
         ]
         .spacing(8)
-        .width(Length::Fill);
+        .align_y(Alignment::Center),
+    ]
+    .spacing(8)
+    .width(Length::Fill);
 
     column![first, second]
         .spacing(16)

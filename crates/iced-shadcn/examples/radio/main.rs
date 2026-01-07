@@ -85,16 +85,16 @@ impl Example {
         container(content)
             .width(Length::Fill)
             .padding(32)
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(background)),
-            border: Border {
-                radius: radius.into(),
-                width: 1.0,
-                color: border,
-            },
-            ..iced::widget::container::Style::default()
-        })
-        .into()
+            .style(move |_theme| iced::widget::container::Style {
+                background: Some(Background::Color(background)),
+                border: Border {
+                    radius: radius.into(),
+                    width: 1.0,
+                    color: border,
+                },
+                ..iced::widget::container::Style::default()
+            })
+            .into()
     }
 }
 

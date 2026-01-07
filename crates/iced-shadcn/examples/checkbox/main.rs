@@ -78,9 +78,7 @@ impl Example {
                     "",
                     false,
                     None::<fn(bool) -> Message>,
-                    CheckboxProps::new()
-                        .size(CheckboxSize::Two)
-                        .disabled(true),
+                    CheckboxProps::new().size(CheckboxSize::Two).disabled(true),
                     theme,
                 ),
                 label("Enable notifications", theme),
@@ -114,11 +112,11 @@ impl Example {
                             theme,
                         ),
                         column![
-                            text("Enable notifications")
-                                .size(14)
-                                .style(|_theme| iced::widget::text::Style {
+                            text("Enable notifications").size(14).style(|_theme| {
+                                iced::widget::text::Style {
                                     color: Some(theme.palette.foreground),
-                                }),
+                                }
+                            }),
                             text("You can enable or disable notifications at any time.")
                                 .size(14)
                                 .style(|_theme| iced::widget::text::Style {

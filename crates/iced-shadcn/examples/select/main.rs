@@ -85,7 +85,6 @@ enum Message {
     SelectedTimezone(&'static str),
 }
 
-
 impl Example {
     fn update(&mut self, message: Message) {
         match message {

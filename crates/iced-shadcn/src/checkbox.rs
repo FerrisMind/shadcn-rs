@@ -1,9 +1,9 @@
 use iced::Background;
+use iced::Font;
 use iced::border::Border;
 use iced::widget::checkbox as checkbox_widget;
 use iced::widget::text;
 use iced::widget::text::IntoFragment;
-use iced::Font;
 use lucide_icons::Icon as LucideIcon;
 
 use crate::theme::Theme;

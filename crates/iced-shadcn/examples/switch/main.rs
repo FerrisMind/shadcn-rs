@@ -4,7 +4,7 @@ use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
     AccentColor, ButtonProps, ButtonRadius, ButtonVariant, SwitchProps, SwitchSize, SwitchVariant,
-    Theme, button, label, switch, text, TextProps, TextSize, TextWeight,
+    TextProps, TextSize, TextWeight, Theme, button, label, switch, text,
 };
 
 pub fn main() -> iced::Result {
@@ -67,10 +67,7 @@ impl Example {
                 make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
                 column![
                     label("Email Notifications", theme),
-                    muted_text(
-                        "Receive email updates about your account activity.",
-                        theme
-                    ),
+                    muted_text("Receive email updates about your account activity.", theme),
                 ]
                 .spacing(4),
             ]
@@ -118,9 +115,7 @@ impl Example {
                     .width(Length::Fill),
                     make_switch(
                         next_index(),
-                        SwitchProps::new()
-                            .size(SwitchSize::Two)
-                            .disabled(true),
+                        SwitchProps::new().size(SwitchSize::Two).disabled(true),
                     ),
                 ]
                 .spacing(12)
@@ -193,12 +188,7 @@ you can use a one-time code sent to your email.",
                     ButtonProps::new().variant(ButtonVariant::Outline),
                     theme
                 ),
-                button(
-                    "Save",
-                    Some(Message::Noop),
-                    ButtonProps::new(),
-                    theme
-                ),
+                button("Save", Some(Message::Noop), ButtonProps::new(), theme),
             ]
             .spacing(8)
             .align_y(Alignment::Center),
@@ -214,7 +204,10 @@ you can use a one-time code sent to your email.",
                     .weight(TextWeight::Medium),
                 theme
             ),
-            muted_text("Enable multi-factor authentication to secure your account.", theme),
+            muted_text(
+                "Enable multi-factor authentication to secure your account.",
+                theme
+            ),
         ]
         .spacing(4);
 
@@ -243,12 +236,7 @@ you can use a one-time code sent to your email.",
                     ButtonProps::new().variant(ButtonVariant::Outline),
                     theme
                 ),
-                button(
-                    "Save",
-                    Some(Message::Noop),
-                    ButtonProps::new(),
-                    theme
-                ),
+                button("Save", Some(Message::Noop), ButtonProps::new(), theme),
             ]
             .spacing(8)
             .align_y(Alignment::Center),
@@ -378,8 +366,7 @@ you can use a one-time code sent to your email.",
             .into()
         });
 
-        let radius_content =
-            column![radius_header, column(radius_rows).spacing(8)].spacing(12);
+        let radius_content = column![radius_header, column(radius_rows).spacing(8)].spacing(12);
 
         let colors_header = row![
             container(caption("Color", theme)).width(Length::Fixed(120.0)),
@@ -395,15 +382,11 @@ you can use a one-time code sent to your email.",
                 container(caption(color_label(*color), theme)).width(Length::Fixed(120.0)),
                 make_switch(
                     next_index(),
-                    SwitchProps::new()
-                        .size(SwitchSize::Two)
-                        .color(*color),
+                    SwitchProps::new().size(SwitchSize::Two).color(*color),
                 ),
                 make_switch(
                     next_index(),
-                    SwitchProps::new()
-                        .size(SwitchSize::Two)
-                        .color(*color),
+                    SwitchProps::new().size(SwitchSize::Two).color(*color),
                 ),
                 make_switch(
                     next_index(),
@@ -565,7 +548,9 @@ fn section<'a, Message: 'a>(
 ) -> iced::widget::Container<'a, Message> {
     let title = text(
         title,
-        TextProps::new().size(TextSize::Four).weight(TextWeight::Medium),
+        TextProps::new()
+            .size(TextSize::Four)
+            .weight(TextWeight::Medium),
         theme,
     );
     let background = theme.palette.card;
