@@ -21,7 +21,7 @@ pub use carousel::{
     CarouselContentProps, CarouselOptions, CarouselOrientation, CarouselState, carousel_content,
     carousel_next, carousel_previous,
 };
-pub use checkbox::{CheckboxProps, CheckboxSize, CheckboxVariant, checkbox};
+pub use checkbox::{CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant, checkbox};
 pub use input::{TextFieldProps, TextFieldSize, TextFieldVariant, text_field};
 pub use label::label;
 pub use radio::{RadioProps, RadioSize, RadioVariant, radio};

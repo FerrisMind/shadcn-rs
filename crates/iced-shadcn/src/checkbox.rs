@@ -1,15 +1,74 @@
 use iced::Background;
+use iced::Element;
+use iced::Event;
 use iced::Font;
+use iced::Length;
+use iced::Rectangle;
+use iced::Shadow;
+use iced::Size;
+use iced::alignment;
+use iced::advanced::layout;
+use iced::advanced::renderer;
+use iced::advanced::text;
+use iced::advanced::widget::Tree;
+use iced::advanced::{Clipboard, Layout, Shell, Widget};
 use iced::border::Border;
+use iced::mouse;
+use iced::touch;
 use iced::widget::checkbox as checkbox_widget;
-use iced::widget::text;
-use iced::widget::text::IntoFragment;
+use iced::window;
 use lucide_icons::Icon as LucideIcon;
 
 use crate::theme::Theme;
 use crate::tokens::{
-    AccentColor, accent_color, accent_foreground, accent_soft, accent_text, is_dark,
+    AccentColor, accent_color, accent_foreground, accent_high, accent_low, accent_soft, accent_text,
+    is_dark,
 };
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum CheckboxState {
+    Unchecked,
+    Checked,
+    Indeterminate,
+}
+
+impl CheckboxState {
+    pub fn is_checked(self) -> bool {
+        matches!(self, CheckboxState::Checked)
+    }
+
+    pub fn is_active(self) -> bool {
+        matches!(self, CheckboxState::Checked | CheckboxState::Indeterminate)
+    }
+
+    pub fn is_indeterminate(self) -> bool {
+        matches!(self, CheckboxState::Indeterminate)
+    }
+
+    pub fn next(self) -> Self {
+        match self {
+            CheckboxState::Unchecked => CheckboxState::Checked,
+            CheckboxState::Checked => CheckboxState::Unchecked,
+            CheckboxState::Indeterminate => CheckboxState::Checked,
+        }
+    }
+}
+
+impl From<bool> for CheckboxState {
+    fn from(value: bool) -> Self {
+        if value {
+            CheckboxState::Checked
+        } else {
+            CheckboxState::Unchecked
+        }
+    }
+}
+
+impl From<CheckboxState> for bool {
+    fn from(value: CheckboxState) -> Self {
+        value.is_checked()
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CheckboxSize {
@@ -86,16 +145,8 @@ impl CheckboxSize {
         }
     }
 
-    fn text_size(self) -> u32 {
-        match self {
-            CheckboxSize::One => 12,
-            CheckboxSize::Two => 14,
-            CheckboxSize::Three => 16,
-        }
-    }
-
     fn icon_size(self) -> f32 {
-        self.dimension() - 2.0
+        self.dimension() * 0.875
     }
 }
 
@@ -104,41 +155,193 @@ fn checkbox_radius(props: CheckboxProps) -> f32 {
 }
 
 pub fn checkbox<'a, Message: Clone + 'a, F>(
-    label: impl IntoFragment<'a>,
-    is_checked: bool,
+    state: CheckboxState,
     on_toggle: Option<F>,
     props: CheckboxProps,
     theme: &Theme,
-) -> checkbox_widget::Checkbox<'a, Message>
+) -> CheckboxWidget<'a, Message>
 where
-    F: Fn(bool) -> Message + 'a,
+    F: Fn(CheckboxState) -> Message + 'a,
 {
-    let theme = theme.clone();
-    let icon = checkbox_icon(props.size);
-    let mut widget = checkbox_widget::Checkbox::new(is_checked)
-        .label(label)
-        .size(props.size.dimension())
-        .icon(icon)
-        .spacing(props.size.dimension() * 0.5)
-        .text_size(props.size.text_size())
-        .style(move |_iced_theme, status| checkbox_style(&theme, props, status));
-
-    if props.disabled {
-        widget = widget.on_toggle_maybe(None::<fn(bool) -> Message>);
-    } else {
-        widget = widget.on_toggle_maybe(on_toggle);
-    }
-
-    widget
+    CheckboxWidget::new(state, on_toggle, props, theme)
 }
 
-fn checkbox_icon(size: CheckboxSize) -> checkbox_widget::Icon<Font> {
-    checkbox_widget::Icon {
-        font: Font::with_name("lucide"),
-        code_point: char::from(LucideIcon::Check),
-        size: Some(size.icon_size().into()),
-        line_height: text::LineHeight::default(),
-        shaping: text::Shaping::Basic,
+pub struct CheckboxWidget<'a, Message> {
+    state: CheckboxState,
+    on_toggle: Option<Box<dyn Fn(CheckboxState) -> Message + 'a>>,
+    props: CheckboxProps,
+    theme: Theme,
+    last_status: Option<checkbox_widget::Status>,
+}
+
+impl<'a, Message> CheckboxWidget<'a, Message> {
+    fn new<F>(state: CheckboxState, on_toggle: Option<F>, props: CheckboxProps, theme: &Theme) -> Self
+    where
+        F: Fn(CheckboxState) -> Message + 'a,
+    {
+        Self {
+            state,
+            on_toggle: on_toggle.map(|f| Box::new(f) as _),
+            props,
+            theme: theme.clone(),
+            last_status: None,
+        }
+    }
+}
+
+impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer> for CheckboxWidget<'_, Message>
+where
+    Renderer: renderer::Renderer + text::Renderer<Font = Font>,
+{
+    fn size(&self) -> Size<Length> {
+        let size = self.props.size.dimension();
+        Size::new(Length::Fixed(size), Length::Fixed(size))
+    }
+
+    fn layout(
+        &mut self,
+        _tree: &mut Tree,
+        _renderer: &Renderer,
+        limits: &layout::Limits,
+    ) -> layout::Node {
+        let size = self.props.size.dimension();
+        layout::atomic(limits, Length::Fixed(size), Length::Fixed(size))
+    }
+
+    fn update(
+        &mut self,
+        _tree: &mut Tree,
+        event: &Event,
+        layout: Layout<'_>,
+        cursor: mouse::Cursor,
+        _renderer: &Renderer,
+        _clipboard: &mut dyn Clipboard,
+        shell: &mut Shell<'_, Message>,
+        _viewport: &Rectangle,
+    ) {
+        match event {
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerPressed { .. }) => {
+                let mouse_over = cursor.is_over(layout.bounds());
+
+                if mouse_over && let Some(on_toggle) = &self.on_toggle {
+                    shell.publish((on_toggle)(self.state.next()));
+                    shell.capture_event();
+                }
+            }
+            _ => {}
+        }
+
+        let current_status = {
+            let is_mouse_over = cursor.is_over(layout.bounds());
+            let is_disabled = self.on_toggle.is_none();
+            let is_checked = self.state.is_active();
+
+            if is_disabled {
+                checkbox_widget::Status::Disabled { is_checked }
+            } else if is_mouse_over {
+                checkbox_widget::Status::Hovered { is_checked }
+            } else {
+                checkbox_widget::Status::Active { is_checked }
+            }
+        };
+
+        if let Event::Window(window::Event::RedrawRequested(_now)) = event {
+            self.last_status = Some(current_status);
+        } else if self
+            .last_status
+            .is_some_and(|status| status != current_status)
+        {
+            shell.request_redraw();
+        }
+    }
+
+    fn mouse_interaction(
+        &self,
+        _tree: &Tree,
+        layout: Layout<'_>,
+        cursor: mouse::Cursor,
+        _viewport: &Rectangle,
+        _renderer: &Renderer,
+    ) -> mouse::Interaction {
+        if cursor.is_over(layout.bounds()) && self.on_toggle.is_some() {
+            mouse::Interaction::Pointer
+        } else {
+            mouse::Interaction::default()
+        }
+    }
+
+    fn draw(
+        &self,
+        _tree: &Tree,
+        renderer: &mut Renderer,
+        _theme: &Theme,
+        _defaults: &renderer::Style,
+        layout: Layout<'_>,
+        _cursor: mouse::Cursor,
+        viewport: &Rectangle,
+    ) {
+        let bounds = layout.bounds();
+        if !bounds.intersects(viewport) {
+            return;
+        }
+
+        let status = self.last_status.unwrap_or(checkbox_widget::Status::Disabled {
+            is_checked: self.state.is_active(),
+        });
+        let style = checkbox_style(&self.theme, self.props, status, self.state);
+
+        renderer.fill_quad(
+            renderer::Quad {
+                bounds,
+                border: style.border,
+                shadow: Shadow::default(),
+                snap: false,
+            },
+            style.background,
+        );
+
+    if !self.state.is_active() {
+        return;
+    }
+
+    let icon = if self.state.is_indeterminate() {
+        LucideIcon::Minus
+    } else {
+        LucideIcon::Check
+    };
+    let icon_size = self.props.size.icon_size();
+    let center = bounds.center();
+    // Nudge lucide glyphs to optical center.
+    let icon_offset = icon_size * 0.03;
+
+    renderer.fill_text(
+        text::Text {
+            content: char::from(icon).to_string(),
+            font: Font::with_name("lucide"),
+            size: icon_size.into(),
+            line_height: text::LineHeight::Absolute(icon_size.into()),
+            bounds: bounds.size(),
+            align_x: text::Alignment::Center,
+            align_y: alignment::Vertical::Center,
+            shaping: text::Shaping::Basic,
+            wrapping: text::Wrapping::default(),
+            },
+            iced::Point::new(center.x, center.y + icon_offset),
+            style.icon_color,
+            *viewport,
+        );
+    }
+}
+
+impl<'a, Message, Theme, Renderer> From<CheckboxWidget<'a, Message>>
+    for Element<'a, Message, Theme, Renderer>
+where
+    Message: 'a,
+    Renderer: renderer::Renderer + text::Renderer<Font = Font> + 'a,
+{
+    fn from(widget: CheckboxWidget<'a, Message>) -> Element<'a, Message, Theme, Renderer> {
+        Element::new(widget)
     }
 }
 
@@ -146,6 +349,7 @@ fn checkbox_style(
     theme: &Theme,
     props: CheckboxProps,
     status: checkbox_widget::Status,
+    state: CheckboxState,
 ) -> checkbox_widget::Style {
     let palette = theme.palette;
     let radius = checkbox_radius(props);
@@ -154,30 +358,31 @@ fn checkbox_style(
     let soft_bg = accent_soft(&palette, props.color);
     let text_color = accent_text(&palette, props.color);
     let base_bg = if is_dark(&palette) {
-        Background::Color(palette.input)
+        Background::Color(apply_opacity(palette.input, 0.3))
     } else {
         Background::Color(iced::Color::TRANSPARENT)
     };
 
-    let is_checked = match status {
-        checkbox_widget::Status::Active { is_checked }
-        | checkbox_widget::Status::Hovered { is_checked }
-        | checkbox_widget::Status::Disabled { is_checked } => is_checked,
-    };
+    let is_checked = state.is_checked();
+    let is_indeterminate = state.is_indeterminate();
+    let is_active = state.is_active();
 
     let mut background = match props.variant {
         CheckboxVariant::Soft => Background::Color(soft_bg),
         CheckboxVariant::Classic | CheckboxVariant::Surface => base_bg,
     };
-    let mut border_color = palette.input;
-    let mut icon_color = accent_fg;
+    let mut border_color = match props.variant {
+        CheckboxVariant::Soft => iced::Color::TRANSPARENT,
+        CheckboxVariant::Classic | CheckboxVariant::Surface => palette.input,
+    };
+    let mut icon_color = palette.foreground;
     let mut label_color = palette.foreground;
 
-    if is_checked {
+    let indeterminate_as_checked = props.variant != CheckboxVariant::Surface;
+    if is_checked || (is_indeterminate && indeterminate_as_checked) {
         match props.variant {
             CheckboxVariant::Soft => {
                 background = Background::Color(soft_bg);
-                border_color = accent;
                 icon_color = text_color;
             }
             CheckboxVariant::Classic | CheckboxVariant::Surface => {
@@ -186,29 +391,29 @@ fn checkbox_style(
                 icon_color = accent_fg;
             }
         }
+    } else if is_indeterminate {
+        icon_color = palette.foreground;
+    }
 
-        if props.high_contrast {
-            background = Background::Color(palette.foreground);
-            border_color = palette.foreground;
-            icon_color = palette.background;
+    if props.high_contrast && is_active {
+        match props.variant {
+            CheckboxVariant::Soft => {
+                icon_color = accent_high(&palette, props.color);
+            }
+            CheckboxVariant::Classic | CheckboxVariant::Surface => {
+                let high_bg = accent_high(&palette, props.color);
+                background = Background::Color(high_bg);
+                border_color = high_bg;
+                icon_color = accent_low(&palette, props.color);
+            }
         }
     }
 
-    match status {
-        checkbox_widget::Status::Hovered { .. } => {
-            border_color = palette.ring;
-        }
-        checkbox_widget::Status::Disabled { .. } => {
-            if is_checked {
-                background = Background::Color(palette.muted);
-            } else {
-                background = base_bg;
-            }
-            border_color = palette.border;
-            icon_color = palette.muted_foreground;
-            label_color = palette.muted_foreground;
-        }
-        checkbox_widget::Status::Active { .. } => {}
+    if matches!(status, checkbox_widget::Status::Disabled { .. }) {
+        background = apply_background_opacity(background, 0.5);
+        border_color = apply_opacity(border_color, 0.5);
+        icon_color = apply_opacity(icon_color, 0.5);
+        label_color = apply_opacity(label_color, 0.7);
     }
 
     checkbox_widget::Style {
@@ -220,5 +425,19 @@ fn checkbox_style(
             color: border_color,
         },
         text_color: Some(label_color),
+    }
+}
+
+fn apply_opacity(color: iced::Color, opacity: f32) -> iced::Color {
+    iced::Color {
+        a: color.a * opacity,
+        ..color
+    }
+}
+
+fn apply_background_opacity(background: Background, opacity: f32) -> Background {
+    match background {
+        Background::Color(color) => Background::Color(apply_opacity(color, opacity)),
+        _ => background,
     }
 }
