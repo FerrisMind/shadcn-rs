@@ -23,7 +23,7 @@ pub use carousel::{
 };
 pub use checkbox::{CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant, checkbox};
 pub use input::{TextFieldProps, TextFieldSize, TextFieldVariant, text_field};
-pub use label::label;
+pub use label::{LabelProps, label, label_with_props};
 pub use radio::{RadioProps, RadioSize, RadioVariant, radio};
 pub use select::{SelectContentVariant, SelectProps, SelectSize, SelectTriggerVariant, select};
 pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separator};
