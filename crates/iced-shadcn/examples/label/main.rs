@@ -78,9 +78,7 @@ impl Example {
                     checkbox(
                         CheckboxState::Unchecked,
                         None::<fn(CheckboxState) -> Message>,
-                        CheckboxProps::new()
-                            .size(CheckboxSize::Two)
-                            .disabled(true),
+                        CheckboxProps::new().size(CheckboxSize::Two).disabled(true),
                         theme,
                     ),
                     label_with_props(

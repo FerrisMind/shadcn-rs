@@ -6,12 +6,12 @@ use iced::Length;
 use iced::Rectangle;
 use iced::Shadow;
 use iced::Size;
-use iced::alignment;
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::text;
 use iced::advanced::widget::Tree;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
+use iced::alignment;
 use iced::border::Border;
 use iced::mouse;
 use iced::touch;
@@ -21,8 +21,8 @@ use lucide_icons::Icon as LucideIcon;
 
 use crate::theme::Theme;
 use crate::tokens::{
-    AccentColor, accent_color, accent_foreground, accent_high, accent_low, accent_soft, accent_text,
-    is_dark,
+    AccentColor, accent_color, accent_foreground, accent_high, accent_low, accent_soft,
+    accent_text, is_dark,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -175,7 +175,12 @@ pub struct CheckboxWidget<'a, Message> {
 }
 
 impl<'a, Message> CheckboxWidget<'a, Message> {
-    fn new<F>(state: CheckboxState, on_toggle: Option<F>, props: CheckboxProps, theme: &Theme) -> Self
+    fn new<F>(
+        state: CheckboxState,
+        on_toggle: Option<F>,
+        props: CheckboxProps,
+        theme: &Theme,
+    ) -> Self
     where
         F: Fn(CheckboxState) -> Message + 'a,
     {
@@ -286,9 +291,11 @@ where
             return;
         }
 
-        let status = self.last_status.unwrap_or(checkbox_widget::Status::Disabled {
-            is_checked: self.state.is_active(),
-        });
+        let status = self
+            .last_status
+            .unwrap_or(checkbox_widget::Status::Disabled {
+                is_checked: self.state.is_active(),
+            });
         let style = checkbox_style(&self.theme, self.props, status, self.state);
 
         renderer.fill_quad(
@@ -301,31 +308,31 @@ where
             style.background,
         );
 
-    if !self.state.is_active() {
-        return;
-    }
+        if !self.state.is_active() {
+            return;
+        }
 
-    let icon = if self.state.is_indeterminate() {
-        LucideIcon::Minus
-    } else {
-        LucideIcon::Check
-    };
-    let icon_size = self.props.size.icon_size();
-    let center = bounds.center();
-    // Nudge lucide glyphs to optical center.
-    let icon_offset = icon_size * 0.03;
+        let icon = if self.state.is_indeterminate() {
+            LucideIcon::Minus
+        } else {
+            LucideIcon::Check
+        };
+        let icon_size = self.props.size.icon_size();
+        let center = bounds.center();
+        // Nudge lucide glyphs to optical center.
+        let icon_offset = icon_size * 0.03;
 
-    renderer.fill_text(
-        text::Text {
-            content: char::from(icon).to_string(),
-            font: Font::with_name("lucide"),
-            size: icon_size.into(),
-            line_height: text::LineHeight::Absolute(icon_size.into()),
-            bounds: bounds.size(),
-            align_x: text::Alignment::Center,
-            align_y: alignment::Vertical::Center,
-            shaping: text::Shaping::Basic,
-            wrapping: text::Wrapping::default(),
+        renderer.fill_text(
+            text::Text {
+                content: char::from(icon).to_string(),
+                font: Font::with_name("lucide"),
+                size: icon_size.into(),
+                line_height: text::LineHeight::Absolute(icon_size.into()),
+                bounds: bounds.size(),
+                align_x: text::Alignment::Center,
+                align_y: alignment::Vertical::Center,
+                shaping: text::Shaping::Basic,
+                wrapping: text::Wrapping::default(),
             },
             iced::Point::new(center.x, center.y + icon_offset),
             style.icon_color,
