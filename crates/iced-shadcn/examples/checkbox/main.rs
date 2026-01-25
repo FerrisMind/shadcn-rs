@@ -2,12 +2,12 @@ use iced::border::Border;
 use iced::widget::{column, container, row, scrollable, text as iced_text};
 use iced::{Alignment, Background, Color, Element, Length};
 
+use iced_shadcn::tokens::accent_color;
 use iced_shadcn::{
     AccentColor, ButtonProps, ButtonSize, CheckboxProps, CheckboxSize, CheckboxState,
     CheckboxVariant, LabelProps, TextProps, TextSize, TextWeight, Theme, button, checkbox, label,
     label_with_props, text,
 };
-use iced_shadcn::tokens::accent_color;
 use lucide_icons::LUCIDE_FONT_BYTES;
 
 pub fn main() -> iced::Result {
@@ -90,9 +90,7 @@ impl Example {
                 checkbox(
                     CheckboxState::Unchecked,
                     None::<fn(CheckboxState) -> Message>,
-                    CheckboxProps::new()
-                        .size(CheckboxSize::Two)
-                        .disabled(true),
+                    CheckboxProps::new().size(CheckboxSize::Two).disabled(true),
                     theme,
                 ),
                 label("Enable notifications", theme),
@@ -103,7 +101,11 @@ impl Example {
                 let card_state = self.state_at(demo_card_index);
                 let card_active = card_state.is_checked();
                 let accent = accent_color(&theme.palette, AccentColor::Blue);
-                let card_border = if card_active { accent } else { theme.palette.border };
+                let card_border = if card_active {
+                    accent
+                } else {
+                    theme.palette.border
+                };
                 let card_background = if card_active {
                     apply_opacity(accent, 0.08)
                 } else {
@@ -121,11 +123,11 @@ impl Example {
                             theme,
                         ),
                         column![
-                            iced_text("Enable notifications")
-                                .size(14)
-                                .style(|_theme| iced::widget::text::Style {
+                            iced_text("Enable notifications").size(14).style(|_theme| {
+                                iced::widget::text::Style {
                                     color: Some(theme.palette.foreground),
-                                }),
+                                }
+                            }),
                             muted_text(
                                 "You can enable or disable notifications at any time.",
                                 theme
@@ -160,7 +162,10 @@ impl Example {
             ),
             column![
                 label("Accept terms and conditions", theme),
-                muted_text("You agree to our Terms of Service and Privacy Policy.", theme),
+                muted_text(
+                    "You agree to our Terms of Service and Privacy Policy.",
+                    theme
+                ),
             ]
             .spacing(4),
         ]
@@ -171,9 +176,7 @@ impl Example {
             checkbox(
                 CheckboxState::Unchecked,
                 None::<fn(CheckboxState) -> Message>,
-                CheckboxProps::new()
-                    .size(CheckboxSize::Two)
-                    .disabled(true),
+                CheckboxProps::new().size(CheckboxSize::Two).disabled(true),
                 theme,
             ),
             label_with_props(
@@ -262,7 +265,10 @@ impl Example {
                     .weight(TextWeight::Medium),
                 theme,
             ),
-            muted_text("Select the items you want to display in the sidebar.", theme),
+            muted_text(
+                "Select the items you want to display in the sidebar.",
+                theme
+            ),
             form_items,
             button(
                 "Submit",
@@ -301,9 +307,10 @@ impl Example {
 
         let mut variant_rows = column![variant_header].spacing(8);
         for variant in VARIANTS {
-            let base_props = CheckboxProps::new().size(CheckboxSize::Two).variant(variant);
-            let row_label = caption(variant_label(variant), theme)
-                .width(Length::Fixed(140.0));
+            let base_props = CheckboxProps::new()
+                .size(CheckboxSize::Two)
+                .variant(variant);
+            let row_label = caption(variant_label(variant), theme).width(Length::Fixed(140.0));
             let unchecked_index = next_index();
             let checked_index = next_index();
             let indeterminate_index = next_index();
@@ -349,11 +356,8 @@ impl Example {
             .spacing(16)
             .align_y(Alignment::Center);
 
-            let high_label = caption(
-                format!("{} + high contrast", variant_label(variant)),
-                theme,
-            )
-            .width(Length::Fixed(140.0));
+            let high_label = caption(format!("{} + high contrast", variant_label(variant)), theme)
+                .width(Length::Fixed(140.0));
             let high_unchecked_index = next_index();
             let high_checked_index = next_index();
             let high_indeterminate_index = next_index();
@@ -434,9 +438,7 @@ impl Example {
                 let mut row = row![].spacing(16).align_y(Alignment::Center);
                 for color in chunk {
                     let color_index = next_index();
-                    let mut props = CheckboxProps::new()
-                        .size(CheckboxSize::Two)
-                        .color(*color);
+                    let mut props = CheckboxProps::new().size(CheckboxSize::Two).color(*color);
                     if high_contrast {
                         props = props.high_contrast(true);
                     }
