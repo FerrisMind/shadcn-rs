@@ -1,4 +1,5 @@
 use iced::Background;
+use iced::advanced::text::Wrapping;
 use iced::border::Border;
 use iced::widget::text_editor;
 
@@ -33,6 +34,7 @@ pub struct TextareaProps {
     pub size: TextareaSize,
     pub variant: TextareaVariant,
     pub resize: TextareaResize,
+    pub wrapping: Wrapping,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
     pub text_color: Option<iced::Color>,
@@ -50,6 +52,7 @@ impl Default for TextareaProps {
             size: TextareaSize::Two,
             variant: TextareaVariant::Surface,
             resize: TextareaResize::None,
+            wrapping: Wrapping::Word,
             color: AccentColor::Gray,
             radius: None,
             text_color: None,
@@ -80,6 +83,11 @@ impl TextareaProps {
 
     pub fn resize(mut self, resize: TextareaResize) -> Self {
         self.resize = resize;
+        self
+    }
+
+    pub fn wrapping(mut self, wrapping: Wrapping) -> Self {
+        self.wrapping = wrapping;
         self
     }
 
@@ -185,6 +193,7 @@ where
         .padding(padding)
         .size(text_size)
         .min_height(min_height)
+        .wrapping(props.wrapping)
         .style(move |_iced_theme, status| textarea_style(&theme, props, status));
 
     if props.resize == TextareaResize::None {
