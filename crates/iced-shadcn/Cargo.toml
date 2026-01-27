@@ -11,6 +11,13 @@ description = "Shadcn-inspired component kit for iced"
 iced = { version = "0.14", features = ["advanced", "canvas", "tokio"] }
 lucide-icons = { version = "0.562", features = ["iced"] }
 num-traits = "0.2"
+regex = "1.10"
+chrono = { version = "0.4", optional = true, default-features = false, features = ["std"] }
 
 [dev-dependencies]
 rfd = "0.16"
+
+[features]
+default = []
+date-components = ["dep:chrono"]
+charts = []
