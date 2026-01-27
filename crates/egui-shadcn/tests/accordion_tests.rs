@@ -207,8 +207,7 @@ fn accordion_with_items_renders() {
                     acc_ctx,
                     AccordionItemProps::new("item-1"),
                     |ui, item_ctx| {
-                        let response = ui.label(format!("Trigger 1 (open={})", item_ctx.is_open));
-                        response
+                        ui.label(format!("Trigger 1 (open={})", item_ctx.is_open))
                     },
                     |ui| {
                         ui.label("Content 1");
@@ -221,8 +220,7 @@ fn accordion_with_items_renders() {
                     acc_ctx,
                     AccordionItemProps::new("item-2"),
                     |ui, item_ctx| {
-                        let response = ui.label(format!("Trigger 2 (open={})", item_ctx.is_open));
-                        response
+                        ui.label(format!("Trigger 2 (open={})", item_ctx.is_open))
                     },
                     |ui| {
                         ui.label("Content 2");

@@ -1,5 +1,6 @@
 use iced::border::Border;
 use iced::widget::{column, container, row, text, text_editor, text_input};
+use iced::advanced::text::Wrapping;
 use iced::{Background, Color, Element, Length};
 
 use crate::button::{ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, button_content, icon_button};
@@ -330,6 +331,7 @@ pub struct InputGroupTextareaProps {
     pub max_len: Option<usize>,
     pub rows: Option<usize>,
     pub resize: TextareaResize,
+    pub wrapping: Wrapping,
 }
 
 impl Default for InputGroupTextareaProps {
@@ -343,6 +345,7 @@ impl Default for InputGroupTextareaProps {
             max_len: None,
             rows: None,
             resize: TextareaResize::None,
+            wrapping: Wrapping::Word,
         }
     }
 }
@@ -391,6 +394,11 @@ impl InputGroupTextareaProps {
         self.resize = resize;
         self
     }
+
+    pub fn wrapping(mut self, wrapping: Wrapping) -> Self {
+        self.wrapping = wrapping;
+        self
+    }
 }
 
 pub fn input_group_textarea<'a, Message: Clone + 'a, F>(
@@ -412,6 +420,7 @@ where
         .padding(padding)
         .size(text_size)
         .min_height(min_height)
+        .wrapping(props.wrapping)
         .style(move |_t, status| input_group_textarea_style(&theme, props, status));
 
     if props.resize == TextareaResize::None {
