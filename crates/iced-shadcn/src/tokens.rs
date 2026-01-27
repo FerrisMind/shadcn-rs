@@ -1,4 +1,4 @@
-use iced::Color;
+use iced::{Background, Color};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Palette {
@@ -177,6 +177,72 @@ pub(crate) fn is_dark(palette: &Palette) -> bool {
     let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
     luminance < 0.5
+}
+
+pub(crate) fn ensure_contrast(
+    background: Background,
+    fallback_bg: Color,
+    foreground: Color,
+) -> Color {
+    let bg = effective_background(background, fallback_bg);
+    let contrast = contrast_ratio(bg, foreground);
+    if contrast >= 2.0 {
+        return foreground;
+    }
+
+    let white = Color::WHITE;
+    let black = Color::BLACK;
+    if contrast_ratio(bg, white) >= contrast_ratio(bg, black) {
+        white
+    } else {
+        black
+    }
+}
+
+fn effective_background(background: Background, fallback_bg: Color) -> Color {
+    match background {
+        Background::Color(color) => {
+            if color.a >= 1.0 {
+                color
+            } else {
+                blend_over(color, fallback_bg)
+            }
+        }
+        _ => fallback_bg,
+    }
+}
+
+fn blend_over(fg: Color, bg: Color) -> Color {
+    let a = fg.a.clamp(0.0, 1.0);
+    Color {
+        r: fg.r * a + bg.r * (1.0 - a),
+        g: fg.g * a + bg.g * (1.0 - a),
+        b: fg.b * a + bg.b * (1.0 - a),
+        a: 1.0,
+    }
+}
+
+fn contrast_ratio(a: Color, b: Color) -> f32 {
+    let l1 = relative_luminance(a);
+    let l2 = relative_luminance(b);
+    let (lighter, darker) = if l1 >= l2 { (l1, l2) } else { (l2, l1) };
+    (lighter + 0.05) / (darker + 0.05)
+}
+
+fn relative_luminance(color: Color) -> f32 {
+    fn to_linear(channel: f32) -> f32 {
+        if channel <= 0.04045 {
+            channel / 12.92
+        } else {
+            ((channel + 0.055) / 1.055).powf(2.4)
+        }
+    }
+
+    let r = to_linear(color.r);
+    let g = to_linear(color.g);
+    let b = to_linear(color.b);
+
+    0.2126 * r + 0.7152 * g + 0.0722 * b
 }
 
 impl Palette {
