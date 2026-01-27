@@ -4,7 +4,7 @@ use iced::widget::text_editor;
 
 use crate::button::ButtonRadius;
 use crate::theme::Theme;
-use crate::tokens::{AccentColor, accent_color, accent_soft, accent_text, is_dark};
+use crate::tokens::{AccentColor, accent_color, accent_soft, accent_text, ensure_contrast, is_dark};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TextareaSize {
@@ -35,6 +35,11 @@ pub struct TextareaProps {
     pub resize: TextareaResize,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
+    pub text_color: Option<iced::Color>,
+    pub placeholder_color: Option<iced::Color>,
+    pub read_only: bool,
+    pub max_len: Option<usize>,
+    pub rows: Option<usize>,
     pub invalid: bool,
     pub disabled: bool,
 }
@@ -47,6 +52,11 @@ impl Default for TextareaProps {
             resize: TextareaResize::None,
             color: AccentColor::Gray,
             radius: None,
+            text_color: None,
+            placeholder_color: None,
+            read_only: false,
+            max_len: None,
+            rows: None,
             invalid: false,
             disabled: false,
         }
@@ -80,6 +90,31 @@ impl TextareaProps {
 
     pub fn radius(mut self, radius: ButtonRadius) -> Self {
         self.radius = Some(radius);
+        self
+    }
+
+    pub fn text_color(mut self, color: iced::Color) -> Self {
+        self.text_color = Some(color);
+        self
+    }
+
+    pub fn placeholder_color(mut self, color: iced::Color) -> Self {
+        self.placeholder_color = Some(color);
+        self
+    }
+
+    pub fn read_only(mut self, read_only: bool) -> Self {
+        self.read_only = read_only;
+        self
+    }
+
+    pub fn max_len(mut self, max_len: usize) -> Self {
+        self.max_len = Some(max_len);
+        self
+    }
+
+    pub fn rows(mut self, rows: usize) -> Self {
+        self.rows = Some(rows);
         self
     }
 
@@ -142,12 +177,19 @@ where
     F: Fn(text_editor::Action) -> Message + 'a,
 {
     let theme = theme.clone();
+    let padding = props.size.padding();
+    let text_size = props.size.text_size();
+    let min_height = textarea_min_height(props, text_size, padding);
     let mut widget = text_editor::TextEditor::new(content)
         .placeholder(placeholder)
-        .padding(props.size.padding())
-        .size(props.size.text_size())
-        .height(iced::Length::Fixed(props.size.min_height()))
+        .padding(padding)
+        .size(text_size)
+        .min_height(min_height)
         .style(move |_iced_theme, status| textarea_style(&theme, props, status));
+
+    if props.resize == TextareaResize::None {
+        widget = widget.height(iced::Length::Fixed(min_height));
+    }
 
     if !props.disabled
         && let Some(on_action) = on_action
@@ -191,6 +233,15 @@ fn textarea_style(
         TextareaVariant::Soft => text_color,
         _ => palette.muted_foreground,
     };
+    let mut selection = accent;
+    let value_overridden = props.text_color.is_some();
+    let placeholder_overridden = props.placeholder_color.is_some();
+    if let Some(color) = props.text_color {
+        value = color;
+    }
+    if let Some(color) = props.placeholder_color {
+        placeholder = color;
+    }
 
     match status {
         text_editor::Status::Hovered => {
@@ -212,12 +263,33 @@ fn textarea_style(
             background = Background::Color(palette.muted);
             value = palette.muted_foreground;
             placeholder = palette.muted_foreground;
+            selection = palette.muted;
         }
         text_editor::Status::Active => {}
     }
 
+    if props.read_only && !matches!(status, text_editor::Status::Disabled) {
+        background = Background::Color(palette.muted);
+        value = palette.muted_foreground;
+        placeholder = palette.muted_foreground;
+        border.color = palette.border;
+        selection = palette.muted;
+    }
+
     if props.invalid && matches!(status, text_editor::Status::Active) {
         border.color = palette.destructive;
+    }
+
+    let is_disabled = matches!(status, text_editor::Status::Disabled) || props.read_only;
+    if !is_disabled {
+        if !value_overridden {
+            let fallback_bg = palette.background;
+            value = ensure_contrast(background, fallback_bg, value);
+        }
+        if !placeholder_overridden {
+            let fallback_bg = palette.background;
+            placeholder = ensure_contrast(background, fallback_bg, placeholder);
+        }
     }
 
     text_editor::Style {
@@ -225,6 +297,97 @@ fn textarea_style(
         border,
         placeholder,
         value,
-        selection: accent,
+        selection,
     }
+}
+
+pub fn textarea_apply_action(
+    content: &mut text_editor::Content,
+    action: text_editor::Action,
+    props: TextareaProps,
+) -> bool {
+    if props.disabled {
+        return false;
+    }
+
+    if props.read_only && action.is_edit() {
+        return false;
+    }
+
+    if let Some(max_len) = props.max_len {
+        if !can_apply_edit(content, &action, max_len) {
+            return false;
+        }
+    }
+
+    content.perform(action);
+    true
+}
+
+fn textarea_min_height(props: TextareaProps, text_size: u32, padding: [f32; 2]) -> f32 {
+    if let Some(rows) = props.rows {
+        let rows = rows.max(1) as f32;
+        let line_height = text_size as f32 * 1.4;
+        return line_height * rows + padding[0] * 2.0;
+    }
+
+    props.size.min_height()
+}
+
+fn can_apply_edit(
+    content: &text_editor::Content,
+    action: &text_editor::Action,
+    max_len: usize,
+) -> bool {
+    let edit = match action {
+        text_editor::Action::Edit(edit) => edit,
+        _ => return true,
+    };
+
+    let current_len = content.text().chars().count();
+    let selection_len = selection_len(content);
+    let insert_len = match edit {
+        text_editor::Edit::Insert(_) => 1,
+        text_editor::Edit::Paste(text) => text.chars().count(),
+        text_editor::Edit::Enter => content
+            .line_ending()
+            .unwrap_or_default()
+            .as_str()
+            .chars()
+            .count(),
+        text_editor::Edit::Indent | text_editor::Edit::Unindent => 0,
+        text_editor::Edit::Backspace | text_editor::Edit::Delete => 0,
+    };
+
+    if insert_len == 0 {
+        return true;
+    }
+
+    current_len.saturating_sub(selection_len) + insert_len <= max_len
+}
+
+fn selection_len(content: &text_editor::Content) -> usize {
+    let cursor = content.cursor();
+    let selection = match cursor.selection {
+        Some(selection) => selection,
+        None => return 0,
+    };
+
+    let start = position_to_index(content, cursor.position);
+    let end = position_to_index(content, selection);
+    start.abs_diff(end)
+}
+
+fn position_to_index(content: &text_editor::Content, position: text_editor::Position) -> usize {
+    let mut index = 0usize;
+    for (line_index, line) in content.lines().enumerate() {
+        if line_index == position.line {
+            let column = position.column.min(line.text.chars().count());
+            index += line.text.chars().take(column).count();
+            return index;
+        }
+        index += line.text.chars().count();
+        index += line.ending.as_str().chars().count();
+    }
+    index
 }
