@@ -7,7 +7,6 @@ use iced::advanced::{Clipboard, Layout, Shell, Widget};
 use iced::alignment;
 use iced::border::Border;
 use iced::keyboard;
-use iced::keyboard::key::{self, Key};
 use iced::mouse;
 use iced::touch;
 use iced::window;
@@ -18,6 +17,7 @@ use iced::{
 use lucide_icons::Icon as LucideIcon;
 
 use crate::button::ButtonRadius;
+use crate::overlay::{keyboard as overlay_keyboard, positioning};
 use crate::theme::Theme as ShadcnTheme;
 use crate::tokens::{
     AccentColor, accent_color, accent_foreground, accent_high, accent_soft, accent_text, is_dark,
@@ -560,9 +560,11 @@ where
                     }
                 }
                 Event::Keyboard(keyboard::Event::KeyPressed {
-                    key: Key::Named(key::Named::Escape),
                     ..
-                }) => {
+                }) if matches!(
+                    overlay_keyboard::command(event),
+                    Some(overlay_keyboard::OverlayCommand::Close)
+                ) => {
                     if state.is_open {
                         state.is_open = false;
                         if let Some(on_close) = &self.on_close {
@@ -950,7 +952,7 @@ where
     fn layout(&mut self, renderer: &Renderer, bounds: Size) -> layout::Node {
         let space_below = bounds.height - (self.position.y + self.target_height);
         let space_above = self.position.y;
-        let offset = 4.0;
+        let gap = 4.0;
 
         let limits = layout::Limits::new(
             Size::ZERO,
@@ -972,12 +974,14 @@ where
             &limits,
         );
         let size = node.size();
-        let aligned_x = self.position.x + (self.target_width - size.width) / 2.0;
-        let node = node.move_to(if space_below > space_above {
-            Point::new(aligned_x, self.position.y + self.target_height + offset)
-        } else {
-            Point::new(aligned_x, self.position.y - size.height - offset)
-        });
+        let placement = positioning::place_overlay_centered(
+            self.position,
+            Size::new(self.target_width, self.target_height),
+            size,
+            bounds,
+            gap,
+        );
+        let node = node.move_to(placement.position);
 
         *self.menu_bounds = Some(node.bounds());
 
