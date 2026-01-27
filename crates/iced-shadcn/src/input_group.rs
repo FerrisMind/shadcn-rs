@@ -345,7 +345,7 @@ impl Default for InputGroupTextareaProps {
             max_len: None,
             rows: None,
             resize: TextareaResize::None,
-            wrapping: Wrapping::Word,
+            wrapping: Wrapping::WordOrGlyph,
         }
     }
 }

@@ -52,7 +52,7 @@ impl Default for TextareaProps {
             size: TextareaSize::Two,
             variant: TextareaVariant::Surface,
             resize: TextareaResize::None,
-            wrapping: Wrapping::Word,
+            wrapping: Wrapping::WordOrGlyph,
             color: AccentColor::Gray,
             radius: None,
             text_color: None,

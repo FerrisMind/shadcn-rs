@@ -1,3 +1,4 @@
+use iced::advanced::text::Wrapping;
 use iced::border::Border;
 use iced::widget::{column, container, text, text_editor};
 use iced::{Alignment, Background, Element, Length};
@@ -48,7 +49,9 @@ impl Example {
                 &self.content_default,
                 "Type your message here.",
                 Some(Message::EditDefault),
-                TextareaProps::new().size(TextareaSize::Two),
+                TextareaProps::new()
+                    .size(TextareaSize::Two)
+                    .wrapping(Wrapping::WordOrGlyph),
                 theme,
             )
             .width(420.0),
@@ -56,7 +59,10 @@ impl Example {
                 &self.content_disabled,
                 "Type your message here.",
                 None::<fn(text_editor::Action) -> Message>,
-                TextareaProps::new().size(TextareaSize::Two).disabled(true),
+                TextareaProps::new()
+                    .size(TextareaSize::Two)
+                    .wrapping(Wrapping::WordOrGlyph)
+                    .disabled(true),
                 theme,
             )
             .width(420.0),
@@ -66,7 +72,9 @@ impl Example {
                     &self.content_label,
                     "Type your message here.",
                     Some(Message::EditLabel),
-                    TextareaProps::new().size(TextareaSize::Two),
+                    TextareaProps::new()
+                        .size(TextareaSize::Two)
+                        .wrapping(Wrapping::WordOrGlyph),
                     theme,
                 )
                 .width(420.0),
@@ -78,7 +86,9 @@ impl Example {
                     &self.content_text,
                     "Type your message here.",
                     Some(Message::EditText),
-                    TextareaProps::new().size(TextareaSize::Two),
+                    TextareaProps::new()
+                        .size(TextareaSize::Two)
+                        .wrapping(Wrapping::WordOrGlyph),
                     theme,
                 )
                 .width(420.0),
@@ -94,7 +104,9 @@ impl Example {
                     &self.content_button,
                     "Type your message here.",
                     Some(Message::EditButton),
-                    TextareaProps::new().size(TextareaSize::Two),
+                    TextareaProps::new()
+                        .size(TextareaSize::Two)
+                        .wrapping(Wrapping::WordOrGlyph),
                     theme,
                 )
                 .width(420.0),
