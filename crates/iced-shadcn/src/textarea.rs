@@ -314,10 +314,10 @@ pub fn textarea_apply_action(
         return false;
     }
 
-    if let Some(max_len) = props.max_len {
-        if !can_apply_edit(content, &action, max_len) {
-            return false;
-        }
+    if let Some(max_len) = props.max_len
+        && !can_apply_edit(content, &action, max_len)
+    {
+        return false;
     }
 
     content.perform(action);
