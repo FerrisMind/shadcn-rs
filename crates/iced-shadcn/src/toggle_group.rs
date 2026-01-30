@@ -74,10 +74,7 @@ pub fn toggle_group<'a, Message: Clone + 'a>(
     };
 
     let items = content(&context);
-    row(items)
-        .spacing(0)
-        .align_y(Alignment::Center)
-        .into()
+    row(items).spacing(0).align_y(Alignment::Center).into()
 }
 
 pub fn toggle_group_item<'a, Message: Clone + 'a, F>(

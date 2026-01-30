@@ -81,10 +81,7 @@ pub fn pagination_ellipsis() -> PaginationItem {
 pub fn pagination_content<'a, Message: Clone + 'a>(
     items: Vec<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    row(items)
-        .spacing(4)
-        .align_y(Alignment::Center)
-        .into()
+    row(items).spacing(4).align_y(Alignment::Center).into()
 }
 
 pub fn pagination_item<'a, Message: Clone + 'a>(

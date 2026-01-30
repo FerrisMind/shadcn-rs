@@ -559,12 +559,12 @@ where
                         shell.capture_event();
                     }
                 }
-                Event::Keyboard(keyboard::Event::KeyPressed {
-                    ..
-                }) if matches!(
-                    overlay_keyboard::command(event),
-                    Some(overlay_keyboard::OverlayCommand::Close)
-                ) => {
+                Event::Keyboard(keyboard::Event::KeyPressed { .. })
+                    if matches!(
+                        overlay_keyboard::command(event),
+                        Some(overlay_keyboard::OverlayCommand::Close)
+                    ) =>
+                {
                     if state.is_open {
                         state.is_open = false;
                         if let Some(on_close) = &self.on_close {

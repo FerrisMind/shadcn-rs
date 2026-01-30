@@ -62,7 +62,10 @@ impl SkeletonProps {
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }
 
 #[derive(Debug, Default)]
@@ -187,7 +190,8 @@ where
     }
 }
 
-impl<'a, Message, AppTheme, Renderer> From<SkeletonWidget> for Element<'a, Message, AppTheme, Renderer>
+impl<'a, Message, AppTheme, Renderer> From<SkeletonWidget>
+    for Element<'a, Message, AppTheme, Renderer>
 where
     Renderer: renderer::Renderer + 'a,
     Message: 'a,

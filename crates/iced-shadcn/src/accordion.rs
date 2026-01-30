@@ -115,7 +115,11 @@ pub struct AccordionItemProps<'a, Message> {
 }
 
 impl<'a, Message> AccordionItemProps<'a, Message> {
-    pub fn new(value: &'a str, label: impl Into<String>, content: impl Into<Element<'a, Message>>) -> Self {
+    pub fn new(
+        value: &'a str,
+        label: impl Into<String>,
+        content: impl Into<Element<'a, Message>>,
+    ) -> Self {
         Self {
             value,
             label: label.into(),
@@ -168,7 +172,11 @@ where
             on_press,
             ButtonProps::new()
                 .variant(ButtonVariant::Ghost)
-                .size(if props.compact { ButtonSize::One } else { ButtonSize::Two })
+                .size(if props.compact {
+                    ButtonSize::One
+                } else {
+                    ButtonSize::Two
+                })
                 .disabled(disabled),
             &theme,
         );

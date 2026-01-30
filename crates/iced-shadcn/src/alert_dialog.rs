@@ -58,11 +58,7 @@ pub fn alert_dialog<'a, Message: Clone + 'a>(
     theme: &Theme,
 ) -> Element<'a, Message> {
     let content = column![
-        heading(
-            props.title,
-            HeadingProps::new().size(TextSize::Five),
-            theme
-        ),
+        heading(props.title, HeadingProps::new().size(TextSize::Five), theme),
         text(
             props.description,
             TextProps::new().size(TextSize::Three),
@@ -87,12 +83,5 @@ pub fn alert_dialog<'a, Message: Clone + 'a>(
     ]
     .spacing(12);
 
-    dialog(
-        base,
-        open,
-        content,
-        props.on_cancel,
-        props.dialog,
-        theme,
-    )
+    dialog(base, open, content, props.on_cancel, props.dialog, theme)
 }

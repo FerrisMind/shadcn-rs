@@ -100,24 +100,26 @@ pub fn hover_card<'a, Message: 'a>(
     let hover_content = container(card)
         .padding(padding)
         .max_width(props.max_width)
-        .style(move |_iced_theme: &iced::Theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.popover)),
-            text_color: Some(theme.palette.popover_foreground),
-            border: Border {
-                color: theme.palette.border,
-                width: 1.0,
-                radius: radius.into(),
-            },
-            shadow: iced::Shadow {
-                color: iced::Color {
-                    a: 0.18,
-                    ..iced::Color::BLACK
+        .style(
+            move |_iced_theme: &iced::Theme| iced::widget::container::Style {
+                background: Some(Background::Color(theme.palette.popover)),
+                text_color: Some(theme.palette.popover_foreground),
+                border: Border {
+                    color: theme.palette.border,
+                    width: 1.0,
+                    radius: radius.into(),
                 },
-                offset: iced::Vector::new(0.0, 8.0),
-                blur_radius: 22.0,
+                shadow: iced::Shadow {
+                    color: iced::Color {
+                        a: 0.18,
+                        ..iced::Color::BLACK
+                    },
+                    offset: iced::Vector::new(0.0, 8.0),
+                    blur_radius: 22.0,
+                },
+                snap: true,
             },
-            snap: true,
-        });
+        );
 
     tooltip_widget::Tooltip::new(content, hover_content, props.position.into())
         .gap(props.gap)
@@ -125,4 +127,3 @@ pub fn hover_card<'a, Message: 'a>(
         .delay(iced::time::Duration::from_millis(props.open_delay_ms))
         .snap_within_viewport(props.snap_within_viewport)
 }
-

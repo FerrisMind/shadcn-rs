@@ -1,7 +1,7 @@
+use iced::advanced::Renderer as _;
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::widget::Tree;
-use iced::advanced::Renderer as _;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
 use iced::border::Border;
 use iced::keyboard;
@@ -168,10 +168,10 @@ where
 
         let limits = layout::Limits::new(Size::ZERO, Size::new(available_w, available_h));
 
-        let mut content = self
-            .content
-            .as_widget_mut()
-            .layout(&mut tree.children[0], renderer, &limits);
+        let mut content =
+            self.content
+                .as_widget_mut()
+                .layout(&mut tree.children[0], renderer, &limits);
 
         let content_size = content.size();
 
@@ -353,7 +353,10 @@ pub fn dialog<'a, Message: Clone + 'a>(
                 radius: radius.into(),
             },
             shadow: Shadow {
-                color: Color { a: 0.22, ..Color::BLACK },
+                color: Color {
+                    a: 0.22,
+                    ..Color::BLACK
+                },
                 offset: iced::Vector::new(0.0, 16.0),
                 blur_radius: 32.0,
             },
@@ -361,6 +364,7 @@ pub fn dialog<'a, Message: Clone + 'a>(
         })
         .into();
 
-    let overlay: Element<'a, Message> = DialogOverlay::new(dialog_content, props, on_close, theme).into();
+    let overlay: Element<'a, Message> =
+        DialogOverlay::new(dialog_content, props, on_close, theme).into();
     iced::widget::stack![base, overlay].into()
 }

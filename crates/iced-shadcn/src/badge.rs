@@ -105,7 +105,10 @@ impl BadgeSize {
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }
 
 pub fn badge<'a, Message: 'a>(
@@ -130,7 +133,11 @@ pub fn badge<'a, Message: 'a>(
             accent_text_color,
             palette.border,
         ),
-        BadgeVariant::Outline => (Background::Color(Color::TRANSPARENT), accent_text_color, accent),
+        BadgeVariant::Outline => (
+            Background::Color(Color::TRANSPARENT),
+            accent_text_color,
+            accent,
+        ),
     };
 
     let shadow = if matches!(props.variant, BadgeVariant::Solid) && props.high_contrast {

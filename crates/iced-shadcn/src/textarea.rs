@@ -5,7 +5,9 @@ use iced::widget::text_editor;
 
 use crate::button::ButtonRadius;
 use crate::theme::Theme;
-use crate::tokens::{AccentColor, accent_color, accent_soft, accent_text, ensure_contrast, is_dark};
+use crate::tokens::{
+    AccentColor, accent_color, accent_soft, accent_text, ensure_contrast, is_dark,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TextareaSize {

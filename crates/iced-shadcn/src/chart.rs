@@ -1,6 +1,6 @@
-use iced::widget::{canvas, column, container, row, text};
-use iced::widget::canvas::{Path, Stroke};
 use iced::border::Border;
+use iced::widget::canvas::{Path, Stroke};
+use iced::widget::{canvas, column, container, row, text};
 use iced::{Alignment, Background, Color, Element, Length, Point, Rectangle, Size};
 use std::sync::Arc;
 
@@ -339,7 +339,15 @@ impl<Message> canvas::Program<Message> for ChartProgram {
         for series in &self.plot.series {
             match series {
                 ChartSeries::Line(line) => {
-                    draw_line(&mut frame, plot_bounds, line, min_x, range_x, min_y, range_y);
+                    draw_line(
+                        &mut frame,
+                        plot_bounds,
+                        line,
+                        min_x,
+                        range_x,
+                        min_y,
+                        range_y,
+                    );
                 }
                 ChartSeries::Bar(bar) => {
                     draw_bars(&mut frame, plot_bounds, bar, min_x, range_x, min_y, range_y);

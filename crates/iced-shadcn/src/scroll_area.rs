@@ -60,7 +60,10 @@ impl ScrollAreaProps {
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }
 
 fn scroll_area_radius(theme: &Theme, props: ScrollAreaProps) -> f32 {
@@ -171,4 +174,3 @@ pub fn scroll_area<'a, Message: 'a>(
         .direction(direction)
         .style(move |_iced_theme, status| scroll_area_style(&theme, props, status))
 }
-
