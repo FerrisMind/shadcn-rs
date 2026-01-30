@@ -103,7 +103,10 @@ impl ProgressProps {
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }
 
 impl ProgressSize {
@@ -327,7 +330,8 @@ where
     }
 }
 
-impl<'a, Message, AppTheme, Renderer> From<ProgressWidget> for Element<'a, Message, AppTheme, Renderer>
+impl<'a, Message, AppTheme, Renderer> From<ProgressWidget>
+    for Element<'a, Message, AppTheme, Renderer>
 where
     Renderer: renderer::Renderer + 'a,
     Message: 'a,

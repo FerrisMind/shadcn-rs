@@ -84,10 +84,8 @@ pub fn tooltip<'a, Message: 'a>(
     theme: &Theme,
 ) -> tooltip_widget::Tooltip<'a, Message> {
     let theme = theme.clone();
-    let tooltip_content = container(tip)
-        .padding(8)
-        .max_width(props.max_width)
-        .style(move |_iced_theme: &iced::Theme| iced::widget::container::Style {
+    let tooltip_content = container(tip).padding(8).max_width(props.max_width).style(
+        move |_iced_theme: &iced::Theme| iced::widget::container::Style {
             background: Some(Background::Color(theme.palette.foreground)),
             text_color: Some(theme.palette.background),
             border: Border::default(),
@@ -100,7 +98,8 @@ pub fn tooltip<'a, Message: 'a>(
                 blur_radius: 18.0,
             },
             snap: true,
-        });
+        },
+    );
 
     tooltip_widget::Tooltip::new(content, tooltip_content, props.position.into())
         .gap(props.gap)

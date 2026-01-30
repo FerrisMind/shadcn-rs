@@ -1,18 +1,20 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
+use iced::advanced::Renderer as _;
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::text;
 use iced::advanced::text::Renderer as _;
 use iced::advanced::widget::Tree;
-use iced::advanced::Renderer as _;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
 use iced::border::Border;
 use iced::mouse;
 use iced::touch;
 use iced::window;
-use iced::{Background, Color, Element, Event, Font, Length, Point, Rectangle, Shadow, Size, Vector};
+use iced::{
+    Background, Color, Element, Event, Font, Length, Point, Rectangle, Shadow, Size, Vector,
+};
 use lucide_icons::Icon as LucideIcon;
 
 use crate::theme::Theme;
@@ -191,7 +193,11 @@ impl Toaster {
         let toast_id = toast.id.clone();
 
         if let Ok(mut state) = self.state.lock() {
-            if let Some(entry) = state.entries.iter_mut().find(|entry| entry.toast.id == toast.id) {
+            if let Some(entry) = state
+                .entries
+                .iter_mut()
+                .find(|entry| entry.toast.id == toast.id)
+            {
                 entry.toast = toast.clone();
                 entry.created_at = now;
                 entry.open = true;
@@ -357,7 +363,9 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
 
             if let Ok(mut toaster) = self.toaster.state.lock() {
                 update_toasts(&mut toaster, *now);
-                state.layout = compute_layout(layout.bounds(), &toaster.entries, toaster.position, *now).layout;
+                state.layout =
+                    compute_layout(layout.bounds(), &toaster.entries, toaster.position, *now)
+                        .layout;
             }
         }
 
@@ -373,7 +381,8 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
                         if layout.dismissible
                             && (layout.close_bounds.contains(pos) || layout.bounds.contains(pos))
                         {
-                            self.toaster.dismiss(&small_to_string(layout.id, layout.id_len));
+                            self.toaster
+                                .dismiss(&small_to_string(layout.id, layout.id_len));
                             shell.capture_event();
                             break;
                         }
@@ -400,7 +409,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
     ) -> mouse::Interaction {
         let state = tree.state.downcast_ref::<ToasterOverlayState>();
         if let Some(pos) = cursor.position_in(*viewport)
-            && state.layout.iter().any(|layout| layout.bounds.contains(pos))
+            && state
+                .layout
+                .iter()
+                .any(|layout| layout.bounds.contains(pos))
         {
             return mouse::Interaction::Pointer;
         }
@@ -458,7 +470,9 @@ fn update_toasts(state: &mut ToasterState, now: std::time::Instant) {
     let anim = std::time::Duration::from_millis(ANIM_MS);
 
     for entry in &mut state.entries {
-        if entry.open && let Some(duration_ms) = entry.toast.duration_ms {
+        if entry.open
+            && let Some(duration_ms) = entry.toast.duration_ms
+        {
             let duration = std::time::Duration::from_millis(duration_ms);
             if now.saturating_duration_since(entry.created_at) >= duration {
                 entry.open = false;
@@ -631,20 +645,26 @@ fn draw_toasts(
                 radius: radius.into(),
             },
             shadow: Shadow {
-                color: Color { a: 0.15 * alpha, ..Color::BLACK },
+                color: Color {
+                    a: 0.15 * alpha,
+                    ..Color::BLACK
+                },
                 offset: Vector::new(0.0, 12.0),
                 blur_radius: 28.0,
             },
             ..renderer::Quad::default()
         };
 
-        renderer.fill_quad(style, Background::Color(apply_opacity(
-            match background {
-                Background::Color(c) => c,
-                _ => theme.palette.popover,
-            },
-            alpha,
-        )));
+        renderer.fill_quad(
+            style,
+            Background::Color(apply_opacity(
+                match background {
+                    Background::Color(c) => c,
+                    _ => theme.palette.popover,
+                },
+                alpha,
+            )),
+        );
 
         let icon_color = variant_color(entry.toast.variant, theme);
         if let Some(icon) = variant_icon(entry.toast.variant) {

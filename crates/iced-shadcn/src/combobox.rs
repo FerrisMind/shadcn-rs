@@ -284,8 +284,8 @@ where
     F: Fn(Option<String>) -> Message + 'a,
     G: Fn(String) -> Message + 'a,
 {
-    let selected_label =
-        get_selected_label(props.items, props.value).unwrap_or_else(|| props.placeholder.to_string());
+    let selected_label = get_selected_label(props.items, props.value)
+        .unwrap_or_else(|| props.placeholder.to_string());
     let size = ButtonSize::from(props.size);
 
     let label = text(selected_label).size(13);
@@ -296,14 +296,12 @@ where
             .align_y(Alignment::Center)
             .width(Length::Fill)
             .into(),
-        ButtonJustify::Center => container(
-            row![label, chevron]
-                .spacing(6)
-                .align_y(Alignment::Center),
-        )
-        .width(Length::Fill)
-        .center_x(Length::Fill)
-        .into(),
+        ButtonJustify::Center => {
+            container(row![label, chevron].spacing(6).align_y(Alignment::Center))
+                .width(Length::Fill)
+                .center_x(Length::Fill)
+                .into()
+        }
         ButtonJustify::Start => row![label, chevron]
             .spacing(6)
             .align_y(Alignment::Center)
@@ -332,9 +330,16 @@ where
     let mut list: Vec<Element<'a, Message>> = Vec::new();
     for item in items {
         match item {
-            SelectItem::Option { value, label, disabled, .. } => {
+            SelectItem::Option {
+                value,
+                label,
+                disabled,
+                ..
+            } => {
                 let enabled = !disabled && on_value_change.is_some();
-                let on_press = on_value_change.map(|f| f(Some(value.clone()))).filter(|_| enabled);
+                let on_press = on_value_change
+                    .map(|f| f(Some(value.clone())))
+                    .filter(|_| enabled);
                 let element = button_content(
                     text(label),
                     on_press,
@@ -358,10 +363,17 @@ where
                         .into(),
                 );
                 for child in items {
-                    if let SelectItem::Option { value, label, disabled, .. } = child {
+                    if let SelectItem::Option {
+                        value,
+                        label,
+                        disabled,
+                        ..
+                    } = child
+                    {
                         let enabled = !disabled && on_value_change.is_some();
-                        let on_press =
-                            on_value_change.map(|f| f(Some(value.clone()))).filter(|_| enabled);
+                        let on_press = on_value_change
+                            .map(|f| f(Some(value.clone())))
+                            .filter(|_| enabled);
                         let element = button_content(
                             text(label),
                             on_press,
@@ -410,20 +422,21 @@ where
     )
     .width(Length::Fill);
 
-    let content: Element<'a, Message> = container(column![search_input, column(list).spacing(4)].spacing(8))
-        .padding(8)
-        .width(Length::Shrink)
-        .style(move |_t| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.popover)),
-            text_color: Some(theme.palette.popover_foreground),
-            border: Border {
-                radius: theme.radius.md.into(),
-                width: 1.0,
-                color: theme.palette.border,
-            },
-            ..Default::default()
-        })
-        .into();
+    let content: Element<'a, Message> =
+        container(column![search_input, column(list).spacing(4)].spacing(8))
+            .padding(8)
+            .width(Length::Shrink)
+            .style(move |_t| iced::widget::container::Style {
+                background: Some(Background::Color(theme.palette.popover)),
+                text_color: Some(theme.palette.popover_foreground),
+                border: Border {
+                    radius: theme.radius.md.into(),
+                    width: 1.0,
+                    color: theme.palette.border,
+                },
+                ..Default::default()
+            })
+            .into();
 
     let trigger: Element<'a, Message> = container(trigger)
         .width(props.width.map(Length::Fixed).unwrap_or(Length::Shrink))
@@ -444,7 +457,11 @@ fn combobox_trigger_style(theme: &Theme, variant: InputVariant) -> iced::widget:
     let (background, border_color, text_color) = match variant {
         InputVariant::Surface => (palette.background, palette.border, palette.foreground),
         InputVariant::Classic => (palette.background, palette.border, palette.foreground),
-        InputVariant::Soft => (accent_soft(&palette, crate::tokens::AccentColor::Gray), palette.border, accent_text(&palette, crate::tokens::AccentColor::Gray)),
+        InputVariant::Soft => (
+            accent_soft(&palette, crate::tokens::AccentColor::Gray),
+            palette.border,
+            accent_text(&palette, crate::tokens::AccentColor::Gray),
+        ),
     };
 
     iced::widget::container::Style {

@@ -119,9 +119,7 @@ pub fn input_otp_slot_last<'a, Message: Clone + 'a>(
     element
 }
 
-pub fn input_otp_separator<'a, Message: Clone + 'a>(
-    theme: &'a Theme,
-) -> Element<'a, Message> {
+pub fn input_otp_separator<'a, Message: Clone + 'a>(theme: &'a Theme) -> Element<'a, Message> {
     text("-")
         .size(14)
         .style(move |_t| iced::widget::text::Style {
@@ -138,7 +136,8 @@ fn input_otp_slot_impl<'a, Message: Clone + 'a>(
     let position_in_group = context.group_slot_count.get();
     context.group_slot_count.set(position_in_group + 1);
 
-    let radius = corner_radius_for_slot_in_group(context.theme, position_in_group, is_last_in_group);
+    let radius =
+        corner_radius_for_slot_in_group(context.theme, position_in_group, is_last_in_group);
     let slot_char = context.chars.get(index).copied();
     let slot_value = slot_char.map(|ch| ch.to_string()).unwrap_or_default();
 
@@ -155,7 +154,9 @@ fn input_otp_slot_impl<'a, Message: Clone + 'a>(
         let pattern = context.pattern;
         input = input.on_input(move |value| {
             let next = apply_slot_input(&current_chars, index, &value, max_length, pattern);
-            if next.len() == max_length && let Some(on_complete) = on_complete {
+            if next.len() == max_length
+                && let Some(on_complete) = on_complete
+            {
                 return (on_complete)(next);
             }
             (on_input)(next)

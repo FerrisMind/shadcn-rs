@@ -1,7 +1,7 @@
 use iced::border::Border;
+use iced::widget::Id;
 use iced::widget::{column, container, row, rule, text, text_input};
 use iced::{Alignment, Background, Color, Element, Length};
-use iced::widget::Id;
 use std::hash::Hash;
 
 use crate::button::{ButtonProps, ButtonSize, ButtonVariant, button_content};
@@ -272,10 +272,7 @@ pub fn command_item<'a, Message: Clone + 'a, IdSource: Hash>(
         return None;
     }
 
-    let on_press = props
-        .on_select
-        .map(|f| f())
-        .filter(|_| !props.disabled);
+    let on_press = props.on_select.map(|f| f()).filter(|_| !props.disabled);
 
     let mut content_items: Vec<Element<'a, Message>> = Vec::new();
     if let Some(icon) = props.icon {

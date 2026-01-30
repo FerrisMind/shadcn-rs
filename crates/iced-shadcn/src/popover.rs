@@ -1,7 +1,7 @@
+use iced::advanced::Renderer as _;
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::widget::Tree;
-use iced::advanced::Renderer as _;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
 use iced::border::Border;
 use iced::keyboard;
@@ -259,9 +259,13 @@ where
         viewport: &Rectangle,
         renderer: &iced::Renderer,
     ) -> mouse::Interaction {
-        self.trigger
-            .as_widget()
-            .mouse_interaction(&tree.children[0], layout, cursor, viewport, renderer)
+        self.trigger.as_widget().mouse_interaction(
+            &tree.children[0],
+            layout,
+            cursor,
+            viewport,
+            renderer,
+        )
     }
 
     fn draw(
@@ -319,10 +323,7 @@ where
         let space_above = self.anchor_position.y;
 
         let available_x = (bounds.width - size.width - collision_padding).max(collision_padding);
-        let clamped_x = self
-            .anchor_position
-            .x
-            .clamp(collision_padding, available_x);
+        let clamped_x = self.anchor_position.x.clamp(collision_padding, available_x);
 
         let position = if space_below >= space_above {
             Point::new(
@@ -330,7 +331,10 @@ where
                 self.anchor_position.y + self.target_size.height + self.props.offset,
             )
         } else {
-            Point::new(clamped_x, self.anchor_position.y - size.height - self.props.offset)
+            Point::new(
+                clamped_x,
+                self.anchor_position.y - size.height - self.props.offset,
+            )
         };
 
         let node = node.move_to(position);
@@ -349,14 +353,7 @@ where
     ) {
         let bounds = layout.bounds();
         self.content.as_widget_mut().update(
-            self.tree,
-            event,
-            layout,
-            cursor,
-            renderer,
-            clipboard,
-            shell,
-            &bounds,
+            self.tree, event, layout, cursor, renderer, clipboard, shell, &bounds,
         );
     }
 

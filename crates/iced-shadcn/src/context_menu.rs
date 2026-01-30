@@ -1,7 +1,7 @@
-use iced::{Element};
+use iced::Element;
 
 use crate::menu_primitives::{
-    MenuContentProps, MenuContentSize, MenuContentVariant, MenuEntry, MenuOverlayProps, MenuKind,
+    MenuContentProps, MenuContentSize, MenuContentVariant, MenuEntry, MenuKind, MenuOverlayProps,
     menu,
 };
 use crate::theme::Theme;
@@ -91,4 +91,3 @@ pub fn context_menu<'a, Message: Clone + 'a>(
     )
     .into()
 }
-

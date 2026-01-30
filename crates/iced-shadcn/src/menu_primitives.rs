@@ -1,18 +1,20 @@
 use std::borrow::Cow;
 
+use iced::advanced::Renderer as _;
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::text;
 use iced::advanced::text::Renderer as _;
 use iced::advanced::widget::Tree;
-use iced::advanced::Renderer as _;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
 use iced::border::Border;
 use iced::font::Weight;
 use iced::keyboard;
 use iced::mouse;
 use iced::touch;
-use iced::{Background, Color, Element, Event, Font, Length, Point, Rectangle, Shadow, Size, Vector};
+use iced::{
+    Background, Color, Element, Event, Font, Length, Point, Rectangle, Shadow, Size, Vector,
+};
 use lucide_icons::Icon as LucideIcon;
 
 use crate::overlay::keyboard as overlay_keyboard;
@@ -501,9 +503,13 @@ where
         viewport: &Rectangle,
         renderer: &iced::Renderer,
     ) -> mouse::Interaction {
-        self.trigger
-            .as_widget()
-            .mouse_interaction(&tree.children[0], layout, cursor, viewport, renderer)
+        self.trigger.as_widget().mouse_interaction(
+            &tree.children[0],
+            layout,
+            cursor,
+            viewport,
+            renderer,
+        )
     }
 
     fn draw(
@@ -546,7 +552,8 @@ struct MenuOverlay<'a, 'b, Message> {
     target_size: Size,
 }
 
-impl<Message> iced::advanced::Overlay<Message, iced::Theme, iced::Renderer> for MenuOverlay<'_, '_, Message>
+impl<Message> iced::advanced::Overlay<Message, iced::Theme, iced::Renderer>
+    for MenuOverlay<'_, '_, Message>
 where
     Message: Clone,
 {
@@ -585,11 +592,7 @@ where
 
         let x = match self.overlay.kind {
             MenuKind::Dropdown => self.anchor_position.x,
-            MenuKind::Context => self
-                .state
-                .opened_at
-                .unwrap_or(self.anchor_position)
-                .x,
+            MenuKind::Context => self.state.opened_at.unwrap_or(self.anchor_position).x,
         };
 
         let x = x.clamp(
@@ -605,11 +608,7 @@ where
                     self.anchor_position.y - main_size.height - self.overlay.offset
                 }
             }
-            MenuKind::Context => self
-                .state
-                .opened_at
-                .unwrap_or(self.anchor_position)
-                .y,
+            MenuKind::Context => self.state.opened_at.unwrap_or(self.anchor_position).y,
         }
         .clamp(
             collision_padding,
@@ -637,7 +636,9 @@ where
                 self.state
                     .overlay
                     .submenu_tree
-                    .diff::<Message, iced::Theme, iced::Renderer>(&submenu_list as &dyn Widget<_, _, _>);
+                    .diff::<Message, iced::Theme, iced::Renderer>(
+                        &submenu_list as &dyn Widget<_, _, _>,
+                    );
 
                 let submenu_node =
                     submenu_list.layout(&mut self.state.overlay.submenu_tree, renderer, &limits);
@@ -649,7 +650,8 @@ where
                 );
                 let submenu_y = y.clamp(
                     collision_padding,
-                    (bounds.height - submenu_size.height - collision_padding).max(collision_padding),
+                    (bounds.height - submenu_size.height - collision_padding)
+                        .max(collision_padding),
                 );
 
                 let submenu_node = submenu_node.move_to(Point::new(submenu_x, submenu_y));
@@ -899,7 +901,10 @@ fn menu_style(theme: &Theme, _props: MenuContentProps) -> ResolvedMenuStyle {
         background: Background::Color(theme.palette.popover),
         border_color: theme.palette.border,
         shadow: Shadow {
-            color: Color { a: 0.12, ..Color::BLACK },
+            color: Color {
+                a: 0.12,
+                ..Color::BLACK
+            },
             offset: Vector::new(0.0, 4.0),
             blur_radius: 12.0,
         },
@@ -909,7 +914,11 @@ fn menu_style(theme: &Theme, _props: MenuContentProps) -> ResolvedMenuStyle {
     }
 }
 
-fn hovered_colors(theme: &Theme, content: MenuContentProps, item_color: AccentColor) -> (Background, Color) {
+fn hovered_colors(
+    theme: &Theme,
+    content: MenuContentProps,
+    item_color: AccentColor,
+) -> (Background, Color) {
     let is_gray = item_color == AccentColor::Gray;
     match content.variant {
         MenuContentVariant::Solid => {
@@ -987,7 +996,10 @@ enum MenuRowKind<'a, Message> {
     },
 }
 
-fn build_rows<'a, Message: Clone>(entries: &'a [MenuEntry<'a, Message>], metrics: MenuMetrics) -> Vec<MenuRow<'a, Message>> {
+fn build_rows<'a, Message: Clone>(
+    entries: &'a [MenuEntry<'a, Message>],
+    metrics: MenuMetrics,
+) -> Vec<MenuRow<'a, Message>> {
     let mut rows = Vec::new();
     for (index, entry) in entries.iter().enumerate() {
         match entry {
@@ -1263,12 +1275,15 @@ where
                         weight: Weight::Medium,
                         ..self.font
                     };
-                    let label_x = row_bounds.x + self.metrics.base_padding_x + self.metrics.inset_padding_x;
+                    let label_x =
+                        row_bounds.x + self.metrics.base_padding_x + self.metrics.inset_padding_x;
                     renderer.fill_text(
                         text::Text {
                             content: label.to_string(),
                             size: self.metrics.label_font_size.into(),
-                            line_height: text::LineHeight::Absolute(self.metrics.label_height.into()),
+                            line_height: text::LineHeight::Absolute(
+                                self.metrics.label_height.into(),
+                            ),
                             font: label_font,
                             bounds: Size::new(row_bounds.width, row_bounds.height),
                             align_x: text::Alignment::Left,
@@ -1319,11 +1334,17 @@ where
                     let needs_inset = *inset || indicator.is_some();
                     let label_x = row_bounds.x
                         + self.metrics.base_padding_x
-                        + if needs_inset { self.metrics.inset_padding_x } else { 0.0 };
+                        + if needs_inset {
+                            self.metrics.inset_padding_x
+                        } else {
+                            0.0
+                        };
 
                     if let Some(indicator) = indicator {
                         let (icon, icon_size) = match indicator {
-                            MenuIndicator::Check => (LucideIcon::Check, self.metrics.indicator_size),
+                            MenuIndicator::Check => {
+                                (LucideIcon::Check, self.metrics.indicator_size)
+                            }
                             MenuIndicator::Radio => (
                                 LucideIcon::Circle,
                                 (self.metrics.indicator_size * 0.6).max(8.0),
@@ -1389,7 +1410,10 @@ where
                                 shaping: text::Shaping::Basic,
                                 wrapping: text::Wrapping::default(),
                             },
-                            Point::new(row_bounds.x + self.metrics.base_padding_x, row_bounds.center_y()),
+                            Point::new(
+                                row_bounds.x + self.metrics.base_padding_x,
+                                row_bounds.center_y(),
+                            ),
                             shortcut_color,
                             *viewport,
                         );
@@ -1413,7 +1437,10 @@ where
                                 shaping: text::Shaping::Basic,
                                 wrapping: text::Wrapping::default(),
                             },
-                            Point::new(row_bounds.x + self.metrics.base_padding_x, row_bounds.center_y()),
+                            Point::new(
+                                row_bounds.x + self.metrics.base_padding_x,
+                                row_bounds.center_y(),
+                            ),
                             menu_style.muted_text_color,
                             *viewport,
                         );

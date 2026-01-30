@@ -253,12 +253,13 @@ pub fn table_head<'a, Message: Clone + 'a>(
         ctx.metrics.cell_padding
     };
     let text_muted = ctx.tokens.text_muted;
-    let element = container(content)
-        .padding(padding)
-        .style(move |_t| iced::widget::container::Style {
-            text_color: Some(text_muted),
-            ..Default::default()
-        });
+    let element =
+        container(content)
+            .padding(padding)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_muted),
+                ..Default::default()
+            });
 
     if props.fill {
         element.width(Length::Fill).into()
@@ -304,5 +305,8 @@ pub fn table_caption<'a, Message: Clone + 'a>(
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }

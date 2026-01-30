@@ -221,7 +221,11 @@ where
     F: Fn(CalendarAction) -> Message + 'a,
 {
     let label = match (props.value.from, props.value.to) {
-        (Some(from), Some(to)) => text(format!("{} - {}", format_mmm_dd_y(from), format_mmm_dd_y(to))),
+        (Some(from), Some(to)) => text(format!(
+            "{} - {}",
+            format_mmm_dd_y(from),
+            format_mmm_dd_y(to)
+        )),
         (Some(from), None) => text(format!("{} -", format_mmm_dd_y(from))),
         _ => text(props.placeholder).style(move |_t| iced::widget::text::Style {
             color: Some(theme.palette.muted_foreground),

@@ -80,10 +80,9 @@ impl<'a, Message> ButtonGroup<'a, Message> {
         }
 
         match self.orientation {
-            ButtonGroupOrientation::Horizontal => row(children)
-                .spacing(0)
-                .align_y(Alignment::Center)
-                .into(),
+            ButtonGroupOrientation::Horizontal => {
+                row(children).spacing(0).align_y(Alignment::Center).into()
+            }
             ButtonGroupOrientation::Vertical => column(children)
                 .spacing(0)
                 .align_x(Alignment::Center)

@@ -71,9 +71,11 @@ where
         theme,
     );
 
-    let mut body = column![container(trigger)
-        .width(Length::Fill)
-        .padding([padding_y, 0.0])]
+    let mut body = column![
+        container(trigger)
+            .width(Length::Fill)
+            .padding([padding_y, 0.0])
+    ]
     .spacing(0)
     .align_x(Alignment::Start);
 
@@ -81,5 +83,7 @@ where
         body = body.push(container(content).width(Length::Fill));
     }
 
-    container(body.width(Length::Fill)).width(Length::Fill).into()
+    container(body.width(Length::Fill))
+        .width(Length::Fill)
+        .into()
 }

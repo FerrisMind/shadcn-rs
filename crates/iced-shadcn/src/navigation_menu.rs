@@ -237,12 +237,9 @@ pub fn navigation_menu_trigger<'a, Message: Clone + 'a>(
     on_press: Option<Message>,
     theme: &Theme,
 ) -> Element<'a, Message> {
-    let content = row![
-        text(label.into()).size(13),
-        text("▾").size(12)
-    ]
-    .spacing(4)
-    .align_y(Alignment::Center);
+    let content = row![text(label.into()).size(13), text("▾").size(12)]
+        .spacing(4)
+        .align_y(Alignment::Center);
 
     button_content(
         content,

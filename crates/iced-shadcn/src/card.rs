@@ -72,7 +72,10 @@ impl CardSize {
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }
 
 fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {

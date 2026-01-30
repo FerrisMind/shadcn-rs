@@ -123,5 +123,8 @@ pub fn avatar<'a, Message: Clone + 'a>(
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }

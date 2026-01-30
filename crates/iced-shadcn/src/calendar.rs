@@ -164,9 +164,7 @@ where
     }
 
     let last_visible_month = add_months(base_month, (months_count - 1) as u32);
-    let prev_disabled = min_month
-        .map(|min| base_month <= min)
-        .unwrap_or(false);
+    let prev_disabled = min_month.map(|min| base_month <= min).unwrap_or(false);
     let next_disabled = max_month
         .map(|max| last_visible_month >= max)
         .unwrap_or(false);
@@ -229,14 +227,17 @@ where
     let month_label = format!("{} {}", month_label(month.month()), month.year());
     let header = text(month_label).size(12);
 
-    let weekday_row = row(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].iter().map(|label| {
-        text(*label)
-            .size(11)
-            .style(move |_t| iced::widget::text::Style {
-                color: Some(theme.palette.muted_foreground),
-            })
-            .into()
-    }).collect::<Vec<Element<'a, Message>>>())
+    let weekday_row = row(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        .iter()
+        .map(|label| {
+            text(*label)
+                .size(11)
+                .style(move |_t| iced::widget::text::Style {
+                    color: Some(theme.palette.muted_foreground),
+                })
+                .into()
+        })
+        .collect::<Vec<Element<'a, Message>>>())
     .spacing(4)
     .align_y(Alignment::Center);
 
@@ -255,8 +256,8 @@ where
                 continue;
             }
 
-            let date = NaiveDate::from_ymd_opt(month.year(), month.month(), day)
-                .unwrap_or(first_day);
+            let date =
+                NaiveDate::from_ymd_opt(month.year(), month.month(), day).unwrap_or(first_day);
             day += 1;
             cells.push(day_cell(date, props, on_action, theme));
         }
@@ -376,11 +377,7 @@ fn next_range(
     }
 }
 
-fn is_in_range(
-    date: NaiveDate,
-    start: Option<NaiveDate>,
-    end: Option<NaiveDate>,
-) -> bool {
+fn is_in_range(date: NaiveDate, start: Option<NaiveDate>, end: Option<NaiveDate>) -> bool {
     if let (Some(start), Some(end)) = (start, end) {
         date > start && date < end
     } else {
@@ -389,7 +386,10 @@ fn is_in_range(
 }
 
 fn month_label(month: u32) -> &'static str {
-    MONTH_LABELS.get(month.saturating_sub(1) as usize).copied().unwrap_or("")
+    MONTH_LABELS
+        .get(month.saturating_sub(1) as usize)
+        .copied()
+        .unwrap_or("")
 }
 
 fn normalize_month(date: NaiveDate) -> NaiveDate {
@@ -424,5 +424,6 @@ fn sub_month(date: NaiveDate) -> NaiveDate {
 }
 
 fn fallback_month() -> NaiveDate {
-    NaiveDate::from_ymd_opt(2024, 1, 1).unwrap_or_else(|| NaiveDate::from_ymd_opt(2023, 1, 1).unwrap())
+    NaiveDate::from_ymd_opt(2024, 1, 1)
+        .unwrap_or_else(|| NaiveDate::from_ymd_opt(2023, 1, 1).unwrap())
 }

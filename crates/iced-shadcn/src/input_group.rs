@@ -1,9 +1,11 @@
+use iced::advanced::text::Wrapping;
 use iced::border::Border;
 use iced::widget::{column, container, row, text, text_editor, text_input};
-use iced::advanced::text::Wrapping;
 use iced::{Background, Color, Element, Length};
 
-use crate::button::{ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, button_content, icon_button};
+use crate::button::{
+    ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, button_content, icon_button,
+};
 use crate::input::TextFieldSize;
 use crate::textarea::{TextareaProps, TextareaResize, TextareaSize, textarea_apply_action};
 use crate::theme::Theme;
@@ -20,7 +22,10 @@ pub enum InputGroupAddonAlign {
 
 impl InputGroupAddonAlign {
     fn is_block(self) -> bool {
-        matches!(self, InputGroupAddonAlign::BlockStart | InputGroupAddonAlign::BlockEnd)
+        matches!(
+            self,
+            InputGroupAddonAlign::BlockStart | InputGroupAddonAlign::BlockEnd
+        )
     }
 }
 
@@ -147,12 +152,13 @@ fn render_addon<'a, Message: Clone + 'a>(
 
     let muted = theme.palette.muted_foreground;
     let disabled_color = apply_opacity(muted, 0.6);
-    let mut wrapper = container(addon.content).padding(padding).style(move |_t| {
-        iced::widget::container::Style {
-            text_color: Some(if disabled { disabled_color } else { muted }),
-            ..Default::default()
-        }
-    });
+    let mut wrapper =
+        container(addon.content)
+            .padding(padding)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(if disabled { disabled_color } else { muted }),
+                ..Default::default()
+            });
 
     if matches!(
         addon.props.align,
@@ -182,7 +188,10 @@ impl InputGroupButtonSize {
     }
 
     fn is_icon(self) -> bool {
-        matches!(self, InputGroupButtonSize::IconXs | InputGroupButtonSize::IconSm)
+        matches!(
+            self,
+            InputGroupButtonSize::IconXs | InputGroupButtonSize::IconSm
+        )
     }
 }
 
@@ -643,5 +652,8 @@ fn input_group_textarea_style(
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }

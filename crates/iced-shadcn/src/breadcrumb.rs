@@ -116,9 +116,7 @@ pub fn breadcrumb_list<'a, Message: Clone + 'a>(
     items: Vec<Element<'a, Message>>,
 ) -> Element<'a, Message> {
     let spacing = spacing_px(ctx.metrics.item_spacing);
-    let base = row(items)
-        .spacing(spacing)
-        .align_y(Alignment::Center);
+    let base = row(items).spacing(spacing).align_y(Alignment::Center);
 
     if ctx.metrics.wrap {
         base.wrap()
@@ -185,13 +183,11 @@ pub fn breadcrumb_separator<'a, Message: Clone + 'a>(
 pub fn breadcrumb_ellipsis<'a, Message: Clone + 'a>(
     ctx: &'a BreadcrumbContext,
 ) -> Element<'a, Message> {
-    container(
-        text("…")
-            .size(ctx.metrics.ellipsis_size)
-            .style(move |_t| iced::widget::text::Style {
-                color: Some(ctx.tokens.muted),
-            }),
-    )
+    container(text("…").size(ctx.metrics.ellipsis_size).style(move |_t| {
+        iced::widget::text::Style {
+            color: Some(ctx.tokens.muted),
+        }
+    }))
     .width(Length::Fixed(ctx.metrics.ellipsis_size.max(12.0)))
     .height(Length::Fixed(ctx.metrics.ellipsis_size.max(12.0)))
     .center_x(Length::Fill)
