@@ -119,6 +119,7 @@ pub struct TabsProps {
     pub color: AccentColor,
     pub high_contrast: bool,
     pub full_width: bool,
+    pub transparent_container: bool,
 }
 
 impl Default for TabsProps {
@@ -134,6 +135,7 @@ impl Default for TabsProps {
             color: AccentColor::Gray,
             high_contrast: false,
             full_width: false,
+            transparent_container: false,
         }
     }
 }
@@ -193,6 +195,11 @@ impl TabsProps {
         self
     }
 
+    pub fn transparent_container(mut self, transparent_container: bool) -> Self {
+        self.transparent_container = transparent_container;
+        self
+    }
+
     pub fn split(self) -> (TabsRootProps, TabsListProps) {
         (
             TabsRootProps {
@@ -208,6 +215,7 @@ impl TabsProps {
                 color: self.color,
                 high_contrast: self.high_contrast,
                 full_width: self.full_width,
+                transparent_container: self.transparent_container,
             },
         )
     }
@@ -260,6 +268,7 @@ pub struct TabsListProps {
     pub color: AccentColor,
     pub high_contrast: bool,
     pub full_width: bool,
+    pub transparent_container: bool,
 }
 
 impl Default for TabsListProps {
@@ -272,6 +281,7 @@ impl Default for TabsListProps {
             color: AccentColor::Gray,
             high_contrast: false,
             full_width: false,
+            transparent_container: false,
         }
     }
 }
@@ -313,6 +323,11 @@ impl TabsListProps {
 
     pub fn full_width(mut self, full_width: bool) -> Self {
         self.full_width = full_width;
+        self
+    }
+
+    pub fn transparent_container(mut self, transparent_container: bool) -> Self {
+        self.transparent_container = transparent_container;
         self
     }
 }
@@ -454,15 +469,17 @@ fn list_style(theme: &Theme, props: TabsListProps) -> (Option<Background>, Borde
     let palette = theme.palette;
     match props.variant {
         TabsListVariant::Pill => {
-            let bg = if props.color == AccentColor::Gray {
-                palette.muted
+            let bg = if props.transparent_container {
+                None
+            } else if props.color == AccentColor::Gray {
+                Some(palette.muted)
             } else if props.high_contrast {
-                accent_low(&palette, props.color)
+                Some(accent_low(&palette, props.color))
             } else {
-                accent_soft(&palette, props.color)
+                Some(accent_soft(&palette, props.color))
             };
             (
-                Some(Background::Color(bg)),
+                bg.map(Background::Color),
                 Border {
                     color: Color::TRANSPARENT,
                     width: 0.0,
