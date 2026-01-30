@@ -67,6 +67,13 @@ pub enum TabsJustify {
     End,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TabsHover {
+    None,
+    Subtle,
+    Soft,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum TabsListVariant {
     #[default]
@@ -120,6 +127,8 @@ pub struct TabsProps {
     pub high_contrast: bool,
     pub full_width: bool,
     pub transparent_container: bool,
+    pub hover: TabsHover,
+    pub hover_intensity: Option<f32>,
 }
 
 impl Default for TabsProps {
@@ -136,6 +145,8 @@ impl Default for TabsProps {
             high_contrast: false,
             full_width: false,
             transparent_container: false,
+            hover: TabsHover::Soft,
+            hover_intensity: None,
         }
     }
 }
@@ -200,6 +211,16 @@ impl TabsProps {
         self
     }
 
+    pub fn hover(mut self, hover: TabsHover) -> Self {
+        self.hover = hover;
+        self
+    }
+
+    pub fn hover_intensity(mut self, intensity: f32) -> Self {
+        self.hover_intensity = Some(intensity.clamp(0.0, 1.0));
+        self
+    }
+
     pub fn split(self) -> (TabsRootProps, TabsListProps) {
         (
             TabsRootProps {
@@ -216,6 +237,8 @@ impl TabsProps {
                 high_contrast: self.high_contrast,
                 full_width: self.full_width,
                 transparent_container: self.transparent_container,
+                hover: self.hover,
+                hover_intensity: self.hover_intensity,
             },
         )
     }
@@ -269,6 +292,8 @@ pub struct TabsListProps {
     pub high_contrast: bool,
     pub full_width: bool,
     pub transparent_container: bool,
+    pub hover: TabsHover,
+    pub hover_intensity: Option<f32>,
 }
 
 impl Default for TabsListProps {
@@ -282,6 +307,8 @@ impl Default for TabsListProps {
             high_contrast: false,
             full_width: false,
             transparent_container: false,
+            hover: TabsHover::Soft,
+            hover_intensity: None,
         }
     }
 }
@@ -328,6 +355,16 @@ impl TabsListProps {
 
     pub fn transparent_container(mut self, transparent_container: bool) -> Self {
         self.transparent_container = transparent_container;
+        self
+    }
+
+    pub fn hover(mut self, hover: TabsHover) -> Self {
+        self.hover = hover;
+        self
+    }
+
+    pub fn hover_intensity(mut self, intensity: f32) -> Self {
+        self.hover_intensity = Some(intensity.clamp(0.0, 1.0));
         self
     }
 }
@@ -529,12 +566,24 @@ fn trigger_style(
         apply_opacity(accent_low(&palette, AccentColor::Gray), 0.55)
     };
 
+    let hover_strength = props.hover_intensity.unwrap_or(match props.hover {
+        TabsHover::None => 0.0,
+        TabsHover::Subtle => 0.6,
+        TabsHover::Soft => 1.0,
+    });
+
+    let hover_pill = if hover_strength <= 0.0 {
+        Background::Color(Color::TRANSPARENT)
+    } else {
+        Background::Color(apply_opacity(muted_bg, hover_strength))
+    };
+
     let (background, border) = match props.variant {
         TabsListVariant::Line => {
             let bg = if is_pressed {
                 Background::Color(apply_opacity(muted_bg, 0.9))
             } else if is_hovered {
-                Background::Color(muted_bg)
+                hover_pill
             } else {
                 Background::Color(Color::TRANSPARENT)
             };
@@ -551,6 +600,8 @@ fn trigger_style(
         TabsListVariant::Pill => {
             let bg = if is_active {
                 Background::Color(palette.background)
+            } else if is_hovered {
+                hover_pill
             } else {
                 Background::Color(Color::TRANSPARENT)
             };
@@ -568,7 +619,11 @@ fn trigger_style(
             let bg = if is_active {
                 Background::Color(palette.card)
             } else if is_hovered {
-                Background::Color(apply_opacity(palette.card, 0.9))
+                if hover_strength <= 0.0 {
+                    Background::Color(Color::TRANSPARENT)
+                } else {
+                    Background::Color(apply_opacity(palette.card, 0.9 * hover_strength))
+                }
             } else {
                 Background::Color(Color::TRANSPARENT)
             };
