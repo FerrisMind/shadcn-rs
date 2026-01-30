@@ -158,10 +158,10 @@ pub use table::{
     table_body, table_caption, table_cell, table_footer, table_head, table_header, table_row,
 };
 pub use tabs::{
-    TabItem, TabsActivationMode, TabsContentItem, TabsDirection, TabsJustify, TabsListLoop,
-    TabsListProps, TabsListVariant, TabsOrientation, TabsProps, TabsRootProps, TabsSize,
-    TabsTriggerContent, TabsTriggerItem, TabsVariant, TabsWrap, tabs, tabs_content, tabs_contents,
-    tabs_list, tabs_root, tabs_trigger, tabs_trigger_with,
+    TabItem, TabsActivationMode, TabsContentItem, TabsDirection, TabsHover, TabsJustify,
+    TabsListLoop, TabsListProps, TabsListVariant, TabsOrientation, TabsProps, TabsRootProps,
+    TabsSize, TabsTriggerContent, TabsTriggerItem, TabsVariant, TabsWrap, tabs, tabs_content,
+    tabs_contents, tabs_list, tabs_root, tabs_trigger, tabs_trigger_with,
 };
 pub use textarea::{
     TextareaProps, TextareaResize, TextareaSize, TextareaVariant, textarea, textarea_apply_action,
