@@ -14,7 +14,9 @@ use iced::widget::{button as button_widget, button as iced_button, column, conta
 use iced::{Background, Color, Element, Event, Length, Point, Rectangle, Shadow, Size, Vector};
 
 use crate::theme::Theme;
-use crate::tokens::{AccentColor, accent_color, accent_high, accent_low, accent_text, is_dark};
+use crate::tokens::{
+    AccentColor, accent_color, accent_high, accent_low, accent_soft, accent_text, is_dark,
+};
 
 const INDICATOR_ANIM_MS: u64 = 160;
 
@@ -451,15 +453,24 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
 fn list_style(theme: &Theme, props: TabsListProps) -> (Option<Background>, Border, Shadow) {
     let palette = theme.palette;
     match props.variant {
-        TabsListVariant::Pill => (
-            Some(Background::Color(palette.muted)),
-            Border {
-                color: Color::TRANSPARENT,
-                width: 0.0,
-                radius: theme.radius.sm.into(),
-            },
-            Shadow::default(),
-        ),
+        TabsListVariant::Pill => {
+            let bg = if props.color == AccentColor::Gray {
+                palette.muted
+            } else if props.high_contrast {
+                accent_low(&palette, props.color)
+            } else {
+                accent_soft(&palette, props.color)
+            };
+            (
+                Some(Background::Color(bg)),
+                Border {
+                    color: Color::TRANSPARENT,
+                    width: 0.0,
+                    radius: theme.radius.sm.into(),
+                },
+                Shadow::default(),
+            )
+        }
         TabsListVariant::Line => (
             None,
             Border {

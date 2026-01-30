@@ -120,16 +120,14 @@ impl Example {
                     .spacing(12),
                 ]
                 .spacing(24),
-                row![
-                    button(
-                        "Save changes",
-                        Some(Message::SaveAccount),
-                        ButtonProps::new()
-                            .variant(ButtonVariant::Solid)
-                            .size(ButtonSize::Two),
-                        theme,
-                    ),
-                ]
+                row![button(
+                    "Save changes",
+                    Some(Message::SaveAccount),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Solid)
+                        .size(ButtonSize::Two),
+                    theme,
+                ),]
                 .align_y(Alignment::Center),
             ]
             .spacing(24),
@@ -179,16 +177,14 @@ impl Example {
                     .spacing(12),
                 ]
                 .spacing(24),
-                row![
-                    button(
-                        "Save password",
-                        Some(Message::SavePassword),
-                        ButtonProps::new()
-                            .variant(ButtonVariant::Solid)
-                            .size(ButtonSize::Two),
-                        theme,
-                    ),
-                ]
+                row![button(
+                    "Save password",
+                    Some(Message::SavePassword),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Solid)
+                        .size(ButtonSize::Two),
+                    theme,
+                ),]
                 .align_y(Alignment::Center),
             ]
             .spacing(24),
