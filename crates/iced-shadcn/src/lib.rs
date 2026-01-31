@@ -26,6 +26,7 @@ pub mod hover_card;
 pub mod input;
 pub mod input_group;
 pub mod input_otp;
+pub mod kbd;
 pub mod label;
 pub mod navigation_menu;
 pub mod pagination;
@@ -124,11 +125,18 @@ pub use input_otp::{
     InputOTPContext, InputOTPOnComplete, InputOTPProps, InputOTPState, input_otp, input_otp_group,
     input_otp_separator, input_otp_slot, input_otp_slot_last,
 };
+pub use kbd::{KbdGroupProps, KbdProps, KbdSize, kbd, kbd_group, kbd_shortcut};
 pub use label::{LabelProps, label, label_with_props};
 pub use navigation_menu::{
-    NavigationMenuAlign, NavigationMenuContentProps, NavigationMenuLinkProps, NavigationMenuProps,
-    NavigationMenuSide, navigation_menu, navigation_menu_item, navigation_menu_link,
-    navigation_menu_trigger,
+    NavigationMenuAlign, NavigationMenuContent, NavigationMenuContentProps,
+    NavigationMenuIndicator, NavigationMenuItem, NavigationMenuJustify, NavigationMenuLink,
+    NavigationMenuLinkItem, NavigationMenuLinkProps, NavigationMenuLinkVariant, NavigationMenuList,
+    NavigationMenuListProps, NavigationMenuOrientation, NavigationMenuProps, NavigationMenuRoot,
+    NavigationMenuSide, NavigationMenuSize, NavigationMenuTrigger, NavigationMenuTriggerItem,
+    NavigationMenuViewport, NavigationMenuWrap, navigation_menu, navigation_menu_content,
+    navigation_menu_indicator, navigation_menu_item, navigation_menu_link,
+    navigation_menu_link_item, navigation_menu_list, navigation_menu_root, navigation_menu_trigger,
+    navigation_menu_trigger_style, navigation_menu_trigger_with, navigation_menu_viewport,
 };
 pub use pagination::{
     PaginationItem, PaginationLinkProps, PaginationProps, pagination, pagination_content,
