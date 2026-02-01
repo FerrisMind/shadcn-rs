@@ -3,7 +3,7 @@ use iced::widget::{column, container, row, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    ButtonProps, ButtonSize, ButtonVariant, DialogProps, Theme, TextFieldProps, button, dialog,
+    ButtonProps, ButtonSize, ButtonVariant, DialogProps, TextFieldProps, Theme, button, dialog,
     label, text_field,
 };
 

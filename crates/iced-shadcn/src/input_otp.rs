@@ -2,8 +2,8 @@ use std::cell::Cell;
 use std::fmt::{self, Debug};
 
 use iced::border::{Border, Radius};
-use iced::widget::{container, row, text, text_input};
-use iced::{Alignment, Background, Element, Length};
+use iced::widget::{container, mouse_area, row, text, text_input};
+use iced::{Alignment, Background, Color, Element, Length, Padding};
 use regex::Regex;
 
 use crate::theme::Theme;
@@ -69,6 +69,105 @@ pub struct InputOTPContext<'a, Message> {
     on_input: Option<Box<dyn Fn(String) -> Message + 'a>>,
     on_complete: Option<Box<dyn Fn(String) -> Message + 'a>>,
     group_slot_count: Cell<usize>,
+}
+
+/// Unified OTP input - one hidden input with visual slots (like react reference)
+pub fn input_otp_unified<'a, Message: Clone + 'a, F>(
+    value: &'a str,
+    max_length: usize,
+    on_input: F,
+    theme: &'a Theme,
+) -> Element<'a, Message>
+where
+    F: Fn(String) -> Message + Clone + 'a,
+{
+    let (chars, _) = normalized_chars(value, max_length, None);
+    let cursor_pos = chars.len().min(max_length - 1);
+
+    // Build visual slots
+    let mut slots = Vec::with_capacity(max_length);
+    for i in 0..max_length {
+        let char_opt = chars.get(i).copied();
+        let is_active = i == cursor_pos;
+        let is_filled = char_opt.is_some();
+
+        // Slot content
+        let slot_content: Element<'a, Message> = if let Some(c) = char_opt {
+            text(c.to_string())
+                .size(14)
+                .style(move |_t: &iced::Theme| iced::widget::text::Style {
+                    color: Some(theme.palette.foreground),
+                })
+                .into()
+        } else if is_active {
+            // Show caret for active slot
+            text("|")
+                .size(14)
+                .style(move |_t: &iced::Theme| iced::widget::text::Style {
+                    color: Some(theme.palette.primary),
+                })
+                .into()
+        } else {
+            text("").size(14).into()
+        };
+
+        // Styled slot container with mouse_area for click handling
+        let slot = mouse_area(
+            container(
+                container(slot_content)
+                    .width(Length::Fixed(36.0))
+                    .height(Length::Fixed(40.0))
+                    .align_x(iced::alignment::Horizontal::Center)
+                    .align_y(iced::alignment::Vertical::Center)
+            )
+            .style(move |_t: &iced::Theme| iced::widget::container::Style {
+                background: Some(Background::Color(theme.palette.background)),
+                border: Border {
+                    color: if is_active {
+                        theme.palette.ring
+                    } else if is_filled {
+                        theme.palette.border
+                    } else {
+                        Color::from_rgb(0.8, 0.8, 0.8)
+                    },
+                    width: if is_active { 1.5 } else { 1.0 },
+                    radius: if i == 0 && max_length == 1 {
+                        Radius::new(theme.radius.sm)
+                    } else if i == 0 {
+                        Radius::default().top_left(theme.radius.sm).bottom_left(theme.radius.sm)
+                    } else if i == max_length - 1 {
+                        Radius::default().top_right(theme.radius.sm).bottom_right(theme.radius.sm)
+                    } else {
+                        Radius::default()
+                    },
+                },
+                ..Default::default()
+            }),
+        )
+        .on_press(on_input.clone()(value.to_string()));
+
+        slots.push(slot.into());
+    }
+
+    // Hidden text input that captures keyboard input
+    let hidden_input = text_input::TextInput::new("", value)
+        .on_input(on_input)
+        .padding(Padding::new(0.0))
+        .width(Length::Fixed(1.0))
+        .style(|_, _| iced::widget::text_input::Style {
+            background: Background::Color(Color::TRANSPARENT),
+            border: Border::default(),
+            icon: Color::TRANSPARENT,
+            placeholder: Color::TRANSPARENT,
+            value: Color::TRANSPARENT,
+            selection: Color::TRANSPARENT,
+        });
+
+    // Stack: slots row + hidden input
+    row![row(slots).spacing(0).align_y(Alignment::Center), hidden_input]
+        .spacing(0)
+        .align_y(Alignment::Center)
+        .into()
 }
 
 pub fn input_otp<'a, Message: Clone + 'a, F>(
@@ -290,4 +389,62 @@ fn corner_radius_for_slot_in_group(
         (_, true) => Radius::default().top_right(radius).bottom_right(radius),
         _ => Radius::default(),
     }
+}
+
+/// Creates OTP slots without closure-based API.
+/// Returns a Vec of slot elements that can be arranged as needed.
+pub fn create_otp_slots<'a, Message: Clone + 'a, F>(
+    value: &'a str,
+    max_length: usize,
+    on_input: Option<F>,
+    theme: &'a Theme,
+) -> Vec<Element<'a, Message>>
+where
+    F: Fn(String) -> Message + Clone + 'a,
+{
+    let (chars, _) = normalized_chars(value, max_length, None);
+    let mut slots = Vec::with_capacity(max_length);
+
+    for index in 0..max_length {
+        let slot_char = chars.get(index).copied();
+        let slot_value = slot_char.map(|ch| ch.to_string()).unwrap_or_default();
+
+        let radius = if index == 0 && max_length == 1 {
+            Radius::new(theme.radius.sm)
+        } else if index == 0 {
+            Radius::default().top_left(theme.radius.sm).bottom_left(theme.radius.sm)
+        } else if index == max_length - 1 {
+            Radius::default().top_right(theme.radius.sm).bottom_right(theme.radius.sm)
+        } else {
+            Radius::default()
+        };
+
+        let mut input = text_input::TextInput::new("", &slot_value)
+            .padding([8.0, 0.0])
+            .size(14)
+            .width(Length::Fixed(36.0))
+            .style(move |_t, status| input_otp_style(theme, radius, status));
+
+        if let Some(ref on_input_fn) = on_input {
+            let on_input_for_slot: F = on_input_fn.clone();
+            let current_chars = chars.clone();
+            input = input.on_input(move |value| {
+                let next = apply_slot_input(&current_chars, index, &value, max_length, None);
+                (on_input_for_slot)(next)
+            });
+        } else {
+            input = input.on_input_maybe(None::<fn(String) -> Message>);
+        }
+
+        let element = container(input)
+            .width(Length::Fixed(36.0))
+            .height(Length::Fixed(40.0))
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
+            .into();
+
+        slots.push(element);
+    }
+
+    slots
 }

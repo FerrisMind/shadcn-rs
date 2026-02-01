@@ -2,9 +2,7 @@ use iced::border::Border;
 use iced::widget::{column, container, row, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
-use iced_shadcn::{
-    ButtonProps, ButtonVariant, DialogProps, DialogSize, Theme, button, dialog,
-};
+use iced_shadcn::{ButtonProps, ButtonVariant, DialogProps, DialogSize, Theme, button, dialog};
 
 pub fn main() -> iced::Result {
     iced::application(Example::default, Example::update, Example::view).run()

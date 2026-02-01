@@ -122,8 +122,9 @@ pub use input_group::{
     input_group_textarea_apply_action,
 };
 pub use input_otp::{
-    InputOTPContext, InputOTPOnComplete, InputOTPProps, InputOTPState, input_otp, input_otp_group,
-    input_otp_separator, input_otp_slot, input_otp_slot_last,
+    InputOTPContext, InputOTPOnComplete, InputOTPProps, InputOTPState, create_otp_slots,
+    input_otp, input_otp_group, input_otp_separator, input_otp_slot, input_otp_slot_last,
+    input_otp_unified,
 };
 pub use kbd::{KbdGroupProps, KbdProps, KbdSize, kbd, kbd_group, kbd_shortcut};
 pub use label::{LabelProps, label, label_with_props};
