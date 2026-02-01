@@ -19,7 +19,7 @@
 
 ## Крейты
 - `crates/egui-shadcn` — компоненты для egui (см. `crates/egui-shadcn/README.md`).
-- `crates/iced-shadcn` — планируемый порт для iced.
+- `crates/iced-shadcn` — компоненты для iced (см. `crates/iced-shadcn/README.md`).
 
 ## Лицензия
 MIT (см. workspace `Cargo.toml`).

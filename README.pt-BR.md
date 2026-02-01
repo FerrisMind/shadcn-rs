@@ -19,7 +19,7 @@
 
 ## Crates
 - `crates/egui-shadcn` — componentes para egui (veja `crates/egui-shadcn/README.md`).
-- `crates/iced-shadcn` — port planejado para iced.
+- `crates/iced-shadcn` — componentes para iced (veja `crates/iced-shadcn/README.md`).
 
 ## Licença
 MIT (veja `Cargo.toml` do workspace).

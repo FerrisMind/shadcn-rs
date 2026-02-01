@@ -467,8 +467,8 @@ fn shadcn_oklch_palettes(base: ShadcnBaseColor) -> (ShadcnOklchPalette, ShadcnOk
                 card_foreground: dark_fg,
                 popover: dark_popover,
                 popover_foreground: dark_fg,
-                primary: border,
-                primary_foreground: dark_card,
+                primary: white,
+                primary_foreground: Oklch::new(0.05, 0.0, 0.0),  // явно чёрный для текста кнопок
                 secondary: dark_secondary,
                 secondary_foreground: dark_fg,
                 muted: dark_muted,
