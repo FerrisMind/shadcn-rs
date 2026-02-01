@@ -18,7 +18,7 @@
 
 ## Crates
 - `crates/egui-shadcn` — egui components (see `crates/egui-shadcn/README.md`).
-- `crates/iced-shadcn` — planned iced port.
+- `crates/iced-shadcn` — iced components (see `crates/iced-shadcn/README.md`).
 
 ## License
 MIT (see workspace `Cargo.toml`).

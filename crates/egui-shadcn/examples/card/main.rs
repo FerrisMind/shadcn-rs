@@ -12,8 +12,9 @@ use eframe::{App, Frame, egui};
 use egui::{Align2, FontData, FontDefinitions, FontFamily, FontId};
 use egui_shadcn::tokens::ColorPalette;
 use egui_shadcn::{
-    Button, ButtonSize, ButtonVariant, CardProps, CardVariant, ControlSize, ControlVariant, Input,
-    InputSize, InputType, Label, SelectItem, SelectProps, Theme, button, card, select_with_items,
+    Button, ButtonSize, ButtonStyle, ButtonVariant, CardProps, CardVariant, ControlSize,
+    ControlVariant, Input, InputSize, InputType, Label, SelectItem, SelectProps, Theme, button,
+    card, select_with_items,
     switch,
 };
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
@@ -103,6 +104,26 @@ fn ensure_lucide_font(ctx: &egui::Context) {
         .insert(0, "lucide".into());
     ctx.set_fonts(fonts);
     ctx.data_mut(|d| d.insert_temp(font_loaded_id, true));
+}
+
+fn inverted_button_text_color(theme: &Theme) -> egui::Color32 {
+    let [r, g, b, _] = theme.palette.background.to_array();
+    let luminance = (0.2126 * r as f32) + (0.7152 * g as f32) + (0.0722 * b as f32);
+    if luminance >= 128.0 {
+        egui::Color32::WHITE
+    } else {
+        egui::Color32::BLACK
+    }
+}
+
+fn inverted_button_style(theme: &Theme, variant: ButtonVariant) -> ButtonStyle {
+    let palette = &theme.palette;
+    let mut style = ButtonStyle::from_variant(palette, variant);
+    let text_color = inverted_button_text_color(theme);
+    style.text = text_color;
+    style.text_hover = text_color;
+    style.text_active = text_color;
+    style
 }
 
 fn render_login_card(ui: &mut egui::Ui, theme: &Theme, email: &mut String, password: &mut String) {
@@ -212,17 +233,24 @@ fn render_login_card(ui: &mut egui::Ui, theme: &Theme, email: &mut String, passw
                 let full_width = footer.available_width();
                 footer.set_min_width(full_width);
 
-                let _ = Button::new("Login")
-                    .variant(ButtonVariant::Default)
-                    .size(ButtonSize::Default)
-                    .min_width(full_width)
-                    .show(footer, theme);
-                let _ = Button::new("Login with GitHub")
-                    .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::Default)
-                    .icon(&github_icon)
-                    .min_width(full_width)
-                    .show(footer, theme);
+                let _ = footer.scope(|button_ui| {
+                    button_ui.visuals_mut().override_text_color = None;
+                    Button::new("Login")
+                        .variant(ButtonVariant::Default)
+                        .size(ButtonSize::Default)
+                        .style(inverted_button_style(theme, ButtonVariant::Default))
+                        .min_width(full_width)
+                        .show(button_ui, theme)
+                });
+                let _ = footer.scope(|button_ui| {
+                    button_ui.visuals_mut().override_text_color = None;
+                    Button::new("Login with GitHub")
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Default)
+                        .icon(&github_icon)
+                        .min_width(full_width)
+                        .show(button_ui, theme)
+                });
             });
         },
     );
@@ -323,14 +351,17 @@ fn render_project_card(
                     true,
                 );
                 footer.with_layout(egui::Layout::right_to_left(egui::Align::Center), |right| {
-                    let _ = button(
-                        right,
-                        theme,
-                        "Deploy",
-                        ControlVariant::Primary,
-                        ControlSize::Md,
-                        true,
-                    );
+                    let _ = right.scope(|button_ui| {
+                        button_ui.visuals_mut().override_text_color = None;
+                        Button::new("Deploy")
+                            .variant(ButtonVariant::from(ControlVariant::Primary))
+                            .size(ButtonSize::from(ControlSize::Md))
+                            .style(inverted_button_style(
+                                theme,
+                                ButtonVariant::from(ControlVariant::Primary),
+                            ))
+                            .show(button_ui, theme)
+                    });
                 });
             });
         },
