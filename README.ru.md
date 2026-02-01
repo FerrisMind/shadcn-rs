@@ -25,6 +25,8 @@
 MIT (см. workspace `Cargo.toml`).
 
 ## Благодарности
+- egui — immediate-mode GUI фреймворк для крейта egui-shadcn.
+- iced — retained-mode GUI фреймворк для крейта iced-shadcn.
 - Lucide Icons — набор иконок, используемый через `lucide-icons`.
 - Radix UI — паттерны взаимодействия и доступности.
 - shadcn/ui — дизайн-язык и вдохновение для компонентов.

@@ -24,6 +24,8 @@
 MIT (see workspace `Cargo.toml`).
 
 ## Acknowledgements
+- egui — immediate-mode GUI framework for the egui-shadcn crate.
+- iced — retained-mode GUI framework for the iced-shadcn crate.
 - Lucide Icons — icon set used via `lucide-icons`.
 - Radix UI — interaction patterns and accessibility cues.
 - shadcn/ui — design language and component inspiration.
