@@ -397,7 +397,7 @@ mod tests {
         let props = KbdGroupProps::new().gap(8.0).separator("then");
 
         assert_eq!(props.gap, 8.0);
-        assert_eq!(props.separator, Some("then".to_string()));
+        assert_eq!(props.separator, Some("then"));
     }
 
     #[test]
