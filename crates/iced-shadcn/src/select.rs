@@ -1139,15 +1139,31 @@ where
                     let y = cursor_position.y + state.scroll_offset;
                     if let Some(index) = row_at(&rows, y) {
                         if matches!(&rows[index].kind, RowKind::Item { disabled: true, .. }) {
+                            let old_hovered = *self.hovered_row;
                             *self.hovered_row = None;
+                            if old_hovered.is_some() {
+                                shell.request_redraw();
+                            }
                         } else {
+                            let old_hovered = *self.hovered_row;
                             *self.hovered_row = Some(index);
+                            if old_hovered != Some(index) {
+                                shell.request_redraw();
+                            }
                         }
                     } else {
+                        let old_hovered = *self.hovered_row;
                         *self.hovered_row = None;
+                        if old_hovered.is_some() {
+                            shell.request_redraw();
+                        }
                     }
                 } else {
+                    let old_hovered = *self.hovered_row;
                     *self.hovered_row = None;
+                    if old_hovered.is_some() {
+                        shell.request_redraw();
+                    }
                 }
             }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
@@ -1272,7 +1288,9 @@ where
                     ..
                 } => {
                     let is_hovered = *self.hovered_row == Some(index);
-                    if is_hovered && !*disabled {
+                    
+                    // Draw background for selected item
+                    if *selected && !*disabled {
                         renderer.fill_quad(
                             renderer::Quad {
                                 bounds: row_bounds,
@@ -1284,6 +1302,22 @@ where
                                 ..renderer::Quad::default()
                             },
                             menu_style.selected_background,
+                        );
+                    }
+                    
+                    // Draw hover background (on top of selected if both)
+                    if is_hovered && !*disabled {
+                        renderer.fill_quad(
+                            renderer::Quad {
+                                bounds: row_bounds,
+                                border: Border {
+                                    radius: item_radius.into(),
+                                    width: 0.0,
+                                    color: Color::TRANSPARENT,
+                                },
+                                ..renderer::Quad::default()
+                            },
+                            menu_style.hover_background,
                         );
                     }
 
@@ -1730,6 +1764,7 @@ struct MenuStyle {
     muted_text_color: Color,
     selected_text_color: Color,
     selected_background: Background,
+    hover_background: Background,
     separator_color: Color,
     shadow: Shadow,
 }
@@ -1872,6 +1907,17 @@ fn select_menu_style(theme: &ShadcnTheme, props: SelectProps) -> MenuStyle {
 
     let shadow = shadow_md(1.0);
 
+    let hover_background = match props.content_variant {
+        SelectContentVariant::Soft => {
+            let blend = if is_gray { palette.foreground } else { accent };
+            let mix_ratio = if is_gray { 0.12 } else { 0.25 };
+            Background::Color(mix(accent_soft_bg, blend, mix_ratio))
+        }
+        SelectContentVariant::Solid => {
+            Background::Color(palette.accent)
+        }
+    };
+
     MenuStyle {
         background,
         border: Border {
@@ -1883,6 +1929,7 @@ fn select_menu_style(theme: &ShadcnTheme, props: SelectProps) -> MenuStyle {
         muted_text_color: palette.muted_foreground,
         selected_text_color,
         selected_background,
+        hover_background,
         separator_color: palette.border,
         shadow,
     }
