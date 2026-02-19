@@ -10,7 +10,9 @@ mod screenshot;
 
 use eframe::{App, Frame, egui};
 use egui::RichText;
-use egui_shadcn::{ControlSize, ControlVariant, Label, Theme, checkbox};
+use egui_shadcn::{
+    ControlSize, ControlVariant, Label, LabelProps, LabelVariant, Theme, checkbox, label_with_props,
+};
 
 struct LabelDemo {
     theme: Theme,
@@ -26,52 +28,116 @@ impl LabelDemo {
     }
 }
 
-fn example_card(ui: &mut egui::Ui, title: &str, content: impl FnOnce(&mut egui::Ui)) {
-    ui.vertical(|ui| {
-        ui.label(RichText::new(title).strong());
-        ui.add_space(6.0);
-        content(ui);
-    });
-}
-
 impl App for LabelDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
         screenshot::apply_screenshot_scale(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.spacing_mut().item_spacing = egui::vec2(16.0, 16.0);
-            let avail = ui.available_size();
-            ui.allocate_ui_with_layout(avail, egui::Layout::top_down(egui::Align::Center), |ui| {
-                ui.heading("Label");
-                ui.add_space(12.0);
+            ui.heading("Label Component");
+            ui.add_space(16.0);
 
-                let card_width = 320.0;
-                ui.vertical_centered(|ui| {
-                    ui.set_min_width(card_width);
-                    ui.set_max_width(card_width);
-                    example_card(ui, "Label", |ui| {
-                        ui.set_min_width(card_width);
-                        ui.set_max_width(card_width);
-                        ui.horizontal(|row| {
-                            row.spacing_mut().item_spacing.x = 8.0;
-                            let _ = checkbox(
-                                row,
-                                &self.theme,
-                                &mut self.terms,
-                                "",
-                                ControlVariant::Primary,
-                                ControlSize::Md,
-                                true,
-                            );
-                            let label_resp = Label::new("Accept terms and conditions")
-                                .size(ControlSize::Md)
-                                .show(row, &self.theme);
-                            if label_resp.clicked() {
-                                self.terms = !self.terms;
-                            }
-                        });
-                    });
-                });
+            // -- With Checkbox --
+            ui.label(RichText::new("With Checkbox").strong());
+            ui.add_space(4.0);
+            ui.horizontal(|row| {
+                row.spacing_mut().item_spacing.x = 8.0;
+                let _ = checkbox(
+                    row,
+                    &self.theme,
+                    &mut self.terms,
+                    "",
+                    ControlVariant::Primary,
+                    ControlSize::Md,
+                    true,
+                );
+                let resp = Label::new("Accept terms and conditions")
+                    .size(ControlSize::Md)
+                    .show(row, &self.theme);
+                if resp.clicked() {
+                    self.terms = !self.terms;
+                }
             });
+
+            ui.add_space(16.0);
+
+            // -- Variants --
+            ui.label(RichText::new("Variants").strong());
+            ui.add_space(4.0);
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Default variant").variant(LabelVariant::Default),
+            );
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Secondary variant").variant(LabelVariant::Secondary),
+            );
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Muted variant").variant(LabelVariant::Muted),
+            );
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Destructive variant").variant(LabelVariant::Destructive),
+            );
+
+            ui.add_space(16.0);
+
+            // -- Sizes --
+            ui.label(RichText::new("Sizes").strong());
+            ui.add_space(4.0);
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Small label").size(ControlSize::Sm),
+            );
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Medium label (default)").size(ControlSize::Md),
+            );
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Large label").size(ControlSize::Lg),
+            );
+
+            ui.add_space(16.0);
+
+            // -- Disabled --
+            ui.label(RichText::new("Disabled").strong());
+            ui.add_space(4.0);
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("This label is disabled").disabled(true),
+            );
+
+            ui.add_space(16.0);
+
+            // -- Required --
+            ui.label(RichText::new("Required").strong());
+            ui.add_space(4.0);
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Email address").required(true),
+            );
+
+            ui.add_space(16.0);
+
+            // -- With Description --
+            ui.label(RichText::new("With Description").strong());
+            ui.add_space(4.0);
+            label_with_props(
+                ui,
+                &self.theme,
+                LabelProps::new("Username")
+                    .required(true)
+                    .description("This is your public display name."),
+            );
         });
     }
 }

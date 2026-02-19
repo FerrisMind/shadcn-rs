@@ -1,6 +1,6 @@
-use iced::border::Border;
-use iced::widget::{container, text};
-use iced::{Background, Color, Shadow};
+use iced::widget::{button, container, row, text};
+use iced::{Alignment, Background, Color, Element, Shadow};
+use lucide_icons::Icon as LucideIcon;
 
 use crate::button::ButtonRadius;
 use crate::theme::Theme;
@@ -24,7 +24,7 @@ pub enum BadgeVariant {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct BadgeProps<'a> {
+pub struct BadgeProps<'a, Message> {
     pub size: BadgeSize,
     pub variant: BadgeVariant,
     pub color: Option<AccentColor>,
@@ -32,9 +32,11 @@ pub struct BadgeProps<'a> {
     pub high_contrast: bool,
     /// When set, badge renders as a clickable link element.
     pub href: Option<&'a str>,
+    /// Optional message to publish when clicked.
+    pub on_press: Option<Message>,
 }
 
-impl Default for BadgeProps<'_> {
+impl<Message> Default for BadgeProps<'_, Message> {
     fn default() -> Self {
         Self {
             size: BadgeSize::Size1,
@@ -43,11 +45,12 @@ impl Default for BadgeProps<'_> {
             radius: None,
             high_contrast: false,
             href: None,
+            on_press: None,
         }
     }
 }
 
-impl<'a> BadgeProps<'a> {
+impl<'a, Message> BadgeProps<'a, Message> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -82,9 +85,15 @@ impl<'a> BadgeProps<'a> {
         self.href = Some(href);
         self
     }
+
+    /// Sets the message to publish when the badge is pressed.
+    pub fn on_press(mut self, on_press: Message) -> Self {
+        self.on_press = Some(on_press);
+        self
+    }
 }
 
-fn badge_radius(theme: &Theme, props: &BadgeProps<'_>) -> f32 {
+fn badge_radius<Message>(theme: &Theme, props: &BadgeProps<'_, Message>) -> f32 {
     match props.radius {
         Some(ButtonRadius::None) => 0.0,
         Some(ButtonRadius::Small) => theme.radius.sm,
@@ -120,11 +129,11 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
     }
 }
 
-pub fn badge<'a, Message: 'a>(
+pub fn badge<'a, Message: Clone + 'a>(
     label: impl Into<String>,
-    props: BadgeProps<'a>,
+    props: BadgeProps<'a, Message>,
     theme: &Theme,
-) -> container::Container<'a, Message> {
+) -> Element<'a, Message> {
     let palette = theme.palette;
     let radius = badge_radius(theme, &props);
 
@@ -166,7 +175,7 @@ pub fn badge<'a, Message: 'a>(
     let style = move |_iced_theme: &iced::Theme| container::Style {
         background: Some(Background::Color(background_color)),
         text_color: Some(text_color),
-        border: Border {
+        border: iced::border::Border {
             color: border_color,
             width: if border_color.a > 0.0 { 1.0 } else { 0.0 },
             radius: radius.into(),
@@ -175,13 +184,58 @@ pub fn badge<'a, Message: 'a>(
         snap: true,
     };
 
-    container(
-        text(label.into())
-            .size(props.size.text_size() as u32)
-            .style(move |_theme: &iced::Theme| iced::widget::text::Style {
-                color: Some(text_color),
-            }),
-    )
-    .padding(props.size.padding())
-    .style(style)
+    let is_interactive = props.on_press.is_some() || props.href.is_some();
+    let text_size = props.size.text_size();
+
+    let mut content = row![text(label.into())
+        .size(text_size as u32)
+        .style(move |_theme: &iced::Theme| iced::widget::text::Style {
+            color: Some(text_color),
+        })]
+    .spacing(4)
+    .align_y(Alignment::Center);
+
+    if props.href.is_some() {
+        content = content.push(
+            text(char::from(LucideIcon::ExternalLink).to_string())
+                .size(text_size as u32 - 1)
+                .font(iced::Font::with_name("lucide"))
+                .style(move |_theme: &iced::Theme| iced::widget::text::Style {
+                    color: Some(apply_opacity(text_color, 0.8)),
+                }),
+        );
+    }
+
+    if is_interactive {
+        let mut b = button(content).padding(props.size.padding());
+
+        if let Some(msg) = props.on_press {
+            b = b.on_press(msg);
+        }
+
+        b.style(move |_theme, status| {
+            // Since our style closure ignores the theme and uses captured colors,
+            // we can pass a dummy theme reference.
+            let base = style(&iced::Theme::Light);
+            let mut bg = base.background;
+
+            if matches!(status, iced::widget::button::Status::Hovered) {
+                bg = Some(Background::Color(crate::tokens::mix(background_color, Color::WHITE, 0.1)));
+            }
+
+            iced::widget::button::Style {
+                background: bg,
+                text_color: base.text_color.unwrap_or(text_color),
+                border: base.border,
+                shadow: base.shadow,
+                snap: true,
+            }
+        })
+        .into()
+    } else {
+        container(content)
+            .padding(props.size.padding())
+            .style(style)
+            .into()
+    }
 }

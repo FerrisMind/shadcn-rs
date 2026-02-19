@@ -1,10 +1,10 @@
 use iced::border::Border;
-use iced::widget::{column, container, row, text_editor};
+use iced::widget::{column, container, row, scrollable};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    CheckboxProps, CheckboxSize, CheckboxState, InputProps, LabelProps, TextareaProps, Theme,
-    checkbox, input, label, label_with_props, textarea,
+    CheckboxProps, CheckboxSize, CheckboxState, ControlSize, LabelProps, LabelVariant, Theme,
+    checkbox, label, label_with_props,
 };
 use lucide_icons::LUCIDE_FONT_BYTES;
 
@@ -17,9 +17,6 @@ pub fn main() -> iced::Result {
 struct Example {
     theme: Theme,
     terms_state: CheckboxState,
-    email_value: String,
-    handle_value: String,
-    message_value: text_editor::Content,
 }
 
 impl Default for Example {
@@ -27,9 +24,6 @@ impl Default for Example {
         Self {
             theme: Theme::default(),
             terms_state: CheckboxState::Unchecked,
-            email_value: String::new(),
-            handle_value: String::new(),
-            message_value: text_editor::Content::new(),
         }
     }
 }
@@ -37,30 +31,23 @@ impl Default for Example {
 #[derive(Debug, Clone)]
 enum Message {
     Toggle(CheckboxState),
-    EmailChanged(String),
-    HandleChanged(String),
-    BodyChanged(text_editor::Action),
 }
 
 impl Example {
     fn update(&mut self, message: Message) {
         match message {
             Message::Toggle(state) => self.terms_state = state,
-            Message::EmailChanged(value) => self.email_value = value,
-            Message::HandleChanged(value) => self.handle_value = value,
-            Message::BodyChanged(action) => self.message_value.perform(action),
         }
     }
 
     fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
-        let background = theme.palette.background;
-        let border = theme.palette.border;
-        let radius = theme.radius.md;
-        let field_width = Length::Fixed(384.0);
-        let field_pixels = 384.0;
 
-        let checkbox_demo = preview(
+        let mut content = column![].spacing(16).width(Length::Fill);
+
+        // -- With Checkbox --
+        content = content.push(section_title("With Checkbox"));
+        content = content.push(preview(
             theme,
             column![
                 row![
@@ -93,81 +80,114 @@ impl Example {
                 .align_y(Alignment::Center),
             ]
             .spacing(12),
-        );
+        ));
 
-        let input_demo = preview(
+        // -- Variants --
+        content = content.push(section_title("Variants"));
+        content = content.push(preview(
             theme,
             column![
-                label("Email", theme),
-                input(
-                    &self.email_value,
-                    "Email",
-                    Some(Message::EmailChanged),
-                    InputProps::new(),
+                label_with_props(
+                    "Default variant",
+                    LabelProps::new().variant(LabelVariant::Default),
                     theme,
-                )
-                .width(field_width),
+                ),
+                label_with_props(
+                    "Secondary variant",
+                    LabelProps::new().variant(LabelVariant::Secondary),
+                    theme,
+                ),
+                label_with_props(
+                    "Muted variant",
+                    LabelProps::new().variant(LabelVariant::Muted),
+                    theme,
+                ),
+                label_with_props(
+                    "Destructive variant",
+                    LabelProps::new().variant(LabelVariant::Destructive),
+                    theme,
+                ),
             ]
-            .spacing(12),
-        );
+            .spacing(8),
+        ));
 
-        let textarea_demo = preview(
+        // -- Sizes --
+        content = content.push(section_title("Sizes"));
+        content = content.push(preview(
             theme,
             column![
-                label("Your message", theme),
-                textarea(
-                    &self.message_value,
-                    "Type your message here.",
-                    Some(Message::BodyChanged),
-                    TextareaProps::new(),
+                label_with_props(
+                    "Small label",
+                    LabelProps::new().size(ControlSize::Sm),
                     theme,
-                )
-                .width(field_pixels),
+                ),
+                label_with_props(
+                    "Medium label (default)",
+                    LabelProps::new().size(ControlSize::Md),
+                    theme,
+                ),
+                label_with_props(
+                    "Large label",
+                    LabelProps::new().size(ControlSize::Lg),
+                    theme,
+                ),
             ]
-            .spacing(12),
-        );
+            .spacing(8),
+        ));
 
-        let inline_demo = preview(
+        // -- Disabled --
+        content = content.push(section_title("Disabled"));
+        content = content.push(preview(
             theme,
-            row![
-                label("@", theme),
-                input(
-                    &self.handle_value,
-                    "shadcn",
-                    Some(Message::HandleChanged),
-                    InputProps::new(),
-                    theme,
-                )
-                .width(field_width),
-            ]
-            .spacing(8)
-            .align_y(Alignment::Center),
-        );
+            label_with_props(
+                "This label is disabled",
+                LabelProps::new().disabled(true),
+                theme,
+            ),
+        ));
 
-        let content = column![checkbox_demo, input_demo, textarea_demo, inline_demo]
-            .spacing(16)
-            .align_x(Alignment::Start);
+        // -- Required --
+        content = content.push(section_title("Required"));
+        content = content.push(preview(
+            theme,
+            label_with_props("Email address", LabelProps::new().required(true), theme),
+        ));
 
-        container(content)
-            .padding(24)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .center_x(Length::Fill)
-            .center_y(Length::Fill)
-            .style(move |_theme| iced::widget::container::Style {
-                background: Some(Background::Color(background)),
-                border: Border {
-                    radius: radius.into(),
-                    width: 1.0,
-                    color: border,
-                },
-                ..iced::widget::container::Style::default()
-            })
-            .into()
+        // -- With Description --
+        content = content.push(section_title("With Description"));
+        content = content.push(preview(
+            theme,
+            label_with_props(
+                "Username",
+                LabelProps::new()
+                    .required(true)
+                    .description("This is your public display name."),
+                theme,
+            ),
+        ));
+
+        app(theme, scrollable(content).into())
     }
 }
 
-fn preview<'a, Message: 'a>(
+fn section_title(title: &str) -> Element<'_, Message> {
+    iced::widget::text(title).size(16).into()
+}
+
+fn app<'a>(theme: &Theme, content: Element<'a, Message>) -> Element<'a, Message> {
+    let background = theme.palette.background;
+    container(content)
+        .padding(24)
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .style(move |_theme| iced::widget::container::Style {
+            background: Some(Background::Color(background)),
+            ..iced::widget::container::Style::default()
+        })
+        .into()
+}
+
+fn preview<'a>(
     theme: &Theme,
     content: impl Into<Element<'a, Message>>,
 ) -> iced::widget::Container<'a, Message> {
@@ -176,7 +196,7 @@ fn preview<'a, Message: 'a>(
     let radius = theme.radius.md;
 
     container(content)
-        .padding(20)
+        .padding(16)
         .width(Length::Fill)
         .style(move |_theme| iced::widget::container::Style {
             background: Some(Background::Color(background)),
