@@ -45,12 +45,12 @@ impl<'a> MenuItemProps<'a> {
         }
     }
 
-    pub fn with_shortcut(mut self, shortcut: &'a str) -> Self {
+    pub fn shortcut(mut self, shortcut: &'a str) -> Self {
         self.shortcut = Some(shortcut);
         self
     }
 
-    pub fn with_variant(mut self, variant: MenuItemVariant) -> Self {
+    pub fn variant(mut self, variant: MenuItemVariant) -> Self {
         self.variant = variant;
         self
     }
@@ -65,7 +65,7 @@ impl<'a> MenuItemProps<'a> {
         self
     }
 
-    pub fn with_icon(mut self, icon: &'a str) -> Self {
+    pub fn icon(mut self, icon: &'a str) -> Self {
         self.icon = Some(icon);
         self
     }
@@ -443,8 +443,8 @@ pub fn menu_separator(ui: &mut Ui, theme: &Theme) -> Response {
         ui,
         theme,
         SeparatorProps::default()
-            .with_orientation(SeparatorOrientation::Horizontal)
-            .with_gap(0.0),
+            .orientation(SeparatorOrientation::Horizontal)
+            .gap(0.0),
     );
     ui.add_space(4.0);
     response

@@ -3,9 +3,7 @@ use iced::widget::{container, row};
 use iced::{Background, Element, Length, Task};
 use lucide_icons::LUCIDE_FONT_BYTES;
 
-use iced_shadcn::{
-    ButtonProps, ButtonVariant, Theme, Toast, ToastVariant, Toaster, button,
-};
+use iced_shadcn::{ButtonProps, ButtonVariant, Theme, Toast, ToastVariant, Toaster, button};
 
 pub fn main() -> iced::Result {
     iced::application(Example::default, Example::update, Example::view)
@@ -173,4 +171,3 @@ fn preview<'a, Message: 'a>(
             ..iced::widget::container::Style::default()
         })
 }
-

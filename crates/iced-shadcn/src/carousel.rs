@@ -246,7 +246,7 @@ pub fn carousel_previous<'a, Message: Clone + 'a>(
         on_press,
         ButtonProps::new()
             .variant(ButtonVariant::Outline)
-            .size(ButtonSize::One),
+            .size(ButtonSize::Size1),
         theme,
     )
 }
@@ -268,7 +268,7 @@ pub fn carousel_next<'a, Message: Clone + 'a>(
         on_press,
         ButtonProps::new()
             .variant(ButtonVariant::Outline)
-            .size(ButtonSize::One),
+            .size(ButtonSize::Size1),
         theme,
     )
 }

@@ -427,25 +427,7 @@ impl CodeProps {
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct KbdProps {
-    pub text: WidgetText,
-    pub size: Option<f32>,
-}
 
-impl KbdProps {
-    pub fn new(text: impl Into<WidgetText>) -> Self {
-        Self {
-            text: text.into(),
-            size: None,
-        }
-    }
-
-    pub fn size(mut self, size: f32) -> Self {
-        self.size = Some(size);
-        self
-    }
-}
 
 #[derive(Clone, Debug)]
 pub struct BlockquoteProps {
@@ -837,24 +819,7 @@ pub fn code(ui: &mut Ui, theme: &Theme, props: CodeProps) -> Response {
     response
 }
 
-pub fn kbd(ui: &mut Ui, theme: &Theme, props: KbdProps) -> Response {
-    let size = props.size.unwrap_or(13.0);
-    let rounding = CornerRadius::same(4);
-    let fill = mix(theme.palette.muted, theme.palette.background, 0.6);
-    let stroke = Stroke::new(1.0, theme.palette.border);
-    let rich = RichText::new(widget_text_to_plain(props.text))
-        .font(FontId::new(size, FontFamily::Monospace))
-        .color(theme.palette.foreground)
-        .strong();
 
-    Frame::NONE
-        .fill(fill)
-        .stroke(stroke)
-        .corner_radius(rounding)
-        .inner_margin(vec2(6.0, 4.0))
-        .show(ui, |ui| ui.add(egui::Label::new(rich)))
-        .inner
-}
 
 pub fn blockquote(ui: &mut Ui, theme: &Theme, props: BlockquoteProps) -> Response {
     let size = props.size.unwrap_or(14.0);

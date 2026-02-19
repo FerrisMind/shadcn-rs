@@ -4,9 +4,12 @@
 
 # Cargo
 /Cargo.lock
+/.kiro/
+/powers_ref/
+/docs/
 
 # Node/Next reference app
-reference/
+# reference/
 
 # Editor/OS
 /.vscode

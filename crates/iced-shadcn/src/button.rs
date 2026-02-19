@@ -12,32 +12,48 @@ use crate::tokens::{
     AccentColor, accent_color, accent_foreground, accent_soft, accent_soft_foreground, accent_text,
 };
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ButtonVariant {
+    #[default]
+    Default,
+    Destructive,
+    Outline,
+    Secondary,
+    Ghost,
+    Link,
+    
+    // Legacy mapping
     Classic,
     Solid,
     Soft,
     Surface,
-    Outline,
-    Ghost,
-    Link,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ButtonSize {
-    One,
-    Two,
-    Three,
-    Four,
+    Size1,
+    #[default]
+    Size2,
+    Size3,
+    Size4,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ButtonRadius {
     None,
     Small,
+    #[default]
     Medium,
     Large,
     Full,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ButtonJustify {
+    #[default]
+    Center,
+    Start,
+    Between,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -46,6 +62,7 @@ pub struct ButtonProps {
     pub size: ButtonSize,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
+    pub justify: ButtonJustify,
     pub high_contrast: bool,
     pub loading: bool,
     pub disabled: bool,
@@ -54,10 +71,11 @@ pub struct ButtonProps {
 impl Default for ButtonProps {
     fn default() -> Self {
         Self {
-            variant: ButtonVariant::Solid,
-            size: ButtonSize::Two,
+            variant: ButtonVariant::Default,
+            size: ButtonSize::Size2,
             color: AccentColor::Gray,
             radius: None,
+            justify: ButtonJustify::Center,
             high_contrast: false,
             loading: false,
             disabled: false,
@@ -90,6 +108,11 @@ impl ButtonProps {
         self
     }
 
+    pub fn justify(mut self, justify: ButtonJustify) -> Self {
+        self.justify = justify;
+        self
+    }
+
     pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.high_contrast = high_contrast;
         self
@@ -109,28 +132,28 @@ impl ButtonProps {
 impl ButtonSize {
     fn padding(self) -> [f32; 2] {
         match self {
-            ButtonSize::One => [6.0, 12.0],
-            ButtonSize::Two => [8.0, 16.0],
-            ButtonSize::Three => [10.0, 24.0],
-            ButtonSize::Four => [12.0, 28.0],
+            ButtonSize::Size1 => [6.0, 12.0],
+            ButtonSize::Size2 => [8.0, 16.0],
+            ButtonSize::Size3 => [10.0, 24.0],
+            ButtonSize::Size4 => [12.0, 28.0],
         }
     }
 
     fn height(self) -> f32 {
         match self {
-            ButtonSize::One => 32.0,
-            ButtonSize::Two => 36.0,
-            ButtonSize::Three => 40.0,
-            ButtonSize::Four => 48.0,
+            ButtonSize::Size1 => 32.0,
+            ButtonSize::Size2 => 36.0,
+            ButtonSize::Size3 => 40.0,
+            ButtonSize::Size4 => 48.0,
         }
     }
 
     fn text_size(self) -> u32 {
         match self {
-            ButtonSize::One => 14,
-            ButtonSize::Two => 14,
-            ButtonSize::Three => 14,
-            ButtonSize::Four => 16,
+            ButtonSize::Size1 => 14,
+            ButtonSize::Size2 => 14,
+            ButtonSize::Size3 => 14,
+            ButtonSize::Size4 => 16,
         }
     }
 }
@@ -208,9 +231,9 @@ fn loading_overlay<'a, Message: Clone + 'a>(
     theme: &Theme,
 ) -> Element<'a, Message> {
     let spinner_size = match props.size {
-        ButtonSize::One => SpinnerSize::One,
-        ButtonSize::Two => SpinnerSize::Two,
-        ButtonSize::Three | ButtonSize::Four => SpinnerSize::Three,
+        ButtonSize::Size1 => SpinnerSize::Size1,
+        ButtonSize::Size2 => SpinnerSize::Size2,
+        ButtonSize::Size3 | ButtonSize::Size4 => SpinnerSize::Size3,
     };
     let spinner_color = accent_text(&theme.palette, props.color);
     let spinner = spinner(Spinner::new(theme).size(spinner_size).color(spinner_color));
@@ -236,15 +259,7 @@ fn button_radius(theme: &Theme, props: ButtonProps) -> f32 {
     }
 }
 
-fn mix(a: Color, b: Color, t: f32) -> Color {
-    let t = t.clamp(0.0, 1.0);
-    Color {
-        r: a.r + (b.r - a.r) * t,
-        g: a.g + (b.g - a.g) * t,
-        b: a.b + (b.b - a.b) * t,
-        a: a.a + (b.a - a.a) * t,
-    }
-}
+use crate::tokens::mix;
 
 fn button_style(
     theme: &Theme,
@@ -261,8 +276,18 @@ fn button_style(
     let soft_fg = accent_soft_foreground(&palette, props.color);
 
     let (mut background, mut text_color, mut border_color) = match props.variant {
-        ButtonVariant::Classic | ButtonVariant::Solid => {
+        ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
             (Some(Background::Color(accent)), accent_fg, accent)
+        }
+        ButtonVariant::Secondary => {
+            let color = palette.secondary;
+            let fg = palette.secondary_foreground;
+            (Some(Background::Color(color)), fg, color)
+        }
+        ButtonVariant::Destructive => {
+            let color = palette.destructive;
+            let fg = palette.destructive_foreground;
+            (Some(Background::Color(color)), fg, color)
         }
         ButtonVariant::Soft => (Some(Background::Color(soft_bg)), soft_fg, soft_bg),
         ButtonVariant::Surface => (
@@ -282,8 +307,14 @@ fn button_style(
     match status {
         button_widget::Status::Hovered => {
             background = match props.variant {
-                ButtonVariant::Classic | ButtonVariant::Solid => {
+                ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
                     Some(Background::Color(mix(accent, palette.background, 0.1)))
+                }
+                ButtonVariant::Secondary => {
+                    Some(Background::Color(mix(palette.secondary, palette.background, 0.1)))
+                }
+                ButtonVariant::Destructive => {
+                    Some(Background::Color(mix(palette.destructive, palette.background, 0.1)))
                 }
                 ButtonVariant::Soft
                 | ButtonVariant::Surface
@@ -294,8 +325,14 @@ fn button_style(
         }
         button_widget::Status::Pressed => {
             background = match props.variant {
-                ButtonVariant::Classic | ButtonVariant::Solid => {
+                ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
                     Some(Background::Color(mix(accent, palette.background, 0.2)))
+                }
+                ButtonVariant::Secondary => {
+                    Some(Background::Color(mix(palette.secondary, palette.background, 0.2)))
+                }
+                ButtonVariant::Destructive => {
+                    Some(Background::Color(mix(palette.destructive, palette.background, 0.2)))
                 }
                 ButtonVariant::Soft
                 | ButtonVariant::Surface

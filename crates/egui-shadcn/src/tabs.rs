@@ -182,52 +182,52 @@ impl<'a> TabsProps<'a> {
         }
     }
 
-    pub fn with_variant(mut self, variant: TabsVariant) -> Self {
+    pub fn variant(mut self, variant: TabsVariant) -> Self {
         self.variant = variant;
         self
     }
 
-    pub fn with_orientation(mut self, orientation: TabsDirection) -> Self {
+    pub fn orientation(mut self, orientation: TabsDirection) -> Self {
         self.orientation = orientation;
         self
     }
 
-    pub fn with_activation_mode(mut self, mode: TabsActivationMode) -> Self {
+    pub fn activation_mode(mut self, mode: TabsActivationMode) -> Self {
         self.activation_mode = mode;
         self
     }
 
-    pub fn with_dir(mut self, dir: TabsDirectionality) -> Self {
+    pub fn dir(mut self, dir: TabsDirectionality) -> Self {
         self.dir = Some(dir);
         self
     }
 
-    pub fn with_default_value(mut self, value: String) -> Self {
+    pub fn default_value(mut self, value: String) -> Self {
         self.default_value = Some(value);
         self
     }
 
-    pub fn with_on_value_change(mut self, callback: impl FnMut(&str) + 'a) -> Self {
+    pub fn on_value_change(mut self, callback: impl FnMut(&str) + 'a) -> Self {
         self.on_value_change = Some(OnValueChange(Box::new(callback)));
         self
     }
 
-    pub fn with_list_loop(mut self, loop_focus: TabsListLoop) -> Self {
+    pub fn list_loop(mut self, loop_focus: TabsListLoop) -> Self {
         self.list_loop = loop_focus;
         self
     }
 
-    pub fn with_size(mut self, size: TabsSize) -> Self {
+    pub fn size(mut self, size: TabsSize) -> Self {
         self.size = size;
         self
     }
 
-    pub fn with_wrap(mut self, wrap: TabsWrap) -> Self {
+    pub fn wrap(mut self, wrap: TabsWrap) -> Self {
         self.wrap = wrap;
         self
     }
 
-    pub fn with_justify(mut self, justify: TabsJustify) -> Self {
+    pub fn justify(mut self, justify: TabsJustify) -> Self {
         self.justify = justify;
         self
     }
@@ -252,7 +252,7 @@ impl<'a> TabsProps<'a> {
         self
     }
 
-    pub fn with_content_force_mount(mut self, force: TabsContentForceMount) -> Self {
+    pub fn content_force_mount(mut self, force: TabsContentForceMount) -> Self {
         self.content_force_mount = force;
         self
     }
@@ -267,7 +267,7 @@ impl<'a> TabsProps<'a> {
         self
     }
 
-    pub fn with_accent_color(mut self, color: Color32) -> Self {
+    pub fn accent_color(mut self, color: Color32) -> Self {
         self.accent_color = Some(color);
         self
     }
@@ -663,13 +663,13 @@ pub fn tabs<'a, R>(
 
             if props.scrollable {
                 let scroll_props = ScrollAreaProps::default()
-                    .with_id(props.id_source.with("scroll"))
-                    .with_direction(match props.orientation {
+                    .id(props.id_source.with("scroll"))
+                    .direction(match props.orientation {
                         TabsOrientation::Horizontal => ScrollDirection::Horizontal,
                         TabsOrientation::Vertical => ScrollDirection::Vertical,
                     })
-                    .with_bar_visibility(ScrollBarVisibility::AlwaysHidden)
-                    .with_auto_shrink([true, true]);
+                    .bar_visibility(ScrollBarVisibility::AlwaysHidden)
+                    .auto_shrink([true, true]);
                 scroll_area(bar_ui, theme, scroll_props, add_triggers);
             } else {
                 add_triggers(bar_ui);

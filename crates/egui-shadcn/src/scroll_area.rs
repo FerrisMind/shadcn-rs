@@ -225,72 +225,72 @@ impl ScrollAreaProps {
         self
     }
 
-    pub fn with_id(mut self, id: Id) -> Self {
+    pub fn id(mut self, id: Id) -> Self {
         self.id_source = Some(id);
         self
     }
 
-    pub fn with_dir(mut self, dir: ScrollAreaDir) -> Self {
+    pub fn dir(mut self, dir: ScrollAreaDir) -> Self {
         self.dir = Some(dir);
         self
     }
 
-    pub fn with_nonce(mut self, nonce: impl Into<String>) -> Self {
+    pub fn nonce(mut self, nonce: impl Into<String>) -> Self {
         self.nonce = Some(nonce.into());
         self
     }
 
-    pub fn with_direction(mut self, direction: ScrollDirection) -> Self {
+    pub fn direction(mut self, direction: ScrollDirection) -> Self {
         self.direction = direction;
         self
     }
 
-    pub fn with_size(mut self, size: ScrollAreaSize) -> Self {
+    pub fn size(mut self, size: ScrollAreaSize) -> Self {
         self.size = size;
         self
     }
 
-    pub fn with_radius(mut self, radius: ScrollAreaRadius) -> Self {
+    pub fn radius(mut self, radius: ScrollAreaRadius) -> Self {
         self.radius = radius;
         self
     }
 
-    pub fn with_type(mut self, scroll_type: ScrollAreaType) -> Self {
+    pub fn scroll_type(mut self, scroll_type: ScrollAreaType) -> Self {
         self.scroll_type = scroll_type;
         self
     }
 
-    pub fn with_scroll_hide_delay(mut self, delay_ms: f32) -> Self {
+    pub fn scroll_hide_delay(mut self, delay_ms: f32) -> Self {
         self.scroll_hide_delay_ms = Some(delay_ms);
         self
     }
 
-    pub fn with_hide_delay_ms(mut self, delay_ms: f32) -> Self {
+    pub fn hide_delay_ms(mut self, delay_ms: f32) -> Self {
         self.scroll_hide_delay_ms = Some(delay_ms);
         self
     }
 
-    pub fn with_force_mount(mut self, force_mount: [bool; 2]) -> Self {
+    pub fn force_mount(mut self, force_mount: [bool; 2]) -> Self {
         self.force_mount = force_mount;
         self
     }
 
-    pub fn with_auto_shrink(mut self, auto_shrink: [bool; 2]) -> Self {
+    pub fn auto_shrink(mut self, auto_shrink: [bool; 2]) -> Self {
         self.auto_shrink = auto_shrink;
         self
     }
 
-    pub fn with_max_size(mut self, max_size: Vec2) -> Self {
+    pub fn max_size(mut self, max_size: Vec2) -> Self {
         self.max_size = Some(max_size);
         self
     }
 
-    pub fn with_bar_visibility(mut self, visibility: ScrollBarVisibility) -> Self {
+    pub fn bar_visibility(mut self, visibility: ScrollBarVisibility) -> Self {
         self.bar_visibility = visibility;
         self
     }
 
-    pub fn with_accent_color(mut self, accent: Color32) -> Self {
+    pub fn accent_color(mut self, accent: Color32) -> Self {
         self.accent_color = Some(accent);
         self
     }
@@ -300,7 +300,7 @@ impl ScrollAreaProps {
         self
     }
 
-    pub fn with_colors(mut self, colors: ScrollAreaColors) -> Self {
+    pub fn colors(mut self, colors: ScrollAreaColors) -> Self {
         self.colors_override = Some(colors);
         self
     }

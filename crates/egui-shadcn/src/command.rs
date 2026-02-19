@@ -579,11 +579,11 @@ pub fn command_dialog<R>(
     add_contents: impl FnOnce(&mut Ui, &mut CommandContext) -> R,
 ) -> Option<R> {
     let dialog_props = DialogProps::new(props.id_source, props.open)
-        .with_title(props.title)
-        .with_description(props.description)
+        .title(props.title)
+        .description(props.description)
         .scrollable(false)
         .show_close_button(props.show_close_button)
-        .with_size(vec2(520.0, 0.0));
+        .size(vec2(520.0, 0.0));
 
     dialog(ui, theme, dialog_props, |dialog_ui| {
         command(

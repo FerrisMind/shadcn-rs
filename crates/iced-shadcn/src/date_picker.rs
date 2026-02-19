@@ -45,7 +45,7 @@ impl<'a, Id: Hash> DatePickerProps<'a, Id> {
             disabled: false,
             icon_position: DatePickerIconPosition::Leading,
             justify: ButtonJustify::Start,
-            size: ButtonSize::Two,
+            size: ButtonSize::Size2,
             variant: ButtonVariant::Outline,
             trigger_width: 240.0,
             caption_layout: CalendarCaptionLayout::Label,
@@ -205,7 +205,7 @@ where
     popover(
         container(trigger).width(Length::Fixed(props.trigger_width)),
         calendar_element,
-        PopoverProps::new().size(PopoverSize::Two).offset(6.0),
+        PopoverProps::new().size(PopoverSize::Size2).offset(6.0),
         theme,
     )
     .into()
@@ -237,7 +237,7 @@ where
         None,
         ButtonProps::new()
             .variant(ButtonVariant::Outline)
-            .size(ButtonSize::Two)
+            .size(ButtonSize::Size2)
             .disabled(props.disabled),
         theme,
     )
@@ -254,7 +254,7 @@ where
     popover(
         container(trigger).width(Length::Fixed(props.trigger_width)),
         calendar_element,
-        PopoverProps::new().size(PopoverSize::Two).offset(6.0),
+        PopoverProps::new().size(PopoverSize::Size2).offset(6.0),
         theme,
     )
     .into()

@@ -340,7 +340,7 @@ pub fn accordion_item<'a, R>(
             ui,
             theme,
             CollapsibleProps::new(item_id.with("collapsible"), &mut item_open)
-                .with_animation(acc_ctx.animate)
+                .animation(acc_ctx.animate)
                 .animation_ms(acc_ctx.animation_ms.unwrap_or(200.0)),
             |ui, coll_ctx| {
                 coll_ctx.content(ui, |ui| {

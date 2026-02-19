@@ -294,7 +294,7 @@ pub fn command_item<'a, Message: Clone + 'a, IdSource: Hash>(
         on_press,
         ButtonProps::new()
             .variant(ButtonVariant::Ghost)
-            .size(ButtonSize::One)
+            .size(ButtonSize::Size1)
             .disabled(props.disabled),
         theme,
     )

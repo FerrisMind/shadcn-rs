@@ -43,7 +43,7 @@ impl GridLayout {
         }
     }
 
-    pub fn with_spacing(mut self, spacing: f32) -> Self {
+    pub fn spacing(mut self, spacing: f32) -> Self {
         self.spacing = spacing;
         self
     }

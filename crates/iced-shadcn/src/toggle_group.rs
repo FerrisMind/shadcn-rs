@@ -3,37 +3,10 @@ use std::cell::Cell;
 use iced::widget::{row, text};
 use iced::{Alignment, Element};
 
-use crate::button::{ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, button_content};
+use crate::button::{ButtonProps, ButtonRadius, ButtonVariant, button_content};
 use crate::theme::Theme;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
-pub enum ControlSize {
-    Sm,
-    #[default]
-    Md,
-    Lg,
-    IconSm,
-    Icon,
-    IconLg,
-}
-
-impl ControlSize {
-    fn button_size(self) -> ButtonSize {
-        match self {
-            ControlSize::Sm | ControlSize::IconSm => ButtonSize::One,
-            ControlSize::Md | ControlSize::Icon => ButtonSize::Two,
-            ControlSize::Lg | ControlSize::IconLg => ButtonSize::Three,
-        }
-    }
-
-    fn radius(self) -> ButtonRadius {
-        match self {
-            ControlSize::Sm => ButtonRadius::Small,
-            ControlSize::Md | ControlSize::IconSm => ButtonRadius::Medium,
-            ControlSize::Lg | ControlSize::Icon | ControlSize::IconLg => ButtonRadius::Large,
-        }
-    }
-}
+use crate::tokens::ControlSize;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ToggleVariant {

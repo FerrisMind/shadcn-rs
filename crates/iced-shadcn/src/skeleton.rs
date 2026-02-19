@@ -14,7 +14,8 @@ pub struct SkeletonProps {
     pub loading: bool,
     pub width: Length,
     pub height: Length,
-    pub radius: f32,
+    pub radius: Option<f32>,
+    pub circle: bool,
     pub duration_ms: u32,
 }
 
@@ -22,10 +23,11 @@ impl Default for SkeletonProps {
     fn default() -> Self {
         Self {
             loading: true,
-            width: Length::Shrink,
+            width: Length::Fill,
             height: Length::Fixed(12.0),
-            radius: 6.0,
-            duration_ms: 1000,
+            radius: None,
+            circle: false,
+            duration_ms: 1500,
         }
     }
 }
@@ -51,7 +53,12 @@ impl SkeletonProps {
     }
 
     pub fn radius(mut self, radius: f32) -> Self {
-        self.radius = radius.max(0.0);
+        self.radius = Some(radius);
+        self
+    }
+
+    pub fn circle(mut self, circle: bool) -> Self {
+        self.circle = circle;
         self
     }
 
@@ -174,13 +181,19 @@ where
         let mix = if t <= 1.0 { t } else { 2.0 - t };
         let background = apply_opacity(base, 0.65 + 0.15 * mix);
 
+        let radius = if self.props.circle {
+            (bounds.width.min(bounds.height) / 2.0).into()
+        } else {
+            self.props.radius.unwrap_or(self.theme.radius.sm).into()
+        };
+
         renderer.fill_quad(
             renderer::Quad {
                 bounds,
                 border: Border {
                     color: Color::TRANSPARENT,
                     width: 0.0,
-                    radius: self.props.radius.into(),
+                    radius,
                 },
                 shadow: Shadow::default(),
                 ..renderer::Quad::default()
@@ -199,4 +212,29 @@ where
     fn from(widget: SkeletonWidget) -> Element<'a, Message, AppTheme, Renderer> {
         Element::new(widget)
     }
+}
+
+/// Helper for text skeleton with multiple lines.
+pub fn skeleton_text<'a, Message: 'a>(
+    lines: usize,
+    line_height: f32,
+    theme: &Theme,
+) -> Element<'a, Message> {
+    let mut col = iced::widget::column![].spacing(8);
+    for i in 0..lines {
+        let width = if i == lines - 1 {
+            Length::FillPortion(6)
+        } else {
+            Length::Fill
+        };
+        col = col.push(
+            skeleton(
+                SkeletonProps::new()
+                    .width(width)
+                    .height(line_height),
+                theme,
+            )
+        );
+    }
+    col.into()
 }

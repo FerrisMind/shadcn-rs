@@ -9,9 +9,9 @@ use crate::tokens::{AccentColor, accent_high, accent_low, is_dark};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScrollAreaSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -31,7 +31,7 @@ pub struct ScrollAreaProps {
 impl Default for ScrollAreaProps {
     fn default() -> Self {
         Self {
-            size: ScrollAreaSize::One,
+            size: ScrollAreaSize::Size1,
             radius: None,
             scrollbars: ScrollAreaScrollbars::Both,
         }
@@ -80,9 +80,9 @@ fn scroll_area_radius(theme: &Theme, props: ScrollAreaProps) -> f32 {
 impl ScrollAreaSize {
     fn scrollbar_width(self) -> f32 {
         match self {
-            ScrollAreaSize::One => 4.0,
-            ScrollAreaSize::Two => 8.0,
-            ScrollAreaSize::Three => 12.0,
+            ScrollAreaSize::Size1 => 4.0,
+            ScrollAreaSize::Size2 => 8.0,
+            ScrollAreaSize::Size3 => 12.0,
         }
     }
 }

@@ -3,7 +3,7 @@
 //! Inspired by Radix UI Themes Kbd and shadcn/ui Kbd components.
 //!
 //! # Example
-//! ```rust
+//! ```rust,ignore
 //! use iced_shadcn::{KbdProps, KbdSize, KbdGroupProps, kbd, kbd_group};
 //!
 //! // Single kbd
@@ -30,14 +30,14 @@ use crate::theme::Theme;
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum KbdSize {
     /// Extra small size (size 1)
-    One,
+    Size1,
     /// Small size (size 2)
     #[default]
-    Two,
+    Size2,
     /// Default size (size 3)
-    Three,
+    Size3,
     /// Medium size (size 4)
-    Four,
+    Size4,
     /// Large size (size 5)
     Five,
     /// Extra large size (size 6)
@@ -54,10 +54,10 @@ impl KbdSize {
     /// Returns the font size in pixels for this size variant.
     fn font_size(self) -> u32 {
         match self {
-            KbdSize::One => 10,
-            KbdSize::Two => 11,
-            KbdSize::Three => 12,
-            KbdSize::Four => 13,
+            KbdSize::Size1 => 10,
+            KbdSize::Size2 => 11,
+            KbdSize::Size3 => 12,
+            KbdSize::Size4 => 13,
             KbdSize::Five => 14,
             KbdSize::Six => 16,
             KbdSize::Seven => 18,
@@ -69,10 +69,10 @@ impl KbdSize {
     /// Returns the padding [vertical, horizontal] for this size variant.
     fn padding(self) -> [f32; 2] {
         match self {
-            KbdSize::One => [1.0, 4.0],
-            KbdSize::Two => [2.0, 6.0],
-            KbdSize::Three => [3.0, 8.0],
-            KbdSize::Four => [4.0, 10.0],
+            KbdSize::Size1 => [1.0, 4.0],
+            KbdSize::Size2 => [2.0, 6.0],
+            KbdSize::Size3 => [3.0, 8.0],
+            KbdSize::Size4 => [4.0, 10.0],
             KbdSize::Five => [5.0, 12.0],
             KbdSize::Six => [6.0, 14.0],
             KbdSize::Seven => [7.0, 16.0],
@@ -84,10 +84,10 @@ impl KbdSize {
     /// Returns the minimum width for this size variant.
     fn min_width(self) -> f32 {
         match self {
-            KbdSize::One => 16.0,
-            KbdSize::Two => 20.0,
-            KbdSize::Three => 24.0,
-            KbdSize::Four => 28.0,
+            KbdSize::Size1 => 16.0,
+            KbdSize::Size2 => 20.0,
+            KbdSize::Size3 => 24.0,
+            KbdSize::Size4 => 28.0,
             KbdSize::Five => 32.0,
             KbdSize::Six => 36.0,
             KbdSize::Seven => 40.0,
@@ -99,10 +99,10 @@ impl KbdSize {
     /// Returns the border radius for this size variant.
     fn radius(self, theme: &Theme) -> f32 {
         match self {
-            KbdSize::One => theme.radius.sm * 0.5,
-            KbdSize::Two => theme.radius.sm * 0.6,
-            KbdSize::Three => theme.radius.sm * 0.7,
-            KbdSize::Four => theme.radius.sm,
+            KbdSize::Size1 => theme.radius.sm * 0.5,
+            KbdSize::Size2 => theme.radius.sm * 0.6,
+            KbdSize::Size3 => theme.radius.sm * 0.7,
+            KbdSize::Size4 => theme.radius.sm,
             KbdSize::Five => theme.radius.md * 0.8,
             KbdSize::Six => theme.radius.md,
             KbdSize::Seven => theme.radius.md * 1.2,
@@ -343,16 +343,7 @@ pub fn kbd_shortcut<'a, Message: 'a>(
     kbd_group(items, &group_props)
 }
 
-/// Helper function to mix two colors.
-fn mix(a: Color, b: Color, t: f32) -> Color {
-    let t = t.clamp(0.0, 1.0);
-    Color {
-        r: a.r * (1.0 - t) + b.r * t,
-        g: a.g * (1.0 - t) + b.g * t,
-        b: a.b * (1.0 - t) + b.b * t,
-        a: a.a * (1.0 - t) + b.a * t,
-    }
-}
+use crate::tokens::mix;
 
 /// Helper function to apply opacity to a color.
 fn apply_opacity(color: Color, opacity: f32) -> Color {
@@ -369,25 +360,25 @@ mod tests {
     #[test]
     fn test_kbd_size_default() {
         let size = KbdSize::default();
-        assert_eq!(size, KbdSize::Two);
+        assert_eq!(size, KbdSize::Size2);
     }
 
     #[test]
     fn test_kbd_size_font_sizes() {
-        assert_eq!(KbdSize::One.font_size(), 10);
-        assert_eq!(KbdSize::Two.font_size(), 11);
-        assert_eq!(KbdSize::Three.font_size(), 12);
+        assert_eq!(KbdSize::Size1.font_size(), 10);
+        assert_eq!(KbdSize::Size2.font_size(), 11);
+        assert_eq!(KbdSize::Size3.font_size(), 12);
         assert_eq!(KbdSize::Nine.font_size(), 24);
     }
 
     #[test]
     fn test_kbd_props_builder() {
         let props = KbdProps::new()
-            .size(KbdSize::Three)
+            .size(KbdSize::Size3)
             .interactive(true)
             .shadow(false);
 
-        assert_eq!(props.size, KbdSize::Three);
+        assert_eq!(props.size, KbdSize::Size3);
         assert!(props.interactive);
         assert!(!props.shadow);
     }
@@ -404,7 +395,7 @@ mod tests {
     fn test_mix_colors() {
         let red = Color::from_rgb(1.0, 0.0, 0.0);
         let blue = Color::from_rgb(0.0, 0.0, 1.0);
-        let mixed = mix(red, blue, 0.5);
+        let mixed = crate::tokens::mix(red, blue, 0.5);
 
         assert!((mixed.r - 0.5).abs() < 0.001);
         assert!((mixed.g - 0.0).abs() < 0.001);

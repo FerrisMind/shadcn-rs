@@ -58,7 +58,10 @@ fn app<'a>(theme: &Theme, content: Element<'a, ()>) -> Element<'a, ()> {
         .into()
 }
 
-fn preview<'a>(theme: &Theme, content: impl Into<Element<'a, ()>>) -> iced::widget::Container<'a, ()> {
+fn preview<'a>(
+    theme: &Theme,
+    content: impl Into<Element<'a, ()>>,
+) -> iced::widget::Container<'a, ()> {
     let background = theme.palette.card;
     let border = theme.palette.border;
     let radius = theme.radius.md;
@@ -76,4 +79,3 @@ fn preview<'a>(theme: &Theme, content: impl Into<Element<'a, ()>>) -> iced::widg
             ..iced::widget::container::Style::default()
         })
 }
-

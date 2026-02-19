@@ -204,7 +204,9 @@ fn radio_group_default_value_applied_once_and_callback_fires() {
 
 #[test]
 fn radio_tokens_high_contrast_adjusts_colors() {
-    let palette = egui_shadcn::tokens::ColorPalette::default();
+    // Use light palette: in dark theme primary=WHITE, so mix(WHITE,WHITE,t)==WHITE
+    // which makes normal==high and assert_ne fails.
+    let palette = egui_shadcn::tokens::ColorPalette::light();
     let normal = egui_shadcn::tokens::checkbox_tokens(&palette, ControlVariant::Primary);
     let high = egui_shadcn::tokens::checkbox_tokens_with_high_contrast(
         &palette,

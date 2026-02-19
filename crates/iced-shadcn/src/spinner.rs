@@ -10,18 +10,18 @@ use crate::theme::Theme;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum SpinnerSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
     Custom(f32),
 }
 
 impl SpinnerSize {
     fn pixels(self) -> f32 {
         match self {
-            SpinnerSize::One => 12.0,
-            SpinnerSize::Two => 16.0,
-            SpinnerSize::Three => 20.0,
+            SpinnerSize::Size1 => 12.0,
+            SpinnerSize::Size2 => 16.0,
+            SpinnerSize::Size3 => 20.0,
             SpinnerSize::Custom(value) => value.max(1.0),
         }
     }
@@ -40,7 +40,7 @@ impl Spinner {
         Self {
             progress: 0.0,
             color: theme.palette.primary,
-            size: SpinnerSize::Two,
+            size: SpinnerSize::Size2,
             loading: true,
         }
     }

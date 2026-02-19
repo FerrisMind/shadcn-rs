@@ -94,29 +94,29 @@ impl Default for CardProps {
 }
 
 impl CardProps {
-    pub fn with_id(mut self, id: Id) -> Self {
+    pub fn id(mut self, id: Id) -> Self {
         self.id_source = Some(id);
         self
     }
 
-    pub fn with_padding(mut self, padding: Vec2) -> Self {
+    pub fn padding(mut self, padding: Vec2) -> Self {
         self.padding = padding;
         self
     }
 
-    pub fn with_rounding(mut self, rounding: CornerRadius) -> Self {
+    pub fn rounding(mut self, rounding: CornerRadius) -> Self {
         self.rounding = rounding;
         self
     }
 
-    pub fn with_size(mut self, size: CardSize) -> Self {
+    pub fn size(mut self, size: CardSize) -> Self {
         self.size = size;
         self.padding = size.padding();
         self.rounding = size.rounding_with_scale(&DEFAULT_RADIUS);
         self
     }
 
-    pub fn with_as_child(mut self, as_child: bool) -> Self {
+    pub fn as_child(mut self, as_child: bool) -> Self {
         self.as_child = as_child;
         if as_child {
             self.interactive = true;
@@ -125,7 +125,7 @@ impl CardProps {
         self
     }
 
-    pub fn with_interactive(mut self, interactive: bool) -> Self {
+    pub fn interactive(mut self, interactive: bool) -> Self {
         self.interactive = interactive;
         if interactive {
             self.sense = Sense::click();
@@ -133,38 +133,38 @@ impl CardProps {
         self
     }
 
-    pub fn with_sense(mut self, sense: Sense) -> Self {
+    pub fn sense(mut self, sense: Sense) -> Self {
         self.interactive = true;
         self.sense = sense;
         self
     }
 
-    pub fn with_high_contrast(mut self, high_contrast: bool) -> Self {
+    pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.high_contrast = high_contrast;
         self
     }
 
-    pub fn with_tokens(mut self, tokens: CardTokens) -> Self {
+    pub fn tokens(mut self, tokens: CardTokens) -> Self {
         self.tokens_override = Some(tokens);
         self
     }
 
-    pub fn with_heading(mut self, heading: impl Into<String>) -> Self {
+    pub fn heading(mut self, heading: impl Into<String>) -> Self {
         self.heading = Some(heading.into());
         self
     }
 
-    pub fn with_description(mut self, description: impl Into<String>) -> Self {
+    pub fn description(mut self, description: impl Into<String>) -> Self {
         self.description = Some(description.into());
         self
     }
 
-    pub fn with_variant(mut self, variant: CardVariant) -> Self {
+    pub fn variant(mut self, variant: CardVariant) -> Self {
         self.variant = variant;
         self
     }
 
-    pub fn with_shadow(mut self, show_shadow: bool) -> Self {
+    pub fn shadow(mut self, show_shadow: bool) -> Self {
         self.show_shadow = show_shadow;
         self
     }

@@ -26,10 +26,10 @@ pub enum HeadingAs {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TextSize {
-    One,
-    Two,
-    Three,
-    Four,
+    Size1,
+    Size2,
+    Size3,
+    Size4,
     Five,
     Six,
     Seven,
@@ -86,7 +86,7 @@ impl Default for TextProps {
     fn default() -> Self {
         Self {
             as_tag: TextAs::Span,
-            size: TextSize::Three,
+            size: TextSize::Size3,
             weight: TextWeight::Regular,
             align: TextAlign::Left,
             wrap: TextWrap::Wrap,
@@ -231,10 +231,10 @@ impl HeadingProps {
 
 fn size_to_px(size: TextSize) -> u32 {
     match size {
-        TextSize::One => 12,
-        TextSize::Two => 14,
-        TextSize::Three => 16,
-        TextSize::Four => 18,
+        TextSize::Size1 => 12,
+        TextSize::Size2 => 14,
+        TextSize::Size3 => 16,
+        TextSize::Size4 => 18,
         TextSize::Five => 20,
         TextSize::Six => 24,
         TextSize::Seven => 28,
@@ -245,10 +245,10 @@ fn size_to_px(size: TextSize) -> u32 {
 
 fn line_height_text(size: TextSize) -> LineHeight {
     let px = match size {
-        TextSize::One => 16.0,
-        TextSize::Two => 20.0,
-        TextSize::Three => 24.0,
-        TextSize::Four => 26.0,
+        TextSize::Size1 => 16.0,
+        TextSize::Size2 => 20.0,
+        TextSize::Size3 => 24.0,
+        TextSize::Size4 => 26.0,
         TextSize::Five => 28.0,
         TextSize::Six => 30.0,
         TextSize::Seven => 36.0,
@@ -260,10 +260,10 @@ fn line_height_text(size: TextSize) -> LineHeight {
 
 fn line_height_heading(size: TextSize) -> LineHeight {
     let px = match size {
-        TextSize::One => 16.0,
-        TextSize::Two => 18.0,
-        TextSize::Three => 22.0,
-        TextSize::Four => 24.0,
+        TextSize::Size1 => 16.0,
+        TextSize::Size2 => 18.0,
+        TextSize::Size3 => 22.0,
+        TextSize::Size4 => 24.0,
         TextSize::Five => 26.0,
         TextSize::Six => 30.0,
         TextSize::Seven => 36.0,

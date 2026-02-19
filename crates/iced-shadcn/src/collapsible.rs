@@ -56,9 +56,9 @@ where
 {
     let padding_y = if props.compact { 8.0 } else { 12.0 };
     let trigger_size = if props.compact {
-        ButtonSize::One
+        ButtonSize::Size1
     } else {
-        ButtonSize::Two
+        ButtonSize::Size2
     };
 
     let trigger = button_content(

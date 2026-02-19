@@ -49,8 +49,8 @@ pub enum TabsListLoop {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TabsSize {
-    One,
-    Two,
+    Size1,
+    Size2,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -138,7 +138,7 @@ impl Default for TabsProps {
             orientation: TabsDirection::Horizontal,
             activation_mode: TabsActivationMode::Automatic,
             list_loop: TabsListLoop::Enabled,
-            size: TabsSize::Two,
+            size: TabsSize::Size2,
             wrap: TabsWrap::NoWrap,
             justify: TabsJustify::Start,
             color: AccentColor::Gray,
@@ -300,7 +300,7 @@ impl Default for TabsListProps {
     fn default() -> Self {
         Self {
             variant: TabsListVariant::Pill,
-            size: TabsSize::Two,
+            size: TabsSize::Size2,
             wrap: TabsWrap::NoWrap,
             justify: TabsJustify::Start,
             color: AccentColor::Gray,
@@ -458,15 +458,15 @@ pub fn tabs_contents<'a, Message: Clone + 'a>(
 impl TabsSize {
     fn padding(self) -> [f32; 2] {
         match self {
-            TabsSize::One => [6.0, 10.0],
-            TabsSize::Two => [8.0, 12.0],
+            TabsSize::Size1 => [6.0, 10.0],
+            TabsSize::Size2 => [8.0, 12.0],
         }
     }
 
     fn text_size(self) -> u32 {
         match self {
-            TabsSize::One => 12,
-            TabsSize::Two => 13,
+            TabsSize::Size1 => 12,
+            TabsSize::Size2 => 13,
         }
     }
 }
@@ -482,8 +482,8 @@ struct TabsMetrics {
 
 fn tabs_metrics(props: TabsListProps, theme: &Theme) -> TabsMetrics {
     let list_padding = match props.size {
-        TabsSize::One => 2.0,
-        TabsSize::Two => 3.0,
+        TabsSize::Size1 => 2.0,
+        TabsSize::Size2 => 3.0,
     };
 
     TabsMetrics {
@@ -1430,32 +1430,32 @@ mod tests {
     fn resolve_active_prefers_enabled_match() {
         let items = vec![
             TabsTriggerMeta {
-                value: "one".to_string(),
+                value: "Size1".to_string(),
                 disabled: true,
             },
             TabsTriggerMeta {
-                value: "two".to_string(),
+                value: "Size2".to_string(),
                 disabled: false,
             },
         ];
 
-        assert_eq!(resolve_active_index(&items, "one"), Some(1));
-        assert_eq!(resolve_active_index(&items, "two"), Some(1));
+        assert_eq!(resolve_active_index(&items, "Size1"), Some(1));
+        assert_eq!(resolve_active_index(&items, "Size2"), Some(1));
     }
 
     #[test]
     fn next_enabled_respects_loop() {
         let items = vec![
             TabsTriggerMeta {
-                value: "one".to_string(),
+                value: "Size1".to_string(),
                 disabled: false,
             },
             TabsTriggerMeta {
-                value: "two".to_string(),
+                value: "Size2".to_string(),
                 disabled: true,
             },
             TabsTriggerMeta {
-                value: "three".to_string(),
+                value: "Size3".to_string(),
                 disabled: false,
             },
         ];
@@ -1469,11 +1469,11 @@ mod tests {
     fn next_enabled_moves_backward() {
         let items = vec![
             TabsTriggerMeta {
-                value: "one".to_string(),
+                value: "Size1".to_string(),
                 disabled: false,
             },
             TabsTriggerMeta {
-                value: "two".to_string(),
+                value: "Size2".to_string(),
                 disabled: false,
             },
         ];

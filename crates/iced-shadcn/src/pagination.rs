@@ -33,7 +33,7 @@ impl PaginationLinkProps {
         Self {
             page,
             label: label.into(),
-            size: ButtonSize::One,
+            size: ButtonSize::Size1,
             enabled: true,
             is_active: false,
         }
@@ -139,7 +139,7 @@ where
                     on_press,
                     ButtonProps::new()
                         .variant(ButtonVariant::Ghost)
-                        .size(ButtonSize::Two)
+                        .size(ButtonSize::Size2)
                         .disabled(!enabled),
                     theme,
                 )
@@ -155,7 +155,7 @@ where
                     on_press,
                     ButtonProps::new()
                         .variant(ButtonVariant::Ghost)
-                        .size(ButtonSize::Two)
+                        .size(ButtonSize::Size2)
                         .disabled(!enabled),
                     theme,
                 )

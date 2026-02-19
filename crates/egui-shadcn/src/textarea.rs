@@ -292,7 +292,7 @@ impl TextareaStyle {
         style
     }
 
-    pub fn with_high_contrast(mut self) -> Self {
+    pub fn high_contrast(mut self) -> Self {
         self.text_color = Color32::WHITE;
         self.bg = mix(self.bg, Color32::WHITE, 0.1);
         self.bg_hover = mix(self.bg_hover, Color32::WHITE, 0.1);
@@ -635,7 +635,7 @@ where
     };
 
     if props.high_contrast {
-        style = style.with_high_contrast();
+        style = style.high_contrast();
     }
 
     let rounding = props.radius.corner_radius();

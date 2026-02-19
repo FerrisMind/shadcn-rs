@@ -92,8 +92,8 @@ pub fn alert_dialog(ui: &mut Ui, theme: &Theme, props: AlertDialogProps<'_>) -> 
         ui,
         theme,
         DialogProps::new("alert-dialog".into(), props.open)
-            .with_dialog_size(DialogSize::Size1)
-            .with_close_on_background(false),
+            .dialog_size(DialogSize::Size1)
+            .close_on_background(false),
         |ui| {
             ui.vertical(|ui| {
                 ui.spacing_mut().item_spacing.y = 8.0;

@@ -25,8 +25,8 @@ use crate::tokens::{
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MenuContentSize {
-    One,
-    Two,
+    Size1,
+    Size2,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -46,7 +46,7 @@ pub struct MenuContentProps {
 impl Default for MenuContentProps {
     fn default() -> Self {
         Self {
-            size: MenuContentSize::Two,
+            size: MenuContentSize::Size2,
             variant: MenuContentVariant::Solid,
             color: AccentColor::Gray,
             high_contrast: false,
@@ -842,7 +842,7 @@ struct MenuMetrics {
 
 fn menu_metrics(theme: &Theme, size: MenuContentSize) -> MenuMetrics {
     match size {
-        MenuContentSize::One => MenuMetrics {
+        MenuContentSize::Size1 => MenuMetrics {
             content_padding: theme.spacing.xs,
             item_height: 28.0,
             label_height: 28.0,
@@ -855,7 +855,7 @@ fn menu_metrics(theme: &Theme, size: MenuContentSize) -> MenuMetrics {
             inset_padding_x: 20.0,
             radius: theme.radius.sm,
         },
-        MenuContentSize::Two => MenuMetrics {
+        MenuContentSize::Size2 => MenuMetrics {
             content_padding: theme.spacing.xs,
             item_height: 32.0,
             label_height: 32.0,

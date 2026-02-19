@@ -13,10 +13,10 @@ pub enum CardVariant {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CardSize {
-    One,
-    Two,
-    Three,
-    Four,
+    Size1,
+    Size2,
+    Size3,
+    Size4,
     Five,
 }
 
@@ -30,7 +30,7 @@ impl Default for CardProps {
     fn default() -> Self {
         Self {
             variant: CardVariant::Surface,
-            size: CardSize::One,
+            size: CardSize::Size1,
         }
     }
 }
@@ -54,18 +54,18 @@ impl CardProps {
 impl CardSize {
     fn padding(self) -> f32 {
         match self {
-            CardSize::One => 12.0,
-            CardSize::Two => 16.0,
-            CardSize::Three => 20.0,
-            CardSize::Four => 24.0,
+            CardSize::Size1 => 12.0,
+            CardSize::Size2 => 16.0,
+            CardSize::Size3 => 20.0,
+            CardSize::Size4 => 24.0,
             CardSize::Five => 32.0,
         }
     }
 
     fn radius(self, theme: &Theme) -> f32 {
         match self {
-            CardSize::One | CardSize::Two => theme.radius.sm,
-            CardSize::Three | CardSize::Four => theme.radius.md,
+            CardSize::Size1 | CardSize::Size2 => theme.radius.sm,
+            CardSize::Size3 | CardSize::Size4 => theme.radius.md,
             CardSize::Five => theme.radius.lg,
         }
     }

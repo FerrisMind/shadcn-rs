@@ -118,7 +118,7 @@ impl LabelProps {
         self
     }
 
-    pub fn with_html_for(mut self, target: impl Into<String>) -> Self {
+    pub fn html_for(mut self, target: impl Into<String>) -> Self {
         self.html_for = Some(target.into());
         self
     }
@@ -153,7 +153,7 @@ impl LabelProps {
         self
     }
 
-    pub fn with_as_child(mut self, as_child: bool) -> Self {
+    pub fn as_child(mut self, as_child: bool) -> Self {
         self.as_child = as_child;
         self
     }

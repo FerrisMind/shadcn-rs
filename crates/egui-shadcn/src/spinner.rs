@@ -51,32 +51,32 @@ impl Default for SpinnerProps {
 }
 
 impl SpinnerProps {
-    pub fn with_size(mut self, size: SpinnerSize) -> Self {
+    pub fn size(mut self, size: SpinnerSize) -> Self {
         self.size = size;
         self
     }
 
-    pub fn with_color(mut self, color: Color32) -> Self {
+    pub fn color(mut self, color: Color32) -> Self {
         self.color = Some(color);
         self
     }
 
-    pub fn with_loading(mut self, loading: bool) -> Self {
+    pub fn loading(mut self, loading: bool) -> Self {
         self.loading = loading;
         self
     }
 
-    pub fn with_opacity(mut self, opacity: f32) -> Self {
+    pub fn opacity(mut self, opacity: f32) -> Self {
         self.opacity = opacity;
         self
     }
 
-    pub fn with_duration_ms(mut self, duration_ms: f32) -> Self {
+    pub fn duration_ms(mut self, duration_ms: f32) -> Self {
         self.duration_ms = duration_ms;
         self
     }
 
-    pub fn with_variant(mut self, variant: SpinnerVariant) -> Self {
+    pub fn variant(mut self, variant: SpinnerVariant) -> Self {
         self.variant = variant;
         self
     }

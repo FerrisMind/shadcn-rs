@@ -66,6 +66,45 @@ pub enum AccentColor {
     Sky,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ControlSize {
+    Sm,
+    #[default]
+    Md,
+    Lg,
+    Icon,
+    IconSm,
+    IconLg,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ControlVariant {
+    #[default]
+    Primary,
+    Secondary,
+    Destructive,
+}
+
+impl ControlSize {
+    pub fn button_size(self) -> crate::button::ButtonSize {
+        use crate::button::ButtonSize;
+        match self {
+            ControlSize::Sm | ControlSize::IconSm => ButtonSize::Size1,
+            ControlSize::Md | ControlSize::Icon => ButtonSize::Size2,
+            ControlSize::Lg | ControlSize::IconLg => ButtonSize::Size3,
+        }
+    }
+
+    pub fn radius(self) -> crate::button::ButtonRadius {
+        use crate::button::ButtonRadius;
+        match self {
+            ControlSize::Sm => ButtonRadius::Small,
+            ControlSize::Md | ControlSize::IconSm => ButtonRadius::Medium,
+            ControlSize::Lg | ControlSize::Icon | ControlSize::IconLg => ButtonRadius::Large,
+        }
+    }
+}
+
 impl AccentColor {
     pub fn is_destructive(self) -> bool {
         matches!(
@@ -887,5 +926,16 @@ impl Default for Spacing {
             md: 12.0,
             lg: 16.0,
         }
+    }
+}
+
+/// Linearly interpolate between Size2 colors. `t=0.0` returns `a`, `t=1.0` returns `b`.
+pub fn mix(a: Color, b: Color, t: f32) -> Color {
+    let t = t.clamp(0.0, 1.0);
+    Color {
+        r: a.r + (b.r - a.r) * t,
+        g: a.g + (b.g - a.g) * t,
+        b: a.b + (b.b - a.b) * t,
+        a: a.a + (b.a - a.a) * t,
     }
 }

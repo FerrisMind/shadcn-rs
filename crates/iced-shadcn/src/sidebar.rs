@@ -179,7 +179,7 @@ pub fn sidebar_trigger<'a, Message: Clone + 'a>(
         ctx.toggle_message(),
         ButtonProps::new()
             .variant(ButtonVariant::Ghost)
-            .size(ButtonSize::One),
+            .size(ButtonSize::Size1),
         theme,
     )
     .into()

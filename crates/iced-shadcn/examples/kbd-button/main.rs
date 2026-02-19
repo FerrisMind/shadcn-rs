@@ -74,7 +74,7 @@ fn button_with_kbd<'a>(label: &'a str, shortcut: &'a str, theme: &'a Theme) -> E
     )
     .padding([8, 16])
     .style(
-        move |_theme: &IcedTheme, status| iced::widget::button::Style {
+        move |_theme: &IcedTheme, _status| iced::widget::button::Style {
             background: Some(Background::Color(palette.primary)),
             text_color: palette.primary_foreground,
             border: iced::border::Border {
@@ -108,7 +108,7 @@ fn outline_button_with_kbd<'a>(
     )
     .padding([8, 16])
     .style(
-        move |_theme: &IcedTheme, status| iced::widget::button::Style {
+        move |_theme: &IcedTheme, _status| iced::widget::button::Style {
             background: Some(Background::Color(Color::TRANSPARENT)),
             text_color: palette.foreground,
             border: iced::border::Border {
@@ -143,7 +143,7 @@ fn ghost_button_with_kbd<'a>(
     )
     .padding([8, 16])
     .style(
-        move |_theme: &IcedTheme, status| iced::widget::button::Style {
+        move |_theme: &IcedTheme, _status| iced::widget::button::Style {
             background: Some(Background::Color(Color::TRANSPARENT)),
             text_color: palette.foreground,
             border: iced::border::Border::default(),

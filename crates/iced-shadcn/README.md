@@ -29,6 +29,93 @@ This crate is **under active development**. Public API, theming model, and compo
 - Theming guide and tokens
 - Usage examples and best practices
 
+## Tabs
+
+Minimal example using the new Tabs API:
+
+```rust
+use iced::widget::text;
+use iced_shadcn::{
+    tabs_content, tabs_contents, tabs_list, tabs_root, tabs_trigger, TabsHover, TabsListProps,
+    TabsListVariant, TabsRootProps, Theme,
+};
+
+fn view<'a, Message: Clone + 'a>(theme: &Theme, active: &'a str) -> iced::Element<'a, Message> {
+    let list = tabs_list(
+        vec![
+            tabs_trigger("account", "Account"),
+            tabs_trigger("password", "Password"),
+        ],
+        active,
+        None::<fn(String) -> Message>,
+        TabsRootProps::new(),
+        TabsListProps::new()
+            .variant(TabsListVariant::Pill)
+            .transparent_container(true)
+            .hover(TabsHover::Soft)
+            .hover_intensity(0.75),
+        theme,
+    );
+
+    let content = tabs_contents(
+        vec![
+            tabs_content("account", text("Account content")),
+            tabs_content("password", text("Password content")),
+        ],
+        active,
+    );
+
+    tabs_root(list, content)
+}
+```
+
+Examples:
+- `crates/iced-shadcn/examples/tabs-demo`
+- `crates/iced-shadcn/examples/tabs-line`
+- `crates/iced-shadcn/examples/tabs-size`
+- `crates/iced-shadcn/examples/tabs-color`
+- `crates/iced-shadcn/examples/tabs-disabled`
+
+## Navigation Menu
+
+Minimal example using Navigation Menu API:
+
+```rust
+use iced::widget::{column, text};
+use iced_shadcn::{
+    navigation_menu_content, navigation_menu_item, navigation_menu_link_item, navigation_menu_list,
+    navigation_menu_root, navigation_menu_trigger, navigation_menu_viewport,
+    NavigationMenuContentProps, NavigationMenuListProps, NavigationMenuProps, Theme,
+};
+
+fn view<'a, Message: Clone + 'a>(
+    theme: &Theme,
+    open: Option<&'a str>,
+    on_open: Option<fn(String) -> Message>,
+) -> iced::Element<'a, Message> {
+    let items = navigation_menu_list(vec![
+        navigation_menu_item(
+            navigation_menu_trigger("home", "Home"),
+            navigation_menu_content(column![text("Intro"), text("Installation")].spacing(6))
+                .props(NavigationMenuContentProps::new().width(240.0)),
+        ),
+        navigation_menu_link_item("docs", text("Docs"), None::<Message>),
+    ]);
+
+    navigation_menu_root(
+        items,
+        open,
+        on_open,
+        NavigationMenuProps::new().viewport_component(navigation_menu_viewport()),
+        NavigationMenuListProps::new(),
+        theme,
+    )
+}
+```
+
+Example:
+- `crates/iced-shadcn/examples/navigation-menu-demo`
+
 ## License
 
 MIT

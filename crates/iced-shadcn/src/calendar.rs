@@ -186,7 +186,7 @@ where
             prev_press,
             ButtonProps::new()
                 .variant(ButtonVariant::Ghost)
-                .size(ButtonSize::One)
+                .size(ButtonSize::Size1)
                 .disabled(prev_disabled || on_action.is_none()),
             theme,
         ),
@@ -196,7 +196,7 @@ where
             next_press,
             ButtonProps::new()
                 .variant(ButtonVariant::Ghost)
-                .size(ButtonSize::One)
+                .size(ButtonSize::Size1)
                 .disabled(next_disabled || on_action.is_none()),
             theme,
         )
@@ -318,7 +318,7 @@ where
         on_press,
         ButtonProps::new()
             .variant(variant)
-            .size(ButtonSize::One)
+            .size(ButtonSize::Size1)
             .disabled(disabled || on_action.is_none()),
         theme,
     );

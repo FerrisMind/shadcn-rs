@@ -122,7 +122,7 @@ impl ResizableHandleProps {
         Self::default()
     }
 
-    pub fn with_handle(mut self, with_handle: bool) -> Self {
+    pub fn handle(mut self, with_handle: bool) -> Self {
         self.with_handle = with_handle;
         self
     }

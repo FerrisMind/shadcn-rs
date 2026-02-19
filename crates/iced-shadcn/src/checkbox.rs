@@ -45,11 +45,13 @@ impl CheckboxState {
         matches!(self, CheckboxState::Indeterminate)
     }
 
-    pub fn next(self) -> Self {
-        match self {
-            CheckboxState::Unchecked => CheckboxState::Checked,
-            CheckboxState::Checked => CheckboxState::Unchecked,
-            CheckboxState::Indeterminate => CheckboxState::Checked,
+    pub fn next(self, cycle: CheckboxCycle) -> Self {
+        match (cycle, self) {
+            (CheckboxCycle::Binary, CheckboxState::Unchecked) => CheckboxState::Checked,
+            (CheckboxCycle::Binary, _) => CheckboxState::Unchecked,
+            (CheckboxCycle::TriState, CheckboxState::Unchecked) => CheckboxState::Checked,
+            (CheckboxCycle::TriState, CheckboxState::Checked) => CheckboxState::Indeterminate,
+            (CheckboxCycle::TriState, CheckboxState::Indeterminate) => CheckboxState::Unchecked,
         }
     }
 }
@@ -72,16 +74,24 @@ impl From<CheckboxState> for bool {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum CheckboxSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum CheckboxVariant {
     Classic,
+    #[default]
     Surface,
     Soft,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum CheckboxCycle {
+    #[default]
+    Binary,
+    TriState,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -89,18 +99,22 @@ pub struct CheckboxProps {
     pub size: CheckboxSize,
     pub variant: CheckboxVariant,
     pub color: AccentColor,
+    pub cycle: CheckboxCycle,
     pub high_contrast: bool,
     pub disabled: bool,
+    pub invalid: bool,
 }
 
 impl Default for CheckboxProps {
     fn default() -> Self {
         Self {
-            size: CheckboxSize::Two,
+            size: CheckboxSize::Size2,
             variant: CheckboxVariant::Surface,
             color: AccentColor::Gray,
+            cycle: CheckboxCycle::Binary,
             high_contrast: false,
             disabled: false,
+            invalid: false,
         }
     }
 }
@@ -125,6 +139,11 @@ impl CheckboxProps {
         self
     }
 
+    pub fn cycle(mut self, cycle: CheckboxCycle) -> Self {
+        self.cycle = cycle;
+        self
+    }
+
     pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.high_contrast = high_contrast;
         self
@@ -134,14 +153,19 @@ impl CheckboxProps {
         self.disabled = disabled;
         self
     }
+
+    pub fn invalid(mut self, invalid: bool) -> Self {
+        self.invalid = invalid;
+        self
+    }
 }
 
 impl CheckboxSize {
     fn dimension(self) -> f32 {
         match self {
-            CheckboxSize::One => 14.0,
-            CheckboxSize::Two => 16.0,
-            CheckboxSize::Three => 20.0,
+            CheckboxSize::Size1 => 14.0,
+            CheckboxSize::Size2 => 16.0,
+            CheckboxSize::Size3 => 20.0,
         }
     }
 
@@ -230,7 +254,7 @@ where
                 let mouse_over = cursor.is_over(layout.bounds());
 
                 if mouse_over && let Some(on_toggle) = &self.on_toggle {
-                    shell.publish((on_toggle)(self.state.next()));
+                    shell.publish((on_toggle)(self.state.next(self.props.cycle)));
                     shell.capture_event();
                 }
             }
@@ -385,6 +409,10 @@ fn checkbox_style(
     let mut icon_color = palette.foreground;
     let mut label_color = palette.foreground;
 
+    if props.invalid {
+        border_color = palette.destructive;
+    }
+
     let indeterminate_as_checked = props.variant != CheckboxVariant::Surface;
     if is_checked || (is_indeterminate && indeterminate_as_checked) {
         match props.variant {
@@ -394,7 +422,7 @@ fn checkbox_style(
             }
             CheckboxVariant::Classic | CheckboxVariant::Surface => {
                 background = Background::Color(accent);
-                border_color = accent;
+                border_color = if props.invalid { palette.destructive } else { accent };
                 icon_color = accent_fg;
             }
         }
@@ -428,7 +456,7 @@ fn checkbox_style(
         icon_color,
         border: Border {
             radius: radius.into(),
-            width: 1.0,
+            width: if border_color.a > 0.0 { 1.0 } else { 0.0 },
             color: border_color,
         },
         text_color: Some(label_color),

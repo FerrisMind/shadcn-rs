@@ -382,7 +382,7 @@ impl SelectStyle {
         }
     }
 
-    fn with_accent(mut self, palette: &ColorPalette, accent: Color32) -> Self {
+    fn accent(mut self, palette: &ColorPalette, accent: Color32) -> Self {
         let accent_tint_soft =
             Color32::from_rgba_unmultiplied(accent.r(), accent.g(), accent.b(), 42);
         let accent_tint_hover =
@@ -414,7 +414,7 @@ impl SelectStyle {
         self
     }
 
-    fn with_trigger_variant(
+    fn trigger_variant(
         mut self,
         variant: TriggerVariant,
         palette: &ColorPalette,
@@ -453,7 +453,7 @@ impl SelectStyle {
         self
     }
 
-    fn with_content_variant(
+    fn content_variant(
         mut self,
         variant: ContentVariant,
         palette: &ColorPalette,
@@ -500,10 +500,10 @@ impl SelectStyle {
         let mut style = Self::base_from_palette(palette);
         let effective_accent = accent.unwrap_or(palette.accent);
         if accent.is_some() {
-            style = style.with_accent(palette, effective_accent);
+            style = style.accent(palette, effective_accent);
         }
-        style = style.with_trigger_variant(trigger_variant, palette, effective_accent);
-        style.with_content_variant(content_variant, palette, effective_accent)
+        style = style.trigger_variant(trigger_variant, palette, effective_accent);
+        style.content_variant(content_variant, palette, effective_accent)
     }
 
     pub fn from_palette_with_accent(palette: &ColorPalette, accent: Color32) -> Self {
@@ -515,7 +515,7 @@ impl SelectStyle {
         )
     }
 
-    pub fn with_high_contrast(mut self, palette: &ColorPalette) -> Self {
+    pub fn high_contrast(mut self, palette: &ColorPalette) -> Self {
         self.trigger_bg = mix(self.trigger_bg, palette.foreground, 0.08);
         self.trigger_bg_hover = mix(self.trigger_bg_hover, palette.foreground, 0.12);
         self.trigger_text = palette.foreground;
@@ -1180,7 +1180,7 @@ where
         )
     });
     let style = if props.high_contrast {
-        style.with_high_contrast(&theme.palette)
+        style.high_contrast(&theme.palette)
     } else {
         style
     };

@@ -20,10 +20,10 @@ pub enum DialogAlign {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DialogSize {
-    One,
-    Two,
-    Three,
-    Four,
+    Size1,
+    Size2,
+    Size3,
+    Size4,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -39,7 +39,7 @@ impl Default for DialogProps {
     fn default() -> Self {
         Self {
             align: DialogAlign::Center,
-            size: DialogSize::Three,
+            size: DialogSize::Size3,
             max_width: 600,
             overlay_opacity: 0.8,
             close_on_blur: true,
@@ -80,18 +80,18 @@ impl DialogProps {
 
 fn dialog_padding(theme: &Theme, size: DialogSize) -> u16 {
     let px = match size {
-        DialogSize::One => theme.spacing.md,
-        DialogSize::Two => theme.spacing.lg,
-        DialogSize::Three => theme.spacing.lg + theme.spacing.xs,
-        DialogSize::Four => theme.spacing.lg + theme.spacing.sm,
+        DialogSize::Size1 => theme.spacing.md,
+        DialogSize::Size2 => theme.spacing.lg,
+        DialogSize::Size3 => theme.spacing.lg + theme.spacing.xs,
+        DialogSize::Size4 => theme.spacing.lg + theme.spacing.sm,
     };
     px.round().max(0.0) as u16
 }
 
 fn dialog_radius(theme: &Theme, size: DialogSize) -> f32 {
     match size {
-        DialogSize::One | DialogSize::Two => theme.radius.md,
-        DialogSize::Three | DialogSize::Four => theme.radius.lg,
+        DialogSize::Size1 | DialogSize::Size2 => theme.radius.md,
+        DialogSize::Size3 | DialogSize::Size4 => theme.radius.lg,
     }
 }
 

@@ -1,6 +1,6 @@
 use crate::button::{Button, ButtonJustify, ButtonSize, ButtonVariant};
 use crate::icons::{icon_check, icon_chevrons_up_down};
-use crate::input::{InputProps, InputSize, InputVariant, text_input_with_props};
+use crate::input::{InputProps, InputSize, InputVariant, input_with_props};
 use crate::popover::{PopoverAlign, PopoverProps, PopoverSide, popover};
 use crate::select::{SelectItem, SelectSize};
 use crate::theme::Theme;
@@ -291,7 +291,7 @@ where
         display_text
     };
 
-    let input_response = text_input_with_props(
+    let input_response = input_with_props(
         ui,
         theme,
         InputProps::new(id.with("input"), &mut input_value)
@@ -335,9 +335,9 @@ where
             PopoverProps::new(id.with("popover"), &mut open_state)
                 .side(PopoverSide::Bottom)
                 .align(PopoverAlign::Start)
-                .with_width(width)
-                .with_max_height(300.0)
-                .with_animation(true),
+                .width(width)
+                .max_height(300.0)
+                .animation(true),
             |_ui| final_response,
             |ui| {
                 let mut clicked_value: Option<String> = None;
@@ -609,10 +609,10 @@ where
         PopoverProps::new(id.with("popover"), &mut open_state)
             .side(PopoverSide::Bottom)
             .align(PopoverAlign::Start)
-            .with_width(width)
-            .with_max_height(320.0)
-            .with_content_padding(Margin::same(0))
-            .with_animation(true),
+            .width(width)
+            .max_height(320.0)
+            .content_padding(Margin::same(0))
+            .animation(true),
         |ui| {
             Button::new(trigger_widget)
                 .variant(props.trigger_variant)
@@ -635,7 +635,7 @@ where
             let select_size: SelectSize = props.size.into();
             let search_id = id.with("search");
 
-            let _ = text_input_with_props(
+            let _ = input_with_props(
                 ui,
                 theme,
                 InputProps::new(search_id, props.search_value)

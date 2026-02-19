@@ -82,7 +82,7 @@ impl<'a> CollapsibleProps<'a> {
         self
     }
 
-    pub fn with_animation(mut self, animate: bool) -> Self {
+    pub fn animation(mut self, animate: bool) -> Self {
         self.animate = animate;
         self
     }
