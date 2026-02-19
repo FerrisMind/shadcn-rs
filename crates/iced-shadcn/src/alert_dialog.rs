@@ -61,7 +61,7 @@ pub fn alert_dialog<'a, Message: Clone + 'a>(
         heading(props.title, HeadingProps::new().size(TextSize::Five), theme),
         text(
             props.description,
-            TextProps::new().size(TextSize::Three),
+            TextProps::new().size(TextSize::Size3),
             theme
         ),
         row![

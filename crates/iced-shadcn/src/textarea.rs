@@ -11,9 +11,9 @@ use crate::tokens::{
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TextareaSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -51,7 +51,7 @@ pub struct TextareaProps {
 impl Default for TextareaProps {
     fn default() -> Self {
         Self {
-            size: TextareaSize::Two,
+            size: TextareaSize::Size2,
             variant: TextareaVariant::Surface,
             resize: TextareaResize::None,
             wrapping: Wrapping::WordOrGlyph,
@@ -142,25 +142,25 @@ impl TextareaProps {
 impl TextareaSize {
     fn padding(self) -> [f32; 2] {
         match self {
-            TextareaSize::One => [6.0, 10.0],
-            TextareaSize::Two => [8.0, 12.0],
-            TextareaSize::Three => [10.0, 14.0],
+            TextareaSize::Size1 => [6.0, 10.0],
+            TextareaSize::Size2 => [8.0, 12.0],
+            TextareaSize::Size3 => [10.0, 14.0],
         }
     }
 
     fn text_size(self) -> u32 {
         match self {
-            TextareaSize::One => 14,
-            TextareaSize::Two => 14,
-            TextareaSize::Three => 16,
+            TextareaSize::Size1 => 14,
+            TextareaSize::Size2 => 14,
+            TextareaSize::Size3 => 16,
         }
     }
 
     fn min_height(self) -> f32 {
         match self {
-            TextareaSize::One => 64.0,
-            TextareaSize::Two => 96.0,
-            TextareaSize::Three => 128.0,
+            TextareaSize::Size1 => 64.0,
+            TextareaSize::Size2 => 96.0,
+            TextareaSize::Size3 => 128.0,
         }
     }
 }

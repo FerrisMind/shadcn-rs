@@ -29,12 +29,12 @@ pub use crate::menu_primitives::{
 /// ```ignore
 /// let response = ui.add(egui::Label::new("Right-click me").sense(egui::Sense::click()));
 /// context_menu(&response, theme, |ui| {
-///     if context_menu_item(ui, theme, ContextMenuItemProps::new("Cut").with_shortcut("⌘X")).clicked() {
+///     if context_menu_item(ui, theme, ContextMenuItemProps::new("Cut").shortcut("⌘X")).clicked() {
 ///         // handle cut
 ///         ui.close_menu();
 ///     }
 ///     context_menu_separator(ui, theme);
-///     if context_menu_item(ui, theme, ContextMenuItemProps::new("Delete").with_variant(ContextMenuItemVariant::Destructive)).clicked() {
+///     if context_menu_item(ui, theme, ContextMenuItemProps::new("Delete").variant(ContextMenuItemVariant::Destructive)).clicked() {
 ///         // handle delete
 ///         ui.close_menu();
 ///     }

@@ -17,41 +17,52 @@ use iced::widget::{button as button_widget, button};
 use iced::window;
 
 use crate::theme::Theme;
-use crate::tokens::{AccentColor, accent_color, accent_foreground, accent_soft, is_dark};
+use crate::tokens::{AccentColor, accent_color, accent_foreground, accent_soft, is_dark, mix};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum SwitchSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    #[default]
+    Size2,
+    Size3,
+    Size4,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum SwitchVariant {
     Classic,
+    #[default]
     Surface,
     Soft,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct SwitchProps {
+    pub label: Option<String>,
     pub size: SwitchSize,
     pub variant: SwitchVariant,
     pub color: AccentColor,
     pub radius: Option<crate::button::ButtonRadius>,
     pub high_contrast: bool,
     pub disabled: bool,
+    pub required: bool,
+    pub animate: bool,
+    pub thumb_color: Option<iced::Color>,
 }
 
 impl Default for SwitchProps {
     fn default() -> Self {
         Self {
-            size: SwitchSize::Two,
+            label: None,
+            size: SwitchSize::Size2,
             variant: SwitchVariant::Surface,
             color: AccentColor::Gray,
             radius: None,
             high_contrast: false,
             disabled: false,
+            required: false,
+            animate: true,
+            thumb_color: None,
         }
     }
 }
@@ -59,6 +70,11 @@ impl Default for SwitchProps {
 impl SwitchProps {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn label(mut self, label: impl Into<String>) -> Self {
+        self.label = Some(label.into());
+        self
     }
 
     pub fn size(mut self, size: SwitchSize) -> Self {
@@ -90,14 +106,29 @@ impl SwitchProps {
         self.disabled = disabled;
         self
     }
+
+    pub fn required(mut self, required: bool) -> Self {
+        self.required = required;
+        self
+    }
+
+    pub fn animate(mut self, animate: bool) -> Self {
+        self.animate = animate;
+        self
+    }
+
+    pub fn thumb_color(mut self, color: iced::Color) -> Self {
+        self.thumb_color = Some(color);
+        self
+    }
 }
 
 impl SwitchSize {
     fn metrics(self) -> SwitchMetrics {
         let scale = match self {
-            SwitchSize::One => 0.8,
-            SwitchSize::Two => 1.0,
-            SwitchSize::Three => 1.2,
+            SwitchSize::Size1 => 0.8,
+            SwitchSize::Size2 => 1.0,
+            SwitchSize::Size3 => 1.2,
         };
         let height = 18.4 * scale;
         let width = 32.0 * scale;
@@ -396,8 +427,8 @@ where
             width: self.metrics.width,
             height: self.metrics.height,
         };
-        let track_color = mix_color(self.colors_off.track, self.colors_on.track, progress);
-        let thumb_color = mix_color(self.colors_off.thumb, self.colors_on.thumb, progress);
+        let track_color = mix(self.colors_off.track, self.colors_on.track, progress);
+        let thumb_color = mix(self.colors_off.thumb, self.colors_on.thumb, progress);
         let available_width =
             (track_bounds.width - (self.metrics.thumb + self.metrics.thumb_inset_x * 2.0)).max(0.0);
         let thumb_x = track_bounds.x + self.metrics.thumb_inset_x + (available_width * progress);
@@ -448,16 +479,7 @@ where
     }
 }
 
-fn mix_color(from: iced::Color, to: iced::Color, t: f32) -> iced::Color {
-    let t = t.clamp(0.0, 1.0);
-    let lerp = |a: f32, b: f32| (a * (1.0 - t)) + (b * t);
-    iced::Color {
-        r: lerp(from.r, to.r),
-        g: lerp(from.g, to.g),
-        b: lerp(from.b, to.b),
-        a: lerp(from.a, to.a),
-    }
-}
+
 
 fn cubic_bezier(t: f32, x1: f32, y1: f32, x2: f32, y2: f32) -> f32 {
     if t <= 0.0 {

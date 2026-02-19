@@ -12,7 +12,7 @@ use crate::dropdown_menu::{
     DropdownMenuCheckboxItem, DropdownMenuEntry, DropdownMenuItemProps, DropdownMenuProps,
     dropdown_menu,
 };
-use crate::input::{TextFieldProps, TextFieldVariant, text_field};
+use crate::input::{InputProps, InputVariant, input};
 use crate::pagination::{
     PaginationProps, pagination, pagination_ellipsis, pagination_link, pagination_next,
     pagination_previous,
@@ -273,11 +273,11 @@ where
         move |value| f(DataTableAction::FilterChanged(value))
     });
 
-    let filter_input = text_field(
+    let filter_input = input(
         &state.filter,
         props.filter_placeholder,
         filter_on_input,
-        TextFieldProps::new().variant(TextFieldVariant::Surface),
+        InputProps::new().variant(InputVariant::Surface),
         theme,
     )
     .width(Length::Fixed(240.0));
@@ -312,7 +312,7 @@ where
                 None,
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::One)
+                    .size(ButtonSize::Size1)
                     .disabled(!menu_enabled),
                 theme,
             );
@@ -417,7 +417,7 @@ where
                     on_press,
                     ButtonProps::new()
                         .variant(ButtonVariant::Ghost)
-                        .size(ButtonSize::One)
+                        .size(ButtonSize::Size1)
                         .disabled(!has_actions),
                     theme,
                 )

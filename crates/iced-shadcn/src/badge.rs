@@ -4,30 +4,29 @@ use iced::{Background, Color, Shadow};
 
 use crate::button::ButtonRadius;
 use crate::theme::Theme;
-use crate::tokens::{
-    AccentColor, accent_color, accent_foreground, accent_soft, accent_soft_foreground, accent_text,
-};
+use crate::tokens::AccentColor;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum BadgeSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum BadgeVariant {
-    Solid,
-    Soft,
-    Surface,
+    #[default]
+    Default,
+    Secondary,
     Outline,
+    Destructive,
 }
 
 #[derive(Clone, Copy, Debug)]
 pub struct BadgeProps {
     pub size: BadgeSize,
     pub variant: BadgeVariant,
-    pub color: AccentColor,
+    pub color: Option<AccentColor>,
     pub radius: Option<ButtonRadius>,
     pub high_contrast: bool,
 }
@@ -35,9 +34,9 @@ pub struct BadgeProps {
 impl Default for BadgeProps {
     fn default() -> Self {
         Self {
-            size: BadgeSize::One,
-            variant: BadgeVariant::Soft,
-            color: AccentColor::Gray,
+            size: BadgeSize::Size1,
+            variant: BadgeVariant::Default,
+            color: None,
             radius: None,
             high_contrast: false,
         }
@@ -60,7 +59,7 @@ impl BadgeProps {
     }
 
     pub fn color(mut self, color: AccentColor) -> Self {
-        self.color = color;
+        self.color = Some(color);
         self
     }
 
@@ -82,24 +81,24 @@ fn badge_radius(theme: &Theme, props: BadgeProps) -> f32 {
         Some(ButtonRadius::Medium) => theme.radius.md,
         Some(ButtonRadius::Large) => theme.radius.lg,
         Some(ButtonRadius::Full) => 9999.0,
-        None => theme.radius.sm,
+        None => 9999.0, // Default to pill for badges
     }
 }
 
 impl BadgeSize {
     fn padding(self) -> [f32; 2] {
         match self {
-            BadgeSize::One => [2.0, 6.0],
-            BadgeSize::Two => [3.0, 8.0],
-            BadgeSize::Three => [4.0, 10.0],
+            BadgeSize::Size1 => [2.0, 6.0],
+            BadgeSize::Size2 => [3.0, 8.0],
+            BadgeSize::Size3 => [4.0, 10.0],
         }
     }
 
-    fn text_size(self) -> u32 {
+    fn text_size(self) -> u16 {
         match self {
-            BadgeSize::One => 11,
-            BadgeSize::Two => 12,
-            BadgeSize::Three => 13,
+            BadgeSize::Size1 => 11,
+            BadgeSize::Size2 => 12,
+            BadgeSize::Size3 => 13,
         }
     }
 }
@@ -119,28 +118,36 @@ pub fn badge<'a, Message: 'a>(
     let palette = theme.palette;
     let radius = badge_radius(theme, props);
 
-    let accent = accent_color(&palette, props.color);
-    let accent_fg = accent_foreground(&palette, props.color);
-    let accent_text_color = accent_text(&palette, props.color);
-    let soft_bg = accent_soft(&palette, props.color);
-    let soft_fg = accent_soft_foreground(&palette, props.color);
-
-    let (background, text_color, border_color) = match props.variant {
-        BadgeVariant::Solid => (Background::Color(accent), accent_fg, accent),
-        BadgeVariant::Soft => (Background::Color(soft_bg), soft_fg, Color::TRANSPARENT),
-        BadgeVariant::Surface => (
-            Background::Color(apply_opacity(palette.muted, 0.6)),
-            accent_text_color,
-            palette.border,
-        ),
+    let (background_color, text_color, border_color) = match props.variant {
+        BadgeVariant::Default => {
+            let color = match props.color {
+                Some(c) => crate::tokens::accent_color(&palette, c),
+                None => palette.primary,
+            };
+            (color, palette.primary_foreground, color)
+        }
+        BadgeVariant::Secondary => {
+            let color = match props.color {
+                Some(c) => crate::tokens::accent_color(&palette, c),
+                None => palette.secondary,
+            };
+            (color, palette.secondary_foreground, color)
+        }
+        BadgeVariant::Destructive => {
+            let color = match props.color {
+                Some(c) => crate::tokens::accent_color(&palette, c),
+                None => palette.destructive,
+            };
+            (color, palette.destructive_foreground, color)
+        }
         BadgeVariant::Outline => (
-            Background::Color(Color::TRANSPARENT),
-            accent_text_color,
-            accent,
+            Color::TRANSPARENT,
+            palette.foreground,
+            palette.border,
         ),
     };
 
-    let shadow = if matches!(props.variant, BadgeVariant::Solid) && props.high_contrast {
+    let shadow = if matches!(props.variant, BadgeVariant::Default) && props.high_contrast {
         Shadow {
             color: apply_opacity(Color::BLACK, 0.08),
             offset: iced::Vector::new(0.0, 1.0),
@@ -151,7 +158,7 @@ pub fn badge<'a, Message: 'a>(
     };
 
     let style = move |_iced_theme: &iced::Theme| container::Style {
-        background: Some(background),
+        background: Some(Background::Color(background_color)),
         text_color: Some(text_color),
         border: Border {
             color: border_color,
@@ -164,7 +171,7 @@ pub fn badge<'a, Message: 'a>(
 
     container(
         text(label.into())
-            .size(props.size.text_size())
+            .size(props.size.text_size() as u32)
             .style(move |_theme: &iced::Theme| iced::widget::text::Style {
                 color: Some(text_color),
             }),

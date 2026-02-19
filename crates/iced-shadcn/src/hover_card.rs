@@ -7,9 +7,9 @@ use crate::tooltip::TooltipPosition;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HoverCardSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -25,7 +25,7 @@ pub struct HoverCardProps {
 impl Default for HoverCardProps {
     fn default() -> Self {
         Self {
-            size: HoverCardSize::Two,
+            size: HoverCardSize::Size2,
             position: TooltipPosition::Bottom,
             gap: 8.0,
             open_delay_ms: 200,
@@ -73,17 +73,17 @@ impl HoverCardProps {
 
 fn padding_px(theme: &Theme, size: HoverCardSize) -> u16 {
     let px = match size {
-        HoverCardSize::One => theme.spacing.md,
-        HoverCardSize::Two => theme.spacing.lg,
-        HoverCardSize::Three => theme.spacing.lg + theme.spacing.xs,
+        HoverCardSize::Size1 => theme.spacing.md,
+        HoverCardSize::Size2 => theme.spacing.lg,
+        HoverCardSize::Size3 => theme.spacing.lg + theme.spacing.xs,
     };
     px.round().max(0.0) as u16
 }
 
 fn radius_px(theme: &Theme, size: HoverCardSize) -> f32 {
     match size {
-        HoverCardSize::One | HoverCardSize::Two => theme.radius.md,
-        HoverCardSize::Three => theme.radius.lg,
+        HoverCardSize::Size1 | HoverCardSize::Size2 => theme.radius.md,
+        HoverCardSize::Size3 => theme.radius.lg,
     }
 }
 

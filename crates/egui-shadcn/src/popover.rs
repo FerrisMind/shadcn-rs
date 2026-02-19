@@ -269,22 +269,22 @@ impl<'a> PopoverProps<'a> {
         }
     }
 
-    pub fn with_placement(mut self, placement: PopoverPlacement) -> Self {
+    pub fn placement(mut self, placement: PopoverPlacement) -> Self {
         self.placement = placement;
         self
     }
 
-    pub fn with_align(mut self, align: PopoverAlign) -> Self {
+    pub fn align(mut self, align: PopoverAlign) -> Self {
         self.align = align;
         self
     }
 
-    pub fn with_align_offset(mut self, offset: f32) -> Self {
+    pub fn align_offset(mut self, offset: f32) -> Self {
         self.align_offset = offset;
         self
     }
 
-    pub fn with_side_offset(mut self, offset: f32) -> Self {
+    pub fn side_offset(mut self, offset: f32) -> Self {
         self.side_offset = offset;
         self
     }
@@ -307,21 +307,6 @@ impl<'a> PopoverProps<'a> {
     pub fn side(mut self, side: PopoverSide) -> Self {
         self.side = Some(side);
         self.placement = side.to_placement();
-        self
-    }
-
-    pub fn side_offset(mut self, side_offset: f32) -> Self {
-        self.side_offset = side_offset;
-        self
-    }
-
-    pub fn align(mut self, align: PopoverAlign) -> Self {
-        self.align = align;
-        self
-    }
-
-    pub fn align_offset(mut self, align_offset: f32) -> Self {
-        self.align_offset = align_offset;
         self
     }
 
@@ -422,17 +407,17 @@ impl<'a> PopoverProps<'a> {
         self
     }
 
-    pub fn with_width(mut self, width: f32) -> Self {
+    pub fn width(mut self, width: f32) -> Self {
         self.width = Some(width);
         self
     }
 
-    pub fn with_max_height(mut self, max_height: f32) -> Self {
+    pub fn max_height(mut self, max_height: f32) -> Self {
         self.max_height = Some(max_height);
         self
     }
 
-    pub fn with_content_padding(mut self, padding: Margin) -> Self {
+    pub fn content_padding(mut self, padding: Margin) -> Self {
         self.content_padding = padding;
         self
     }
@@ -448,7 +433,7 @@ impl<'a> PopoverProps<'a> {
         self
     }
 
-    pub fn with_animation(mut self, animate: bool) -> Self {
+    pub fn animation(mut self, animate: bool) -> Self {
         self.animate = animate;
         self
     }

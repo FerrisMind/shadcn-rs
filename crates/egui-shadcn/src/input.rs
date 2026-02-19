@@ -329,7 +329,7 @@ impl InputStyle {
         style
     }
 
-    pub fn with_high_contrast(mut self) -> Self {
+    pub fn high_contrast(mut self) -> Self {
         self.text_color = Color32::WHITE;
         self.bg = mix(self.bg, Color32::WHITE, 0.1);
         self.bg_hover = mix(self.bg_hover, Color32::WHITE, 0.1);
@@ -640,7 +640,7 @@ impl<'a, Id: Hash + Debug> Input<'a, Id> {
             left_slot: self.left_slot,
             right_slot: self.right_slot,
         };
-        text_input_with_props(ui, theme, props)
+        input_with_props(ui, theme, props)
     }
 }
 
@@ -670,7 +670,7 @@ pub fn resolve_input_style(palette: &ColorPalette, config: &InputConfig) -> Inpu
     InputStyle::from_palette(palette, variant)
 }
 
-pub fn text_input_with_props<Id>(ui: &mut Ui, theme: &Theme, props: InputProps<'_, Id>) -> Response
+pub fn input_with_props<Id>(ui: &mut Ui, theme: &Theme, props: InputProps<'_, Id>) -> Response
 where
     Id: Hash + Debug,
 {
@@ -702,7 +702,7 @@ where
     });
 
     if props.high_contrast {
-        style = style.with_high_contrast();
+        style = style.high_contrast();
     }
 
     style.rounding = props.radius.corner_radius();
@@ -890,11 +890,11 @@ where
     response.inner
 }
 
-pub fn text_input(ui: &mut Ui, theme: &Theme, value: &mut String) -> Response {
-    text_input_with_config(ui, theme, value, "text_input", InputConfig::default())
+pub fn input(ui: &mut Ui, theme: &Theme, value: &mut String) -> Response {
+    input_with_config(ui, theme, value, "input", InputConfig::default())
 }
 
-pub fn text_input_with_config<Id: Hash + Debug>(
+pub fn input_with_config<Id: Hash + Debug>(
     ui: &mut Ui,
     theme: &Theme,
     value: &mut String,
@@ -912,5 +912,5 @@ pub fn text_input_with_config<Id: Hash + Debug>(
         .size(config.size)
         .invalid(config.is_invalid);
 
-    text_input_with_props(ui, theme, props)
+    input_with_props(ui, theme, props)
 }

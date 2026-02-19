@@ -417,8 +417,8 @@ where
                                 &mut header_state,
                                 "",
                                 CheckboxProps::default()
-                                    .with_cycle(CheckboxCycle::Binary)
-                                    .with_enabled(enabled),
+                                    .cycle(CheckboxCycle::Binary)
+                                    .enabled(enabled),
                             );
                             clicked = response.clicked();
                         });

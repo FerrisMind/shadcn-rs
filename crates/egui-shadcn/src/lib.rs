@@ -23,13 +23,21 @@ pub mod data_table;
 pub mod date_picker;
 pub mod dialog;
 pub mod dropdown_menu;
+pub mod drawer;
+pub mod empty;
+pub mod field;
 pub mod form;
 pub mod hover_card;
 pub mod icons;
 pub mod input;
 pub mod input_otp;
+pub mod item;
+pub mod kbd;
+pub use kbd::{KbdProps, KbdSize, kbd, kbd_group, kbd_shortcut};
 pub mod label;
+pub mod light_switch;
 pub mod menu_primitives;
+pub mod menubar;
 pub mod navigation_menu;
 pub mod pagination;
 pub mod popover;
@@ -119,6 +127,7 @@ pub use dialog::{
     DialogAlign, DialogLayoutTokens, DialogProps, DialogSize, DialogTokens, compute_dialog_rect,
     dialog, dialog_layout_tokens, dialog_tokens_with_options,
 };
+pub use drawer::{DrawerProps, DrawerSide, drawer, drawer_description, drawer_title};
 pub use dropdown_menu::{
     DropdownMenuCheckboxItemProps, DropdownMenuItemProps, DropdownMenuItemVariant,
     DropdownMenuLabelProps, DropdownMenuProps, DropdownMenuRadioGroupProps,
@@ -138,17 +147,24 @@ pub use hover_card::{HoverCardProps, hover_card, hover_card_content, hover_card_
 pub use icons::{icon_calendar, icon_check, icon_chevrons_up_down};
 pub use input::{
     Input, InputConfig, InputProps, InputRadius, InputSize, InputStyle, InputType, InputVariant,
-    resolve_input_style, text_input, text_input_with_config, text_input_with_props,
+    resolve_input_style, input, input_with_config, input_with_props,
 };
 pub use input_otp::{
     InputOTPContext, InputOTPProps, input_otp, input_otp_group, input_otp_separator,
     input_otp_slot, input_otp_slot_last,
 };
+pub use empty::{EmptyProps, empty};
+pub use field::{FieldProps, field};
+pub use item::{ItemProps, item};
 pub use label::{Label, LabelProps, LabelVariant, label, label_with_props};
+pub use light_switch::{LightSwitchProps, light_switch};
 pub use menu_primitives::{
     MenuCheckboxItemProps, MenuItemProps, MenuItemVariant, MenuLabelProps, MenuRadioGroupProps,
     MenuRadioItemProps, MenuSubProps, MenuTokens, menu_checkbox_item, menu_item, menu_label,
     menu_radio_group, menu_radio_item, menu_separator, menu_shortcut, menu_sub, menu_tokens,
+};
+pub use menubar::{
+    MenubarMenuProps, MenubarProps, menubar, menubar_item, menubar_menu, menubar_separator,
 };
 pub use navigation_menu::{
     NavigationMenuContentProps, NavigationMenuContext, NavigationMenuItemContext,
@@ -239,8 +255,8 @@ pub use tooltip::{
     TooltipUpdatePositionStrategy, tooltip,
 };
 pub use typography::{
-    BlockquoteProps, CodeProps, CodeVariant, HeadingAs, HeadingProps, KbdProps, LinkProps,
-    LinkUnderline, ResolvedTextStyle, ShadcnTypographyVariant, TextAlign, TextAs, TextProps,
-    TextTrim, TextWeight, TextWrap, TypographyColor, TypographyProps, blockquote, code, heading,
-    kbd, link, resolve_shadcn_style, text, typography,
+    BlockquoteProps, CodeProps, CodeVariant, HeadingAs, HeadingProps, LinkProps, LinkUnderline,
+    ResolvedTextStyle, ShadcnTypographyVariant, TextAlign, TextAs, TextProps, TextTrim, TextWeight,
+    TextWrap, TypographyColor, TypographyProps, blockquote, code, heading, link,
+    resolve_shadcn_style, text, typography,
 };

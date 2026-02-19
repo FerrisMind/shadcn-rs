@@ -14,10 +14,10 @@ use crate::theme::Theme as ShadcnTheme;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PopoverSize {
-    One,
-    Two,
-    Three,
-    Four,
+    Size1,
+    Size2,
+    Size3,
+    Size4,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -31,7 +31,7 @@ pub struct PopoverProps {
 impl Default for PopoverProps {
     fn default() -> Self {
         Self {
-            size: PopoverSize::Two,
+            size: PopoverSize::Size2,
             max_width: 480,
             offset: 8.0,
             disabled: false,
@@ -67,18 +67,18 @@ impl PopoverProps {
 
 fn padding_px(theme: &ShadcnTheme, size: PopoverSize) -> u16 {
     let px = match size {
-        PopoverSize::One => theme.spacing.md,
-        PopoverSize::Two => theme.spacing.lg,
-        PopoverSize::Three => theme.spacing.lg + theme.spacing.xs,
-        PopoverSize::Four => theme.spacing.lg + theme.spacing.sm,
+        PopoverSize::Size1 => theme.spacing.md,
+        PopoverSize::Size2 => theme.spacing.lg,
+        PopoverSize::Size3 => theme.spacing.lg + theme.spacing.xs,
+        PopoverSize::Size4 => theme.spacing.lg + theme.spacing.sm,
     };
     px.round().max(0.0) as u16
 }
 
 fn radius_px(theme: &ShadcnTheme, size: PopoverSize) -> f32 {
     match size {
-        PopoverSize::One | PopoverSize::Two => theme.radius.md,
-        PopoverSize::Three | PopoverSize::Four => theme.radius.lg,
+        PopoverSize::Size1 | PopoverSize::Size2 => theme.radius.md,
+        PopoverSize::Size3 | PopoverSize::Size4 => theme.radius.lg,
     }
 }
 

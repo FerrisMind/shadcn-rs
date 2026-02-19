@@ -1,5 +1,5 @@
 use iced::border::Border;
-use iced::widget::{container};
+use iced::widget::container;
 use iced::{Background, Element, Length};
 use lucide_icons::LUCIDE_FONT_BYTES;
 
@@ -89,4 +89,3 @@ fn preview<'a, Message: 'a>(
             ..iced::widget::container::Style::default()
         })
 }
-

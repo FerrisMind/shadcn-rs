@@ -6,7 +6,7 @@ use iced::{Background, Color, Element, Length};
 use crate::button::{
     ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, button_content, icon_button,
 };
-use crate::input::TextFieldSize;
+use crate::input::InputSize;
 use crate::textarea::{TextareaProps, TextareaResize, TextareaSize, textarea_apply_action};
 use crate::theme::Theme;
 use crate::tokens::{AccentColor, accent_color, ensure_contrast, is_dark};
@@ -182,8 +182,8 @@ pub enum InputGroupButtonSize {
 impl InputGroupButtonSize {
     fn button_size(self) -> ButtonSize {
         match self {
-            InputGroupButtonSize::Xs | InputGroupButtonSize::IconXs => ButtonSize::One,
-            InputGroupButtonSize::Sm | InputGroupButtonSize::IconSm => ButtonSize::Two,
+            InputGroupButtonSize::Xs | InputGroupButtonSize::IconXs => ButtonSize::Size1,
+            InputGroupButtonSize::Sm | InputGroupButtonSize::IconSm => ButtonSize::Size2,
         }
     }
 
@@ -265,7 +265,7 @@ pub fn input_group_text<'a, Message: Clone + 'a>(
 
 #[derive(Clone, Copy, Debug)]
 pub struct InputGroupInputProps {
-    pub size: TextFieldSize,
+    pub size: InputSize,
     pub disabled: bool,
     pub read_only: bool,
 }
@@ -273,7 +273,7 @@ pub struct InputGroupInputProps {
 impl Default for InputGroupInputProps {
     fn default() -> Self {
         Self {
-            size: TextFieldSize::Two,
+            size: InputSize::Size2,
             disabled: false,
             read_only: false,
         }
@@ -285,7 +285,7 @@ impl InputGroupInputProps {
         Self::default()
     }
 
-    pub fn size(mut self, size: TextFieldSize) -> Self {
+    pub fn size(mut self, size: InputSize) -> Self {
         self.size = size;
         self
     }
@@ -346,7 +346,7 @@ pub struct InputGroupTextareaProps {
 impl Default for InputGroupTextareaProps {
     fn default() -> Self {
         Self {
-            size: TextareaSize::Two,
+            size: TextareaSize::Size2,
             disabled: false,
             text_color: None,
             placeholder_color: None,
@@ -463,33 +463,33 @@ pub fn input_group_textarea_apply_action(
     textarea_apply_action(content, action, textarea_props)
 }
 
-fn input_padding(size: TextFieldSize) -> [f32; 2] {
+fn input_padding(size: InputSize) -> [f32; 2] {
     match size {
-        TextFieldSize::One => [6.0, 10.0],
-        TextFieldSize::Two => [8.0, 12.0],
-        TextFieldSize::Three => [10.0, 14.0],
+        InputSize::Size1 => [6.0, 10.0],
+        InputSize::Size2 => [8.0, 12.0],
+        InputSize::Size3 => [10.0, 14.0],
     }
 }
 
-fn input_text_size(size: TextFieldSize) -> u32 {
+fn input_text_size(size: InputSize) -> u32 {
     match size {
-        TextFieldSize::One | TextFieldSize::Two => 14,
-        TextFieldSize::Three => 16,
+        InputSize::Size1 | InputSize::Size2 => 14,
+        InputSize::Size3 => 16,
     }
 }
 
 fn textarea_padding(size: TextareaSize) -> [f32; 2] {
     match size {
-        TextareaSize::One => [6.0, 10.0],
-        TextareaSize::Two => [8.0, 12.0],
-        TextareaSize::Three => [10.0, 14.0],
+        TextareaSize::Size1 => [6.0, 10.0],
+        TextareaSize::Size2 => [8.0, 12.0],
+        TextareaSize::Size3 => [10.0, 14.0],
     }
 }
 
 fn textarea_text_size(size: TextareaSize) -> u32 {
     match size {
-        TextareaSize::One | TextareaSize::Two => 14,
-        TextareaSize::Three => 16,
+        TextareaSize::Size1 | TextareaSize::Size2 => 14,
+        TextareaSize::Size3 => 16,
     }
 }
 
@@ -503,9 +503,9 @@ fn textarea_min_height(props: InputGroupTextareaProps) -> f32 {
     }
 
     match props.size {
-        TextareaSize::One => 64.0,
-        TextareaSize::Two => 96.0,
-        TextareaSize::Three => 128.0,
+        TextareaSize::Size1 => 64.0,
+        TextareaSize::Size2 => 96.0,
+        TextareaSize::Size3 => 128.0,
     }
 }
 

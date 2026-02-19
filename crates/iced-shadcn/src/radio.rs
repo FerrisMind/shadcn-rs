@@ -2,53 +2,84 @@ use iced::Background;
 use iced::widget::radio as radio_widget;
 
 use crate::theme::Theme;
-use crate::tokens::{AccentColor, accent_color, accent_soft, accent_text, is_dark};
+use crate::tokens::{AccentColor, ControlSize, ControlVariant, accent_color, accent_soft, accent_text, is_dark};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum RadioSize {
-    One,
-    Two,
-    Three,
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum RadioDirection {
+    #[default]
+    Vertical,
+    Horizontal,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum RadioVariant {
-    Classic,
-    Surface,
-    Soft,
+#[derive(Clone, Debug)]
+pub struct RadioItem<V> {
+    pub label: String,
+    pub value: V,
+    pub description: Option<String>,
+    pub disabled: bool,
+}
+
+impl<V> RadioItem<V> {
+    pub fn new(label: impl Into<String>, value: V) -> Self {
+        Self {
+            label: label.into(),
+            value,
+            description: None,
+            disabled: false,
+        }
+    }
+
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        self.description = Some(description.into());
+        self
+    }
+
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct RadioProps {
-    pub size: RadioSize,
-    pub variant: RadioVariant,
+pub struct RadioGroupProps {
+    pub size: ControlSize,
+    pub variant: ControlVariant,
+    pub direction: RadioDirection,
     pub color: AccentColor,
     pub high_contrast: bool,
+    pub disabled: bool,
 }
 
-impl Default for RadioProps {
+impl Default for RadioGroupProps {
     fn default() -> Self {
         Self {
-            size: RadioSize::Two,
-            variant: RadioVariant::Surface,
+            size: ControlSize::Md,
+            variant: ControlVariant::Primary,
+            direction: RadioDirection::Vertical,
             color: AccentColor::Gray,
             high_contrast: false,
+            disabled: false,
         }
     }
 }
 
-impl RadioProps {
+impl RadioGroupProps {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn size(mut self, size: RadioSize) -> Self {
+    pub fn size(mut self, size: ControlSize) -> Self {
         self.size = size;
         self
     }
 
-    pub fn variant(mut self, variant: RadioVariant) -> Self {
+    pub fn variant(mut self, variant: ControlVariant) -> Self {
         self.variant = variant;
+        self
+    }
+
+    pub fn direction(mut self, direction: RadioDirection) -> Self {
+        self.direction = direction;
         self
     }
 
@@ -61,55 +92,99 @@ impl RadioProps {
         self.high_contrast = high_contrast;
         self
     }
+
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
 }
 
-impl RadioSize {
+impl ControlSize {
     fn dimension(self) -> f32 {
         match self {
-            RadioSize::One => 14.0,
-            RadioSize::Two => 16.0,
-            RadioSize::Three => 20.0,
+            ControlSize::Sm | ControlSize::IconSm => 14.0,
+            ControlSize::Md | ControlSize::Icon => 16.0,
+            ControlSize::Lg | ControlSize::IconLg => 20.0,
         }
     }
 
     fn text_size(self) -> u32 {
         match self {
-            RadioSize::One => 12,
-            RadioSize::Two => 14,
-            RadioSize::Three => 16,
+            ControlSize::Sm | ControlSize::IconSm => 12,
+            ControlSize::Md | ControlSize::Icon => 14,
+            ControlSize::Lg | ControlSize::IconLg => 16,
         }
     }
 }
 
-pub fn radio<'a, Message: Clone + 'a, F, V>(
-    label: impl Into<String>,
-    value: V,
+pub fn radio_group<'a, Message: Clone + 'a, V>(
     selected: Option<V>,
-    on_select: F,
-    props: RadioProps,
-    theme: &Theme,
-) -> radio_widget::Radio<'a, Message>
+    options: Vec<RadioItem<V>>,
+    on_select: impl Fn(V) -> Message + 'a,
+    props: RadioGroupProps,
+    theme: &'a Theme,
+) -> iced::Element<'a, Message>
 where
-    F: FnOnce(V) -> Message,
-    V: Copy + Eq,
+    V: Copy + Eq + 'a,
 {
-    let theme = theme.clone();
-    radio_widget::Radio::new(label, value, selected, on_select)
-        .size(props.size.dimension())
-        .spacing(props.size.dimension() * 0.5)
-        .text_size(props.size.text_size())
-        .style(move |_iced_theme, status| radio_style(&theme, props, status))
+    use iced::widget::{column, row, container, text};
+
+    let spacing = match props.size {
+        ControlSize::Sm | ControlSize::IconSm => 8.0,
+        ControlSize::Md | ControlSize::Icon => 10.0,
+        ControlSize::Lg | ControlSize::IconLg => 12.0,
+    };
+
+    let items = options.into_iter().map(|item| {
+        let item_disabled = props.disabled || item.disabled;
+        let r = radio_widget::Radio::new(item.label, item.value, selected, &on_select)
+            .size(props.size.dimension())
+            .spacing(props.size.dimension() * 0.5)
+            .text_size(props.size.text_size())
+            .style(move |_iced_theme, status| {
+                let mut s = radio_style(theme, props, status);
+                if item_disabled {
+                    s.text_color = Some(theme.palette.muted_foreground);
+                    s.dot_color = theme.palette.muted;
+                    s.border_color = theme.palette.border;
+                }
+                s
+            });
+
+        if let Some(desc) = item.description {
+            column![
+                r,
+                container(text(desc).size(props.size.text_size() as f32 * 0.9))
+                    .padding(iced::Padding {
+                        left: props.size.dimension() * 1.5,
+                        ..Default::default()
+                    })
+            ].spacing(2).into()
+        } else {
+            r.into()
+        }
+    });
+
+    match props.direction {
+        RadioDirection::Vertical => column(items).spacing(spacing).into(),
+        RadioDirection::Horizontal => row(items).spacing(spacing * 2.0).into(),
+    }
 }
 
 fn radio_style(
     theme: &Theme,
-    props: RadioProps,
+    props: RadioGroupProps,
     status: radio_widget::Status,
 ) -> radio_widget::Style {
     let palette = theme.palette;
-    let accent = accent_color(&palette, props.color);
-    let text_color = accent_text(&palette, props.color);
-    let soft_bg = accent_soft(&palette, props.color);
+    
+    let (accent, _text_color) = match props.variant {
+        ControlVariant::Primary => (accent_color(&palette, props.color), accent_text(&palette, props.color)),
+        ControlVariant::Secondary => (palette.secondary, palette.secondary_foreground),
+        ControlVariant::Destructive => (palette.destructive, palette.destructive_foreground),
+    };
+
+    let _soft_bg = accent_soft(&palette, props.color);
     let base_bg = if is_dark(&palette) {
         Background::Color(palette.input)
     } else {
@@ -121,11 +196,9 @@ fn radio_style(
         radio_widget::Status::Hovered { is_selected } => (is_selected, true),
     };
 
-    let mut background = match props.variant {
-        RadioVariant::Soft => Background::Color(soft_bg),
-        RadioVariant::Classic | RadioVariant::Surface => base_bg,
-    };
-
+    // Placeholder for "Soft" style if we want to keep parity with previous iced implementation
+    // But aligning with shadcn/egui variants:
+    let mut background = base_bg;
     let mut dot_color = accent;
     let mut border_color = palette.input;
 
@@ -133,15 +206,12 @@ fn radio_style(
         border_color = palette.ring;
     }
 
-    if props.variant == RadioVariant::Soft {
-        background = Background::Color(soft_bg);
-        dot_color = if is_selected { text_color } else { accent };
-    }
-
     if is_selected && props.high_contrast {
         background = Background::Color(palette.foreground);
         dot_color = palette.background;
         border_color = palette.foreground;
+    } else if is_selected {
+        border_color = accent;
     }
 
     radio_widget::Style {

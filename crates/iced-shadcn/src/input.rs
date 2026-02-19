@@ -7,34 +7,34 @@ use crate::theme::Theme;
 use crate::tokens::{AccentColor, accent_color, accent_soft, accent_text};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum TextFieldSize {
-    One,
-    Two,
-    Three,
+pub enum InputSize {
+    Size1,
+    Size2,
+    Size3,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum TextFieldVariant {
+pub enum InputVariant {
     Classic,
     Surface,
     Soft,
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct TextFieldProps {
-    pub size: TextFieldSize,
-    pub variant: TextFieldVariant,
+pub struct InputProps {
+    pub size: InputSize,
+    pub variant: InputVariant,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
     pub disabled: bool,
     pub read_only: bool,
 }
 
-impl Default for TextFieldProps {
+impl Default for InputProps {
     fn default() -> Self {
         Self {
-            size: TextFieldSize::Two,
-            variant: TextFieldVariant::Surface,
+            size: InputSize::Size2,
+            variant: InputVariant::Surface,
             color: AccentColor::Gray,
             radius: None,
             disabled: false,
@@ -43,17 +43,17 @@ impl Default for TextFieldProps {
     }
 }
 
-impl TextFieldProps {
+impl InputProps {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn size(mut self, size: TextFieldSize) -> Self {
+    pub fn size(mut self, size: InputSize) -> Self {
         self.size = size;
         self
     }
 
-    pub fn variant(mut self, variant: TextFieldVariant) -> Self {
+    pub fn variant(mut self, variant: InputVariant) -> Self {
         self.variant = variant;
         self
     }
@@ -79,29 +79,29 @@ impl TextFieldProps {
     }
 }
 
-impl TextFieldSize {
+impl InputSize {
     fn padding(self) -> [f32; 2] {
         match self {
-            TextFieldSize::One => [6.0, 10.0],
-            TextFieldSize::Two => [8.0, 12.0],
-            TextFieldSize::Three => [10.0, 14.0],
+            InputSize::Size1 => [6.0, 10.0],
+            InputSize::Size2 => [8.0, 12.0],
+            InputSize::Size3 => [10.0, 14.0],
         }
     }
 
     fn text_size(self) -> u32 {
         match self {
-            TextFieldSize::One => 14,
-            TextFieldSize::Two => 14,
-            TextFieldSize::Three => 16,
+            InputSize::Size1 => 14,
+            InputSize::Size2 => 14,
+            InputSize::Size3 => 16,
         }
     }
 }
 
-pub fn text_field<'a, Message: Clone + 'a, F>(
+pub fn input<'a, Message: Clone + 'a, F>(
     value: &'a str,
     placeholder: &'a str,
     on_input: Option<F>,
-    props: TextFieldProps,
+    props: InputProps,
     theme: &Theme,
 ) -> text_input::TextInput<'a, Message>
 where
@@ -111,7 +111,7 @@ where
     let mut widget = text_input::TextInput::new(placeholder, value)
         .padding(props.size.padding())
         .size(props.size.text_size())
-        .style(move |_iced_theme, status| text_field_style(&theme, props, status));
+        .style(move |_iced_theme, status| input_style(&theme, props, status));
 
     if let Some(on_input) = on_input {
         if props.disabled {
@@ -126,7 +126,7 @@ where
     widget
 }
 
-fn text_field_radius(theme: &Theme, props: TextFieldProps) -> f32 {
+fn input_radius(theme: &Theme, props: InputProps) -> f32 {
     match props.radius {
         Some(ButtonRadius::None) => 0.0,
         Some(ButtonRadius::Small) => theme.radius.sm,
@@ -137,13 +137,13 @@ fn text_field_radius(theme: &Theme, props: TextFieldProps) -> f32 {
     }
 }
 
-fn text_field_style(
+fn input_style(
     theme: &Theme,
-    props: TextFieldProps,
+    props: InputProps,
     status: text_input::Status,
 ) -> text_input::Style {
     let palette = theme.palette;
-    let radius = text_field_radius(theme, props);
+    let radius = input_radius(theme, props);
     let accent = accent_color(&palette, props.color);
     let text_color = accent_text(&palette, props.color);
     let soft_bg = accent_soft(&palette, props.color);
@@ -154,17 +154,17 @@ fn text_field_style(
         color: palette.border,
     };
     let mut background = match props.variant {
-        TextFieldVariant::Classic | TextFieldVariant::Surface => {
+        InputVariant::Classic | InputVariant::Surface => {
             Background::Color(palette.background)
         }
-        TextFieldVariant::Soft => Background::Color(soft_bg),
+        InputVariant::Soft => Background::Color(soft_bg),
     };
     let mut value = match props.variant {
-        TextFieldVariant::Soft => text_color,
+        InputVariant::Soft => text_color,
         _ => palette.foreground,
     };
     let mut placeholder = match props.variant {
-        TextFieldVariant::Soft => text_color,
+        InputVariant::Soft => text_color,
         _ => palette.muted_foreground,
     };
 

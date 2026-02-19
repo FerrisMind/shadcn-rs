@@ -174,15 +174,7 @@ fn button_radius(theme: &Theme, radius: ButtonRadius) -> f32 {
     }
 }
 
-fn mix(a: Color, b: Color, t: f32) -> Color {
-    let t = t.clamp(0.0, 1.0);
-    Color {
-        r: a.r + (b.r - a.r) * t,
-        g: a.g + (b.g - a.g) * t,
-        b: a.b + (b.b - a.b) * t,
-        a: a.a + (b.a - a.a) * t,
-    }
-}
+use crate::tokens::mix;
 
 fn button_group_style(
     theme: &Theme,
@@ -199,8 +191,18 @@ fn button_group_style(
     let soft_fg = accent_soft_foreground(&palette, props.color);
 
     let (mut background, mut text_color, mut border_color) = match props.variant {
-        ButtonVariant::Classic | ButtonVariant::Solid => {
+        ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
             (Some(Background::Color(accent)), accent_fg, accent)
+        }
+        ButtonVariant::Secondary => {
+            let color = palette.secondary;
+            let fg = palette.secondary_foreground;
+            (Some(Background::Color(color)), fg, color)
+        }
+        ButtonVariant::Destructive => {
+            let color = palette.destructive;
+            let fg = palette.destructive_foreground;
+            (Some(Background::Color(color)), fg, color)
         }
         ButtonVariant::Soft => (Some(Background::Color(soft_bg)), soft_fg, soft_bg),
         ButtonVariant::Surface => (
@@ -220,8 +222,14 @@ fn button_group_style(
     match status {
         button_widget::Status::Hovered => {
             background = match props.variant {
-                ButtonVariant::Classic | ButtonVariant::Solid => {
+                ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
                     Some(Background::Color(mix(accent, palette.background, 0.1)))
+                }
+                ButtonVariant::Secondary => {
+                    Some(Background::Color(mix(palette.secondary, palette.background, 0.1)))
+                }
+                ButtonVariant::Destructive => {
+                    Some(Background::Color(mix(palette.destructive, palette.background, 0.1)))
                 }
                 ButtonVariant::Soft
                 | ButtonVariant::Surface
@@ -232,8 +240,14 @@ fn button_group_style(
         }
         button_widget::Status::Pressed => {
             background = match props.variant {
-                ButtonVariant::Classic | ButtonVariant::Solid => {
+                ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
                     Some(Background::Color(mix(accent, palette.background, 0.2)))
+                }
+                ButtonVariant::Secondary => {
+                    Some(Background::Color(mix(palette.secondary, palette.background, 0.2)))
+                }
+                ButtonVariant::Destructive => {
+                    Some(Background::Color(mix(palette.destructive, palette.background, 0.2)))
                 }
                 ButtonVariant::Soft
                 | ButtonVariant::Surface

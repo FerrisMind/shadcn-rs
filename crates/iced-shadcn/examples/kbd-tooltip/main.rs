@@ -92,7 +92,7 @@ fn tooltip_button<'a>(label: &'a str, shortcut: &'a str, theme: &'a Theme) -> El
     let primary_fg = palette.primary_foreground;
 
     let tooltip_content = row![
-        iced_text(format!("Press "))
+        iced_text("Press ".to_string())
             .size(12)
             .style(move |_theme: &iced::Theme| iced::widget::text::Style {
                 color: Some(muted_fg),

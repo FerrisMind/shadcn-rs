@@ -173,9 +173,9 @@ where
             ButtonProps::new()
                 .variant(ButtonVariant::Ghost)
                 .size(if props.compact {
-                    ButtonSize::One
+                    ButtonSize::Size1
                 } else {
-                    ButtonSize::Two
+                    ButtonSize::Size2
                 })
                 .disabled(disabled),
             &theme,

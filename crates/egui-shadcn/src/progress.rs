@@ -39,6 +39,8 @@ pub struct ProgressProps {
     pub size: ProgressSize,
     pub variant: ProgressVariant,
     pub color: Option<Color32>,
+    pub radius: Option<f32>,
+    pub duration_ms: u32,
     pub high_contrast: bool,
 }
 
@@ -50,6 +52,8 @@ impl ProgressProps {
             size: ProgressSize::Size2,
             variant: ProgressVariant::Surface,
             color: None,
+            radius: None,
+            duration_ms: 1500,
             high_contrast: false,
         }
     }
@@ -71,6 +75,16 @@ impl ProgressProps {
 
     pub fn color(mut self, color: Color32) -> Self {
         self.color = Some(color);
+        self
+    }
+
+    pub fn radius(mut self, radius: f32) -> Self {
+        self.radius = Some(radius);
+        self
+    }
+
+    pub fn duration_ms(mut self, duration_ms: u32) -> Self {
+        self.duration_ms = duration_ms;
         self
     }
 
@@ -101,7 +115,7 @@ pub fn progress(ui: &mut Ui, theme: &Theme, props: ProgressProps) {
     };
 
     let available_width = ui.available_width();
-    let rounding = height / 2.0;
+    let rounding = props.radius.unwrap_or(height / 2.0);
 
     let (rect, _response) =
         ui.allocate_exact_size(Vec2::new(available_width, height), egui::Sense::hover());
@@ -121,8 +135,9 @@ pub fn progress(ui: &mut Ui, theme: &Theme, props: ProgressProps) {
         }
     } else {
         // Indeterminate animation
-        let time = ui.ctx().input(|i| i.time);
-        let anim_progress = ((time * 1.5).sin() as f32 + 1.0) / 2.0;
+        let time = ui.ctx().input(|i| i.time) as f32;
+        let speed = 1000.0 / props.duration_ms.max(1) as f32 * 2.25;
+        let anim_progress = ((time * speed).sin() + 1.0) / 2.0;
         let bar_width = rect.width() * 0.3;
         let offset = (rect.width() - bar_width) * anim_progress;
 

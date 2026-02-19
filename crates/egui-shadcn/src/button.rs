@@ -463,7 +463,7 @@ impl ButtonStyle {
         style
     }
 
-    pub fn with_high_contrast(mut self, palette: &ColorPalette) -> Self {
+    pub fn high_contrast(mut self, palette: &ColorPalette) -> Self {
         self.bg = mix(self.bg, palette.foreground, 0.15);
         self.bg_hover = mix(self.bg_hover, palette.foreground, 0.15);
         self.text = palette.foreground;
@@ -551,7 +551,7 @@ fn resolve_style(theme: &Theme, props: &ButtonProps<'_>) -> ButtonStyle {
     style.rounding = props.radius.corner_radius();
 
     if props.high_contrast {
-        style = style.with_high_contrast(&theme.palette);
+        style = style.high_contrast(&theme.palette);
     }
 
     style

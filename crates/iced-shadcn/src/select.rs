@@ -25,9 +25,9 @@ use crate::tokens::{
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SelectSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -59,7 +59,7 @@ pub struct SelectProps {
 impl Default for SelectProps {
     fn default() -> Self {
         Self {
-            size: SelectSize::Two,
+            size: SelectSize::Size2,
             variant: SelectTriggerVariant::Surface,
             content_variant: SelectContentVariant::Solid,
             color: AccentColor::Gray,
@@ -212,7 +212,7 @@ struct SelectMetrics {
 impl SelectSize {
     fn metrics(self) -> SelectMetrics {
         match self {
-            SelectSize::One => SelectMetrics {
+            SelectSize::Size1 => SelectMetrics {
                 trigger_height: 32.0,
                 trigger_padding_x: 12.0,
                 trigger_padding_y: 6.0,
@@ -231,7 +231,7 @@ impl SelectSize {
                 indicator_size: 14.0,
                 scroll_button_height: 24.0,
             },
-            SelectSize::Two => SelectMetrics {
+            SelectSize::Size2 => SelectMetrics {
                 trigger_height: 36.0,
                 trigger_padding_x: 12.0,
                 trigger_padding_y: 8.0,
@@ -250,7 +250,7 @@ impl SelectSize {
                 indicator_size: 14.0,
                 scroll_button_height: 24.0,
             },
-            SelectSize::Three => SelectMetrics {
+            SelectSize::Size3 => SelectMetrics {
                 trigger_height: 40.0,
                 trigger_padding_x: 14.0,
                 trigger_padding_y: 10.0,
@@ -1939,15 +1939,7 @@ fn item_radius(theme: &ShadcnTheme) -> f32 {
     theme.radius.sm
 }
 
-fn mix(a: Color, b: Color, t: f32) -> Color {
-    let t = t.clamp(0.0, 1.0);
-    Color {
-        r: a.r + (b.r - a.r) * t,
-        g: a.g + (b.g - a.g) * t,
-        b: a.b + (b.b - a.b) * t,
-        a: a.a + (b.a - a.a) * t,
-    }
-}
+use crate::tokens::mix;
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
     Color {

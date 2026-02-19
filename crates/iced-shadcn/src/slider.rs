@@ -27,9 +27,9 @@ use std::ops::RangeInclusive;
 
 #[derive(Clone, Copy, Debug)]
 pub enum SliderSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -52,7 +52,7 @@ pub struct SliderProps {
 impl Default for SliderProps {
     fn default() -> Self {
         Self {
-            size: SliderSize::Two,
+            size: SliderSize::Size2,
             variant: SliderVariant::Surface,
             color: AccentColor::Gray,
             radius: None,
@@ -101,17 +101,17 @@ impl SliderProps {
 impl SliderSize {
     fn rail_height(self) -> f32 {
         match self {
-            SliderSize::One => 4.0,
-            SliderSize::Two => 6.0,
-            SliderSize::Three => 8.0,
+            SliderSize::Size1 => 4.0,
+            SliderSize::Size2 => 6.0,
+            SliderSize::Size3 => 8.0,
         }
     }
 
     fn handle_radius(self) -> f32 {
         match self {
-            SliderSize::One => 6.0,
-            SliderSize::Two => 8.0,
-            SliderSize::Three => 10.0,
+            SliderSize::Size1 => 6.0,
+            SliderSize::Size2 => 8.0,
+            SliderSize::Size3 => 10.0,
         }
     }
 

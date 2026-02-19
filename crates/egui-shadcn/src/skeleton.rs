@@ -12,11 +12,23 @@ use egui::{Ui, Vec2};
 // SkeletonProps
 // =============================================================================
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct SkeletonProps {
     pub width: Option<f32>,
     pub height: Option<f32>,
     pub circle: bool,
+    pub duration_ms: u32,
+}
+
+impl Default for SkeletonProps {
+    fn default() -> Self {
+        Self {
+            width: None,
+            height: None,
+            circle: false,
+            duration_ms: 1500,
+        }
+    }
 }
 
 impl SkeletonProps {
@@ -36,6 +48,11 @@ impl SkeletonProps {
 
     pub fn circle(mut self, circle: bool) -> Self {
         self.circle = circle;
+        self
+    }
+
+    pub fn duration_ms(mut self, duration_ms: u32) -> Self {
+        self.duration_ms = duration_ms;
         self
     }
 }
@@ -59,7 +76,8 @@ pub fn skeleton(ui: &mut Ui, theme: &Theme, props: SkeletonProps) {
 
     // Shimmer animation
     let time = ui.ctx().input(|i| i.time) as f32;
-    let shimmer_pos = ((time * 1.5).sin() + 1.0) / 2.0;
+    let speed = 1000.0 / props.duration_ms.max(1) as f32 * 2.25;
+    let shimmer_pos = ((time * speed).sin() + 1.0) / 2.0;
 
     // Base color
     let base_color = theme.palette.muted;

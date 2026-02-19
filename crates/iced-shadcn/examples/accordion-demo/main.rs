@@ -53,7 +53,9 @@ impl Example {
             items,
             self.state.clone(),
             Some(Message::AccordionChanged),
-            AccordionProps::new().accordion_type(AccordionType::Single).collapsible(true),
+            AccordionProps::new()
+                .accordion_type(AccordionType::Single)
+                .collapsible(true),
             theme,
         );
 

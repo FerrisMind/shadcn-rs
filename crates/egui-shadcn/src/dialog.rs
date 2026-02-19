@@ -165,62 +165,62 @@ impl<'a> DialogProps<'a> {
         }
     }
 
-    pub fn with_title(mut self, title: impl Into<String>) -> Self {
+    pub fn title(mut self, title: impl Into<String>) -> Self {
         self.title = Some(title.into());
         self
     }
 
-    pub fn with_description(mut self, description: impl Into<String>) -> Self {
+    pub fn description(mut self, description: impl Into<String>) -> Self {
         self.description = Some(description.into());
         self
     }
 
-    pub fn with_size(mut self, size: Vec2) -> Self {
+    pub fn size(mut self, size: Vec2) -> Self {
         self.size = size;
         self
     }
 
-    pub fn with_dialog_size(mut self, size: DialogSize) -> Self {
+    pub fn dialog_size(mut self, size: DialogSize) -> Self {
         self.dialog_size = size;
         self
     }
 
-    pub fn with_align(mut self, align: DialogAlign) -> Self {
+    pub fn align(mut self, align: DialogAlign) -> Self {
         self.align = align;
         self
     }
 
-    pub fn with_as_child(mut self, as_child: bool) -> Self {
+    pub fn as_child(mut self, as_child: bool) -> Self {
         self.as_child = as_child;
         self
     }
 
-    pub fn with_width(mut self, width: f32) -> Self {
+    pub fn width(mut self, width: f32) -> Self {
         self.width = Some(width);
         self
     }
 
-    pub fn with_min_width(mut self, width: f32) -> Self {
+    pub fn min_width(mut self, width: f32) -> Self {
         self.min_width = Some(width);
         self
     }
 
-    pub fn with_max_width(mut self, width: f32) -> Self {
+    pub fn max_width(mut self, width: f32) -> Self {
         self.max_width = Some(width);
         self
     }
 
-    pub fn with_height(mut self, height: f32) -> Self {
+    pub fn height(mut self, height: f32) -> Self {
         self.height = Some(height);
         self
     }
 
-    pub fn with_min_height(mut self, height: f32) -> Self {
+    pub fn min_height(mut self, height: f32) -> Self {
         self.min_height = Some(height);
         self
     }
 
-    pub fn with_max_height(mut self, height: f32) -> Self {
+    pub fn max_height(mut self, height: f32) -> Self {
         self.max_height = Some(height);
         self
     }
@@ -230,32 +230,32 @@ impl<'a> DialogProps<'a> {
         self
     }
 
-    pub fn with_close_on_background(mut self, close: bool) -> Self {
+    pub fn close_on_background(mut self, close: bool) -> Self {
         self.close_on_background = close;
         self
     }
 
-    pub fn with_close_on_escape(mut self, close: bool) -> Self {
+    pub fn close_on_escape(mut self, close: bool) -> Self {
         self.close_on_escape = close;
         self
     }
 
-    pub fn with_scrim_opacity(mut self, opacity: u8) -> Self {
+    pub fn scrim_opacity(mut self, opacity: u8) -> Self {
         self.scrim_opacity = opacity;
         self
     }
 
-    pub fn with_scrim_color(mut self, color: Color32) -> Self {
+    pub fn scrim_color(mut self, color: Color32) -> Self {
         self.scrim_color = Some(color);
         self
     }
 
-    pub fn with_offset(mut self, offset: Vec2) -> Self {
+    pub fn offset(mut self, offset: Vec2) -> Self {
         self.offset = offset;
         self
     }
 
-    pub fn with_animation(mut self, enabled: bool) -> Self {
+    pub fn animation(mut self, enabled: bool) -> Self {
         self.animate = enabled;
         self
     }
@@ -275,7 +275,7 @@ impl<'a> DialogProps<'a> {
         self
     }
 
-    pub fn with_tokens_override(mut self, tokens: DialogTokens) -> Self {
+    pub fn tokens_override(mut self, tokens: DialogTokens) -> Self {
         self.tokens_override = Some(tokens);
         self
     }
@@ -516,10 +516,10 @@ pub fn dialog<R>(
             if scrollable {
                 let remaining_height = content_ui.available_height().max(0.0);
                 let scroll_props = ScrollAreaProps::default()
-                    .with_id(content_id.with("body-scroll"))
-                    .with_direction(ScrollDirection::Vertical)
-                    .with_max_size(Vec2::new(dialog_rect.width(), remaining_height))
-                    .with_auto_shrink([false; 2]);
+                    .id(content_id.with("body-scroll"))
+                    .direction(ScrollDirection::Vertical)
+                    .max_size(Vec2::new(dialog_rect.width(), remaining_height))
+                    .auto_shrink([false; 2]);
                 result = Some(scroll_area(content_ui, theme, scroll_props, |scroll_ui| {
                     scroll_ui.set_max_width(dialog_rect.width());
                     scroll_ui.set_max_height(remaining_height);

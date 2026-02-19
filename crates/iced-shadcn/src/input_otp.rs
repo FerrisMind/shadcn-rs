@@ -71,7 +71,7 @@ pub struct InputOTPContext<'a, Message> {
     group_slot_count: Cell<usize>,
 }
 
-/// Unified OTP input - one hidden input with visual slots (like react reference)
+/// Unified OTP input - Size1 hidden input with visual slots (like react reference)
 pub fn input_otp_unified<'a, Message: Clone + 'a, F>(
     value: &'a str,
     max_length: usize,

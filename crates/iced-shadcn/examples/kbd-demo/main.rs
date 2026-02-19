@@ -42,7 +42,7 @@ impl Example {
                         5 => KbdSize::Five,
                         _ => KbdSize::Two,
                     };
-                    kbd(format!("S{i}"), KbdProps::new().size(size), theme).into()
+                    kbd(format!("S{i}"), KbdProps::new().size(size), theme)
                 })
                 .collect::<Vec<_>>())
             .spacing(8)

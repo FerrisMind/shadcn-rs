@@ -81,4 +81,3 @@ fn preview<'a, Message: 'a>(
             ..iced::widget::container::Style::default()
         })
 }
-

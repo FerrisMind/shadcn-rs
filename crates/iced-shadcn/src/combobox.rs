@@ -4,7 +4,7 @@ use iced::{Alignment, Background, Element, Length};
 use std::hash::Hash;
 
 use crate::button::{ButtonProps, ButtonSize, ButtonVariant, button_content};
-use crate::input::{TextFieldProps, TextFieldSize, TextFieldVariant as InputVariant, text_field};
+use crate::input::{InputProps, InputSize, InputVariant as InputVariant, input};
 use crate::popover::{PopoverProps, PopoverSize, popover};
 use crate::theme::Theme;
 use crate::tokens::{accent_soft, accent_text};
@@ -20,19 +20,19 @@ pub enum ComboboxSize {
 impl From<ComboboxSize> for ButtonSize {
     fn from(size: ComboboxSize) -> Self {
         match size {
-            ComboboxSize::Size1 => ButtonSize::One,
-            ComboboxSize::Size2 => ButtonSize::Two,
-            ComboboxSize::Size3 => ButtonSize::Three,
+            ComboboxSize::Size1 => ButtonSize::Size1,
+            ComboboxSize::Size2 => ButtonSize::Size2,
+            ComboboxSize::Size3 => ButtonSize::Size3,
         }
     }
 }
 
-impl From<ComboboxSize> for TextFieldSize {
+impl From<ComboboxSize> for InputSize {
     fn from(size: ComboboxSize) -> Self {
         match size {
-            ComboboxSize::Size1 => TextFieldSize::One,
-            ComboboxSize::Size2 => TextFieldSize::Two,
-            ComboboxSize::Size3 => TextFieldSize::Three,
+            ComboboxSize::Size1 => InputSize::Size1,
+            ComboboxSize::Size2 => InputSize::Size2,
+            ComboboxSize::Size3 => InputSize::Size3,
         }
     }
 }
@@ -345,7 +345,7 @@ where
                     on_press,
                     ButtonProps::new()
                         .variant(ButtonVariant::Ghost)
-                        .size(ButtonSize::One)
+                        .size(ButtonSize::Size1)
                         .disabled(!enabled),
                     theme,
                 )
@@ -379,7 +379,7 @@ where
                             on_press,
                             ButtonProps::new()
                                 .variant(ButtonVariant::Ghost)
-                                .size(ButtonSize::One)
+                                .size(ButtonSize::Size1)
                                 .disabled(!enabled),
                             theme,
                         )
@@ -410,12 +410,12 @@ where
     }
 
     let search_disabled = props.disabled || !search_enabled;
-    let search_input = text_field(
+    let search_input = input(
         props.search_value,
         props.search_placeholder,
         on_search_change,
-        TextFieldProps::new()
-            .size(TextFieldSize::from(props.size))
+        InputProps::new()
+            .size(InputSize::from(props.size))
             .variant(props.variant)
             .disabled(search_disabled),
         theme,
@@ -446,7 +446,7 @@ where
     popover(
         trigger,
         content,
-        PopoverProps::new().size(PopoverSize::Two).offset(6.0),
+        PopoverProps::new().size(PopoverSize::Size2).offset(6.0),
         theme,
     )
     .into()

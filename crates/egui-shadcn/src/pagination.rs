@@ -29,7 +29,7 @@ impl<'a> PaginationProps<'a> {
         }
     }
 
-    pub fn with_on_page_change(mut self, callback: impl FnMut(usize) + 'a) -> Self {
+    pub fn on_page_change(mut self, callback: impl FnMut(usize) + 'a) -> Self {
         self.on_page_change = Some(OnPageChange(Box::new(callback)));
         self
     }

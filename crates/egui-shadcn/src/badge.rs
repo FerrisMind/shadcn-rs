@@ -22,11 +22,11 @@ pub enum BadgeSize {
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum BadgeVariant {
-    Solid,
     #[default]
-    Soft,
-    Surface,
+    Default,
+    Secondary,
     Outline,
+    Destructive,
 }
 
 // =============================================================================
@@ -47,7 +47,7 @@ impl<'a> BadgeProps<'a> {
         Self {
             label,
             size: BadgeSize::Size1,
-            variant: BadgeVariant::Soft,
+            variant: BadgeVariant::Default,
             color: None,
             high_contrast: false,
         }
@@ -80,17 +80,21 @@ impl<'a> BadgeProps<'a> {
 
 /// Render a badge.
 pub fn badge(ui: &mut Ui, theme: &Theme, props: BadgeProps<'_>) {
-    let accent = props.color.unwrap_or(theme.palette.primary);
 
     let (bg_color, text_color, border_color) = match props.variant {
-        BadgeVariant::Solid => (accent, Color32::WHITE, accent),
-        BadgeVariant::Soft => (accent.gamma_multiply(0.15), accent, Color32::TRANSPARENT),
-        BadgeVariant::Surface => (
-            theme.palette.muted.gamma_multiply(0.5),
-            accent,
-            theme.palette.border,
-        ),
-        BadgeVariant::Outline => (Color32::TRANSPARENT, accent, accent),
+        BadgeVariant::Default => {
+            let color = props.color.unwrap_or(theme.palette.primary);
+            (color, theme.palette.primary_foreground, color)
+        }
+        BadgeVariant::Secondary => {
+            let color = props.color.unwrap_or(theme.palette.secondary);
+            (color, theme.palette.secondary_foreground, color)
+        }
+        BadgeVariant::Destructive => {
+            let color = props.color.unwrap_or(theme.palette.destructive);
+            (color, theme.palette.destructive_foreground, color)
+        }
+        BadgeVariant::Outline => (Color32::TRANSPARENT, theme.palette.foreground, theme.palette.border),
     };
 
     let (font_size, padding) = match props.size {
@@ -127,18 +131,18 @@ mod tests {
 
     #[test]
     fn badge_variant_default() {
-        assert_eq!(BadgeVariant::default(), BadgeVariant::Soft);
+        assert_eq!(BadgeVariant::default(), BadgeVariant::Default);
     }
 
     #[test]
     fn badge_props_builder() {
         let props = BadgeProps::new("Test")
             .size(BadgeSize::Size2)
-            .variant(BadgeVariant::Solid)
+            .variant(BadgeVariant::Default)
             .high_contrast(true);
 
         assert_eq!(props.size, BadgeSize::Size2);
-        assert_eq!(props.variant, BadgeVariant::Solid);
+        assert_eq!(props.variant, BadgeVariant::Default);
         assert!(props.high_contrast);
     }
 }

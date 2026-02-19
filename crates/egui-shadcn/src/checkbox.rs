@@ -154,42 +154,42 @@ impl Default for CheckboxProps {
 }
 
 impl CheckboxProps {
-    pub fn with_variant(mut self, variant: CheckboxVariant) -> Self {
+    pub fn variant(mut self, variant: CheckboxVariant) -> Self {
         self.variant = variant;
         self
     }
 
-    pub fn with_size(mut self, size: CheckboxSize) -> Self {
+    pub fn size(mut self, size: CheckboxSize) -> Self {
         self.size = size;
         self
     }
 
-    pub fn with_color(mut self, color: Color32) -> Self {
+    pub fn color(mut self, color: Color32) -> Self {
         self.color = Some(color);
         self
     }
 
-    pub fn with_high_contrast(mut self, high_contrast: bool) -> Self {
+    pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.high_contrast = high_contrast;
         self
     }
 
-    pub fn with_enabled(mut self, enabled: bool) -> Self {
+    pub fn enabled(mut self, enabled: bool) -> Self {
         self.enabled = enabled;
         self
     }
 
-    pub fn with_invalid(mut self, invalid: bool) -> Self {
+    pub fn invalid(mut self, invalid: bool) -> Self {
         self.invalid = invalid;
         self
     }
 
-    pub fn with_cycle(mut self, cycle: CheckboxCycle) -> Self {
+    pub fn cycle(mut self, cycle: CheckboxCycle) -> Self {
         self.cycle = cycle;
         self
     }
 
-    pub fn with_animate(mut self, animate: bool) -> Self {
+    pub fn animate(mut self, animate: bool) -> Self {
         self.animate = animate;
         self
     }

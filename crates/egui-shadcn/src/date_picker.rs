@@ -185,10 +185,10 @@ where
         PopoverProps::new(id.with("popover"), &mut open_state)
             .side(PopoverSide::Bottom)
             .align(PopoverAlign::Start)
-            .with_width(280.0)
-            .with_max_height(360.0)
-            .with_content_padding(Margin::same(0))
-            .with_animation(true),
+            .width(280.0)
+            .max_height(360.0)
+            .content_padding(Margin::same(0))
+            .animation(true),
         |ui| {
             let mut button = Button::new(label_widget)
                 .variant(props.variant)
@@ -354,10 +354,10 @@ where
         PopoverProps::new(id.with("popover"), &mut open_state)
             .side(PopoverSide::Bottom)
             .align(PopoverAlign::Start)
-            .with_width(280.0 * (props.number_of_months as f32).min(2.0) + 16.0)
-            .with_max_height(420.0)
-            .with_content_padding(Margin::same(0))
-            .with_animation(true),
+            .width(280.0 * (props.number_of_months as f32).min(2.0) + 16.0)
+            .max_height(420.0)
+            .content_padding(Margin::same(0))
+            .animation(true),
         |ui| {
             Button::new(label_widget)
                 .variant(ButtonVariant::Outline)

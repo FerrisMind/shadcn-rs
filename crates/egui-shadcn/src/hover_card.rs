@@ -73,17 +73,17 @@ impl HoverCardProps {
         self
     }
 
-    pub fn with_width(mut self, width: f32) -> Self {
+    pub fn width(mut self, width: f32) -> Self {
         self.width = Some(width);
         self
     }
 
-    pub fn with_max_height(mut self, max_height: f32) -> Self {
+    pub fn max_height(mut self, max_height: f32) -> Self {
         self.max_height = Some(max_height);
         self
     }
 
-    pub fn with_content_padding(mut self, padding: Margin) -> Self {
+    pub fn content_padding(mut self, padding: Margin) -> Self {
         self.content_padding = padding;
         self
     }

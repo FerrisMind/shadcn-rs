@@ -65,32 +65,32 @@ impl<'a> SwitchProps<'a> {
         }
     }
 
-    pub fn with_default_checked(mut self, default: bool) -> Self {
+    pub fn default_checked(mut self, default: bool) -> Self {
         self.default_checked = Some(default);
         self
     }
 
-    pub fn with_on_checked_change(mut self, callback: impl FnMut(bool) + 'a) -> Self {
+    pub fn on_checked_change(mut self, callback: impl FnMut(bool) + 'a) -> Self {
         self.on_checked_change = Some(OnCheckedChange(Box::new(callback)));
         self
     }
 
-    pub fn with_disabled(mut self, disabled: bool) -> Self {
+    pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
     }
 
-    pub fn with_required(mut self, required: bool) -> Self {
+    pub fn required(mut self, required: bool) -> Self {
         self.required = required;
         self
     }
 
-    pub fn with_name(mut self, name: impl Into<String>) -> Self {
+    pub fn name(mut self, name: impl Into<String>) -> Self {
         self.name = Some(name.into());
         self
     }
 
-    pub fn with_value(mut self, value: impl Into<String>) -> Self {
+    pub fn value(mut self, value: impl Into<String>) -> Self {
         self.value = Some(value.into());
         self
     }
@@ -105,72 +105,72 @@ impl<'a> SwitchProps<'a> {
         self
     }
 
-    pub fn with_size(mut self, size: SwitchSize) -> Self {
+    pub fn size(mut self, size: SwitchSize) -> Self {
         self.size = size;
         self
     }
 
-    pub fn with_style(mut self, style: SwitchVariant) -> Self {
+    pub fn style(mut self, style: SwitchVariant) -> Self {
         self.style = style;
         self
     }
 
-    pub fn with_high_contrast(mut self, high_contrast: bool) -> Self {
+    pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.high_contrast = high_contrast;
         self
     }
 
-    pub fn with_animate(mut self, animate: bool) -> Self {
+    pub fn animate(mut self, animate: bool) -> Self {
         self.animate = animate;
         self
     }
 
-    pub fn with_accent(mut self, accent: Color32) -> Self {
+    pub fn accent(mut self, accent: Color32) -> Self {
         self.accent = Some(accent);
         self
     }
 
-    pub fn with_accent_opt(mut self, accent: Option<Color32>) -> Self {
+    pub fn accent_opt(mut self, accent: Option<Color32>) -> Self {
         self.accent = accent;
         self
     }
 
-    pub fn with_corner_radius(mut self, radius: CornerRadius) -> Self {
+    pub fn corner_radius(mut self, radius: CornerRadius) -> Self {
         self.corner_radius = Some(radius);
         self
     }
 
-    pub fn with_corner_radius_opt(mut self, radius: Option<CornerRadius>) -> Self {
+    pub fn corner_radius_opt(mut self, radius: Option<CornerRadius>) -> Self {
         self.corner_radius = radius;
         self
     }
 
-    pub fn with_thumb_color(mut self, color: Color32) -> Self {
+    pub fn thumb_color(mut self, color: Color32) -> Self {
         self.thumb_color = Some(color);
         self
     }
 
-    pub fn with_thumb_color_opt(mut self, color: Option<Color32>) -> Self {
+    pub fn thumb_color_opt(mut self, color: Option<Color32>) -> Self {
         self.thumb_color = color;
         self
     }
 
-    pub fn with_default_checked_opt(mut self, default: Option<bool>) -> Self {
+    pub fn default_checked_opt(mut self, default: Option<bool>) -> Self {
         self.default_checked = default;
         self
     }
 
-    pub fn with_on_checked_change_opt(mut self, callback: Option<OnCheckedChange<'a>>) -> Self {
+    pub fn on_checked_change_opt(mut self, callback: Option<OnCheckedChange<'a>>) -> Self {
         self.on_checked_change = callback;
         self
     }
 
-    pub fn with_name_opt(mut self, name: Option<String>) -> Self {
+    pub fn name_opt(mut self, name: Option<String>) -> Self {
         self.name = name;
         self
     }
 
-    pub fn with_value_opt(mut self, value: Option<String>) -> Self {
+    pub fn value_opt(mut self, value: Option<String>) -> Self {
         self.value = value;
         self
     }
@@ -394,21 +394,21 @@ pub fn switch_with_options<'a>(
     let label_widget: WidgetText = label.into();
     let id = ui.make_persistent_id(("switch", widget_text_key(&label_widget)));
     let props = SwitchProps::new(id, on, label_widget)
-        .with_size(options.size)
-        .with_style(options.style)
-        .with_high_contrast(options.high_contrast)
-        .with_animate(options.animate)
-        .with_accent_opt(options.accent)
-        .with_corner_radius_opt(options.corner_radius)
-        .with_thumb_color_opt(options.thumb_color)
-        .with_disabled(!options.enabled)
-        .with_required(options.required)
-        .with_name_opt(options.name)
-        .with_value_opt(options.value)
+        .size(options.size)
+        .style(options.style)
+        .high_contrast(options.high_contrast)
+        .animate(options.animate)
+        .accent_opt(options.accent)
+        .corner_radius_opt(options.corner_radius)
+        .thumb_color_opt(options.thumb_color)
+        .disabled(!options.enabled)
+        .required(options.required)
+        .name_opt(options.name)
+        .value_opt(options.value)
         .as_child(options.as_child)
         .thumb_as_child(options.thumb_as_child)
-        .with_default_checked_opt(options.default_checked)
-        .with_on_checked_change_opt(options.on_checked_change);
+        .default_checked_opt(options.default_checked)
+        .on_checked_change_opt(options.on_checked_change);
     switch_with_props(ui, theme, props)
 }
 

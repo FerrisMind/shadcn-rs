@@ -49,29 +49,29 @@ pub enum NavigationMenuJustify {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum NavigationMenuSize {
-    One,
-    Two,
+    Size1,
+    Size2,
 }
 
 impl NavigationMenuSize {
     fn padding(self) -> [f32; 2] {
         match self {
-            NavigationMenuSize::One => [6.0, 10.0],
-            NavigationMenuSize::Two => [8.0, 14.0],
+            NavigationMenuSize::Size1 => [6.0, 10.0],
+            NavigationMenuSize::Size2 => [8.0, 14.0],
         }
     }
 
     fn text_size(self) -> u32 {
         match self {
-            NavigationMenuSize::One => 12,
-            NavigationMenuSize::Two => 13,
+            NavigationMenuSize::Size1 => 12,
+            NavigationMenuSize::Size2 => 13,
         }
     }
 
     fn icon_size(self) -> u32 {
         match self {
-            NavigationMenuSize::One => 10,
-            NavigationMenuSize::Two => 12,
+            NavigationMenuSize::Size1 => 10,
+            NavigationMenuSize::Size2 => 12,
         }
     }
 }
@@ -229,7 +229,7 @@ pub struct NavigationMenuListProps {
 impl Default for NavigationMenuListProps {
     fn default() -> Self {
         Self {
-            size: NavigationMenuSize::Two,
+            size: NavigationMenuSize::Size2,
             wrap: NavigationMenuWrap::NoWrap,
             justify: NavigationMenuJustify::Center,
             gap: 4.0,
@@ -400,7 +400,7 @@ impl Default for NavigationMenuLinkProps {
     fn default() -> Self {
         Self {
             variant: NavigationMenuLinkVariant::Default,
-            size: NavigationMenuSize::Two,
+            size: NavigationMenuSize::Size2,
             padding: 6.0,
             rounding: Some(ButtonRadius::Small),
             full_width: false,
@@ -2664,7 +2664,7 @@ mod tests {
     fn next_enabled_wraps() {
         let items = vec![
             NavItemMeta::<()> {
-                value: "one".to_string(),
+                value: "Size1".to_string(),
                 kind: NavItemKind::Trigger,
                 disabled: false,
                 content_index: Some(0),
@@ -2672,7 +2672,7 @@ mod tests {
                 link_message: None,
             },
             NavItemMeta::<()> {
-                value: "two".to_string(),
+                value: "Size2".to_string(),
                 kind: NavItemKind::Trigger,
                 disabled: true,
                 content_index: Some(1),
@@ -2680,7 +2680,7 @@ mod tests {
                 link_message: None,
             },
             NavItemMeta::<()> {
-                value: "three".to_string(),
+                value: "Size3".to_string(),
                 kind: NavItemKind::Trigger,
                 disabled: false,
                 content_index: Some(2),

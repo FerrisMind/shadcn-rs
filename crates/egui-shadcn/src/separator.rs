@@ -64,32 +64,32 @@ impl Default for SeparatorProps {
 }
 
 impl SeparatorProps {
-    pub fn with_orientation(mut self, orientation: SeparatorOrientation) -> Self {
+    pub fn orientation(mut self, orientation: SeparatorOrientation) -> Self {
         self.orientation = orientation;
         self
     }
 
-    pub fn with_size(mut self, size: SeparatorSize) -> Self {
+    pub fn size(mut self, size: SeparatorSize) -> Self {
         self.size = size;
         self
     }
 
-    pub fn with_thickness(mut self, thickness: f32) -> Self {
+    pub fn thickness(mut self, thickness: f32) -> Self {
         self.thickness = thickness;
         self
     }
 
-    pub fn with_gap(mut self, gap: f32) -> Self {
+    pub fn gap(mut self, gap: f32) -> Self {
         self.gap = gap;
         self
     }
 
-    pub fn with_length(mut self, length: f32) -> Self {
+    pub fn length(mut self, length: f32) -> Self {
         self.length = Some(length);
         self
     }
 
-    pub fn with_color(mut self, color: Color32) -> Self {
+    pub fn color(mut self, color: Color32) -> Self {
         self.color = Some(color);
         self
     }

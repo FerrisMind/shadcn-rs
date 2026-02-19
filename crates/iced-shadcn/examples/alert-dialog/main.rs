@@ -1,10 +1,8 @@
 use iced::border::Border;
-use iced::widget::{container};
+use iced::widget::container;
 use iced::{Background, Element, Length};
 
-use iced_shadcn::{
-    AlertDialogProps, ButtonProps, ButtonVariant, Theme, alert_dialog, button,
-};
+use iced_shadcn::{AlertDialogProps, ButtonProps, ButtonVariant, Theme, alert_dialog, button};
 
 pub fn main() -> iced::Result {
     iced::application(Example::default, Example::update, Example::view).run()

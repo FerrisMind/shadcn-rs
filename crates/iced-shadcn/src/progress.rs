@@ -12,9 +12,9 @@ use crate::tokens::{AccentColor, accent_color, accent_high, accent_low, is_dark}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ProgressSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -39,7 +39,7 @@ pub struct ProgressProps {
 impl Default for ProgressProps {
     fn default() -> Self {
         Self {
-            size: ProgressSize::Two,
+            size: ProgressSize::Size2,
             variant: ProgressVariant::Surface,
             color: AccentColor::Gray,
             radius: None,
@@ -112,9 +112,9 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
 impl ProgressSize {
     fn height(self) -> f32 {
         match self {
-            ProgressSize::One => 4.0,
-            ProgressSize::Two => 6.0,
-            ProgressSize::Three => 8.0,
+            ProgressSize::Size1 => 4.0,
+            ProgressSize::Size2 => 8.0,
+            ProgressSize::Size3 => 12.0,
         }
     }
 }

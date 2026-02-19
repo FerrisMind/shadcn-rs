@@ -109,17 +109,17 @@ impl Toast {
         }
     }
 
-    pub fn with_title(mut self, title: impl Into<String>) -> Self {
+    pub fn title(mut self, title: impl Into<String>) -> Self {
         self.title = Some(title.into());
         self
     }
 
-    pub fn with_description(mut self, description: impl Into<String>) -> Self {
+    pub fn description(mut self, description: impl Into<String>) -> Self {
         self.description = Some(description.into());
         self
     }
 
-    pub fn with_variant(mut self, variant: ToastVariant) -> Self {
+    pub fn variant(mut self, variant: ToastVariant) -> Self {
         self.variant = variant;
         self
     }
@@ -486,10 +486,10 @@ fn render_toast_content(
     ui.with_layout(Layout::left_to_right(egui::Align::Center), |ui| {
         if toast.variant == ToastVariant::Loading {
             let spinner_props = SpinnerProps::default()
-                .with_size(SpinnerSize::Size2)
-                .with_variant(SpinnerVariant::LucideLoaderCircle)
-                .with_color(icon_color)
-                .with_opacity(1.0);
+                .size(SpinnerSize::Size2)
+                .variant(SpinnerVariant::LucideLoaderCircle)
+                .color(icon_color)
+                .opacity(1.0);
             ui.allocate_ui_with_layout(
                 icon_side,
                 Layout::centered_and_justified(Direction::TopDown),
