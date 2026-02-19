@@ -3,9 +3,12 @@ use iced::widget::{Column, container, row, scrollable, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{AccentColor, BadgeProps, BadgeSize, BadgeVariant, Theme, badge};
+use lucide_icons::LUCIDE_FONT_BYTES;
 
 pub fn main() -> iced::Result {
-    iced::application(Example::default, Example::update, Example::view).run()
+    iced::application(Example::default, Example::update, Example::view)
+        .font(LUCIDE_FONT_BYTES)
+        .run()
 }
 
 #[derive(Default)]
@@ -13,10 +16,21 @@ struct Example {
     theme: Theme,
 }
 
-impl Example {
-    fn update(&mut self, _message: ()) {}
+#[derive(Debug, Clone)]
+enum Message {
+    BadgePressed(String),
+}
 
-    fn view(&self) -> Element<'_, ()> {
+impl Example {
+    fn update(&mut self, message: Message) {
+        match message {
+            Message::BadgePressed(label) => {
+                println!("Badge pressed: {}", label);
+            }
+        }
+    }
+
+    fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
 
         let mut content = Column::new().spacing(16).width(Length::Fill);
@@ -128,14 +142,25 @@ impl Example {
         content = content.push(section_title("Link Badge (href)"));
         content = content.push(preview(
             theme,
-            row![badge(
-                "Visit shadcn-rs",
-                BadgeProps::new()
-                    .variant(BadgeVariant::Default)
-                    .href("https://github.com/nicepkg/shadcn-rs"),
-                theme,
-            ),]
-            .spacing(8)
+            row![
+                badge(
+                    "Visit shadcn-rs",
+                    BadgeProps::new()
+                        .variant(BadgeVariant::Default)
+                        .href("https://github.com/nicepkg/shadcn-rs")
+                        .on_press(Message::BadgePressed("Link".to_string())),
+                    theme,
+                ),
+                badge(
+                    "Documentation",
+                    BadgeProps::new()
+                        .variant(BadgeVariant::Outline)
+                        .href("https://docs.rs/iced-shadcn")
+                        .on_press(Message::BadgePressed("Docs".to_string())),
+                    theme,
+                ),
+            ]
+            .spacing(12)
             .align_y(Alignment::Center),
         ));
 
@@ -143,11 +168,11 @@ impl Example {
     }
 }
 
-fn section_title(title: &str) -> Element<'_, ()> {
+fn section_title(title: &str) -> Element<'_, Message> {
     iced_text(title).size(16).into()
 }
 
-fn app<'a>(theme: &Theme, content: Element<'a, ()>) -> Element<'a, ()> {
+fn app<'a>(theme: &Theme, content: Element<'a, Message>) -> Element<'a, Message> {
     let background = theme.palette.background;
     container(content)
         .padding(24)
@@ -162,8 +187,8 @@ fn app<'a>(theme: &Theme, content: Element<'a, ()>) -> Element<'a, ()> {
 
 fn preview<'a>(
     theme: &Theme,
-    content: impl Into<Element<'a, ()>>,
-) -> iced::widget::Container<'a, ()> {
+    content: impl Into<Element<'a, Message>>,
+) -> iced::widget::Container<'a, Message> {
     let background = theme.palette.card;
     let border = theme.palette.border;
     let radius = theme.radius.md;

@@ -144,7 +144,7 @@ pub use input_otp::{
 };
 pub use item::{ItemProps, item};
 pub use kbd::{KbdGroupProps, KbdProps, KbdSize, kbd, kbd_group, kbd_shortcut};
-pub use label::{LabelProps, label, label_with_props};
+pub use label::{LabelProps, LabelVariant, label, label_with_props};
 pub use light_switch::{LightSwitchProps, light_switch};
 pub use menubar::{MenubarItem, MenubarProps, menubar};
 pub use navigation_menu::{
