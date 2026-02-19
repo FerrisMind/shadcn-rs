@@ -149,5 +149,9 @@ pub fn separator<'a, Message: 'a>(
         ),
     };
 
-    container(rule).width(width).height(height).center_x(width).center_y(height)
+    container(rule)
+        .width(width)
+        .height(height)
+        .center_x(width)
+        .center_y(height)
 }

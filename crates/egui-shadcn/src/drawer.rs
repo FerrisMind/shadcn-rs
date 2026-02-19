@@ -9,7 +9,9 @@
 //! ```
 
 use crate::theme::Theme;
-use egui::{Color32, CornerRadius, Frame, Id, LayerId, Order, Rect, Response, Sense, Ui, Vec2, pos2, vec2};
+use egui::{
+    Color32, CornerRadius, Frame, Id, LayerId, Order, Rect, Response, Sense, Ui, Vec2, pos2, vec2,
+};
 
 /// Side from which the drawer slides in.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -91,10 +93,30 @@ pub fn drawer<R>(
         .fixed_pos(animated_pos)
         .show(ctx, |area_ui| {
             let rounding = match props.side {
-                DrawerSide::Bottom => CornerRadius { nw: 12, ne: 12, sw: 0, se: 0 },
-                DrawerSide::Top => CornerRadius { nw: 0, ne: 0, sw: 12, se: 12 },
-                DrawerSide::Left => CornerRadius { nw: 0, ne: 12, sw: 0, se: 12 },
-                DrawerSide::Right => CornerRadius { nw: 12, ne: 0, sw: 12, se: 0 },
+                DrawerSide::Bottom => CornerRadius {
+                    nw: 12,
+                    ne: 12,
+                    sw: 0,
+                    se: 0,
+                },
+                DrawerSide::Top => CornerRadius {
+                    nw: 0,
+                    ne: 0,
+                    sw: 12,
+                    se: 12,
+                },
+                DrawerSide::Left => CornerRadius {
+                    nw: 0,
+                    ne: 12,
+                    sw: 0,
+                    se: 12,
+                },
+                DrawerSide::Right => CornerRadius {
+                    nw: 12,
+                    ne: 0,
+                    sw: 12,
+                    se: 0,
+                },
             };
 
             let frame = Frame::popup(area_ui.style())
@@ -163,7 +185,11 @@ pub fn drawer_title(ui: &mut Ui, theme: &Theme, title: impl Into<egui::WidgetTex
 }
 
 /// Render drawer description text.
-pub fn drawer_description(ui: &mut Ui, theme: &Theme, desc: impl Into<egui::WidgetText>) -> Response {
+pub fn drawer_description(
+    ui: &mut Ui,
+    theme: &Theme,
+    desc: impl Into<egui::WidgetText>,
+) -> Response {
     let text: egui::WidgetText = desc.into();
     let base = match text {
         egui::WidgetText::RichText(t) => (*t).clone(),

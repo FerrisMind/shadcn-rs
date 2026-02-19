@@ -1,5 +1,5 @@
-use iced::widget::{column, text};
 use iced::Element;
+use iced::widget::{column, text};
 
 use crate::theme::Theme;
 
@@ -47,7 +47,13 @@ pub fn none() -> Validator {
 /// Returns a validator that requires a non-empty value.
 pub fn required(message: impl Into<String>) -> Validator {
     let msg = message.into();
-    Box::new(move |v| if v.is_empty() { Some(msg.clone()) } else { None })
+    Box::new(move |v| {
+        if v.is_empty() {
+            Some(msg.clone())
+        } else {
+            None
+        }
+    })
 }
 
 /// Returns a validator that requires a minimum string length.
@@ -102,7 +108,9 @@ impl FieldState {
             let changed = !value.is_empty();
             self.value = value;
             self.dirty = changed;
-            if changed { self.touched = true; }
+            if changed {
+                self.touched = true;
+            }
             return changed;
         }
         if self.value == value {
@@ -142,7 +150,10 @@ impl FormState {
     /// Register a field with a validator.
     pub fn field(&mut self, name: impl Into<String>, validator: Validator) {
         let name = name.into();
-        let entry = self.fields.entry(name).or_insert_with(|| FieldState::new(none()));
+        let entry = self
+            .fields
+            .entry(name)
+            .or_insert_with(|| FieldState::new(none()));
         entry.validator = validator;
     }
 
@@ -191,7 +202,10 @@ impl FormState {
     fn set_value(&mut self, name: &str, value: FieldValue) -> bool {
         let mode = self.mode;
         let submit_attempted = self.submit_attempted;
-        let field = self.fields.entry(name.to_string()).or_insert_with(|| FieldState::new(none()));
+        let field = self
+            .fields
+            .entry(name.to_string())
+            .or_insert_with(|| FieldState::new(none()));
         let changed = field.set_value(value);
         if !changed {
             return false;
@@ -220,12 +234,18 @@ pub fn form_item<'a, Message: 'a>(
     let destructive = theme.palette.destructive;
 
     let label_color = if error.is_some() { destructive } else { fg };
-    let label_str = if required { format!("{label} *") } else { label.to_string() };
+    let label_str = if required {
+        format!("{label} *")
+    } else {
+        label.to_string()
+    };
 
     let mut col = column![
         text(label_str)
             .size(14)
-            .style(move |_t| iced::widget::text::Style { color: Some(label_color) }),
+            .style(move |_t| iced::widget::text::Style {
+                color: Some(label_color)
+            }),
         control.into(),
     ]
     .spacing(4);
@@ -234,7 +254,9 @@ pub fn form_item<'a, Message: 'a>(
         col = col.push(
             text(err)
                 .size(12)
-                .style(move |_t| iced::widget::text::Style { color: Some(destructive) }),
+                .style(move |_t| iced::widget::text::Style {
+                    color: Some(destructive),
+                }),
         );
     }
 
@@ -263,7 +285,9 @@ pub fn form_message<'a, Message: 'a>(
     Some(
         text(err)
             .size(12)
-            .style(move |_t| iced::widget::text::Style { color: Some(destructive) })
+            .style(move |_t| iced::widget::text::Style {
+                color: Some(destructive),
+            })
             .into(),
     )
 }

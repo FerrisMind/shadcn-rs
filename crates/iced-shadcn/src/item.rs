@@ -39,10 +39,7 @@ impl<'a> ItemProps<'a> {
 }
 
 /// Render a generic list item.
-pub fn item<'a, Message: 'a>(
-    props: ItemProps<'a>,
-    theme: &Theme,
-) -> Element<'a, Message> {
+pub fn item<'a, Message: 'a>(props: ItemProps<'a>, theme: &Theme) -> Element<'a, Message> {
     let fg = if props.disabled {
         theme.palette.muted_foreground
     } else {

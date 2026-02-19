@@ -4,7 +4,7 @@ use iced::{Alignment, Background, Element, Length};
 use std::hash::Hash;
 
 use crate::button::{ButtonProps, ButtonSize, ButtonVariant, button_content};
-use crate::input::{InputProps, InputSize, InputVariant as InputVariant, input};
+use crate::input::{InputProps, InputSize, InputVariant, input};
 use crate::popover::{PopoverProps, PopoverSize, popover};
 use crate::theme::Theme;
 use crate::tokens::{accent_soft, accent_text};

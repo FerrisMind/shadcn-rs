@@ -1,5 +1,5 @@
-use iced::widget::{column, text};
 use iced::Element;
+use iced::widget::{column, text};
 
 use crate::theme::Theme;
 
@@ -86,7 +86,9 @@ pub fn field<'a, Message: 'a>(
         col = col.push(
             text(label_str)
                 .size(14)
-                .style(move |_t| iced::widget::text::Style { color: Some(label_color) }),
+                .style(move |_t| iced::widget::text::Style {
+                    color: Some(label_color),
+                }),
         );
     }
 
@@ -104,7 +106,9 @@ pub fn field<'a, Message: 'a>(
         col = col.push(
             text(err)
                 .size(12)
-                .style(move |_t| iced::widget::text::Style { color: Some(destructive) }),
+                .style(move |_t| iced::widget::text::Style {
+                    color: Some(destructive),
+                }),
         );
     }
 

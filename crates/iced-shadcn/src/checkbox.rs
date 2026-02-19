@@ -422,7 +422,11 @@ fn checkbox_style(
             }
             CheckboxVariant::Classic | CheckboxVariant::Surface => {
                 background = Background::Color(accent);
-                border_color = if props.invalid { palette.destructive } else { accent };
+                border_color = if props.invalid {
+                    palette.destructive
+                } else {
+                    accent
+                };
                 icon_color = accent_fg;
             }
         }

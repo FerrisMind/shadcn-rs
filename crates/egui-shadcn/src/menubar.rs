@@ -19,7 +19,10 @@ pub struct MenubarMenuProps<'a> {
 
 impl<'a> MenubarMenuProps<'a> {
     pub fn new(label: &'a str) -> Self {
-        Self { label, disabled: false }
+        Self {
+            label,
+            disabled: false,
+        }
     }
 
     pub fn disabled(mut self, disabled: bool) -> Self {
@@ -95,7 +98,8 @@ pub fn menubar_menu<R>(
         egui::Color32::TRANSPARENT
     };
 
-    ui.painter().rect_filled(rect, egui::CornerRadius::same(4), bg);
+    ui.painter()
+        .rect_filled(rect, egui::CornerRadius::same(4), bg);
     ui.painter().text(
         rect.center(),
         egui::Align2::CENTER_CENTER,
@@ -145,12 +149,7 @@ pub fn menubar_menu<R>(
 }
 
 /// Render a menubar menu item.
-pub fn menubar_item(
-    ui: &mut Ui,
-    theme: &Theme,
-    label: &str,
-    disabled: bool,
-) -> Response {
+pub fn menubar_item(ui: &mut Ui, theme: &Theme, label: &str, disabled: bool) -> Response {
     let text_color = if disabled {
         theme.palette.muted_foreground
     } else {
@@ -166,7 +165,11 @@ pub fn menubar_item(
 
     let (rect, resp) = ui.allocate_exact_size(
         size,
-        if disabled { Sense::hover() } else { Sense::click() },
+        if disabled {
+            Sense::hover()
+        } else {
+            Sense::click()
+        },
     );
 
     let bg = if resp.hovered() && !disabled {
@@ -175,7 +178,8 @@ pub fn menubar_item(
         egui::Color32::TRANSPARENT
     };
 
-    ui.painter().rect_filled(rect, egui::CornerRadius::same(4), bg);
+    ui.painter()
+        .rect_filled(rect, egui::CornerRadius::same(4), bg);
     ui.painter().text(
         rect.left_center() + egui::vec2(8.0, 0.0),
         egui::Align2::LEFT_CENTER,
@@ -191,7 +195,8 @@ pub fn menubar_item(
 pub fn menubar_separator(ui: &mut Ui, theme: &Theme) {
     let available = ui.available_width();
     let (rect, _) = ui.allocate_exact_size(egui::vec2(available, 1.0), Sense::hover());
-    ui.painter().rect_filled(rect, egui::CornerRadius::same(0), theme.palette.border);
+    ui.painter()
+        .rect_filled(rect, egui::CornerRadius::same(0), theme.palette.border);
     ui.add_space(2.0);
 }
 

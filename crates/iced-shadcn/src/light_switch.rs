@@ -12,7 +12,10 @@ pub struct LightSwitchProps {
 
 impl LightSwitchProps {
     pub fn new(dark_mode: bool) -> Self {
-        Self { dark_mode, disabled: false }
+        Self {
+            dark_mode,
+            disabled: false,
+        }
     }
 
     pub fn disabled(mut self, disabled: bool) -> Self {
@@ -36,37 +39,33 @@ pub fn light_switch<'a, Message: 'a + Clone>(
     let thumb_color = Color::WHITE;
     let icon = if props.dark_mode { "🌙" } else { "☀" };
 
-    let thumb = container(
-        text(icon).size(12),
-    )
-    .width(Length::Fixed(20.0))
-    .height(Length::Fixed(20.0))
-    .center_x(Length::Fixed(20.0))
-    .center_y(Length::Fixed(20.0))
-    .style(move |_t: &iced::Theme| iced::widget::container::Style {
-        background: Some(Background::Color(thumb_color)),
-        border: iced::border::Border {
-            color: Color::TRANSPARENT,
-            width: 0.0,
-            radius: 10.0.into(),
-        },
-        ..Default::default()
-    });
+    let thumb = container(text(icon).size(12))
+        .width(Length::Fixed(20.0))
+        .height(Length::Fixed(20.0))
+        .center_x(Length::Fixed(20.0))
+        .center_y(Length::Fixed(20.0))
+        .style(move |_t: &iced::Theme| iced::widget::container::Style {
+            background: Some(Background::Color(thumb_color)),
+            border: iced::border::Border {
+                color: Color::TRANSPARENT,
+                width: 0.0,
+                radius: 10.0.into(),
+            },
+            ..Default::default()
+        });
 
-    let track = container(
-        row![thumb].padding([2, 2]),
-    )
-    .width(Length::Fixed(44.0))
-    .height(Length::Fixed(24.0))
-    .style(move |_t: &iced::Theme| iced::widget::container::Style {
-        background: Some(Background::Color(track_color)),
-        border: iced::border::Border {
-            color: Color::TRANSPARENT,
-            width: 0.0,
-            radius: 12.0.into(),
-        },
-        ..Default::default()
-    });
+    let track = container(row![thumb].padding([2, 2]))
+        .width(Length::Fixed(44.0))
+        .height(Length::Fixed(24.0))
+        .style(move |_t: &iced::Theme| iced::widget::container::Style {
+            background: Some(Background::Color(track_color)),
+            border: iced::border::Border {
+                color: Color::TRANSPARENT,
+                width: 0.0,
+                radius: 12.0.into(),
+            },
+            ..Default::default()
+        });
 
     if props.disabled {
         return container(track)

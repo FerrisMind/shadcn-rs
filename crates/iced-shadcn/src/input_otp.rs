@@ -118,7 +118,7 @@ where
                     .width(Length::Fixed(36.0))
                     .height(Length::Fixed(40.0))
                     .align_x(iced::alignment::Horizontal::Center)
-                    .align_y(iced::alignment::Vertical::Center)
+                    .align_y(iced::alignment::Vertical::Center),
             )
             .style(move |_t: &iced::Theme| iced::widget::container::Style {
                 background: Some(Background::Color(theme.palette.background)),
@@ -134,9 +134,13 @@ where
                     radius: if i == 0 && max_length == 1 {
                         Radius::new(theme.radius.sm)
                     } else if i == 0 {
-                        Radius::default().top_left(theme.radius.sm).bottom_left(theme.radius.sm)
+                        Radius::default()
+                            .top_left(theme.radius.sm)
+                            .bottom_left(theme.radius.sm)
                     } else if i == max_length - 1 {
-                        Radius::default().top_right(theme.radius.sm).bottom_right(theme.radius.sm)
+                        Radius::default()
+                            .top_right(theme.radius.sm)
+                            .bottom_right(theme.radius.sm)
                     } else {
                         Radius::default()
                     },
@@ -164,10 +168,13 @@ where
         });
 
     // Stack: slots row + hidden input
-    row![row(slots).spacing(0).align_y(Alignment::Center), hidden_input]
-        .spacing(0)
-        .align_y(Alignment::Center)
-        .into()
+    row![
+        row(slots).spacing(0).align_y(Alignment::Center),
+        hidden_input
+    ]
+    .spacing(0)
+    .align_y(Alignment::Center)
+    .into()
 }
 
 pub fn input_otp<'a, Message: Clone + 'a, F>(
@@ -412,9 +419,13 @@ where
         let radius = if index == 0 && max_length == 1 {
             Radius::new(theme.radius.sm)
         } else if index == 0 {
-            Radius::default().top_left(theme.radius.sm).bottom_left(theme.radius.sm)
+            Radius::default()
+                .top_left(theme.radius.sm)
+                .bottom_left(theme.radius.sm)
         } else if index == max_length - 1 {
-            Radius::default().top_right(theme.radius.sm).bottom_right(theme.radius.sm)
+            Radius::default()
+                .top_right(theme.radius.sm)
+                .bottom_right(theme.radius.sm)
         } else {
             Radius::default()
         };

@@ -2,7 +2,9 @@ use iced::Background;
 use iced::widget::radio as radio_widget;
 
 use crate::theme::Theme;
-use crate::tokens::{AccentColor, ControlSize, ControlVariant, accent_color, accent_soft, accent_text, is_dark};
+use crate::tokens::{
+    AccentColor, ControlSize, ControlVariant, accent_color, accent_soft, accent_text, is_dark,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum RadioDirection {
@@ -127,7 +129,7 @@ pub fn radio_group<'a, Message: Clone + 'a, V>(
 where
     V: Copy + Eq + 'a,
 {
-    use iced::widget::{column, row, container, text};
+    use iced::widget::{column, container, row, text};
 
     let spacing = match props.size {
         ControlSize::Sm | ControlSize::IconSm => 8.0,
@@ -154,12 +156,15 @@ where
         if let Some(desc) = item.description {
             column![
                 r,
-                container(text(desc).size(props.size.text_size() as f32 * 0.9))
-                    .padding(iced::Padding {
+                container(text(desc).size(props.size.text_size() as f32 * 0.9)).padding(
+                    iced::Padding {
                         left: props.size.dimension() * 1.5,
                         ..Default::default()
-                    })
-            ].spacing(2).into()
+                    }
+                )
+            ]
+            .spacing(2)
+            .into()
         } else {
             r.into()
         }
@@ -177,9 +182,12 @@ fn radio_style(
     status: radio_widget::Status,
 ) -> radio_widget::Style {
     let palette = theme.palette;
-    
+
     let (accent, _text_color) = match props.variant {
-        ControlVariant::Primary => (accent_color(&palette, props.color), accent_text(&palette, props.color)),
+        ControlVariant::Primary => (
+            accent_color(&palette, props.color),
+            accent_text(&palette, props.color),
+        ),
         ControlVariant::Secondary => (palette.secondary, palette.secondary_foreground),
         ControlVariant::Destructive => (palette.destructive, palette.destructive_foreground),
     };

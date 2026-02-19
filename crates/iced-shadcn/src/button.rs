@@ -21,7 +21,7 @@ pub enum ButtonVariant {
     Secondary,
     Ghost,
     Link,
-    
+
     // Legacy mapping
     Classic,
     Solid,
@@ -310,12 +310,16 @@ fn button_style(
                 ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
                     Some(Background::Color(mix(accent, palette.background, 0.1)))
                 }
-                ButtonVariant::Secondary => {
-                    Some(Background::Color(mix(palette.secondary, palette.background, 0.1)))
-                }
-                ButtonVariant::Destructive => {
-                    Some(Background::Color(mix(palette.destructive, palette.background, 0.1)))
-                }
+                ButtonVariant::Secondary => Some(Background::Color(mix(
+                    palette.secondary,
+                    palette.background,
+                    0.1,
+                ))),
+                ButtonVariant::Destructive => Some(Background::Color(mix(
+                    palette.destructive,
+                    palette.background,
+                    0.1,
+                ))),
                 ButtonVariant::Soft
                 | ButtonVariant::Surface
                 | ButtonVariant::Outline
@@ -328,12 +332,16 @@ fn button_style(
                 ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
                     Some(Background::Color(mix(accent, palette.background, 0.2)))
                 }
-                ButtonVariant::Secondary => {
-                    Some(Background::Color(mix(palette.secondary, palette.background, 0.2)))
-                }
-                ButtonVariant::Destructive => {
-                    Some(Background::Color(mix(palette.destructive, palette.background, 0.2)))
-                }
+                ButtonVariant::Secondary => Some(Background::Color(mix(
+                    palette.secondary,
+                    palette.background,
+                    0.2,
+                ))),
+                ButtonVariant::Destructive => Some(Background::Color(mix(
+                    palette.destructive,
+                    palette.background,
+                    0.2,
+                ))),
                 ButtonVariant::Soft
                 | ButtonVariant::Surface
                 | ButtonVariant::Outline

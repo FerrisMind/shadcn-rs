@@ -1288,7 +1288,7 @@ where
                     ..
                 } => {
                     let is_hovered = *self.hovered_row == Some(index);
-                    
+
                     // Draw background for selected item
                     if *selected && !*disabled {
                         renderer.fill_quad(
@@ -1304,7 +1304,7 @@ where
                             menu_style.selected_background,
                         );
                     }
-                    
+
                     // Draw hover background (on top of selected if both)
                     if is_hovered && !*disabled {
                         renderer.fill_quad(
@@ -1913,9 +1913,7 @@ fn select_menu_style(theme: &ShadcnTheme, props: SelectProps) -> MenuStyle {
             let mix_ratio = if is_gray { 0.12 } else { 0.25 };
             Background::Color(mix(accent_soft_bg, blend, mix_ratio))
         }
-        SelectContentVariant::Solid => {
-            Background::Color(palette.accent)
-        }
+        SelectContentVariant::Solid => Background::Color(palette.accent),
     };
 
     MenuStyle {

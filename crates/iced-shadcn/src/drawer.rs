@@ -59,7 +59,10 @@ pub fn drawer<'a, Message: 'a>(
     theme: &Theme,
 ) -> Element<'a, Message> {
     if !props.open {
-        return container(column![]).width(Length::Shrink).height(Length::Shrink).into();
+        return container(column![])
+            .width(Length::Shrink)
+            .height(Length::Shrink)
+            .into();
     }
 
     let bg = theme.palette.background;

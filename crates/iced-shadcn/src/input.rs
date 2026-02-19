@@ -137,11 +137,7 @@ fn input_radius(theme: &Theme, props: InputProps) -> f32 {
     }
 }
 
-fn input_style(
-    theme: &Theme,
-    props: InputProps,
-    status: text_input::Status,
-) -> text_input::Style {
+fn input_style(theme: &Theme, props: InputProps, status: text_input::Status) -> text_input::Style {
     let palette = theme.palette;
     let radius = input_radius(theme, props);
     let accent = accent_color(&palette, props.color);
@@ -154,9 +150,7 @@ fn input_style(
         color: palette.border,
     };
     let mut background = match props.variant {
-        InputVariant::Classic | InputVariant::Surface => {
-            Background::Color(palette.background)
-        }
+        InputVariant::Classic | InputVariant::Surface => Background::Color(palette.background),
         InputVariant::Soft => Background::Color(soft_bg),
     };
     let mut value = match props.variant {

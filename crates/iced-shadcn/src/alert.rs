@@ -46,48 +46,112 @@ impl<'a> AlertProps<'a> {
 fn alert_colors(variant: AlertVariant, theme: &Theme) -> (Color, Color, Color, &'static str) {
     match variant {
         AlertVariant::Default => (
-            Color { r: 0.0, g: 0.0, b: 0.0, a: 0.05 },
+            Color {
+                r: 0.0,
+                g: 0.0,
+                b: 0.0,
+                a: 0.05,
+            },
             theme.palette.border,
             theme.palette.foreground,
             "ℹ",
         ),
         AlertVariant::Destructive => (
-            Color { r: 0.996, g: 0.792, b: 0.792, a: 0.3 },
-            Color { r: 0.937, g: 0.267, b: 0.267, a: 1.0 },
-            Color { r: 0.937, g: 0.267, b: 0.267, a: 1.0 },
+            Color {
+                r: 0.996,
+                g: 0.792,
+                b: 0.792,
+                a: 0.3,
+            },
+            Color {
+                r: 0.937,
+                g: 0.267,
+                b: 0.267,
+                a: 1.0,
+            },
+            Color {
+                r: 0.937,
+                g: 0.267,
+                b: 0.267,
+                a: 1.0,
+            },
             "⚠",
         ),
         AlertVariant::Warning => (
-            Color { r: 0.996, g: 0.953, b: 0.780, a: 0.5 },
-            Color { r: 0.961, g: 0.620, b: 0.043, a: 1.0 },
-            Color { r: 0.961, g: 0.620, b: 0.043, a: 1.0 },
+            Color {
+                r: 0.996,
+                g: 0.953,
+                b: 0.780,
+                a: 0.5,
+            },
+            Color {
+                r: 0.961,
+                g: 0.620,
+                b: 0.043,
+                a: 1.0,
+            },
+            Color {
+                r: 0.961,
+                g: 0.620,
+                b: 0.043,
+                a: 1.0,
+            },
             "⚠",
         ),
         AlertVariant::Success => (
-            Color { r: 0.733, g: 0.969, b: 0.816, a: 0.3 },
-            Color { r: 0.133, g: 0.773, b: 0.369, a: 1.0 },
-            Color { r: 0.133, g: 0.773, b: 0.369, a: 1.0 },
+            Color {
+                r: 0.733,
+                g: 0.969,
+                b: 0.816,
+                a: 0.3,
+            },
+            Color {
+                r: 0.133,
+                g: 0.773,
+                b: 0.369,
+                a: 1.0,
+            },
+            Color {
+                r: 0.133,
+                g: 0.773,
+                b: 0.369,
+                a: 1.0,
+            },
             "✓",
         ),
         AlertVariant::Info => (
-            Color { r: 0.749, g: 0.859, b: 0.996, a: 0.3 },
-            Color { r: 0.231, g: 0.510, b: 0.965, a: 1.0 },
-            Color { r: 0.231, g: 0.510, b: 0.965, a: 1.0 },
+            Color {
+                r: 0.749,
+                g: 0.859,
+                b: 0.996,
+                a: 0.3,
+            },
+            Color {
+                r: 0.231,
+                g: 0.510,
+                b: 0.965,
+                a: 1.0,
+            },
+            Color {
+                r: 0.231,
+                g: 0.510,
+                b: 0.965,
+                a: 1.0,
+            },
             "ℹ",
         ),
     }
 }
 
 /// Render an alert message.
-pub fn alert<'a, Message: 'a>(
-    props: AlertProps<'a>,
-    theme: &Theme,
-) -> Element<'a, Message> {
+pub fn alert<'a, Message: 'a>(props: AlertProps<'a>, theme: &Theme) -> Element<'a, Message> {
     let (bg, border_color, icon_color, icon) = alert_colors(props.variant, theme);
 
     let icon_widget = text(icon)
         .size(18)
-        .style(move |_t| iced::widget::text::Style { color: Some(icon_color) });
+        .style(move |_t| iced::widget::text::Style {
+            color: Some(icon_color),
+        });
 
     let mut content_col = column![].spacing(4);
 

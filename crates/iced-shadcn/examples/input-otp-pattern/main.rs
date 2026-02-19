@@ -1,8 +1,8 @@
 use iced::{
-    widget::{column, container, row, text},
     Alignment, Element, Length,
+    widget::{column, container, row, text},
 };
-use iced_shadcn::{input_otp_separator, input_otp_unified, Theme};
+use iced_shadcn::{Theme, input_otp_separator, input_otp_unified};
 
 pub fn main() -> iced::Result {
     iced::application(
@@ -40,7 +40,11 @@ impl InputOtpPattern {
             }
             Message::DigitsChanged(value) => {
                 // Only accept digits, max 3
-                self.digits = value.chars().filter(|c| c.is_ascii_digit()).take(3).collect();
+                self.digits = value
+                    .chars()
+                    .filter(|c| c.is_ascii_digit())
+                    .take(3)
+                    .collect();
             }
         }
     }
@@ -51,7 +55,6 @@ impl InputOtpPattern {
         let content = column![
             text("Pattern Input OTP").size(24),
             text("Pattern: 3 letters + 3 digits (e.g., ABC123)").size(14),
-
             // Two groups: letters and digits with separator
             row![
                 input_otp_unified(&self.letters, 3, Message::LettersChanged, theme),
@@ -60,7 +63,6 @@ impl InputOtpPattern {
             ]
             .spacing(8)
             .align_y(Alignment::Center),
-
             text(format!("Value: '{}{}'", self.letters, self.digits)).size(12),
         ]
         .spacing(20)
