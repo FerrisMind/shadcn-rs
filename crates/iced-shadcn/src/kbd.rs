@@ -20,7 +20,7 @@
 //! ```
 
 use iced::border::Border;
-use iced::widget::{container, row, text};
+use iced::widget::{row, text as text_widget};
 use iced::{Background, Color, Element, Length};
 
 use crate::theme::Theme;
@@ -242,57 +242,138 @@ pub fn kbd<'a, Message: 'a>(
     props: KbdProps,
     theme: &'a Theme,
 ) -> Element<'a, Message> {
-    let palette = &theme.palette;
-    let label_str = label.into();
+    Element::new(KbdWidget::new(label.into(), props, theme))
+}
 
-    // Calculate colors
-    let background = props.background.unwrap_or_else(|| {
-        // Mix muted with background for subtle effect (like shadcn/ui)
-        mix(palette.muted, palette.background, 0.6)
-    });
+use iced::advanced::layout;
+use iced::advanced::renderer;
+use iced::advanced::text;
+use iced::advanced::widget::Tree;
+use iced::advanced::{Layout, Widget};
+use iced::{alignment, Font, Rectangle, Size};
 
-    let text_color = props.color.unwrap_or(palette.muted_foreground);
+struct KbdWidget {
+    label: String,
+    props: KbdProps,
+    theme: Theme,
+}
 
-    let border_color = props.border_color.unwrap_or(palette.border);
+impl KbdWidget {
+    fn new(label: String, props: KbdProps, theme: &Theme) -> Self {
+        Self {
+            label,
+            props,
+            theme: theme.clone(),
+        }
+    }
+}
 
-    let radius = props.size.radius(theme);
-    let padding = props.size.padding();
-    let font_size = props.size.font_size();
-    let _min_width = props.size.min_width();
+impl<Message, AppTheme, Renderer> Widget<Message, AppTheme, Renderer> for KbdWidget
+where
+    Renderer: renderer::Renderer + text::Renderer<Font = Font>,
+{
+    fn size(&self) -> Size<Length> {
+        Size::new(Length::Shrink, Length::Shrink)
+    }
 
-    // Create the text element
-    let text_element = text(label_str)
-        .size(font_size)
-        .font(props.font.unwrap_or(iced::Font::MONOSPACE))
-        .style(move |_theme: &iced::Theme| iced::widget::text::Style {
-            color: Some(text_color),
+    fn layout(
+        &mut self,
+        _tree: &mut Tree,
+        _renderer: &Renderer,
+        _limits: &layout::Limits,
+    ) -> layout::Node {
+        let padding = self.props.size.padding();
+        let font_size = self.props.size.font_size() as f32;
+
+        // Approximate text width: monospace char_width ≈ font_size * 0.6
+        let char_count = self.label.chars().count() as f32;
+        let text_width = char_count * font_size * 0.6;
+        let text_height = font_size * 1.3; // line_height factor
+
+        let total_width = text_width + padding[1] * 2.0;
+        let total_height = text_height + padding[0] * 2.0;
+        let min_width = self.props.size.min_width();
+
+        layout::Node::new(Size::new(total_width.max(min_width), total_height))
+    }
+
+    fn draw(
+        &self,
+        _tree: &Tree,
+        renderer: &mut Renderer,
+        _theme: &AppTheme,
+        _style: &renderer::Style,
+        layout: Layout<'_>,
+        _cursor: iced::mouse::Cursor,
+        _viewport: &Rectangle,
+    ) {
+        let bounds = layout.bounds();
+        let palette = &self.theme.palette;
+
+        let background = self.props.background.unwrap_or_else(|| {
+            mix(palette.muted, palette.background, 0.6)
         });
+        let text_color = self.props.color.unwrap_or(palette.muted_foreground);
+        let border_color = self.props.border_color.unwrap_or(palette.border);
+        let radius = self.props.size.radius(&self.theme);
 
-    // Create container with styling
-    container(text_element)
-        .padding(padding)
-        .width(Length::Shrink)
-        .height(Length::Shrink)
-        .style(move |_theme: &iced::Theme| container::Style {
-            background: Some(Background::Color(background)),
-            text_color: Some(text_color),
-            border: Border {
-                color: border_color,
-                width: 1.0,
-                radius: radius.into(),
+        // Draw background
+        renderer.fill_quad(
+            renderer::Quad {
+                bounds,
+                border: Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: radius.into(),
+                },
+                shadow: if self.props.shadow {
+                    iced::Shadow {
+                        color: apply_opacity(palette.foreground, 0.05),
+                        offset: iced::Vector::new(0.0, 1.0),
+                        blur_radius: 2.0,
+                    }
+                } else {
+                    iced::Shadow::default()
+                },
+                ..renderer::Quad::default()
             },
-            shadow: if props.shadow {
-                iced::Shadow {
-                    color: apply_opacity(palette.foreground, 0.05),
-                    offset: iced::Vector::new(0.0, 1.0),
-                    blur_radius: 2.0,
-                }
-            } else {
-                iced::Shadow::default()
+            Background::Color(background),
+        );
+
+        // Draw text
+        let font_size: iced::Pixels = (self.props.size.font_size() as f32).into();
+        let font = self.props.font.unwrap_or(Font::MONOSPACE);
+
+        renderer.fill_text(
+            text::Text {
+                content: self.label.clone(),
+                font,
+                size: font_size,
+                line_height: text::LineHeight::Absolute(font_size),
+                bounds: bounds.size(),
+                align_x: text::Alignment::Center,
+                align_y: alignment::Vertical::Center,
+                shaping: text::Shaping::Advanced,
+                wrapping: text::Wrapping::None,
             },
-            ..Default::default()
-        })
-        .into()
+            bounds.center(),
+            text_color,
+            bounds,
+        );
+    }
+
+    // No operate() → text is not selectable
+}
+
+impl<'a, Message, AppTheme, Renderer> From<KbdWidget>
+    for Element<'a, Message, AppTheme, Renderer>
+where
+    Renderer: renderer::Renderer + text::Renderer<Font = Font> + 'a,
+    Message: 'a,
+{
+    fn from(widget: KbdWidget) -> Element<'a, Message, AppTheme, Renderer> {
+        Element::new(widget)
+    }
 }
 
 /// Creates a KbdGroup element for grouping multiple Kbd elements.
@@ -316,7 +397,7 @@ pub fn kbd_group<'a, Message: 'a>(
         for (i, item) in items.into_iter().enumerate() {
             if i > 0 {
                 elements.push(
-                    text(separator)
+                    text_widget(separator)
                         .size(12)
                         .style(|_theme: &iced::Theme| iced::widget::text::Style {
                             color: Some(Color::from_rgb(0.5, 0.5, 0.5)),

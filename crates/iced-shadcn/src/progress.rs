@@ -135,8 +135,8 @@ fn progress_radius(theme: &Theme, props: ProgressProps) -> f32 {
 
 #[derive(Debug, Default)]
 struct ProgressState {
+    start_time: Option<std::time::Instant>,
     phase: f32,
-    last_redraw: Option<std::time::Instant>,
 }
 
 pub fn progress(props: ProgressProps, theme: &Theme) -> ProgressWidget {
@@ -204,17 +204,18 @@ where
         if let Event::Window(window::Event::RedrawRequested(now)) = event {
             let state = tree.state.downcast_mut::<ProgressState>();
 
-            let last = state.last_redraw.replace(*now);
-            let delta = last
-                .map(|t| now.saturating_duration_since(t))
-                .unwrap_or_else(|| std::time::Duration::from_millis(16));
+            if state.start_time.is_none() {
+                state.start_time = Some(*now);
+            }
 
-            let duration = std::time::Duration::from_millis(self.props.duration_ms as u64);
-            let dt = (delta.as_secs_f32() / duration.as_secs_f32()).clamp(0.0, 1.0);
-            state.phase = (state.phase + dt) % 1.0;
+            if let Some(start) = state.start_time {
+                let elapsed = now.saturating_duration_since(start);
+                let duration = std::time::Duration::from_millis(self.props.duration_ms as u64);
+                state.phase = (elapsed.as_secs_f32() / duration.as_secs_f32()) % 1.0;
+            }
+            
+            shell.request_redraw();
         }
-
-        shell.request_redraw();
     }
 
     fn draw(
@@ -299,11 +300,13 @@ where
             };
             (bounds.x, bounds.width * ratio)
         } else {
+            // Smooth back-and-forth using sin (like egui)
             let state = tree.state.downcast_ref::<ProgressState>();
-            let width = (bounds.width * 0.35).max(12.0);
-            let travel = bounds.width + width;
-            let x = bounds.x + (travel * state.phase) - width;
-            (x, width)
+            let bar_width = (bounds.width * 0.35).max(12.0);
+            let travel = bounds.width - bar_width;
+            let t = (state.phase * std::f32::consts::PI * 2.0).sin() * 0.5 + 0.5;
+            let x = bounds.x + travel * t;
+            (x, bar_width)
         };
 
         if indicator_width <= 0.0 {
