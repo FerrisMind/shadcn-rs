@@ -49,8 +49,7 @@ impl App for PopoverDemo {
             let _ = popover(
                 ui,
                 &self.theme,
-                PopoverProps::new(ui.make_persistent_id("popover-demo"), &mut open)
-                    .with_width(320.0),
+                PopoverProps::new(ui.make_persistent_id("popover-demo"), &mut open).width(320.0),
                 |trigger_ui| {
                     button(
                         trigger_ui,

@@ -3,8 +3,7 @@ use iced::widget::{column, container, row, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    ButtonProps, ButtonVariant, DialogProps, TextFieldProps, Theme, button, dialog, label,
-    text_field,
+    ButtonProps, ButtonVariant, DialogProps, InputProps, Theme, button, dialog, input, label,
 };
 
 pub fn main() -> iced::Result {
@@ -53,11 +52,11 @@ impl Example {
             iced_text("Anyone who has this link will be able to view this.").size(14),
             column![
                 label("Link", theme),
-                text_field(
+                input(
                     link,
                     "",
                     None::<fn(String) -> Message>,
-                    TextFieldProps::new().read_only(true),
+                    InputProps::new().read_only(true),
                     theme
                 ),
             ]

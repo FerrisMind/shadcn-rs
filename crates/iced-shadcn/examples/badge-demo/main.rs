@@ -25,24 +25,24 @@ impl Example {
                 badge(
                     "New",
                     BadgeProps::new()
-                        .variant(BadgeVariant::Soft)
-                        .size(BadgeSize::One)
+                        .variant(BadgeVariant::Secondary)
+                        .size(BadgeSize::Size1)
                         .color(AccentColor::Blue),
                     theme
                 ),
                 badge(
                     "Beta",
                     BadgeProps::new()
-                        .variant(BadgeVariant::Soft)
-                        .size(BadgeSize::Two)
+                        .variant(BadgeVariant::Secondary)
+                        .size(BadgeSize::Size2)
                         .color(AccentColor::Purple),
                     theme
                 ),
                 badge(
                     "Pro",
                     BadgeProps::new()
-                        .variant(BadgeVariant::Soft)
-                        .size(BadgeSize::Three)
+                        .variant(BadgeVariant::Secondary)
+                        .size(BadgeSize::Size3)
                         .color(AccentColor::Green),
                     theme
                 ),

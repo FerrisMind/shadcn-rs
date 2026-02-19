@@ -46,24 +46,23 @@ impl Example {
             }
             Message::Success => {
                 self.toaster
-                    .show(Toast::new("Event has been created").with_variant(ToastVariant::Success));
+                    .show(Toast::new("Event has been created").variant(ToastVariant::Success));
             }
             Message::Info => {
                 self.toaster.show(
                     Toast::new("Be at the area 10 minutes before the event time")
-                        .with_variant(ToastVariant::Info),
+                        .variant(ToastVariant::Info),
                 );
             }
             Message::Warning => {
                 self.toaster.show(
                     Toast::new("Event start time cannot be earlier than 8am")
-                        .with_variant(ToastVariant::Warning),
+                        .variant(ToastVariant::Warning),
                 );
             }
             Message::Error => {
-                self.toaster.show(
-                    Toast::new("Event has not been created").with_variant(ToastVariant::Error),
-                );
+                self.toaster
+                    .show(Toast::new("Event has not been created").variant(ToastVariant::Error));
             }
             Message::Promise => {
                 self.promise = Some(self.toaster.promise(Toast::new("Loading...")));

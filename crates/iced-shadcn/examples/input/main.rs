@@ -5,8 +5,8 @@ use rfd::FileDialog;
 use std::path::PathBuf;
 
 use iced_shadcn::{
-    ButtonProps, ButtonSize, ButtonVariant, TextFieldProps, TextFieldSize, TextFieldVariant, Theme,
-    button, label, text_field,
+    ButtonProps, ButtonSize, ButtonVariant, InputProps, InputSize, InputVariant, Theme, button,
+    input, label,
 };
 
 pub fn main() -> iced::Result {
@@ -68,13 +68,13 @@ impl Example {
 
         let demo = preview(
             theme,
-            text_field(
+            input(
                 &self.demo_value,
                 "Email",
                 Some(Message::Demo),
-                TextFieldProps::new()
-                    .size(TextFieldSize::Two)
-                    .variant(TextFieldVariant::Surface),
+                InputProps::new()
+                    .size(InputSize::Size2)
+                    .variant(InputVariant::Surface),
                 theme,
             )
             .width(field_width),
@@ -82,13 +82,13 @@ impl Example {
 
         let disabled = preview(
             theme,
-            text_field(
+            input(
                 &self.demo_value,
                 "Email",
                 None::<fn(String) -> Message>,
-                TextFieldProps::new()
-                    .size(TextFieldSize::Two)
-                    .variant(TextFieldVariant::Surface)
+                InputProps::new()
+                    .size(InputSize::Size2)
+                    .variant(InputVariant::Surface)
                     .disabled(true),
                 theme,
             )
@@ -99,13 +99,13 @@ impl Example {
             theme,
             column![
                 label("Email", theme),
-                text_field(
+                input(
                     &self.labeled_value,
                     "Email",
                     Some(Message::Labeled),
-                    TextFieldProps::new()
-                        .size(TextFieldSize::Two)
-                        .variant(TextFieldVariant::Surface),
+                    InputProps::new()
+                        .size(InputSize::Size2)
+                        .variant(InputVariant::Surface),
                     theme,
                 )
                 .width(field_width),
@@ -117,13 +117,13 @@ impl Example {
             theme,
             column![
                 label("Email", theme),
-                text_field(
+                input(
                     &self.with_text_value,
                     "Email",
                     Some(Message::WithText),
-                    TextFieldProps::new()
-                        .size(TextFieldSize::Two)
-                        .variant(TextFieldVariant::Surface),
+                    InputProps::new()
+                        .size(InputSize::Size2)
+                        .variant(InputVariant::Surface),
                     theme,
                 )
                 .width(field_width),
@@ -139,13 +139,13 @@ impl Example {
         let with_button = preview(
             theme,
             row![
-                text_field(
+                input(
                     &self.with_button_value,
                     "Email",
                     Some(Message::WithButton),
-                    TextFieldProps::new()
-                        .size(TextFieldSize::Two)
-                        .variant(TextFieldVariant::Surface),
+                    InputProps::new()
+                        .size(InputSize::Size2)
+                        .variant(InputVariant::Surface),
                     theme,
                 )
                 .width(Length::Fill),
@@ -154,7 +154,7 @@ impl Example {
                     Some(Message::Submit),
                     ButtonProps::new()
                         .variant(ButtonVariant::Outline)
-                        .size(ButtonSize::Two),
+                        .size(ButtonSize::Size2),
                     theme,
                 ),
             ]
@@ -168,13 +168,13 @@ impl Example {
             column![
                 label("Picture", theme),
                 row![
-                    text_field(
+                    input(
                         &self.file_value,
                         "Choose file",
                         Some(Message::File),
-                        TextFieldProps::new()
-                            .size(TextFieldSize::Two)
-                            .variant(TextFieldVariant::Surface)
+                        InputProps::new()
+                            .size(InputSize::Size2)
+                            .variant(InputVariant::Surface)
                             .read_only(true),
                         theme,
                     )
@@ -184,7 +184,7 @@ impl Example {
                         Some(Message::PickFile),
                         ButtonProps::new()
                             .variant(ButtonVariant::Outline)
-                            .size(ButtonSize::Two),
+                            .size(ButtonSize::Size2),
                         theme,
                     ),
                 ]
@@ -199,13 +199,13 @@ impl Example {
             theme,
             column![
                 label("Username", theme),
-                text_field(
+                input(
                     &self.form_value,
                     "shadcn",
                     Some(Message::Form),
-                    TextFieldProps::new()
-                        .size(TextFieldSize::Two)
-                        .variant(TextFieldVariant::Surface),
+                    InputProps::new()
+                        .size(InputSize::Size2)
+                        .variant(InputVariant::Surface),
                     theme,
                 )
                 .width(field_width),
@@ -219,7 +219,7 @@ impl Example {
                     Some(Message::Submit),
                     ButtonProps::new()
                         .variant(ButtonVariant::Solid)
-                        .size(ButtonSize::Two),
+                        .size(ButtonSize::Size2),
                     theme,
                 ),
             ]

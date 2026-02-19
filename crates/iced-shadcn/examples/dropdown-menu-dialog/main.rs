@@ -6,8 +6,8 @@ use iced::{Background, Element, Length};
 
 use iced_shadcn::{
     ButtonProps, ButtonVariant, DialogProps, DropdownMenuEntry, DropdownMenuItem,
-    DropdownMenuProps, TextFieldProps, TextareaProps, Theme, button, dialog, dropdown_menu, label,
-    text_field, textarea,
+    DropdownMenuProps, InputProps, TextareaProps, Theme, button, dialog, dropdown_menu, input,
+    label, textarea,
 };
 
 pub fn main() -> iced::Result {
@@ -99,11 +99,11 @@ impl Example {
             iced_text("Provide a name for your new file. Click create when you're done.").size(14),
             column![
                 label("File Name", theme),
-                text_field(
+                input(
                     &self.file_name,
                     "document.txt",
                     Some(Message::FileNameChanged),
-                    TextFieldProps::new(),
+                    InputProps::new(),
                     theme
                 ),
             ]
@@ -123,11 +123,11 @@ impl Example {
             iced_text("Anyone with the link will be able to view this file.").size(14),
             column![
                 label("Email Address", theme),
-                text_field(
+                input(
                     &self.email,
                     "shadcn@vercel.com",
                     Some(Message::EmailChanged),
-                    TextFieldProps::new(),
+                    InputProps::new(),
                     theme
                 ),
             ]

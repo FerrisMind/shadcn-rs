@@ -37,7 +37,7 @@ impl App for HoverCardDemo {
                 let _ = hover_card(
                     ui,
                     &self.theme,
-                    HoverCardProps::new(ui.make_persistent_id("hover-card-demo")).with_width(320.0),
+                    HoverCardProps::new(ui.make_persistent_id("hover-card-demo")).width(320.0),
                     |trigger_ui| {
                         button(
                             trigger_ui,

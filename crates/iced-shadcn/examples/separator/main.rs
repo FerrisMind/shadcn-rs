@@ -32,7 +32,7 @@ impl Example {
             text(
                 "Radix Primitives",
                 TextProps::new()
-                    .size(TextSize::Two)
+                    .size(TextSize::Size2)
                     .weight(TextWeight::Medium),
                 theme,
             ),
@@ -45,23 +45,23 @@ impl Example {
         .spacing(4);
 
         let nav = row![
-            text("Blog", TextProps::new().size(TextSize::Two), theme),
+            text("Blog", TextProps::new().size(TextSize::Size2), theme),
             container(separator(
                 SeparatorProps::new()
                     .orientation(SeparatorOrientation::Vertical)
-                    .size(SeparatorSize::Two),
+                    .size(SeparatorSize::Size2),
                 theme,
             ),)
             .height(Length::Fixed(20.0)),
-            text("Docs", TextProps::new().size(TextSize::Two), theme),
+            text("Docs", TextProps::new().size(TextSize::Size2), theme),
             container(separator(
                 SeparatorProps::new()
                     .orientation(SeparatorOrientation::Vertical)
-                    .size(SeparatorSize::Two),
+                    .size(SeparatorSize::Size2),
                 theme,
             ),)
             .height(Length::Fixed(20.0)),
-            text("Source", TextProps::new().size(TextSize::Two), theme),
+            text("Source", TextProps::new().size(TextSize::Size2), theme),
         ]
         .spacing(16)
         .align_y(Alignment::Center);
@@ -72,7 +72,7 @@ impl Example {
             separator(
                 SeparatorProps::new()
                     .orientation(SeparatorOrientation::Horizontal)
-                    .size(SeparatorSize::Four),
+                    .size(SeparatorSize::Size4),
                 theme,
             ),
             space().height(Length::Fixed(16.0)),

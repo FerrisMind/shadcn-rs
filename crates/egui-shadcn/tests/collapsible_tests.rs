@@ -111,7 +111,7 @@ fn collapsible_content_renders_immediately_when_animation_disabled() {
         collapsible(
             ui,
             &theme,
-            CollapsibleProps::new(id, &mut open).with_animation(false),
+            CollapsibleProps::new(id, &mut open).animation(false),
             |ui, api| {
                 let mounted = api.content(ui, |_| {
                     ran += 1;

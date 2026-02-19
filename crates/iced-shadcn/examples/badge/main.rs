@@ -19,11 +19,11 @@ impl Example {
     fn view(&self) -> Element<'_, ()> {
         let theme = &self.theme;
 
-        let sizes = [BadgeSize::One, BadgeSize::Two, BadgeSize::Three];
+        let sizes = [BadgeSize::Size1, BadgeSize::Size2, BadgeSize::Size3];
         let variants = [
-            BadgeVariant::Solid,
-            BadgeVariant::Soft,
-            BadgeVariant::Surface,
+            BadgeVariant::Default,
+            BadgeVariant::Secondary,
+            BadgeVariant::Destructive,
             BadgeVariant::Outline,
         ];
 

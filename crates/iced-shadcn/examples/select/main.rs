@@ -208,7 +208,7 @@ impl Example {
                 self.selected_fruit,
                 "Select a fruit",
                 Message::SelectedFruit,
-                SelectProps::new().size(SelectSize::Two),
+                SelectProps::new().size(SelectSize::Size2),
                 theme,
             )
             .width(Length::Fixed(180.0)),
@@ -255,7 +255,7 @@ impl Example {
             row![button(
                 "Submit",
                 Some(Message::Submit),
-                ButtonProps::new().size(ButtonSize::Two),
+                ButtonProps::new().size(ButtonSize::Size2),
                 theme,
             )]
             .align_y(Alignment::Center),
@@ -347,7 +347,7 @@ impl Example {
                     self.selected_size,
                     "Size 1",
                     Message::SelectedSize,
-                    SelectProps::new().size(SelectSize::One),
+                    SelectProps::new().size(SelectSize::Size1),
                     theme,
                 )
                 .width(Length::Fixed(200.0)),
@@ -356,7 +356,7 @@ impl Example {
                     self.selected_size,
                     "Size 2",
                     Message::SelectedSize,
-                    SelectProps::new().size(SelectSize::Two),
+                    SelectProps::new().size(SelectSize::Size2),
                     theme,
                 )
                 .width(Length::Fixed(200.0)),
@@ -365,7 +365,7 @@ impl Example {
                     self.selected_size,
                     "Size 3",
                     Message::SelectedSize,
-                    SelectProps::new().size(SelectSize::Three),
+                    SelectProps::new().size(SelectSize::Size3),
                     theme,
                 )
                 .width(Length::Fixed(200.0)),
@@ -566,7 +566,7 @@ impl Example {
                     Some(Message::Submit),
                     ButtonProps::new()
                         .variant(ButtonVariant::Outline)
-                        .size(ButtonSize::Two),
+                        .size(ButtonSize::Size2),
                     theme,
                 ),
                 select(
@@ -574,7 +574,7 @@ impl Example {
                     self.selected_button_group,
                     "Status",
                     Message::SelectedButtonGroup,
-                    SelectProps::new().size(SelectSize::Two),
+                    SelectProps::new().size(SelectSize::Size2),
                     theme,
                 )
                 .width(Length::Fixed(160.0)),
@@ -583,7 +583,7 @@ impl Example {
                     Some(Message::Submit),
                     ButtonProps::new()
                         .variant(ButtonVariant::Outline)
-                        .size(ButtonSize::Two),
+                        .size(ButtonSize::Size2),
                     theme,
                 ),
             ]

@@ -28,9 +28,9 @@ impl Example {
         };
 
         let sizes = [
-            ScrollAreaSize::One,
-            ScrollAreaSize::Two,
-            ScrollAreaSize::Three,
+            ScrollAreaSize::Size1,
+            ScrollAreaSize::Size2,
+            ScrollAreaSize::Size3,
         ];
         let mut content = Column::new().spacing(16);
         for size in sizes {

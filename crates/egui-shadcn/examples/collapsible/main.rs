@@ -131,7 +131,7 @@ impl App for CollapsibleDemo {
                                 ui,
                                 &theme,
                                 CollapsibleProps::new(id, &mut self.open)
-                                    .with_animation(true)
+                                    .animation(true)
                                     .animation_ms(300.0),
                                 |ui, api| {
                                     egui::Frame::NONE

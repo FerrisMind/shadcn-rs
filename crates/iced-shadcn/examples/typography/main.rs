@@ -65,7 +65,7 @@ fn shadcn_text<'a>(
         TextVariant::Large => text(
             content,
             TextProps::new()
-                .size(TextSize::Four)
+                .size(TextSize::Size4)
                 .weight(TextWeight::Medium),
             theme,
         ),
@@ -78,7 +78,7 @@ fn shadcn_text<'a>(
         TextVariant::Small => text(
             content,
             TextProps::new()
-                .size(TextSize::Two)
+                .size(TextSize::Size2)
                 .weight(TextWeight::Medium),
             theme,
         ),
@@ -152,7 +152,7 @@ impl Example {
                     separator(
                         SeparatorProps::new()
                             .orientation(SeparatorOrientation::Horizontal)
-                            .size(SeparatorSize::Four),
+                            .size(SeparatorSize::Size4),
                         theme,
                     ),
                 ]
@@ -248,7 +248,7 @@ impl Example {
                 separator(
                     SeparatorProps::new()
                         .orientation(SeparatorOrientation::Horizontal)
-                        .size(SeparatorSize::Four),
+                        .size(SeparatorSize::Size4),
                     theme,
                 ),
             ]

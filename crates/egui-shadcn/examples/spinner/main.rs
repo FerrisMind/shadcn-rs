@@ -63,7 +63,7 @@ impl App for SpinnerExample {
                                 let _ = card(
                                     ui,
                                     &self.theme,
-                                    CardProps::default().with_heading("Sizes 1-3"),
+                                    CardProps::default().heading("Sizes 1-3"),
                                     |ui| {
                                         centered_card_content(ui, card_height, |ui| {
                                             ui.horizontal_centered(|ui| {
@@ -71,19 +71,19 @@ impl App for SpinnerExample {
                                                     ui,
                                                     &self.theme,
                                                     SpinnerProps::default()
-                                                        .with_size(SpinnerSize::Size1),
+                                                        .size(SpinnerSize::Size1),
                                                 );
                                                 let _ = spinner(
                                                     ui,
                                                     &self.theme,
                                                     SpinnerProps::default()
-                                                        .with_size(SpinnerSize::Size2),
+                                                        .size(SpinnerSize::Size2),
                                                 );
                                                 let _ = spinner(
                                                     ui,
                                                     &self.theme,
                                                     SpinnerProps::default()
-                                                        .with_size(SpinnerSize::Size3),
+                                                        .size(SpinnerSize::Size3),
                                                 );
                                             });
                                         });
@@ -99,15 +99,14 @@ impl App for SpinnerExample {
                                 let _ = card(
                                     ui,
                                     &self.theme,
-                                    CardProps::default().with_heading("Custom color"),
+                                    CardProps::default().heading("Custom color"),
                                     |ui| {
                                         centered_card_content(ui, card_height, |ui| {
                                             let _ = spinner(
                                                 ui,
                                                 &self.theme,
-                                                SpinnerProps::default().with_color(
-                                                    egui::Color32::from_rgb(59, 130, 246),
-                                                ),
+                                                SpinnerProps::default()
+                                                    .color(egui::Color32::from_rgb(59, 130, 246)),
                                             );
                                         });
                                     },
@@ -124,17 +123,15 @@ impl App for SpinnerExample {
                                 let _ = card(
                                     ui,
                                     &self.theme,
-                                    CardProps::default().with_heading("Lucide loader-circle"),
+                                    CardProps::default().heading("Lucide loader-circle"),
                                     |ui| {
                                         centered_card_content(ui, card_height, |ui| {
                                             let _ = spinner(
                                                 ui,
                                                 &self.theme,
                                                 SpinnerProps::default()
-                                                    .with_variant(
-                                                        SpinnerVariant::LucideLoaderCircle,
-                                                    )
-                                                    .with_size(SpinnerSize::Size2),
+                                                    .variant(SpinnerVariant::LucideLoaderCircle)
+                                                    .size(SpinnerSize::Size2),
                                             );
                                         });
                                     },
@@ -149,12 +146,12 @@ impl App for SpinnerExample {
                                 let _ = card(
                                     ui,
                                     &self.theme,
-                                    CardProps::default().with_heading("Overlay loading"),
+                                    CardProps::default().heading("Overlay loading"),
                                     |ui| {
                                         centered_card_content(ui, card_height, |ui| {
                                             let overlay_props = SpinnerProps::default()
-                                                .with_loading(self.loading)
-                                                .with_size(SpinnerSize::Size2);
+                                                .loading(self.loading)
+                                                .size(SpinnerSize::Size2);
 
                                             let (_inner, response) = spinner_with_content(
                                                 ui,

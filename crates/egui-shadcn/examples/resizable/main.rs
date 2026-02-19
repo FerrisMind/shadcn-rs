@@ -68,7 +68,7 @@ impl App for ResizableDemo {
                             ui,
                             &theme,
                             ctx,
-                            ResizableHandleProps::new().with_handle(true),
+                            ResizableHandleProps::new().handle(true),
                             0,
                         );
 
@@ -107,7 +107,7 @@ impl App for ResizableDemo {
                             ui,
                             &theme,
                             ctx,
-                            ResizableHandleProps::new().with_handle(true),
+                            ResizableHandleProps::new().handle(true),
                             0,
                         );
 

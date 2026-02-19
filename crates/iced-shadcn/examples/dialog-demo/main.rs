@@ -3,8 +3,8 @@ use iced::widget::{column, container, row, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    ButtonProps, ButtonSize, ButtonVariant, DialogProps, TextFieldProps, Theme, button, dialog,
-    label, text_field,
+    ButtonProps, ButtonSize, ButtonVariant, DialogProps, InputProps, Theme, button, dialog, input,
+    label,
 };
 
 pub fn main() -> iced::Result {
@@ -69,22 +69,22 @@ impl Example {
             iced_text("Make changes to your profile here. Click save when you're done.").size(14),
             column![
                 label("Name", theme),
-                text_field(
+                input(
                     &self.name,
                     "Name",
                     Some(Message::NameChanged),
-                    TextFieldProps::new(),
+                    InputProps::new(),
                     theme
                 ),
             ]
             .spacing(6),
             column![
                 label("Username", theme),
-                text_field(
+                input(
                     &self.username,
                     "Username",
                     Some(Message::UsernameChanged),
-                    TextFieldProps::new(),
+                    InputProps::new(),
                     theme
                 ),
             ]
@@ -99,7 +99,7 @@ impl Example {
                 button(
                     "Save changes",
                     Some(Message::Save),
-                    ButtonProps::new().size(ButtonSize::Two),
+                    ButtonProps::new().size(ButtonSize::Size2),
                     theme
                 ),
             ]

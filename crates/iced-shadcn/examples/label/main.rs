@@ -3,8 +3,8 @@ use iced::widget::{column, container, row, text_editor};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    CheckboxProps, CheckboxSize, CheckboxState, LabelProps, TextFieldProps, TextareaProps, Theme,
-    checkbox, label, label_with_props, text_field, textarea,
+    CheckboxProps, CheckboxSize, CheckboxState, InputProps, LabelProps, TextareaProps, Theme,
+    checkbox, input, label, label_with_props, textarea,
 };
 use lucide_icons::LUCIDE_FONT_BYTES;
 
@@ -67,7 +67,7 @@ impl Example {
                     checkbox(
                         self.terms_state,
                         Some(Message::Toggle),
-                        CheckboxProps::new().size(CheckboxSize::Two),
+                        CheckboxProps::new().size(CheckboxSize::Size2),
                         theme,
                     ),
                     label("Accept terms and conditions", theme),
@@ -78,7 +78,9 @@ impl Example {
                     checkbox(
                         CheckboxState::Unchecked,
                         None::<fn(CheckboxState) -> Message>,
-                        CheckboxProps::new().size(CheckboxSize::Two).disabled(true),
+                        CheckboxProps::new()
+                            .size(CheckboxSize::Size2)
+                            .disabled(true),
                         theme,
                     ),
                     label_with_props(
@@ -97,11 +99,11 @@ impl Example {
             theme,
             column![
                 label("Email", theme),
-                text_field(
+                input(
                     &self.email_value,
                     "Email",
                     Some(Message::EmailChanged),
-                    TextFieldProps::new(),
+                    InputProps::new(),
                     theme,
                 )
                 .width(field_width),
@@ -129,11 +131,11 @@ impl Example {
             theme,
             row![
                 label("@", theme),
-                text_field(
+                input(
                     &self.handle_value,
                     "shadcn",
                     Some(Message::HandleChanged),
-                    TextFieldProps::new(),
+                    InputProps::new(),
                     theme,
                 )
                 .width(field_width),

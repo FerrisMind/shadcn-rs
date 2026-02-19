@@ -3,8 +3,8 @@ use iced::widget::{column, container, row, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    ButtonProps, ButtonSize, CardProps, CardVariant, TextFieldProps, TextFieldSize, Theme, button,
-    card, text_field,
+    ButtonProps, ButtonSize, CardProps, CardVariant, InputProps, InputSize, Theme, button, card,
+    input,
 };
 
 pub fn main() -> iced::Result {
@@ -41,22 +41,22 @@ impl Example {
             iced_text("Sign in").size(18),
             column![
                 iced_text("Email").size(12),
-                text_field(
+                input(
                     &self.email,
                     "you@example.com",
                     Some(Message::EmailChanged),
-                    TextFieldProps::new().size(TextFieldSize::Two),
+                    InputProps::new().size(InputSize::Size2),
                     theme
                 )
             ]
             .spacing(6),
             column![
                 iced_text("Password").size(12),
-                text_field(
+                input(
                     &self.password,
                     "••••••••",
                     Some(Message::PasswordChanged),
-                    TextFieldProps::new().size(TextFieldSize::Two),
+                    InputProps::new().size(InputSize::Size2),
                     theme
                 )
             ]
@@ -64,7 +64,7 @@ impl Example {
             row![button(
                 "Continue",
                 Some(Message::Submit),
-                ButtonProps::new().size(ButtonSize::Two),
+                ButtonProps::new().size(ButtonSize::Size2),
                 theme
             )]
             .align_y(Alignment::Center)

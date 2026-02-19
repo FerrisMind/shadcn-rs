@@ -53,7 +53,7 @@ impl App for TabsDemo {
                     ui,
                     &self.theme,
                     TabsProps::new(ui.make_persistent_id("tabs-demo"), &items, &mut self.active)
-                        .with_variant(TabsVariant::Soft)
+                        .variant(TabsVariant::Soft)
                         .scrollable(false),
                     |content_ui, active_tab| match active_tab.id.as_str() {
                         "password" => render_password_tab(
@@ -80,9 +80,9 @@ fn render_account_tab(ui: &mut egui::Ui, theme: &Theme, name: &mut String, usern
         ui,
         theme,
         CardProps::default()
-            .with_variant(CardVariant::Outline)
-            .with_padding(egui::vec2(24.0, 24.0))
-            .with_rounding(egui::CornerRadius::same(12)),
+            .variant(CardVariant::Outline)
+            .padding(egui::vec2(24.0, 24.0))
+            .rounding(egui::CornerRadius::same(12)),
         |card_ui| {
             card_ui.spacing_mut().item_spacing.y = 16.0;
 
@@ -145,9 +145,9 @@ fn render_password_tab(
         ui,
         theme,
         CardProps::default()
-            .with_variant(CardVariant::Outline)
-            .with_padding(egui::vec2(24.0, 24.0))
-            .with_rounding(egui::CornerRadius::same(12)),
+            .variant(CardVariant::Outline)
+            .padding(egui::vec2(24.0, 24.0))
+            .rounding(egui::CornerRadius::same(12)),
         |card_ui| {
             card_ui.spacing_mut().item_spacing.y = 16.0;
 

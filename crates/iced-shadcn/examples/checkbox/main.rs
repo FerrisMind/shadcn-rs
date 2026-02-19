@@ -61,7 +61,7 @@ impl Example {
                 checkbox(
                     self.state_at(demo_basic_index),
                     Some(move |state| Message::Toggle(demo_basic_index, state)),
-                    CheckboxProps::new().size(CheckboxSize::Two),
+                    CheckboxProps::new().size(CheckboxSize::Size2),
                     theme,
                 ),
                 label("Accept terms and conditions", theme),
@@ -72,7 +72,7 @@ impl Example {
                 checkbox(
                     self.state_at(demo_terms_index),
                     Some(move |state| Message::Toggle(demo_terms_index, state)),
-                    CheckboxProps::new().size(CheckboxSize::Two),
+                    CheckboxProps::new().size(CheckboxSize::Size2),
                     theme,
                 ),
                 column![
@@ -90,7 +90,9 @@ impl Example {
                 checkbox(
                     CheckboxState::Unchecked,
                     None::<fn(CheckboxState) -> Message>,
-                    CheckboxProps::new().size(CheckboxSize::Two).disabled(true),
+                    CheckboxProps::new()
+                        .size(CheckboxSize::Size2)
+                        .disabled(true),
                     theme,
                 ),
                 label("Enable notifications", theme),
@@ -118,7 +120,7 @@ impl Example {
                             card_state,
                             Some(move |state| Message::Toggle(demo_card_index, state)),
                             CheckboxProps::new()
-                                .size(CheckboxSize::Two)
+                                .size(CheckboxSize::Size2)
                                 .color(AccentColor::Blue),
                             theme,
                         ),
@@ -157,7 +159,7 @@ impl Example {
             checkbox(
                 self.state_at(with_text_index),
                 Some(move |state| Message::Toggle(with_text_index, state)),
-                CheckboxProps::new().size(CheckboxSize::Two),
+                CheckboxProps::new().size(CheckboxSize::Size2),
                 theme,
             ),
             column![
@@ -176,7 +178,9 @@ impl Example {
             checkbox(
                 CheckboxState::Unchecked,
                 None::<fn(CheckboxState) -> Message>,
-                CheckboxProps::new().size(CheckboxSize::Two).disabled(true),
+                CheckboxProps::new()
+                    .size(CheckboxSize::Size2)
+                    .disabled(true),
                 theme,
             ),
             label_with_props(
@@ -194,7 +198,7 @@ impl Example {
                 checkbox(
                     self.state_at(form_single_index),
                     Some(move |state| Message::Toggle(form_single_index, state)),
-                    CheckboxProps::new().size(CheckboxSize::Two),
+                    CheckboxProps::new().size(CheckboxSize::Size2),
                     theme,
                 ),
                 column![
@@ -225,7 +229,7 @@ impl Example {
             button(
                 "Submit",
                 Some(Message::Submit),
-                ButtonProps::new().size(ButtonSize::Two),
+                ButtonProps::new().size(ButtonSize::Size2),
                 theme,
             ),
         ]
@@ -235,7 +239,7 @@ impl Example {
         let mut form_items = column![].spacing(8);
         for item in FORM_ITEMS {
             let item_state_index = next_index();
-            let checkbox_props = CheckboxProps::new().size(CheckboxSize::Two);
+            let checkbox_props = CheckboxProps::new().size(CheckboxSize::Size2);
             let item_row = row![
                 checkbox(
                     self.state_at(item_state_index),
@@ -246,7 +250,7 @@ impl Example {
                 text(
                     item,
                     TextProps::new()
-                        .size(TextSize::Two)
+                        .size(TextSize::Size2)
                         .weight(TextWeight::Regular),
                     theme,
                 ),
@@ -261,7 +265,7 @@ impl Example {
             text(
                 "Sidebar",
                 TextProps::new()
-                    .size(TextSize::Three)
+                    .size(TextSize::Size3)
                     .weight(TextWeight::Medium),
                 theme,
             ),
@@ -273,7 +277,7 @@ impl Example {
             button(
                 "Submit",
                 Some(Message::Submit),
-                ButtonProps::new().size(ButtonSize::Two),
+                ButtonProps::new().size(ButtonSize::Size2),
                 theme,
             ),
         ]
@@ -285,7 +289,7 @@ impl Example {
             checkbox(
                 self.state_at(indeterminate_index),
                 Some(move |state| Message::Toggle(indeterminate_index, state)),
-                CheckboxProps::new().size(CheckboxSize::Two),
+                CheckboxProps::new().size(CheckboxSize::Size2),
                 theme,
             ),
             label("Select all", theme),
@@ -308,7 +312,7 @@ impl Example {
         let mut variant_rows = column![variant_header].spacing(8);
         for variant in VARIANTS {
             let base_props = CheckboxProps::new()
-                .size(CheckboxSize::Two)
+                .size(CheckboxSize::Size2)
                 .variant(variant);
             let row_label = caption(variant_label(variant), theme).width(Length::Fixed(140.0));
             let unchecked_index = next_index();
@@ -438,7 +442,7 @@ impl Example {
                 let mut row = row![].spacing(16).align_y(Alignment::Center);
                 for color in chunk {
                     let color_index = next_index();
-                    let mut props = CheckboxProps::new().size(CheckboxSize::Two).color(*color);
+                    let mut props = CheckboxProps::new().size(CheckboxSize::Size2).color(*color);
                     if high_contrast {
                         props = props.high_contrast(true);
                     }
@@ -536,7 +540,11 @@ const VARIANTS: [CheckboxVariant; 3] = [
     CheckboxVariant::Soft,
 ];
 
-const SIZES: [CheckboxSize; 3] = [CheckboxSize::One, CheckboxSize::Two, CheckboxSize::Three];
+const SIZES: [CheckboxSize; 3] = [
+    CheckboxSize::Size1,
+    CheckboxSize::Size2,
+    CheckboxSize::Size3,
+];
 
 const COLORS: [AccentColor; 6] = [
     AccentColor::Gray,
@@ -557,12 +565,12 @@ const FORM_ITEMS: [&str; 6] = [
 ];
 
 const ALIGNMENT_ROWS: [(u32, CheckboxSize); 6] = [
-    (12, CheckboxSize::One),
-    (14, CheckboxSize::One),
-    (14, CheckboxSize::Two),
-    (16, CheckboxSize::Two),
-    (16, CheckboxSize::Three),
-    (18, CheckboxSize::Three),
+    (12, CheckboxSize::Size1),
+    (14, CheckboxSize::Size1),
+    (14, CheckboxSize::Size2),
+    (16, CheckboxSize::Size2),
+    (16, CheckboxSize::Size3),
+    (18, CheckboxSize::Size3),
 ];
 
 fn default_states() -> Vec<CheckboxState> {
@@ -615,7 +623,7 @@ fn section<'a, Message: 'a>(
     let title = text(
         title,
         TextProps::new()
-            .size(TextSize::Four)
+            .size(TextSize::Size4)
             .weight(TextWeight::Medium),
         theme,
     );
@@ -667,9 +675,9 @@ fn variant_label(variant: CheckboxVariant) -> &'static str {
 
 fn size_label(size: CheckboxSize) -> &'static str {
     match size {
-        CheckboxSize::One => "size 1",
-        CheckboxSize::Two => "size 2",
-        CheckboxSize::Three => "size 3",
+        CheckboxSize::Size1 => "size 1",
+        CheckboxSize::Size2 => "size 2",
+        CheckboxSize::Size3 => "size 3",
     }
 }
 

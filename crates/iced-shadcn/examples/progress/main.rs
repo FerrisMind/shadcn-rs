@@ -24,7 +24,11 @@ impl Example {
             ProgressVariant::Classic,
             ProgressVariant::Soft,
         ];
-        let sizes = [ProgressSize::One, ProgressSize::Two, ProgressSize::Three];
+        let sizes = [
+            ProgressSize::Size1,
+            ProgressSize::Size2,
+            ProgressSize::Size3,
+        ];
 
         let mut content = Column::new().spacing(16);
         for variant in variants {

@@ -35,12 +35,12 @@ impl Example {
             row((1..=5)
                 .map(|i| {
                     let size = match i {
-                        1 => KbdSize::One,
-                        2 => KbdSize::Two,
-                        3 => KbdSize::Three,
-                        4 => KbdSize::Four,
+                        1 => KbdSize::Size1,
+                        2 => KbdSize::Size2,
+                        3 => KbdSize::Size3,
+                        4 => KbdSize::Size4,
                         5 => KbdSize::Five,
-                        _ => KbdSize::Two,
+                        _ => KbdSize::Size2,
                     };
                     kbd(format!("S{i}"), KbdProps::new().size(size), theme)
                 })

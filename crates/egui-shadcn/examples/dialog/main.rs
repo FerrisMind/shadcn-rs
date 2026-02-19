@@ -83,18 +83,16 @@ impl App for DialogDemo {
                 ui,
                 theme,
                 DialogProps::new(ui.make_persistent_id("edit-profile-dialog"), &mut open)
-                    .with_title("Edit profile")
-                    .with_description(
-                        "Make changes to your profile here. Click save when you're done.",
-                    )
-                    .with_align(DialogAlign::Center)
-                    .with_max_width(425.0)
-                    .with_height(280.0)
+                    .title("Edit profile")
+                    .description("Make changes to your profile here. Click save when you're done.")
+                    .align(DialogAlign::Center)
+                    .max_width(425.0)
+                    .height(280.0)
                     .scrollable(false)
-                    .with_scrim_opacity(160)
-                    .with_close_on_background(true)
-                    .with_close_on_escape(true)
-                    .with_animation(true),
+                    .scrim_opacity(160)
+                    .close_on_background(true)
+                    .close_on_escape(true)
+                    .animation(true),
                 |body_ui| {
                     let input_size = InputSize::Size2;
                     let row_height = input_size.height();
@@ -193,16 +191,16 @@ impl App for DialogDemo {
                 ui,
                 theme,
                 DialogProps::new(ui.make_persistent_id("share-link-dialog"), &mut share_open)
-                    .with_title("Share link")
-                    .with_description("Anyone who has this link will be able to view this.")
-                    .with_align(DialogAlign::Center)
-                    .with_max_width(448.0)
-                    .with_height(220.0)
+                    .title("Share link")
+                    .description("Anyone who has this link will be able to view this.")
+                    .align(DialogAlign::Center)
+                    .max_width(448.0)
+                    .height(220.0)
                     .scrollable(false)
-                    .with_scrim_opacity(160)
-                    .with_close_on_background(true)
-                    .with_close_on_escape(true)
-                    .with_animation(true),
+                    .scrim_opacity(160)
+                    .close_on_background(true)
+                    .close_on_escape(true)
+                    .animation(true),
                 |body_ui| {
                     body_ui.add_space(12.0);
 

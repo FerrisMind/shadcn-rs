@@ -36,7 +36,7 @@ impl Example {
                 None,
                 ButtonProps::new()
                     .variant(ButtonVariant::Solid)
-                    .size(ButtonSize::One),
+                    .size(ButtonSize::Size1),
                 theme,
             ),
         ]
@@ -46,7 +46,7 @@ impl Example {
         let content = popover(
             trigger,
             content,
-            PopoverProps::new().size(PopoverSize::Two).max_width(200),
+            PopoverProps::new().size(PopoverSize::Size2).max_width(200),
             theme,
         );
 

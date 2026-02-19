@@ -24,7 +24,7 @@ impl Example {
             badge(
                 "Delete",
                 BadgeProps::new()
-                    .variant(BadgeVariant::Solid)
+                    .variant(BadgeVariant::Default)
                     .color(AccentColor::Red)
                     .high_contrast(true),
                 theme
