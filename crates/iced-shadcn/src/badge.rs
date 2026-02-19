@@ -30,6 +30,8 @@ pub struct BadgeProps<'a, Message> {
     pub color: Option<AccentColor>,
     pub radius: Option<ButtonRadius>,
     pub high_contrast: bool,
+    /// Optional icon to display on the left.
+    pub icon: Option<LucideIcon>,
     /// When set, badge renders as a clickable link element.
     pub href: Option<&'a str>,
     /// Optional message to publish when clicked.
@@ -44,6 +46,7 @@ impl<Message> Default for BadgeProps<'_, Message> {
             color: None,
             radius: None,
             high_contrast: false,
+            icon: None,
             href: None,
             on_press: None,
         }
@@ -83,6 +86,11 @@ impl<'a, Message> BadgeProps<'a, Message> {
     /// When set, badge renders as a clickable link element.
     pub fn href(mut self, href: &'a str) -> Self {
         self.href = Some(href);
+        self
+    }
+
+    pub fn icon(mut self, icon: LucideIcon) -> Self {
+        self.icon = Some(icon);
         self
     }
 
@@ -187,13 +195,24 @@ pub fn badge<'a, Message: Clone + 'a>(
     let is_interactive = props.on_press.is_some() || props.href.is_some();
     let text_size = props.size.text_size();
 
-    let mut content = row![text(label.into())
-        .size(text_size as u32)
-        .style(move |_theme: &iced::Theme| iced::widget::text::Style {
+    let mut content = row![].spacing(4).align_y(Alignment::Center);
+
+    if let Some(icon) = props.icon {
+        content = content.push(
+            text(char::from(icon).to_string())
+                .size(text_size as u32)
+                .font(iced::Font::with_name("lucide"))
+                .style(move |_theme: &iced::Theme| iced::widget::text::Style {
+                    color: Some(text_color),
+                }),
+        );
+    }
+
+    content = content.push(text(label.into()).size(text_size as u32).style(
+        move |_theme: &iced::Theme| iced::widget::text::Style {
             color: Some(text_color),
-        })]
-    .spacing(4)
-    .align_y(Alignment::Center);
+        },
+    ));
 
     if props.href.is_some() {
         content = content.push(
@@ -220,7 +239,11 @@ pub fn badge<'a, Message: Clone + 'a>(
             let mut bg = base.background;
 
             if matches!(status, iced::widget::button::Status::Hovered) {
-                bg = Some(Background::Color(crate::tokens::mix(background_color, Color::WHITE, 0.1)));
+                bg = Some(Background::Color(crate::tokens::mix(
+                    background_color,
+                    Color::WHITE,
+                    0.1,
+                )));
             }
 
             iced::widget::button::Style {
