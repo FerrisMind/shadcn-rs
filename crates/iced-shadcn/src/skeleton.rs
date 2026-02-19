@@ -27,7 +27,7 @@ impl Default for SkeletonProps {
             height: Length::Fixed(12.0),
             radius: None,
             circle: false,
-            duration_ms: 1500,
+            duration_ms: 2000,
         }
     }
 }
@@ -77,8 +77,8 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
 
 #[derive(Debug, Default)]
 struct SkeletonState {
+    start_time: Option<std::time::Instant>,
     phase: f32,
-    last_redraw: Option<std::time::Instant>,
 }
 
 pub fn skeleton(props: SkeletonProps, theme: &Theme) -> SkeletonWidget {
@@ -141,17 +141,19 @@ where
 
         if let Event::Window(window::Event::RedrawRequested(now)) = event {
             let state = tree.state.downcast_mut::<SkeletonState>();
-            let last = state.last_redraw.replace(*now);
-            let delta = last
-                .map(|t| now.saturating_duration_since(t))
-                .unwrap_or_else(|| std::time::Duration::from_millis(16));
 
-            let duration = std::time::Duration::from_millis(self.props.duration_ms as u64);
-            let dt = (delta.as_secs_f32() / duration.as_secs_f32()).clamp(0.0, 1.0);
-            state.phase = (state.phase + dt) % 1.0;
+            if state.start_time.is_none() {
+                state.start_time = Some(*now);
+            }
+
+            if let Some(start) = state.start_time {
+                let elapsed = now.saturating_duration_since(start);
+                let duration = std::time::Duration::from_millis(self.props.duration_ms as u64);
+                state.phase = (elapsed.as_secs_f32() / duration.as_secs_f32()) % 1.0;
+            }
+
+            shell.request_redraw();
         }
-
-        shell.request_redraw();
     }
 
     fn draw(
@@ -177,9 +179,9 @@ where
         let base = accent_low(&palette, AccentColor::Gray);
 
         let state = tree.state.downcast_ref::<SkeletonState>();
-        let t = (state.phase * 2.0).min(2.0);
-        let mix = if t <= 1.0 { t } else { 2.0 - t };
-        let background = apply_opacity(base, 0.65 + 0.15 * mix);
+        // Pulse curve: 1.0 -> 0.5 -> 1.0
+        let mix = (state.phase * std::f32::consts::PI * 2.0).cos() * 0.25 + 0.75;
+        let background = apply_opacity(base, mix);
 
         let radius = if self.props.circle {
             (bounds.width.min(bounds.height) / 2.0).into()

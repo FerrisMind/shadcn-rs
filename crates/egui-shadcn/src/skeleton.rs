@@ -26,7 +26,7 @@ impl Default for SkeletonProps {
             width: None,
             height: None,
             circle: false,
-            duration_ms: 1500,
+            duration_ms: 2000,
         }
     }
 }
@@ -74,18 +74,19 @@ pub fn skeleton(ui: &mut Ui, theme: &Theme, props: SkeletonProps) {
 
     let (rect, _response) = ui.allocate_exact_size(size, egui::Sense::hover());
 
-    // Shimmer animation
+    // Pulse animation (Shadcn pattern: 2s duration, 0.5 to 1.0 opacity)
     let time = ui.ctx().input(|i| i.time) as f32;
-    let speed = 1000.0 / props.duration_ms.max(1) as f32 * 2.25;
-    let shimmer_pos = ((time * speed).sin() + 1.0) / 2.0;
+    let duration_secs = props.duration_ms as f32 / 1000.0;
 
-    // Base color
+    // Smooth oscillation from 0.0 to 1.0
+    let wave = (time * std::f32::consts::PI * 2.0 / duration_secs).cos() * 0.5 + 0.5;
+
+    // Base color from theme
     let base_color = theme.palette.muted;
-    let highlight_color = theme.palette.muted_foreground.gamma_multiply(0.3);
 
-    // Gradient effect (simplified shimmer)
-    let gradient_offset = shimmer_pos * rect.width();
-    let gradient_width = rect.width() * 0.3;
+    // Apply pulsing opacity (0.5 to 1.0 range)
+    let alpha_factor = 0.5 + 0.5 * wave;
+    let pulsing_color = base_color.gamma_multiply(alpha_factor);
 
     let rounding = if props.circle {
         size.x / 2.0
@@ -93,21 +94,8 @@ pub fn skeleton(ui: &mut Ui, theme: &Theme, props: SkeletonProps) {
         theme.radius.r2
     };
 
-    // Background
-    ui.painter().rect_filled(rect, rounding, base_color);
-
-    // Shimmer highlight
-    let shimmer_rect = egui::Rect::from_min_size(
-        rect.min + Vec2::new(gradient_offset - gradient_width / 2.0, 0.0),
-        Vec2::new(gradient_width, rect.height()),
-    );
-
-    // Clip shimmer to skeleton bounds
-    let clipped_shimmer = shimmer_rect.intersect(rect);
-    if clipped_shimmer.is_positive() {
-        ui.painter()
-            .rect_filled(clipped_shimmer, rounding, highlight_color);
-    }
+    // Draw pulsing placeholder
+    ui.painter().rect_filled(rect, rounding, pulsing_color);
 
     ui.ctx().request_repaint();
 }
