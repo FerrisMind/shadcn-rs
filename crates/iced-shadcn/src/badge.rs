@@ -24,15 +24,17 @@ pub enum BadgeVariant {
 }
 
 #[derive(Clone, Copy, Debug)]
-pub struct BadgeProps {
+pub struct BadgeProps<'a> {
     pub size: BadgeSize,
     pub variant: BadgeVariant,
     pub color: Option<AccentColor>,
     pub radius: Option<ButtonRadius>,
     pub high_contrast: bool,
+    /// When set, badge renders as a clickable link element.
+    pub href: Option<&'a str>,
 }
 
-impl Default for BadgeProps {
+impl Default for BadgeProps<'_> {
     fn default() -> Self {
         Self {
             size: BadgeSize::Size1,
@@ -40,11 +42,12 @@ impl Default for BadgeProps {
             color: None,
             radius: None,
             high_contrast: false,
+            href: None,
         }
     }
 }
 
-impl BadgeProps {
+impl<'a> BadgeProps<'a> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -73,9 +76,15 @@ impl BadgeProps {
         self.high_contrast = high_contrast;
         self
     }
+
+    /// When set, badge renders as a clickable link element.
+    pub fn href(mut self, href: &'a str) -> Self {
+        self.href = Some(href);
+        self
+    }
 }
 
-fn badge_radius(theme: &Theme, props: BadgeProps) -> f32 {
+fn badge_radius(theme: &Theme, props: &BadgeProps<'_>) -> f32 {
     match props.radius {
         Some(ButtonRadius::None) => 0.0,
         Some(ButtonRadius::Small) => theme.radius.sm,
@@ -113,11 +122,11 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
 
 pub fn badge<'a, Message: 'a>(
     label: impl Into<String>,
-    props: BadgeProps,
+    props: BadgeProps<'a>,
     theme: &Theme,
 ) -> container::Container<'a, Message> {
     let palette = theme.palette;
-    let radius = badge_radius(theme, props);
+    let radius = badge_radius(theme, &props);
 
     let (background_color, text_color, border_color) = match props.variant {
         BadgeVariant::Default => {

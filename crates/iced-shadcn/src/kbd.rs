@@ -127,6 +127,8 @@ pub struct KbdProps {
     pub border_color: Option<Color>,
     /// Whether to show a shadow (3D keyboard effect)
     pub shadow: bool,
+    /// Custom font (defaults to MONOSPACE; use `Font::with_name("lucide")` for icons)
+    pub font: Option<iced::Font>,
 }
 
 impl Default for KbdProps {
@@ -138,6 +140,7 @@ impl Default for KbdProps {
             color: None,
             border_color: None,
             shadow: true,
+            font: None,
         }
     }
 }
@@ -181,6 +184,12 @@ impl KbdProps {
     /// Sets whether to show a shadow.
     pub fn shadow(mut self, shadow: bool) -> Self {
         self.shadow = shadow;
+        self
+    }
+
+    /// Sets a custom font (e.g., `Font::with_name("lucide")` for icon glyphs).
+    pub fn font(mut self, font: iced::Font) -> Self {
+        self.font = Some(font);
         self
     }
 }
@@ -254,7 +263,7 @@ pub fn kbd<'a, Message: 'a>(
     // Create the text element
     let text_element = text(label_str)
         .size(font_size)
-        .font(iced::Font::MONOSPACE)
+        .font(props.font.unwrap_or(iced::Font::MONOSPACE))
         .style(move |_theme: &iced::Theme| iced::widget::text::Style {
             color: Some(text_color),
         });
