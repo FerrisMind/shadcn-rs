@@ -3,8 +3,9 @@ use iced::widget::{container, rule};
 use crate::theme::Theme;
 use crate::tokens::{AccentColor, accent_color, mix};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum SeparatorOrientation {
+    #[default]
     Horizontal,
     Vertical,
 }

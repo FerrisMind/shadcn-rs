@@ -129,6 +129,7 @@ impl SwitchSize {
             SwitchSize::Size1 => 0.8,
             SwitchSize::Size2 => 1.0,
             SwitchSize::Size3 => 1.2,
+            SwitchSize::Size4 => 1.4,
         };
         let height = 18.4 * scale;
         let width = 32.0 * scale;
@@ -160,7 +161,7 @@ struct SwitchColors {
     thumb: iced::Color,
 }
 
-fn switch_radius(theme: &Theme, props: SwitchProps) -> f32 {
+fn switch_radius(theme: &Theme, props: &SwitchProps) -> f32 {
     let height = props.size.metrics().height;
     let radius = match props.radius {
         Some(crate::button::ButtonRadius::None) => 0.0,
@@ -183,14 +184,14 @@ where
     F: Fn(bool) -> Message + 'a,
 {
     let metrics = props.size.metrics();
-    let radius = switch_radius(theme, props);
+    let radius = switch_radius(theme, &props);
     let thumb_radius = (radius - metrics.thumb_inset_y)
         .max(0.0)
         .min(metrics.thumb / 2.0);
     let dark_mode = is_dark(&theme.palette);
     let disabled = props.disabled || on_toggle.is_none();
-    let colors_off = switch_colors(theme, props, false, disabled, dark_mode);
-    let colors_on = switch_colors(theme, props, true, disabled, dark_mode);
+    let colors_off = switch_colors(theme, &props, false, disabled, dark_mode);
+    let colors_on = switch_colors(theme, &props, true, disabled, dark_mode);
     let track_shadow = shadow_xs(if disabled { 0.5 } else { 1.0 });
 
     let content = SwitchVisual {
@@ -224,7 +225,7 @@ where
 
 fn switch_colors(
     theme: &Theme,
-    props: SwitchProps,
+    props: &SwitchProps,
     is_checked: bool,
     disabled: bool,
     dark_mode: bool,

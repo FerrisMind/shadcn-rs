@@ -10,16 +10,18 @@ use crate::button::ButtonRadius;
 use crate::theme::Theme;
 use crate::tokens::{AccentColor, accent_color, accent_high, accent_low, is_dark};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ProgressSize {
     Size1,
+    #[default]
     Size2,
     Size3,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ProgressVariant {
     Classic,
+    #[default]
     Surface,
     Soft,
 }

@@ -6,8 +6,9 @@ use crate::button::ButtonRadius;
 use crate::theme::Theme;
 use crate::tokens::AccentColor;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum BadgeSize {
+    #[default]
     Size1,
     Size2,
     Size3,
