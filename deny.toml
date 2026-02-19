@@ -20,7 +20,9 @@ allow = [
     "Unicode-DFS-2016",
     "Unicode-3.0",        
     "OFL-1.1",
-    "Ubuntu-font-1.0",   
+    "Ubuntu-font-1.0",
+    "BSL-1.0",            # Boost Software License — clipboard-win, error-code
+    "CC0-1.0",            # Creative Commons Zero — hexf-parse (wgpu dep)
 ]
 
 confidence-threshold = 0.8
