@@ -14,8 +14,7 @@ use egui_shadcn::tokens::ColorPalette;
 use egui_shadcn::{
     Button, ButtonSize, ButtonStyle, ButtonVariant, CardProps, CardVariant, ControlSize,
     ControlVariant, Input, InputSize, InputType, Label, SelectItem, SelectProps, Theme, button,
-    card, select_with_items,
-    switch,
+    card, select_with_items, switch,
 };
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 

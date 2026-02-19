@@ -59,7 +59,10 @@ pub fn sheet<'a, Message: 'a>(
     theme: &Theme,
 ) -> Element<'a, Message> {
     if !props.open {
-        return container(column![]).width(Length::Shrink).height(Length::Shrink).into();
+        return container(column![])
+            .width(Length::Shrink)
+            .height(Length::Shrink)
+            .into();
     }
 
     let bg = theme.palette.background;
@@ -112,21 +115,32 @@ pub fn sheet<'a, Message: 'a>(
 pub fn sheet_header<'a, Message: 'a>(
     content: impl Into<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    container(content).padding(Padding { top: 16.0, right: 16.0, bottom: 8.0, left: 16.0 }).into()
+    container(content)
+        .padding(Padding {
+            top: 16.0,
+            right: 16.0,
+            bottom: 8.0,
+            left: 16.0,
+        })
+        .into()
 }
 
 /// Render sheet footer section.
 pub fn sheet_footer<'a, Message: 'a>(
     content: impl Into<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    container(content).padding(Padding { top: 8.0, right: 16.0, bottom: 16.0, left: 16.0 }).into()
+    container(content)
+        .padding(Padding {
+            top: 8.0,
+            right: 16.0,
+            bottom: 16.0,
+            left: 16.0,
+        })
+        .into()
 }
 
 /// Render sheet title text.
-pub fn sheet_title<'a, Message: 'a>(
-    title: impl ToString,
-    theme: &Theme,
-) -> Element<'a, Message> {
+pub fn sheet_title<'a, Message: 'a>(title: impl ToString, theme: &Theme) -> Element<'a, Message> {
     let fg = theme.palette.foreground;
     text(title.to_string())
         .size(16)

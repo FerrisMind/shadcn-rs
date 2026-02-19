@@ -53,12 +53,20 @@ pub fn item(ui: &mut Ui, theme: &Theme, props: ItemProps<'_>) -> egui::Response 
 
     let desired_size = egui::vec2(
         ui.available_width(),
-        if props.description.is_some() { 52.0 } else { 36.0 },
+        if props.description.is_some() {
+            52.0
+        } else {
+            36.0
+        },
     );
 
     let (rect, resp) = ui.allocate_exact_size(
         desired_size,
-        if props.disabled { Sense::hover() } else { Sense::click() },
+        if props.disabled {
+            Sense::hover()
+        } else {
+            Sense::click()
+        },
     );
 
     let bg = if props.selected {
@@ -74,7 +82,8 @@ pub fn item(ui: &mut Ui, theme: &Theme, props: ItemProps<'_>) -> egui::Response 
         Color32::TRANSPARENT
     };
 
-    ui.painter().rect_filled(rect, egui::CornerRadius::same(6), bg);
+    ui.painter()
+        .rect_filled(rect, egui::CornerRadius::same(6), bg);
 
     let text_rect = rect.shrink2(egui::vec2(12.0, 8.0));
     let title_pos = text_rect.left_top();

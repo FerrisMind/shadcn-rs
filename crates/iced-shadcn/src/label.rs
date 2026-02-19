@@ -77,10 +77,7 @@ impl<'a> LabelProps<'a> {
 }
 
 /// Shadcn-style label with description and variants.
-pub fn label<'a, Message: 'a>(
-    content: impl Into<String>,
-    theme: &Theme,
-) -> Element<'a, Message> {
+pub fn label<'a, Message: 'a>(content: impl Into<String>, theme: &Theme) -> Element<'a, Message> {
     label_with_props(content, LabelProps::default(), theme)
 }
 
@@ -91,7 +88,7 @@ pub fn label_with_props<'a, Message: 'a>(
     theme: &Theme,
 ) -> Element<'a, Message> {
     let palette = theme.palette;
-    
+
     let base_color = match props.variant {
         LabelVariant::Default => palette.foreground,
         LabelVariant::Secondary => palette.secondary_foreground,
@@ -103,7 +100,10 @@ pub fn label_with_props<'a, Message: 'a>(
     let required_color = palette.destructive;
 
     let (color, final_desc_color) = if props.disabled {
-        (apply_opacity(base_color, 0.5), apply_opacity(desc_color, 0.5))
+        (
+            apply_opacity(base_color, 0.5),
+            apply_opacity(desc_color, 0.5),
+        )
     } else {
         (base_color, desc_color)
     };
@@ -127,21 +127,19 @@ pub fn label_with_props<'a, Message: 'a>(
     .align_y(iced::Alignment::Start);
 
     if props.required {
-        label_row = label_row.push(
-            text("*")
-                .size(font_size)
-                .style(move |_theme| text::Style { color: Some(required_color) })
-        );
+        label_row = label_row.push(text("*").size(font_size).style(move |_theme| text::Style {
+            color: Some(required_color),
+        }));
     }
 
     let mut content_col = column![label_row].spacing(2);
 
     if let Some(desc) = props.description {
-        content_col = content_col.push(
-            text(desc)
-                .size(font_size as f32 * 0.9)
-                .style(move |_theme| text::Style { color: Some(final_desc_color) })
-        );
+        content_col = content_col.push(text(desc).size(font_size as f32 * 0.9).style(
+            move |_theme| text::Style {
+                color: Some(final_desc_color),
+            },
+        ));
     }
 
     container(content_col).into()

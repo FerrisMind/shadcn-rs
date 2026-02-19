@@ -1,11 +1,16 @@
 use iced::{
-    widget::{column, container, text},
     Alignment, Element, Length,
+    widget::{column, container, text},
 };
-use iced_shadcn::{button, input_otp_unified, ButtonProps, ButtonVariant, Theme};
+use iced_shadcn::{ButtonProps, ButtonVariant, Theme, button, input_otp_unified};
 
 pub fn main() -> iced::Result {
-    iced::application(InputOtpForm::default, InputOtpForm::update, InputOtpForm::view).run()
+    iced::application(
+        InputOtpForm::default,
+        InputOtpForm::update,
+        InputOtpForm::view,
+    )
+    .run()
 }
 
 #[derive(Debug, Clone)]
@@ -25,7 +30,11 @@ impl InputOtpForm {
     fn update(&mut self, message: Message) {
         match message {
             Message::InputChanged(value) => {
-                self.value = value.chars().filter(|c| c.is_ascii_digit()).take(6).collect();
+                self.value = value
+                    .chars()
+                    .filter(|c| c.is_ascii_digit())
+                    .take(6)
+                    .collect();
                 self.status.clear();
             }
             Message::Submit => {
@@ -44,16 +53,17 @@ impl InputOtpForm {
         let content = column![
             text("Verify Your Account").size(24),
             text("Enter the 6-digit code sent to your phone").size(14),
-
             input_otp_unified(&self.value, 6, Message::InputChanged, theme),
-
             button(
                 "Submit",
-                if self.value.len() == 6 { Some(Message::Submit) } else { None },
+                if self.value.len() == 6 {
+                    Some(Message::Submit)
+                } else {
+                    None
+                },
                 ButtonProps::new().variant(ButtonVariant::Solid),
                 theme
             ),
-
             text(&self.status).size(12),
         ]
         .spacing(16)

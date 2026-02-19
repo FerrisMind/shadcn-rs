@@ -32,14 +32,13 @@ impl<'a> EmptyProps<'a> {
 }
 
 /// Render an empty state placeholder.
-pub fn empty<'a, Message: 'a>(
-    props: EmptyProps<'a>,
-    theme: &Theme,
-) -> Element<'a, Message> {
+pub fn empty<'a, Message: 'a>(props: EmptyProps<'a>, theme: &Theme) -> Element<'a, Message> {
     let fg = theme.palette.foreground;
     let muted = theme.palette.muted_foreground;
 
-    let mut col = column![].spacing(8).align_x(iced::alignment::Horizontal::Center);
+    let mut col = column![]
+        .spacing(8)
+        .align_x(iced::alignment::Horizontal::Center);
 
     if let Some(icon) = props.icon {
         col = col.push(

@@ -12,7 +12,10 @@ pub struct MenubarItem<'a> {
 
 impl<'a> MenubarItem<'a> {
     pub fn new(label: &'a str) -> Self {
-        Self { label, disabled: false }
+        Self {
+            label,
+            disabled: false,
+        }
     }
 
     pub fn disabled(mut self, disabled: bool) -> Self {
@@ -26,7 +29,6 @@ impl<'a> MenubarItem<'a> {
 pub struct MenubarProps {
     pub disabled: bool,
 }
-
 
 impl MenubarProps {
     pub fn new() -> Self {
@@ -53,7 +55,11 @@ pub fn menubar<'a, Message: 'a>(
     let mut item_row = row![].spacing(0);
 
     for item in items {
-        let color = if item.disabled || props.disabled { muted } else { fg };
+        let color = if item.disabled || props.disabled {
+            muted
+        } else {
+            fg
+        };
         let item_widget = container(
             text(item.label)
                 .size(14)

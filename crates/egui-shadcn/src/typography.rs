@@ -427,8 +427,6 @@ impl CodeProps {
     }
 }
 
-
-
 #[derive(Clone, Debug)]
 pub struct BlockquoteProps {
     pub text: WidgetText,
@@ -818,8 +816,6 @@ pub fn code(ui: &mut Ui, theme: &Theme, props: CodeProps) -> Response {
 
     response
 }
-
-
 
 pub fn blockquote(ui: &mut Ui, theme: &Theme, props: BlockquoteProps) -> Response {
     let size = props.size.unwrap_or(14.0);

@@ -141,11 +141,7 @@ pub fn badge<'a, Message: 'a>(
             };
             (color, palette.destructive_foreground, color)
         }
-        BadgeVariant::Outline => (
-            Color::TRANSPARENT,
-            palette.foreground,
-            palette.border,
-        ),
+        BadgeVariant::Outline => (Color::TRANSPARENT, palette.foreground, palette.border),
     };
 
     let shadow = if matches!(props.variant, BadgeVariant::Default) && props.high_contrast {

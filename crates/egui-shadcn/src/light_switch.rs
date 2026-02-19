@@ -17,7 +17,10 @@ pub struct LightSwitchProps {
 
 impl LightSwitchProps {
     pub fn new(dark_mode: bool) -> Self {
-        Self { dark_mode, disabled: false }
+        Self {
+            dark_mode,
+            disabled: false,
+        }
     }
 
     pub fn disabled(mut self, disabled: bool) -> Self {
@@ -36,7 +39,11 @@ pub fn light_switch(ui: &mut Ui, theme: &Theme, props: LightSwitchProps) -> Resp
     let padding = 2.0_f32;
 
     let desired_size = egui::vec2(track_width, track_height);
-    let sense = if props.disabled { Sense::hover() } else { Sense::click() };
+    let sense = if props.disabled {
+        Sense::hover()
+    } else {
+        Sense::click()
+    };
     let (rect, resp) = ui.allocate_exact_size(desired_size, sense);
 
     let track_color = if props.dark_mode {
@@ -46,18 +53,14 @@ pub fn light_switch(ui: &mut Ui, theme: &Theme, props: LightSwitchProps) -> Resp
     };
 
     let track_color = if props.disabled {
-        Color32::from_rgba_unmultiplied(
-            track_color.r(),
-            track_color.g(),
-            track_color.b(),
-            128,
-        )
+        Color32::from_rgba_unmultiplied(track_color.r(), track_color.g(), track_color.b(), 128)
     } else {
         track_color
     };
 
     // Draw track
-    ui.painter().rect_filled(rect, CornerRadius::same(12), track_color);
+    ui.painter()
+        .rect_filled(rect, CornerRadius::same(12), track_color);
 
     // Animate thumb position
     let anim_t = ui.ctx().animate_bool(resp.id, props.dark_mode);
@@ -68,7 +71,8 @@ pub fn light_switch(ui: &mut Ui, theme: &Theme, props: LightSwitchProps) -> Resp
     );
 
     // Draw thumb
-    ui.painter().rect_filled(thumb_rect, CornerRadius::same(10), Color32::WHITE);
+    ui.painter()
+        .rect_filled(thumb_rect, CornerRadius::same(10), Color32::WHITE);
 
     // Draw icon
     let icon = if props.dark_mode { "🌙" } else { "☀" };

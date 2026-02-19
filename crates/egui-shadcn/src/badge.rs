@@ -80,7 +80,6 @@ impl<'a> BadgeProps<'a> {
 
 /// Render a badge.
 pub fn badge(ui: &mut Ui, theme: &Theme, props: BadgeProps<'_>) {
-
     let (bg_color, text_color, border_color) = match props.variant {
         BadgeVariant::Default => {
             let color = props.color.unwrap_or(theme.palette.primary);
@@ -94,7 +93,11 @@ pub fn badge(ui: &mut Ui, theme: &Theme, props: BadgeProps<'_>) {
             let color = props.color.unwrap_or(theme.palette.destructive);
             (color, theme.palette.destructive_foreground, color)
         }
-        BadgeVariant::Outline => (Color32::TRANSPARENT, theme.palette.foreground, theme.palette.border),
+        BadgeVariant::Outline => (
+            Color32::TRANSPARENT,
+            theme.palette.foreground,
+            theme.palette.border,
+        ),
     };
 
     let (font_size, padding) = match props.size {

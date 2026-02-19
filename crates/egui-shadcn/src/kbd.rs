@@ -103,9 +103,9 @@ impl KbdProps {
 }
 
 pub fn kbd(ui: &mut Ui, theme: &Theme, label: &str, props: KbdProps) {
-    let background = props.background.unwrap_or_else(|| {
-        mix(theme.palette.muted, theme.palette.background, 0.6)
-    });
+    let background = props
+        .background
+        .unwrap_or_else(|| mix(theme.palette.muted, theme.palette.background, 0.6));
     let text_color = props.color.unwrap_or(theme.palette.muted_foreground);
     let border_color = props.border_color.unwrap_or(theme.palette.border);
     let radius = props.size.radius(theme);
@@ -127,12 +127,24 @@ pub fn kbd(ui: &mut Ui, theme: &Theme, label: &str, props: KbdProps) {
     });
 }
 
-pub fn kbd_group(ui: &mut Ui, theme: &Theme, labels: &[&str], props: KbdProps, separator: Option<&str>) {
+pub fn kbd_group(
+    ui: &mut Ui,
+    theme: &Theme,
+    labels: &[&str],
+    props: KbdProps,
+    separator: Option<&str>,
+) {
     ui.horizontal(|ui| {
         ui.spacing_mut().item_spacing.x = 4.0;
         for (i, label) in labels.iter().enumerate() {
-            if i > 0 && let Some(sep) = separator {
-                ui.label(RichText::new(sep).size(12.0).color(theme.palette.muted_foreground));
+            if i > 0
+                && let Some(sep) = separator
+            {
+                ui.label(
+                    RichText::new(sep)
+                        .size(12.0)
+                        .color(theme.palette.muted_foreground),
+                );
             }
             kbd(ui, theme, label, props);
         }

@@ -1,8 +1,8 @@
 use iced::{
-    widget::{column, container, text},
     Alignment, Element, Length,
+    widget::{column, container, text},
 };
-use iced_shadcn::{button, input_otp_unified, ButtonProps, ButtonVariant, Theme};
+use iced_shadcn::{ButtonProps, ButtonVariant, Theme, button, input_otp_unified};
 
 pub fn main() -> iced::Result {
     iced::application(
@@ -29,7 +29,11 @@ impl InputOtpControlled {
     fn update(&mut self, message: Message) {
         match message {
             Message::InputChanged(value) => {
-                self.value = value.chars().filter(|c| c.is_ascii_digit()).take(6).collect();
+                self.value = value
+                    .chars()
+                    .filter(|c| c.is_ascii_digit())
+                    .take(6)
+                    .collect();
             }
             Message::Clear => {
                 self.value.clear();
@@ -43,16 +47,13 @@ impl InputOtpControlled {
         let content = column![
             text("Controlled Input OTP").size(24),
             text("Enter your verification code").size(14),
-
             input_otp_unified(&self.value, 6, Message::InputChanged, theme),
-
             text(if self.value.is_empty() {
                 "Enter your one-time password.".to_string()
             } else {
                 format!("You entered: {}", self.value)
             })
             .size(12),
-
             button(
                 "Clear",
                 Some(Message::Clear),

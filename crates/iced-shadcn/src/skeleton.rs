@@ -227,14 +227,10 @@ pub fn skeleton_text<'a, Message: 'a>(
         } else {
             Length::Fill
         };
-        col = col.push(
-            skeleton(
-                SkeletonProps::new()
-                    .width(width)
-                    .height(line_height),
-                theme,
-            )
-        );
+        col = col.push(skeleton(
+            SkeletonProps::new().width(width).height(line_height),
+            theme,
+        ));
     }
     col.into()
 }
