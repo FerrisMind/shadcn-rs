@@ -32,7 +32,9 @@ impl App for BadgeExample {
             ui.heading("Badge Component");
             ui.add_space(16.0);
 
-            ui.label("Sizes:");
+            // -- Sizes --
+            ui.label(egui::RichText::new("Sizes").strong());
+            ui.add_space(4.0);
             ui.horizontal(|ui| {
                 badge(
                     ui,
@@ -52,32 +54,38 @@ impl App for BadgeExample {
             });
 
             ui.add_space(16.0);
-            ui.label("Variants:");
+
+            // -- Variants --
+            ui.label(egui::RichText::new("Variants").strong());
+            ui.add_space(4.0);
             ui.horizontal(|ui| {
                 badge(
                     ui,
                     &self.theme,
-                    BadgeProps::new("Solid").variant(BadgeVariant::Default),
+                    BadgeProps::new("Default").variant(BadgeVariant::Default),
                 );
                 badge(
                     ui,
                     &self.theme,
-                    BadgeProps::new("Soft").variant(BadgeVariant::Secondary),
-                );
-                badge(
-                    ui,
-                    &self.theme,
-                    BadgeProps::new("Surface").variant(BadgeVariant::Outline),
+                    BadgeProps::new("Secondary").variant(BadgeVariant::Secondary),
                 );
                 badge(
                     ui,
                     &self.theme,
                     BadgeProps::new("Outline").variant(BadgeVariant::Outline),
                 );
+                badge(
+                    ui,
+                    &self.theme,
+                    BadgeProps::new("Destructive").variant(BadgeVariant::Destructive),
+                );
             });
 
             ui.add_space(16.0);
-            ui.label("Custom colors:");
+
+            // -- Custom Colors --
+            ui.label(egui::RichText::new("Custom Colors").strong());
+            ui.add_space(4.0);
             ui.horizontal(|ui| {
                 badge(
                     ui,
@@ -110,22 +118,37 @@ impl App for BadgeExample {
             });
 
             ui.add_space(16.0);
-            ui.label("Soft variants with colors:");
+
+            // -- High Contrast --
+            ui.label(egui::RichText::new("High Contrast").strong());
+            ui.add_space(4.0);
             ui.horizontal(|ui| {
                 badge(
                     ui,
                     &self.theme,
-                    BadgeProps::new("New").color(Color32::from_rgb(168, 85, 247)),
+                    BadgeProps::new("Normal").variant(BadgeVariant::Default),
                 );
                 badge(
                     ui,
                     &self.theme,
-                    BadgeProps::new("Beta").color(Color32::from_rgb(236, 72, 153)),
+                    BadgeProps::new("High Contrast")
+                        .variant(BadgeVariant::Default)
+                        .high_contrast(true),
                 );
+            });
+
+            ui.add_space(16.0);
+
+            // -- Link Badge (href) --
+            ui.label(egui::RichText::new("Link Badge (href)").strong());
+            ui.add_space(4.0);
+            ui.horizontal(|ui| {
                 badge(
                     ui,
                     &self.theme,
-                    BadgeProps::new("Pro").color(Color32::from_rgb(14, 165, 233)),
+                    BadgeProps::new("Visit shadcn-rs")
+                        .variant(BadgeVariant::Default)
+                        .href("https://github.com/nicepkg/shadcn-rs"),
                 );
             });
         });

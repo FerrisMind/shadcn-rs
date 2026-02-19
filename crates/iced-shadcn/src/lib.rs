@@ -178,7 +178,7 @@ pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separat
 pub use sheet::{
     SheetProps, SheetSide, sheet, sheet_description, sheet_footer, sheet_header, sheet_title,
 };
-pub use skeleton::{SkeletonProps, skeleton};
+pub use skeleton::{SkeletonProps, skeleton, skeleton_text};
 pub use slider::{
     SliderOrientation, SliderProps, SliderSize, SliderVariant, slider, vertical_slider,
 };
