@@ -138,6 +138,38 @@ impl Example {
             .align_y(Alignment::Center),
         ));
 
+        // -- Icons --
+        content = content.push(section_title("With Icons"));
+        content = content.push(preview(
+            theme,
+            row![
+                badge(
+                    "Package",
+                    BadgeProps::new()
+                        .variant(BadgeVariant::Default)
+                        .icon(lucide_icons::Icon::Package),
+                    theme,
+                ),
+                badge(
+                    "Available",
+                    BadgeProps::new()
+                        .variant(BadgeVariant::Secondary)
+                        .icon(lucide_icons::Icon::Check),
+                    theme,
+                ),
+                badge(
+                    "Warning",
+                    BadgeProps::new()
+                        .variant(BadgeVariant::Outline)
+                        .color(AccentColor::Yellow)
+                        .icon(lucide_icons::Icon::TriangleAlert),
+                    theme,
+                ),
+            ]
+            .spacing(8)
+            .align_y(Alignment::Center),
+        ));
+
         // -- Link Badge (href) --
         content = content.push(section_title("Link Badge (href)"));
         content = content.push(preview(

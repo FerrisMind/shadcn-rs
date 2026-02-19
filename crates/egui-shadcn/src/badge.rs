@@ -7,6 +7,7 @@
 
 use crate::theme::Theme;
 use egui::{Color32, CursorIcon, Response, RichText, Sense, Ui, Vec2};
+use lucide_icons::Icon;
 
 // =============================================================================
 // BadgeSize / BadgeVariant
@@ -36,6 +37,7 @@ pub enum BadgeVariant {
 #[derive(Clone, Debug)]
 pub struct BadgeProps<'a> {
     pub label: &'a str,
+    pub icon: Option<Icon>,
     pub size: BadgeSize,
     pub variant: BadgeVariant,
     pub color: Option<Color32>,
@@ -48,12 +50,18 @@ impl<'a> BadgeProps<'a> {
     pub fn new(label: &'a str) -> Self {
         Self {
             label,
+            icon: None,
             size: BadgeSize::Size1,
             variant: BadgeVariant::Default,
             color: None,
             high_contrast: false,
             href: None,
         }
+    }
+
+    pub fn icon(mut self, icon: Icon) -> Self {
+        self.icon = Some(icon);
+        self
     }
 
     pub fn size(mut self, size: BadgeSize) -> Self {
@@ -136,18 +144,35 @@ pub fn badge(ui: &mut Ui, theme: &Theme, props: BadgeProps<'_>) -> Response {
         .corner_radius(rounding)
         .inner_margin(padding)
         .show(ui, |ui| {
-            ui.add(
-                egui::Label::new(
-                    RichText::new(props.label)
-                        .size(font_size)
-                        .color(text_color)
-                        .strong(),
-                )
-                .sense(sense),
-            )
+            ui.horizontal(|ui| {
+                ui.spacing_mut().item_spacing.x = 4.0;
+                if let Some(icon) = props.icon {
+                    ui.label(
+                        RichText::new(icon.unicode().to_string())
+                            .size(font_size)
+                            .color(text_color),
+                    );
+                }
+                ui.add(
+                    egui::Label::new(
+                        RichText::new(props.label)
+                            .size(font_size)
+                            .color(text_color)
+                            .strong(),
+                    )
+                    .sense(sense),
+                );
+                if is_link {
+                    ui.label(
+                        RichText::new(Icon::ExternalLink.unicode().to_string())
+                            .size(font_size - 2.0)
+                            .color(text_color.gamma_multiply(0.8)),
+                    );
+                }
+            })
         });
 
-    let response = inner.inner;
+    let response = inner.response;
 
     if is_link {
         if response.hovered() {

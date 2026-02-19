@@ -9,8 +9,34 @@ mod icon;
 mod screenshot;
 
 use eframe::{App, Frame, egui};
-use egui::{CentralPanel, Color32};
+use egui::{CentralPanel, Color32, FontData, FontDefinitions, FontFamily};
 use egui_shadcn::{BadgeProps, BadgeSize, BadgeVariant, Theme, badge};
+use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
+
+fn ensure_lucide_font(ctx: &egui::Context) {
+    let font_loaded_id = egui::Id::new("lucide_font_loaded");
+    let already_set = ctx.data(|d| d.get_temp::<bool>(font_loaded_id).unwrap_or(false));
+    if already_set {
+        return;
+    }
+    let mut fonts = FontDefinitions::default();
+    fonts.font_data.insert(
+        "lucide".into(),
+        FontData::from_static(LUCIDE_FONT_BYTES).into(),
+    );
+    fonts
+        .families
+        .entry(FontFamily::Proportional)
+        .or_default()
+        .insert(0, "lucide".into());
+    fonts
+        .families
+        .entry(FontFamily::Monospace)
+        .or_default()
+        .insert(0, "lucide".into());
+    ctx.set_fonts(fonts);
+    ctx.data_mut(|d| d.insert_temp(font_loaded_id, true));
+}
 
 struct BadgeExample {
     theme: Theme,
@@ -26,6 +52,7 @@ impl BadgeExample {
 
 impl App for BadgeExample {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
+        ensure_lucide_font(ctx);
         screenshot::apply_screenshot_scale(ctx);
 
         CentralPanel::default().show(ctx, |ui| {
@@ -139,6 +166,34 @@ impl App for BadgeExample {
 
             ui.add_space(16.0);
 
+            // -- Icons --
+            ui.label(egui::RichText::new("With Icons").strong());
+            ui.add_space(4.0);
+            ui.horizontal(|ui| {
+                badge(
+                    ui,
+                    &self.theme,
+                    BadgeProps::new("Package").icon(Icon::Package),
+                );
+                badge(
+                    ui,
+                    &self.theme,
+                    BadgeProps::new("Available")
+                        .variant(BadgeVariant::Secondary)
+                        .icon(Icon::Check),
+                );
+                badge(
+                    ui,
+                    &self.theme,
+                    BadgeProps::new("Warning")
+                        .variant(BadgeVariant::Outline)
+                        .color(Color32::from_rgb(245, 158, 11))
+                        .icon(Icon::TriangleAlert),
+                );
+            });
+
+            ui.add_space(16.0);
+
             // -- Link Badge (href) --
             ui.label(egui::RichText::new("Link Badge (href)").strong());
             ui.add_space(4.0);
@@ -149,6 +204,13 @@ impl App for BadgeExample {
                     BadgeProps::new("Visit shadcn-rs")
                         .variant(BadgeVariant::Default)
                         .href("https://github.com/nicepkg/shadcn-rs"),
+                );
+                badge(
+                    ui,
+                    &self.theme,
+                    BadgeProps::new("Documentation")
+                        .variant(BadgeVariant::Outline)
+                        .href("https://docs.rs/egui-shadcn"),
                 );
             });
         });
