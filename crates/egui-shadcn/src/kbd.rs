@@ -118,11 +118,14 @@ pub fn kbd(ui: &mut Ui, theme: &Theme, label: &str, props: KbdProps) {
         .inner_margin(Margin::symmetric(padding.x as i8, padding.y as i8));
 
     frame.show(ui, |ui| {
-        ui.label(
-            RichText::new(label)
-                .size(props.size.font_size())
-                .color(text_color)
-                .monospace(),
+        ui.add(
+            egui::Label::new(
+                RichText::new(label)
+                    .size(props.size.font_size())
+                    .color(text_color)
+                    .monospace(),
+            )
+            .selectable(false),
         );
     });
 }
@@ -140,10 +143,13 @@ pub fn kbd_group(
             if i > 0
                 && let Some(sep) = separator
             {
-                ui.label(
-                    RichText::new(sep)
-                        .size(12.0)
-                        .color(theme.palette.muted_foreground),
+                ui.add(
+                    egui::Label::new(
+                        RichText::new(sep)
+                            .size(12.0)
+                            .color(theme.palette.muted_foreground),
+                    )
+                    .selectable(false),
                 );
             }
             kbd(ui, theme, label, props);
