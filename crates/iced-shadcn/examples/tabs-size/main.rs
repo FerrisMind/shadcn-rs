@@ -56,7 +56,7 @@ impl Example {
             TabsRootProps::new(),
             TabsListProps::new()
                 .variant(TabsListVariant::Pill)
-                .size(TabsSize::One),
+                .size(TabsSize::Size1),
             theme,
         );
 
@@ -80,7 +80,7 @@ impl Example {
             TabsRootProps::new(),
             TabsListProps::new()
                 .variant(TabsListVariant::Pill)
-                .size(TabsSize::Two),
+                .size(TabsSize::Size2),
             theme,
         );
 

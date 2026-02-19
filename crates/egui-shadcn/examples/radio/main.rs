@@ -144,7 +144,7 @@ impl App for RadioDemo {
                     )
                     .custom_spacing(8.0)
                     .card_variant(RadioCardVariant::Card)
-                    .grid_layout(GridLayout::new(1).with_spacing(10.0))
+                    .grid_layout(GridLayout::new(1).spacing(10.0))
                     .show(ui, &self.theme);
 
                     if let Some(err) = &self.rhf_error {

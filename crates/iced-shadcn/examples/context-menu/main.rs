@@ -78,7 +78,7 @@ impl Example {
             trigger,
             entries(self),
             ContextMenuProps::new()
-                .size(ContextMenuContentSize::Two)
+                .size(ContextMenuContentSize::Size2)
                 .variant(ContextMenuContentVariant::Solid)
                 .width(208),
             theme,

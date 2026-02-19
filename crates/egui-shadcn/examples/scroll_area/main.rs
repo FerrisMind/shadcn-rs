@@ -42,13 +42,13 @@ impl App for ScrollAreaDemo {
                     .corner_radius(egui::CornerRadius::same(6))
                     .show(ui, |frame_ui| {
                         let props = ScrollAreaProps::default()
-                            .with_id(frame_ui.make_persistent_id("scroll-area-demo"))
-                            .with_direction(ScrollDirection::Vertical)
-                            .with_type(ScrollAreaType::Auto)
-                            .with_size(ScrollAreaSize::Size1)
-                            .with_radius(ScrollAreaRadius::Medium)
-                            .with_max_size(egui::vec2(192.0, 288.0))
-                            .with_auto_shrink([false; 2]);
+                            .id(frame_ui.make_persistent_id("scroll-area-demo"))
+                            .direction(ScrollDirection::Vertical)
+                            .scroll_type(ScrollAreaType::Auto)
+                            .size(ScrollAreaSize::Size1)
+                            .radius(ScrollAreaRadius::Medium)
+                            .max_size(egui::vec2(192.0, 288.0))
+                            .auto_shrink([false; 2]);
 
                         scroll_area(frame_ui, &self.theme, props, |scroll_ui| {
                             egui::Frame::NONE.inner_margin(egui::Margin::same(16)).show(
@@ -73,13 +73,13 @@ impl App for ScrollAreaDemo {
                     .corner_radius(egui::CornerRadius::same(6))
                     .show(ui, |frame_ui| {
                         let props = ScrollAreaProps::default()
-                            .with_id(frame_ui.make_persistent_id("scroll-area-horizontal-demo"))
-                            .with_direction(ScrollDirection::Horizontal)
-                            .with_type(ScrollAreaType::Auto)
-                            .with_size(ScrollAreaSize::Size1)
-                            .with_radius(ScrollAreaRadius::Medium)
-                            .with_max_size(egui::vec2(384.0, 220.0))
-                            .with_auto_shrink([false; 2]);
+                            .id(frame_ui.make_persistent_id("scroll-area-horizontal-demo"))
+                            .direction(ScrollDirection::Horizontal)
+                            .scroll_type(ScrollAreaType::Auto)
+                            .size(ScrollAreaSize::Size1)
+                            .radius(ScrollAreaRadius::Medium)
+                            .max_size(egui::vec2(384.0, 220.0))
+                            .auto_shrink([false; 2]);
 
                         scroll_area(frame_ui, &self.theme, props, |scroll_ui| {
                             egui::Frame::NONE.inner_margin(egui::Margin::same(16)).show(

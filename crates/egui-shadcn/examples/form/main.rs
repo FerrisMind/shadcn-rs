@@ -285,7 +285,7 @@ fn render_submit_form(
                 theme,
                 &mut state,
                 "I agree to the terms and conditions",
-                CheckboxProps::default().with_invalid(terms_error.is_some()),
+                CheckboxProps::default().invalid(terms_error.is_some()),
             )
         });
         *accept_terms = bool::from(state);

@@ -46,7 +46,7 @@ impl Example {
                     ),
                     dropdown_entries(),
                     DropdownMenuProps::new()
-                        .size(DropdownMenuContentSize::One)
+                        .size(DropdownMenuContentSize::Size1)
                         .variant(DropdownMenuContentVariant::Solid)
                         .color(AccentColor::Gray),
                     theme,
@@ -60,7 +60,7 @@ impl Example {
                     ),
                     dropdown_entries(),
                     DropdownMenuProps::new()
-                        .size(DropdownMenuContentSize::Two)
+                        .size(DropdownMenuContentSize::Size2)
                         .variant(DropdownMenuContentVariant::Soft)
                         .color(AccentColor::Blue)
                         .high_contrast(true),

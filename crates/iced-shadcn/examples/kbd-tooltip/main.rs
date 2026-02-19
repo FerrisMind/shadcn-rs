@@ -97,7 +97,7 @@ fn tooltip_button<'a>(label: &'a str, shortcut: &'a str, theme: &'a Theme) -> El
             .style(move |_theme: &iced::Theme| iced::widget::text::Style {
                 color: Some(muted_fg),
             }),
-        kbd(shortcut, KbdProps::new().size(KbdSize::One), theme),
+        kbd(shortcut, KbdProps::new().size(KbdSize::Size1), theme),
         iced_text(format!(" to {}", label.to_lowercase()))
             .size(12)
             .style(move |_theme: &iced::Theme| iced::widget::text::Style {
@@ -154,7 +154,7 @@ fn tooltip_with_kbd_group<'a>(
 
     let items: Vec<Element<'a, ()>> = keys
         .into_iter()
-        .map(|key| kbd(key, KbdProps::new().size(KbdSize::One), theme))
+        .map(|key| kbd(key, KbdProps::new().size(KbdSize::Size1), theme))
         .collect();
 
     let group_props = KbdGroupProps::new().gap(2.0);
@@ -217,7 +217,7 @@ fn action_button_with_tooltip<'a>(
 
     let items: Vec<Element<'a, ()>> = keys
         .into_iter()
-        .map(|key| kbd(key, KbdProps::new().size(KbdSize::One), theme))
+        .map(|key| kbd(key, KbdProps::new().size(KbdSize::Size1), theme))
         .collect();
 
     let group_props = KbdGroupProps::new().gap(2.0);
@@ -278,7 +278,7 @@ fn tooltip_simple<'a>(label: &'a str, shortcut: &'a str, theme: &'a Theme) -> El
 
     let items: Vec<Element<'a, ()>> = shortcut
         .split('+')
-        .map(|s| kbd(s.trim(), KbdProps::new().size(KbdSize::One), theme))
+        .map(|s| kbd(s.trim(), KbdProps::new().size(KbdSize::Size1), theme))
         .collect();
 
     let group_props = KbdGroupProps::new().gap(2.0);

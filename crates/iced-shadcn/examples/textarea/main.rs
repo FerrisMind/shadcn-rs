@@ -50,7 +50,7 @@ impl Example {
                 "Type your message here.",
                 Some(Message::EditDefault),
                 TextareaProps::new()
-                    .size(TextareaSize::Two)
+                    .size(TextareaSize::Size2)
                     .wrapping(Wrapping::WordOrGlyph),
                 theme,
             )
@@ -60,7 +60,7 @@ impl Example {
                 "Type your message here.",
                 None::<fn(text_editor::Action) -> Message>,
                 TextareaProps::new()
-                    .size(TextareaSize::Two)
+                    .size(TextareaSize::Size2)
                     .wrapping(Wrapping::WordOrGlyph)
                     .disabled(true),
                 theme,
@@ -73,7 +73,7 @@ impl Example {
                     "Type your message here.",
                     Some(Message::EditLabel),
                     TextareaProps::new()
-                        .size(TextareaSize::Two)
+                        .size(TextareaSize::Size2)
                         .wrapping(Wrapping::WordOrGlyph),
                     theme,
                 )
@@ -87,7 +87,7 @@ impl Example {
                     "Type your message here.",
                     Some(Message::EditText),
                     TextareaProps::new()
-                        .size(TextareaSize::Two)
+                        .size(TextareaSize::Size2)
                         .wrapping(Wrapping::WordOrGlyph),
                     theme,
                 )
@@ -105,7 +105,7 @@ impl Example {
                     "Type your message here.",
                     Some(Message::EditButton),
                     TextareaProps::new()
-                        .size(TextareaSize::Two)
+                        .size(TextareaSize::Size2)
                         .wrapping(Wrapping::WordOrGlyph),
                     theme,
                 )

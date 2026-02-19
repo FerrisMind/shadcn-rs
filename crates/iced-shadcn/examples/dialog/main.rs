@@ -73,7 +73,7 @@ impl Example {
             self.open,
             dialog_content,
             Message::Close,
-            DialogProps::new().size(DialogSize::Three).max_width(450),
+            DialogProps::new().size(DialogSize::Size3).max_width(450),
             theme,
         )
     }

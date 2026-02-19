@@ -9,7 +9,7 @@ mod icon;
 mod screenshot;
 
 use eframe::{App, Frame, egui};
-use egui::{CornerRadius, FontId};
+use egui::CornerRadius;
 use egui_shadcn::{
     CardProps, CardVariant, ScrollAreaProps, ScrollAreaRadius, ScrollAreaSize, ScrollAreaType,
     ScrollDirection, ShadcnTypographyVariant, Theme, TypographyProps, blockquote, card, link,
@@ -29,7 +29,7 @@ impl TypographyDemo {
 
     fn render_table(&self, ui: &mut egui::Ui) {
         let header = [("King's Treasury", true), ("People's happiness", true)];
-        let rows = [
+        let rows: &[[(&str, bool); 2]] = &[
             [("Empty", false), ("Overflowing", false)],
             [("Modest", false), ("Satisfied", false)],
             [("Full", false), ("Ecstatic", false)],
@@ -38,42 +38,84 @@ impl TypographyDemo {
         let available = ui.available_width();
         let col_w = (available / 2.0).floor();
         let row_h = 28.0;
+        let total_rows = 1 + rows.len();
+        let table_size = egui::vec2(col_w * 2.0, row_h * total_rows as f32);
         let border = egui::Stroke::new(1.0, self.theme.palette.border);
 
-        let paint_row = |ui: &mut egui::Ui, cells: [(&str, bool); 2], background: egui::Color32| {
-            ui.horizontal(|ui| {
-                for (text_value, bold) in cells {
-                    let (rect, _) =
-                        ui.allocate_exact_size(egui::vec2(col_w, row_h), egui::Sense::hover());
-                    ui.painter()
-                        .rect_filled(rect, CornerRadius::same(0), background);
-                    ui.painter().rect_stroke(
-                        rect,
-                        CornerRadius::same(0),
-                        border,
-                        egui::StrokeKind::Inside,
-                    );
-                    let mut rich = egui::RichText::new(text_value).font(FontId::proportional(14.0));
-                    if bold {
-                        rich = rich.strong();
-                    }
-                    rich = rich.color(self.theme.palette.foreground);
-                    let inner = rect.shrink2(egui::vec2(8.0, 6.0));
-                    ui.scope_builder(egui::UiBuilder::new().max_rect(inner), |ui| {
-                        ui.add(egui::Label::new(rich).wrap());
-                    });
-                }
-            });
-        };
+        let (table_rect, _) = ui.allocate_exact_size(table_size, egui::Sense::hover());
+        let painter = ui.painter();
 
-        paint_row(ui, header, egui::Color32::TRANSPARENT);
-        for (index, row) in rows.iter().enumerate() {
-            let bg = if index % 2 == 1 {
-                self.theme.palette.muted
-            } else {
-                egui::Color32::TRANSPARENT
-            };
-            paint_row(ui, *row, bg);
+        let all_rows: Vec<([(&str, bool); 2], egui::Color32)> =
+            std::iter::once((header, egui::Color32::TRANSPARENT))
+                .chain(rows.iter().enumerate().map(|(i, r)| {
+                    let bg = if i % 2 == 1 {
+                        self.theme.palette.muted
+                    } else {
+                        egui::Color32::TRANSPARENT
+                    };
+                    (*r, bg)
+                }))
+                .collect();
+
+        let radius = 6.0;
+        let last_row = total_rows - 1;
+        let last_col = 1;
+
+        for (row_idx, (cells, bg)) in all_rows.iter().enumerate() {
+            for (col_idx, (text_value, bold)) in cells.iter().enumerate() {
+                let x = table_rect.left() + col_w * col_idx as f32;
+                let y = table_rect.top() + row_h * row_idx as f32;
+                let cell_rect =
+                    egui::Rect::from_min_size(egui::pos2(x, y), egui::vec2(col_w, row_h));
+
+                let corner = CornerRadius {
+                    nw: if row_idx == 0 && col_idx == 0 {
+                        radius as u8
+                    } else {
+                        0
+                    },
+                    ne: if row_idx == 0 && col_idx == last_col {
+                        radius as u8
+                    } else {
+                        0
+                    },
+                    sw: if row_idx == last_row && col_idx == 0 {
+                        radius as u8
+                    } else {
+                        0
+                    },
+                    se: if row_idx == last_row && col_idx == last_col {
+                        radius as u8
+                    } else {
+                        0
+                    },
+                };
+
+                painter.rect_filled(cell_rect, corner, *bg);
+                painter.rect_stroke(cell_rect, corner, border, egui::StrokeKind::Inside);
+
+                let text_pos = egui::pos2(cell_rect.left() + 8.0, cell_rect.center().y);
+                let rich = if *bold {
+                    egui::RichText::new(*text_value)
+                        .font(egui::FontId::proportional(15.0))
+                        .strong()
+                } else {
+                    egui::RichText::new(*text_value)
+                        .font(egui::FontId::proportional(14.0))
+                        .color(self.theme.palette.foreground)
+                };
+                let galley = egui::WidgetText::from(rich).into_galley(
+                    ui,
+                    Some(egui::TextWrapMode::Truncate),
+                    col_w - 16.0,
+                    egui::TextStyle::Body,
+                );
+                painter.galley(
+                    text_pos - egui::vec2(0.0, galley.size().y / 2.0),
+                    galley,
+                    self.theme.palette.foreground,
+                );
+            }
         }
     }
 
@@ -83,10 +125,10 @@ impl TypographyDemo {
             ui,
             &self.theme,
             CardProps::default()
-                .with_variant(CardVariant::Outline)
-                .with_padding(egui::vec2(16.0, 16.0))
-                .with_rounding(CornerRadius::same(12))
-                .with_shadow(true),
+                .variant(CardVariant::Outline)
+                .padding(egui::vec2(16.0, 16.0))
+                .rounding(CornerRadius::same(12))
+                .shadow(true),
             |card_ui| {
                 card_ui.set_min_size(card_size);
                 card_ui.set_max_size(card_size);
@@ -133,6 +175,7 @@ impl TypographyDemo {
 
                         ui.add_space(24.0);
                         ui.horizontal_wrapped(|ui| {
+                            ui.spacing_mut().item_spacing.x = 0.0;
                             text(
                                 ui,
                                 &self.theme,
@@ -277,6 +320,83 @@ impl TypographyDemo {
                             TypographyProps::new(
                                 "The moral of the story is: never underestimate the power of a good laugh and always be careful of bad ideas.",
                             ),
+                        );
+
+                        ui.add_space(32.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("Inline Code")
+                                .variant(ShadcnTypographyVariant::H3),
+                        );
+                        ui.add_space(16.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("@radix-ui/react-alert-dialog")
+                                .variant(ShadcnTypographyVariant::InlineCode),
+                        );
+
+                        ui.add_space(32.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("Lead")
+                                .variant(ShadcnTypographyVariant::H3),
+                        );
+                        ui.add_space(16.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new(
+                                "A modal dialog that interrupts the user with important content and expects a response.",
+                            )
+                            .variant(ShadcnTypographyVariant::Lead),
+                        );
+
+                        ui.add_space(32.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("Large")
+                                .variant(ShadcnTypographyVariant::H3),
+                        );
+                        ui.add_space(16.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("Are you absolutely sure?")
+                                .variant(ShadcnTypographyVariant::Large),
+                        );
+
+                        ui.add_space(32.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("Small")
+                                .variant(ShadcnTypographyVariant::H3),
+                        );
+                        ui.add_space(16.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("Email address")
+                                .variant(ShadcnTypographyVariant::Small),
+                        );
+
+                        ui.add_space(32.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("Muted")
+                                .variant(ShadcnTypographyVariant::H3),
+                        );
+                        ui.add_space(16.0);
+                        typography(
+                            ui,
+                            &self.theme,
+                            TypographyProps::new("Enter your email address.")
+                                .variant(ShadcnTypographyVariant::Muted),
                         );
 
                             ui.add_space(24.0);

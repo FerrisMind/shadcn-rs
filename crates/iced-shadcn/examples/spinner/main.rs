@@ -4,8 +4,8 @@ use iced::widget::{column, container, row, space, text};
 use iced::{Alignment, Background, Color, Element, Length, Subscription};
 
 use iced_shadcn::{
-    ButtonProps, ButtonSize, ButtonVariant, Spinner, SpinnerSize, TextFieldProps, TextFieldSize,
-    TextFieldVariant, Theme, button_content, spinner, text_field,
+    ButtonProps, ButtonSize, ButtonVariant, InputProps, InputSize, InputVariant, Spinner,
+    SpinnerSize, Theme, button_content, input, spinner,
 };
 use lucide_icons::LUCIDE_FONT_BYTES;
 use lucide_icons::iced::icon_arrow_up;
@@ -61,7 +61,7 @@ impl Example {
 
         let basic = preview(
             theme,
-            column![make_spinner(SpinnerSize::Two, theme.palette.primary)]
+            column![make_spinner(SpinnerSize::Size2, theme.palette.primary)]
                 .spacing(8)
                 .align_x(Alignment::Center)
                 .width(Length::Fill),
@@ -70,8 +70,8 @@ impl Example {
         let sizes = preview(
             theme,
             row![
-                make_spinner(SpinnerSize::One, theme.palette.primary),
-                make_spinner(SpinnerSize::Two, theme.palette.primary),
+                make_spinner(SpinnerSize::Size1, theme.palette.primary),
+                make_spinner(SpinnerSize::Size2, theme.palette.primary),
                 make_spinner(SpinnerSize::Custom(24.0), theme.palette.primary),
                 make_spinner(SpinnerSize::Custom(32.0), theme.palette.primary),
             ]
@@ -115,7 +115,7 @@ impl Example {
                     None,
                     ButtonProps::new()
                         .variant(ButtonVariant::Solid)
-                        .size(ButtonSize::One),
+                        .size(ButtonSize::Size1),
                     theme,
                 ),
                 button_content(
@@ -123,7 +123,7 @@ impl Example {
                     None,
                     ButtonProps::new()
                         .variant(ButtonVariant::Outline)
-                        .size(ButtonSize::One),
+                        .size(ButtonSize::Size1),
                     theme,
                 ),
                 button_content(
@@ -131,7 +131,7 @@ impl Example {
                     None,
                     ButtonProps::new()
                         .variant(ButtonVariant::Soft)
-                        .size(ButtonSize::One),
+                        .size(ButtonSize::Size1),
                     theme,
                 ),
             ]
@@ -245,7 +245,7 @@ fn spinner_label<'a>(
         spinner(
             Spinner::new(theme)
                 .progress(progress)
-                .size(SpinnerSize::One)
+                .size(SpinnerSize::Size1)
                 .color(theme.palette.muted_foreground),
         ),
         text(text_label)
@@ -306,7 +306,7 @@ fn spinner_empty<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Container
             Some(Message::Pressed),
             ButtonProps::new()
                 .variant(ButtonVariant::Outline)
-                .size(ButtonSize::One),
+                .size(ButtonSize::Size1),
             theme,
         ),
     ]
@@ -345,7 +345,7 @@ fn spinner_item<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Container<
             Some(Message::Pressed),
             ButtonProps::new()
                 .variant(ButtonVariant::Outline)
-                .size(ButtonSize::One),
+                .size(ButtonSize::Size1),
             theme,
         ),
     ]
@@ -421,7 +421,7 @@ fn spinner_badge<'a>(
         spinner(
             Spinner::new(theme)
                 .progress(progress)
-                .size(SpinnerSize::One)
+                .size(SpinnerSize::Size1)
                 .color(text_color),
         ),
         text(label_text)
@@ -448,13 +448,13 @@ fn spinner_badge<'a>(
 }
 
 fn spinner_input_group<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Column<'a, Message> {
-    let input_props = TextFieldProps::new()
-        .size(TextFieldSize::Two)
-        .variant(TextFieldVariant::Surface)
+    let input_props = InputProps::new()
+        .size(InputSize::Size2)
+        .variant(InputVariant::Surface)
         .disabled(true);
 
     let first = row![
-        text_field(
+        input(
             "",
             "Send a message...",
             None::<fn(String) -> Message>,
@@ -465,7 +465,7 @@ fn spinner_input_group<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Col
         spinner(
             Spinner::new(theme)
                 .progress(progress)
-                .size(SpinnerSize::One)
+                .size(SpinnerSize::Size1)
                 .color(theme.palette.muted_foreground),
         ),
     ]
@@ -494,7 +494,7 @@ fn spinner_input_group<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Col
             spinner(
                 Spinner::new(theme)
                     .progress(progress)
-                    .size(SpinnerSize::One)
+                    .size(SpinnerSize::Size1)
                     .color(theme.palette.muted_foreground),
             ),
             text("Validating...")
@@ -508,7 +508,7 @@ fn spinner_input_group<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Col
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Solid)
-                    .size(ButtonSize::One),
+                    .size(ButtonSize::Size1),
                 theme,
             ),
         ]

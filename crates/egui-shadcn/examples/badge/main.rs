@@ -57,17 +57,17 @@ impl App for BadgeExample {
                 badge(
                     ui,
                     &self.theme,
-                    BadgeProps::new("Solid").variant(BadgeVariant::Solid),
+                    BadgeProps::new("Solid").variant(BadgeVariant::Default),
                 );
                 badge(
                     ui,
                     &self.theme,
-                    BadgeProps::new("Soft").variant(BadgeVariant::Soft),
+                    BadgeProps::new("Soft").variant(BadgeVariant::Secondary),
                 );
                 badge(
                     ui,
                     &self.theme,
-                    BadgeProps::new("Surface").variant(BadgeVariant::Surface),
+                    BadgeProps::new("Surface").variant(BadgeVariant::Outline),
                 );
                 badge(
                     ui,
@@ -83,28 +83,28 @@ impl App for BadgeExample {
                     ui,
                     &self.theme,
                     BadgeProps::new("Error")
-                        .variant(BadgeVariant::Solid)
+                        .variant(BadgeVariant::Default)
                         .color(Color32::from_rgb(239, 68, 68)),
                 );
                 badge(
                     ui,
                     &self.theme,
                     BadgeProps::new("Success")
-                        .variant(BadgeVariant::Solid)
+                        .variant(BadgeVariant::Default)
                         .color(Color32::from_rgb(34, 197, 94)),
                 );
                 badge(
                     ui,
                     &self.theme,
                     BadgeProps::new("Warning")
-                        .variant(BadgeVariant::Solid)
+                        .variant(BadgeVariant::Default)
                         .color(Color32::from_rgb(245, 158, 11)),
                 );
                 badge(
                     ui,
                     &self.theme,
                     BadgeProps::new("Info")
-                        .variant(BadgeVariant::Solid)
+                        .variant(BadgeVariant::Default)
                         .color(Color32::from_rgb(59, 130, 246)),
                 );
             });

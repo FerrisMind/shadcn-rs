@@ -100,10 +100,10 @@ impl App for DropdownMenuExample {
                 ui,
                 &self.theme,
                 DialogProps::new(ui.make_persistent_id("dropdown-dialog"), &mut dialog_open)
-                    .with_title("Menu dialog")
-                    .with_description("Opened from a dropdown menu item.")
-                    .with_align(DialogAlign::Center)
-                    .with_max_width(420.0)
+                    .title("Menu dialog")
+                    .description("Opened from a dropdown menu item.")
+                    .align(DialogAlign::Center)
+                    .max_width(420.0)
                     .scrollable(false),
                 |body| {
                     body.label("This dialog was opened from the menu.");
@@ -166,7 +166,7 @@ fn render_demo_menu(ui: &mut egui::Ui, theme: &Theme) {
                 menu_ui,
                 theme,
                 DropdownMenuItemProps::new("Back")
-                    .with_shortcut("Ctrl+[")
+                    .shortcut("Ctrl+[")
                     .inset(true),
             )
             .clicked()
@@ -178,7 +178,7 @@ fn render_demo_menu(ui: &mut egui::Ui, theme: &Theme) {
                 menu_ui,
                 theme,
                 DropdownMenuItemProps::new("Forward")
-                    .with_shortcut("Ctrl+]")
+                    .shortcut("Ctrl+]")
                     .inset(true)
                     .disabled(true),
             )
@@ -191,7 +191,7 @@ fn render_demo_menu(ui: &mut egui::Ui, theme: &Theme) {
                 menu_ui,
                 theme,
                 DropdownMenuItemProps::new("Reload")
-                    .with_shortcut("Ctrl+R")
+                    .shortcut("Ctrl+R")
                     .inset(true),
             )
             .clicked()
@@ -234,7 +234,7 @@ fn render_demo_menu(ui: &mut egui::Ui, theme: &Theme) {
                         submenu_ui,
                         theme,
                         DropdownMenuItemProps::new("Delete")
-                            .with_variant(DropdownMenuItemVariant::Destructive),
+                            .variant(DropdownMenuItemVariant::Destructive),
                     )
                     .clicked()
                     {
@@ -247,8 +247,7 @@ fn render_demo_menu(ui: &mut egui::Ui, theme: &Theme) {
             if dropdown_menu_item(
                 menu_ui,
                 theme,
-                DropdownMenuItemProps::new("Delete")
-                    .with_variant(DropdownMenuItemVariant::Destructive),
+                DropdownMenuItemProps::new("Delete").variant(DropdownMenuItemVariant::Destructive),
             )
             .clicked()
             {
@@ -417,8 +416,7 @@ fn render_dialog_menu(ui: &mut egui::Ui, theme: &Theme, dialog_open: &mut bool) 
             if dropdown_menu_item(
                 menu_ui,
                 theme,
-                DropdownMenuItemProps::new("Delete")
-                    .with_variant(DropdownMenuItemVariant::Destructive),
+                DropdownMenuItemProps::new("Delete").variant(DropdownMenuItemVariant::Destructive),
             )
             .clicked()
             {

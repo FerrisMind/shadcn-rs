@@ -124,10 +124,10 @@ impl App for DatePickerExample {
                 )
                 .align(egui_shadcn::PopoverAlign::Start)
                 .side(egui_shadcn::PopoverSide::Bottom)
-                .with_width(280.0)
-                .with_max_height(420.0)
-                .with_content_padding(Margin::same(8))
-                .with_animation(true),
+                .width(280.0)
+                .max_height(420.0)
+                .content_padding(Margin::same(8))
+                .animation(true),
                 |ui| {
                     let label = if let Some(date) = self.presets_date {
                         egui::WidgetText::from(format_ppp(date))

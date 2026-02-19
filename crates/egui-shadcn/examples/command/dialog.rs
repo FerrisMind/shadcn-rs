@@ -45,7 +45,7 @@ impl App for CommandDialogExample {
         CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
                 ui.label("Press");
-                kbd(ui, &self.theme, KbdProps::new("⌘J"));
+                kbd(ui, &self.theme, "⌘J", KbdProps::new());
             });
 
             command_dialog(

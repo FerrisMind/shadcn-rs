@@ -65,7 +65,7 @@ fn button_with_kbd<'a>(label: &'a str, shortcut: &'a str, theme: &'a Theme) -> E
             iced_text(label).size(14),
             kbd(
                 shortcut,
-                KbdProps::new().size(iced_shadcn::KbdSize::One),
+                KbdProps::new().size(iced_shadcn::KbdSize::Size1),
                 theme
             ),
         ]
@@ -99,7 +99,7 @@ fn outline_button_with_kbd<'a>(
             iced_text(label).size(14),
             kbd(
                 shortcut,
-                KbdProps::new().size(iced_shadcn::KbdSize::One),
+                KbdProps::new().size(iced_shadcn::KbdSize::Size1),
                 theme
             ),
         ]
@@ -134,7 +134,7 @@ fn ghost_button_with_kbd<'a>(
             iced_text(label).size(14),
             kbd(
                 shortcut,
-                KbdProps::new().size(iced_shadcn::KbdSize::One),
+                KbdProps::new().size(iced_shadcn::KbdSize::Size1),
                 theme
             ),
         ]

@@ -28,7 +28,7 @@ impl Example {
             Message::ShowToast => {
                 self.toaster.show(
                     Toast::new("Event has been created")
-                        .with_description("Sunday, December 03, 2023 at 9:00 AM"),
+                        .description("Sunday, December 03, 2023 at 9:00 AM"),
                 );
             }
         }

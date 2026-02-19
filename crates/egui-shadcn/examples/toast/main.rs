@@ -65,7 +65,7 @@ impl App for ToastExample {
                 {
                     toaster.show(
                         Toast::new("Scheduled: Catch up")
-                            .with_description("Friday, February 10, 2023 at 5:57 PM"),
+                            .description("Friday, February 10, 2023 at 5:57 PM"),
                     );
                 }
             });
@@ -106,8 +106,7 @@ impl App for ToastExample {
                     .clicked()
                     {
                         toaster.show(
-                            Toast::new("Event has been created")
-                                .with_variant(ToastVariant::Success),
+                            Toast::new("Event has been created").variant(ToastVariant::Success),
                         );
                     }
 
@@ -123,7 +122,7 @@ impl App for ToastExample {
                     {
                         toaster.show(
                             Toast::new("Be at the area 10 minutes before the event time")
-                                .with_variant(ToastVariant::Info),
+                                .variant(ToastVariant::Info),
                         );
                     }
 
@@ -139,7 +138,7 @@ impl App for ToastExample {
                     {
                         toaster.show(
                             Toast::new("Event start time cannot be earlier than 8am")
-                                .with_variant(ToastVariant::Warning),
+                                .variant(ToastVariant::Warning),
                         );
                     }
 
@@ -154,8 +153,7 @@ impl App for ToastExample {
                     .clicked()
                     {
                         toaster.show(
-                            Toast::new("Event has not been created")
-                                .with_variant(ToastVariant::Error),
+                            Toast::new("Event has not been created").variant(ToastVariant::Error),
                         );
                     }
 
@@ -171,7 +169,7 @@ impl App for ToastExample {
                     {
                         toaster.show(
                             Toast::new("Loading...")
-                                .with_variant(ToastVariant::Loading)
+                                .variant(ToastVariant::Loading)
                                 .duration_ms(1500),
                         );
                     }
@@ -204,8 +202,8 @@ impl App for ToastExample {
                     pending.promise.success(
                         &toaster,
                         Toast::new("Event has been created")
-                            .with_variant(ToastVariant::Success)
-                            .with_description("All changes were applied."),
+                            .variant(ToastVariant::Success)
+                            .description("All changes were applied."),
                     );
                 }
             }

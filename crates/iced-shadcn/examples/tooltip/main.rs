@@ -28,7 +28,7 @@ impl Example {
                     None,
                     ButtonProps::new()
                         .variant(ButtonVariant::Solid)
-                        .size(ButtonSize::One),
+                        .size(ButtonSize::Size1),
                     theme
                 ),
                 iced_text("The quick brown fox").size(12),
@@ -43,7 +43,7 @@ impl Example {
                     None,
                     ButtonProps::new()
                         .variant(ButtonVariant::Solid)
-                        .size(ButtonSize::One),
+                        .size(ButtonSize::Size1),
                     theme
                 ),
                 iced_text("The goal of typography is to relate font size, line height, and line width in a proportional way that maximizes beauty and makes reading easier and more pleasant.")

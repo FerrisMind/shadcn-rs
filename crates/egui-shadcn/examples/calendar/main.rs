@@ -41,10 +41,10 @@ impl CalendarDemo {
             ui,
             &self.theme,
             CardProps::default()
-                .with_variant(CardVariant::Outline)
-                .with_padding(egui::vec2(12.0, 12.0))
-                .with_rounding(CornerRadius::same(12))
-                .with_shadow(true),
+                .variant(CardVariant::Outline)
+                .padding(egui::vec2(12.0, 12.0))
+                .rounding(CornerRadius::same(12))
+                .shadow(true),
             |card_ui| {
                 card_ui.horizontal_centered(|ui| {
                     ui.set_min_size(card_size);

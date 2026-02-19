@@ -130,9 +130,9 @@ fn render_login_card(ui: &mut egui::Ui, theme: &Theme, email: &mut String, passw
         ui,
         theme,
         CardProps::default()
-            .with_padding(egui::vec2(24.0, 24.0))
-            .with_variant(CardVariant::Outline)
-            .with_shadow(false),
+            .padding(egui::vec2(24.0, 24.0))
+            .variant(CardVariant::Outline)
+            .shadow(false),
         |card_ui| {
             card_ui.spacing_mut().item_spacing.y = 20.0;
 
@@ -275,9 +275,9 @@ fn render_project_card(
         ui,
         theme,
         CardProps::default()
-            .with_padding(egui::vec2(24.0, 24.0))
-            .with_variant(CardVariant::Outline)
-            .with_shadow(false),
+            .padding(egui::vec2(24.0, 24.0))
+            .variant(CardVariant::Outline)
+            .shadow(false),
         |card_ui| {
             card_ui.spacing_mut().item_spacing.y = 20.0;
 

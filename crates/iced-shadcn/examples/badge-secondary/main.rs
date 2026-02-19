@@ -24,7 +24,7 @@ impl Example {
             badge(
                 "Label",
                 BadgeProps::new()
-                    .variant(BadgeVariant::Surface)
+                    .variant(BadgeVariant::Outline)
                     .color(AccentColor::Gray),
                 theme
             )

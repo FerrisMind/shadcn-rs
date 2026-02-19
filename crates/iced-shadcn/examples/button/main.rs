@@ -66,7 +66,7 @@ impl Example {
                     Some(Message::Pressed),
                     ButtonProps::new()
                         .variant(ButtonVariant::Outline)
-                        .size(ButtonSize::Two),
+                        .size(ButtonSize::Size2),
                     theme,
                 ),
                 icon_button(
@@ -74,7 +74,7 @@ impl Example {
                     Some(Message::Pressed),
                     ButtonProps::new()
                         .variant(ButtonVariant::Outline)
-                        .size(ButtonSize::Two),
+                        .size(ButtonSize::Size2),
                     theme,
                 ),
             ]
@@ -89,7 +89,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Solid)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             ),
         );
@@ -101,7 +101,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Soft)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             ),
         );
@@ -113,7 +113,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Solid)
-                    .size(ButtonSize::Two)
+                    .size(ButtonSize::Size2)
                     .color(AccentColor::Red),
                 theme,
             ),
@@ -126,7 +126,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             ),
         );
@@ -138,7 +138,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Ghost)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             ),
         );
@@ -152,7 +152,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Link)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             );
             preview(
@@ -171,7 +171,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             ),
         );
@@ -185,7 +185,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::One),
+                    .size(ButtonSize::Size1),
                 theme,
             ),
         );
@@ -197,7 +197,7 @@ impl Example {
                     spinner(
                         Spinner::new(theme)
                             .progress(progress)
-                            .size(SpinnerSize::One)
+                            .size(SpinnerSize::Size1)
                             .color(theme.palette.muted_foreground),
                     ),
                     text("Submit")
@@ -211,7 +211,7 @@ impl Example {
                 None,
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::One),
+                    .size(ButtonSize::Size1),
                 theme,
             ),
         );
@@ -222,7 +222,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::One),
+                    .size(ButtonSize::Size1),
                 theme,
             ),
             icon_button(
@@ -230,7 +230,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::One),
+                    .size(ButtonSize::Size1),
                 theme,
             ),
         ]
@@ -242,7 +242,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             ),
             icon_button(
@@ -250,7 +250,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             ),
         ]
@@ -262,7 +262,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::Three),
+                    .size(ButtonSize::Size3),
                 theme,
             ),
             icon_button(
@@ -270,7 +270,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::Three),
+                    .size(ButtonSize::Size3),
                 theme,
             ),
         ]
@@ -290,7 +290,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Outline)
-                    .size(ButtonSize::Two)
+                    .size(ButtonSize::Size2)
                     .radius(ButtonRadius::Full),
                 theme,
             ),
@@ -303,7 +303,7 @@ impl Example {
                 Some(Message::Pressed),
                 ButtonProps::new()
                     .variant(ButtonVariant::Solid)
-                    .size(ButtonSize::Two),
+                    .size(ButtonSize::Size2),
                 theme,
             ),
         );

@@ -2,9 +2,9 @@ use iced::widget::{column, container, row, text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    ButtonProps, ButtonSize, ButtonVariant, CardProps, CardSize, TabsListProps, TabsListVariant,
-    TabsRootProps, TextFieldProps, TextFieldSize, TextFieldVariant, Theme, button, card, label,
-    tabs_content, tabs_contents, tabs_list, tabs_root, tabs_trigger, text_field,
+    ButtonProps, ButtonSize, ButtonVariant, CardProps, CardSize, InputProps, InputSize,
+    InputVariant, TabsListProps, TabsListVariant, TabsRootProps, Theme, button, card, input, label,
+    tabs_content, tabs_contents, tabs_list, tabs_root, tabs_trigger,
 };
 
 pub fn main() -> iced::Result {
@@ -92,13 +92,13 @@ impl Example {
                 column![
                     column![
                         label("Name", theme),
-                        text_field(
+                        input(
                             &self.name,
                             "Name",
                             Some(Message::NameChanged),
-                            TextFieldProps::new()
-                                .size(TextFieldSize::Two)
-                                .variant(TextFieldVariant::Surface),
+                            InputProps::new()
+                                .size(InputSize::Size2)
+                                .variant(InputVariant::Surface),
                             theme,
                         )
                         .width(field_width),
@@ -106,13 +106,13 @@ impl Example {
                     .spacing(12),
                     column![
                         label("Username", theme),
-                        text_field(
+                        input(
                             &self.username,
                             "Username",
                             Some(Message::UsernameChanged),
-                            TextFieldProps::new()
-                                .size(TextFieldSize::Two)
-                                .variant(TextFieldVariant::Surface),
+                            InputProps::new()
+                                .size(InputSize::Size2)
+                                .variant(InputVariant::Surface),
                             theme,
                         )
                         .width(field_width),
@@ -125,13 +125,13 @@ impl Example {
                     Some(Message::SaveAccount),
                     ButtonProps::new()
                         .variant(ButtonVariant::Solid)
-                        .size(ButtonSize::Two),
+                        .size(ButtonSize::Size2),
                     theme,
                 ),]
                 .align_y(Alignment::Center),
             ]
             .spacing(24),
-            CardProps::new().size(CardSize::Four),
+            CardProps::new().size(CardSize::Size4),
             theme,
         );
 
@@ -149,13 +149,13 @@ impl Example {
                 column![
                     column![
                         label("Current password", theme),
-                        text_field(
+                        input(
                             &self.current_password,
                             "Current password",
                             Some(Message::CurrentPasswordChanged),
-                            TextFieldProps::new()
-                                .size(TextFieldSize::Two)
-                                .variant(TextFieldVariant::Surface),
+                            InputProps::new()
+                                .size(InputSize::Size2)
+                                .variant(InputVariant::Surface),
                             theme,
                         )
                         .width(field_width),
@@ -163,13 +163,13 @@ impl Example {
                     .spacing(12),
                     column![
                         label("New password", theme),
-                        text_field(
+                        input(
                             &self.new_password,
                             "New password",
                             Some(Message::NewPasswordChanged),
-                            TextFieldProps::new()
-                                .size(TextFieldSize::Two)
-                                .variant(TextFieldVariant::Surface),
+                            InputProps::new()
+                                .size(InputSize::Size2)
+                                .variant(InputVariant::Surface),
                             theme,
                         )
                         .width(field_width),
@@ -182,13 +182,13 @@ impl Example {
                     Some(Message::SavePassword),
                     ButtonProps::new()
                         .variant(ButtonVariant::Solid)
-                        .size(ButtonSize::Two),
+                        .size(ButtonSize::Size2),
                     theme,
                 ),]
                 .align_y(Alignment::Center),
             ]
             .spacing(24),
-            CardProps::new().size(CardSize::Four),
+            CardProps::new().size(CardSize::Size4),
             theme,
         );
 

@@ -51,8 +51,8 @@ impl Example {
                     ),
                     input_group_addon(
                         row![
-                            kbd("⌘", KbdProps::new().size(KbdSize::One), theme),
-                            kbd("K", KbdProps::new().size(KbdSize::One), theme),
+                            kbd("⌘", KbdProps::new().size(KbdSize::Size1), theme),
+                            kbd("K", KbdProps::new().size(KbdSize::Size1), theme),
                         ]
                         .spacing(2),
                         iced_shadcn::InputGroupAddonProps::new()
@@ -69,7 +69,7 @@ impl Example {
                     input_group_control(text_input("Type a command...", "").padding([10, 14])),
                     input_group_addon(
                         row![
-                            kbd("ESC", KbdProps::new().size(KbdSize::One), theme),
+                            kbd("ESC", KbdProps::new().size(KbdSize::Size1), theme),
                             iced_text("to close")
                                 .size(12)
                                 .style(|_theme: &iced::Theme| iced::widget::text::Style {
@@ -101,7 +101,7 @@ impl Example {
                     input_group_control(text_input("Quick action...", "").padding([8, 12])),
                     input_group_addon(
                         row![
-                            kbd("↵", KbdProps::new().size(KbdSize::One), theme),
+                            kbd("↵", KbdProps::new().size(KbdSize::Size1), theme),
                             iced_text("to run").size(12).style(|_theme: &iced::Theme| {
                                 iced::widget::text::Style {
                                     color: Some(theme.palette.muted_foreground),
@@ -127,8 +127,8 @@ impl Example {
                         ),
                         input_group_addon(
                             row![
-                                kbd("↑", KbdProps::new().size(KbdSize::One), theme),
-                                kbd("↓", KbdProps::new().size(KbdSize::One), theme),
+                                kbd("↑", KbdProps::new().size(KbdSize::Size1), theme),
+                                kbd("↓", KbdProps::new().size(KbdSize::Size1), theme),
                             ]
                             .spacing(2),
                             iced_shadcn::InputGroupAddonProps::new()
@@ -142,7 +142,7 @@ impl Example {
                     vec![
                         input_group_control(text_input("Press ↵ to select", "").padding([8, 12])),
                         input_group_addon(
-                            kbd("↵", KbdProps::new().size(KbdSize::Two), theme),
+                            kbd("↵", KbdProps::new().size(KbdSize::Size2), theme),
                             iced_shadcn::InputGroupAddonProps::new()
                                 .align(InputGroupAddonAlign::InlineEnd),
                         ),

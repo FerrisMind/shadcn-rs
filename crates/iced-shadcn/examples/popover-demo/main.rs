@@ -3,8 +3,8 @@ use iced::widget::{column, container, row, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    ButtonProps, ButtonVariant, PopoverProps, PopoverSize, TextFieldProps, Theme, button, label,
-    popover, text_field,
+    ButtonProps, ButtonVariant, InputProps, PopoverProps, PopoverSize, Theme, button, input, label,
+    popover,
 };
 
 pub fn main() -> iced::Result {
@@ -29,7 +29,7 @@ impl Example {
             theme,
         );
 
-        let field_props = TextFieldProps::new().read_only(true);
+        let field_props = InputProps::new().read_only(true);
 
         let popover_content = column![
             column![
@@ -40,28 +40,28 @@ impl Example {
             column![
                 row![
                     label("Width", theme),
-                    text_field("100%", "", None::<fn(String) -> ()>, field_props, theme)
+                    input("100%", "", None::<fn(String) -> ()>, field_props, theme)
                         .width(Length::Fixed(160.0)),
                 ]
                 .spacing(12)
                 .align_y(Alignment::Center),
                 row![
                     label("Max. width", theme),
-                    text_field("300px", "", None::<fn(String) -> ()>, field_props, theme)
+                    input("300px", "", None::<fn(String) -> ()>, field_props, theme)
                         .width(Length::Fixed(160.0)),
                 ]
                 .spacing(12)
                 .align_y(Alignment::Center),
                 row![
                     label("Height", theme),
-                    text_field("25px", "", None::<fn(String) -> ()>, field_props, theme)
+                    input("25px", "", None::<fn(String) -> ()>, field_props, theme)
                         .width(Length::Fixed(160.0)),
                 ]
                 .spacing(12)
                 .align_y(Alignment::Center),
                 row![
                     label("Max. height", theme),
-                    text_field("none", "", None::<fn(String) -> ()>, field_props, theme)
+                    input("none", "", None::<fn(String) -> ()>, field_props, theme)
                         .width(Length::Fixed(160.0)),
                 ]
                 .spacing(12)
@@ -75,7 +75,7 @@ impl Example {
         let content = popover(
             trigger,
             popover_content,
-            PopoverProps::new().size(PopoverSize::Two).max_width(320),
+            PopoverProps::new().size(PopoverSize::Size2).max_width(320),
             theme,
         );
 

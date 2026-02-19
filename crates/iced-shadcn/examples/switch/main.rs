@@ -58,13 +58,13 @@ impl Example {
 
         let demo_content = column![
             row![
-                make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+                make_switch(next_index(), SwitchProps::new().size(SwitchSize::Size2)),
                 label("Airplane Mode", theme),
             ]
             .spacing(12)
             .align_y(Alignment::Center),
             row![
-                make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+                make_switch(next_index(), SwitchProps::new().size(SwitchSize::Size2)),
                 column![
                     label("Email Notifications", theme),
                     muted_text("Receive email updates about your account activity.", theme),
@@ -81,7 +81,7 @@ impl Example {
             text(
                 "Email Notifications",
                 TextProps::new()
-                    .size(TextSize::Three)
+                    .size(TextSize::Size3)
                     .weight(TextWeight::Medium),
                 theme
             ),
@@ -100,7 +100,7 @@ impl Example {
                         ),
                     ])
                     .width(Length::Fill),
-                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Size2)),
                 ]
                 .spacing(12)
                 .align_y(Alignment::Center),
@@ -115,7 +115,7 @@ impl Example {
                     .width(Length::Fill),
                     make_switch(
                         next_index(),
-                        SwitchProps::new().size(SwitchSize::Two).disabled(true),
+                        SwitchProps::new().size(SwitchSize::Size2).disabled(true),
                     ),
                 ]
                 .spacing(12)
@@ -146,7 +146,7 @@ you can use a one-time code sent to your email.",
                 ),
             ])
             .width(Length::Fill),
-            make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+            make_switch(next_index(), SwitchProps::new().size(SwitchSize::Size2)),
         ]
         .spacing(12)
         .align_y(Alignment::Center);
@@ -155,7 +155,7 @@ you can use a one-time code sent to your email.",
             text(
                 "Security Settings",
                 TextProps::new()
-                    .size(TextSize::Three)
+                    .size(TextSize::Size3)
                     .weight(TextWeight::Medium),
                 theme
             ),
@@ -175,7 +175,7 @@ you can use a one-time code sent to your email.",
                         ),
                     ])
                     .width(Length::Fill),
-                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Size2)),
                 ]
                 .spacing(12)
                 .align_y(Alignment::Center),
@@ -200,7 +200,7 @@ you can use a one-time code sent to your email.",
             text(
                 "Security Settings",
                 TextProps::new()
-                    .size(TextSize::Three)
+                    .size(TextSize::Size3)
                     .weight(TextWeight::Medium),
                 theme
             ),
@@ -223,7 +223,7 @@ you can use a one-time code sent to your email.",
                         ),
                     ])
                     .width(Length::Fill),
-                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Two)),
+                    make_switch(next_index(), SwitchProps::new().size(SwitchSize::Size2)),
                 ]
                 .spacing(12)
                 .align_y(Alignment::Center),
@@ -266,21 +266,21 @@ you can use a one-time code sent to your email.",
                     make_switch(
                         next_index(),
                         SwitchProps::new()
-                            .size(SwitchSize::Two)
+                            .size(SwitchSize::Size2)
                             .variant(variant)
                             .high_contrast(high_contrast),
                     ),
                     make_switch(
                         next_index(),
                         SwitchProps::new()
-                            .size(SwitchSize::Two)
+                            .size(SwitchSize::Size2)
                             .variant(variant)
                             .high_contrast(high_contrast),
                     ),
                     make_switch(
                         next_index(),
                         SwitchProps::new()
-                            .size(SwitchSize::Two)
+                            .size(SwitchSize::Size2)
                             .variant(variant)
                             .high_contrast(high_contrast)
                             .disabled(true),
@@ -288,7 +288,7 @@ you can use a one-time code sent to your email.",
                     make_switch(
                         next_index(),
                         SwitchProps::new()
-                            .size(SwitchSize::Two)
+                            .size(SwitchSize::Size2)
                             .variant(variant)
                             .high_contrast(high_contrast)
                             .disabled(true),
@@ -350,15 +350,15 @@ you can use a one-time code sent to your email.",
                 container(caption(radius_label(*radius), theme)).width(Length::Fixed(120.0)),
                 make_switch(
                     next_index(),
-                    SwitchProps::new().size(SwitchSize::One).radius(*radius),
+                    SwitchProps::new().size(SwitchSize::Size1).radius(*radius),
                 ),
                 make_switch(
                     next_index(),
-                    SwitchProps::new().size(SwitchSize::Two).radius(*radius),
+                    SwitchProps::new().size(SwitchSize::Size2).radius(*radius),
                 ),
                 make_switch(
                     next_index(),
-                    SwitchProps::new().size(SwitchSize::Three).radius(*radius),
+                    SwitchProps::new().size(SwitchSize::Size3).radius(*radius),
                 ),
             ]
             .spacing(12)
@@ -382,16 +382,16 @@ you can use a one-time code sent to your email.",
                 container(caption(color_label(*color), theme)).width(Length::Fixed(120.0)),
                 make_switch(
                     next_index(),
-                    SwitchProps::new().size(SwitchSize::Two).color(*color),
+                    SwitchProps::new().size(SwitchSize::Size2).color(*color),
                 ),
                 make_switch(
                     next_index(),
-                    SwitchProps::new().size(SwitchSize::Two).color(*color),
+                    SwitchProps::new().size(SwitchSize::Size2).color(*color),
                 ),
                 make_switch(
                     next_index(),
                     SwitchProps::new()
-                        .size(SwitchSize::Two)
+                        .size(SwitchSize::Size2)
                         .color(*color)
                         .high_contrast(true),
                 ),
@@ -453,7 +453,7 @@ const VARIANTS: [SwitchVariant; 3] = [
     SwitchVariant::Soft,
 ];
 
-const SIZES: [SwitchSize; 3] = [SwitchSize::One, SwitchSize::Two, SwitchSize::Three];
+const SIZES: [SwitchSize; 3] = [SwitchSize::Size1, SwitchSize::Size2, SwitchSize::Size3];
 
 const RADII: [ButtonRadius; 5] = [
     ButtonRadius::None,
@@ -493,12 +493,12 @@ const COLORS: [AccentColor; 26] = [
 ];
 
 const ALIGNMENT_ITEMS: [(SwitchSize, TextSize); 6] = [
-    (SwitchSize::One, TextSize::One),
-    (SwitchSize::One, TextSize::Two),
-    (SwitchSize::Two, TextSize::Two),
-    (SwitchSize::Two, TextSize::Three),
-    (SwitchSize::Three, TextSize::Three),
-    (SwitchSize::Three, TextSize::Four),
+    (SwitchSize::Size1, TextSize::Size1),
+    (SwitchSize::Size1, TextSize::Size2),
+    (SwitchSize::Size2, TextSize::Size2),
+    (SwitchSize::Size2, TextSize::Size3),
+    (SwitchSize::Size3, TextSize::Size3),
+    (SwitchSize::Size3, TextSize::Size4),
 ];
 
 fn default_states() -> Vec<bool> {
@@ -511,7 +511,7 @@ fn default_states() -> Vec<bool> {
     }
 
     for size in SIZES {
-        states.push(matches!(size, SwitchSize::Two));
+        states.push(matches!(size, SwitchSize::Size2));
     }
 
     for (index, _item) in ALIGNMENT_ITEMS.iter().enumerate() {
@@ -520,7 +520,7 @@ fn default_states() -> Vec<bool> {
 
     for _radius in RADII {
         for size in SIZES {
-            states.push(matches!(size, SwitchSize::Two));
+            states.push(matches!(size, SwitchSize::Size2));
         }
     }
 
@@ -541,7 +541,7 @@ fn section<'a, Message: 'a>(
     let title = text(
         title,
         TextProps::new()
-            .size(TextSize::Four)
+            .size(TextSize::Size4)
             .weight(TextWeight::Medium),
         theme,
     );
@@ -614,9 +614,10 @@ fn variant_label(variant: SwitchVariant) -> &'static str {
 
 fn size_label(size: SwitchSize) -> &'static str {
     match size {
-        SwitchSize::One => "1",
-        SwitchSize::Two => "2",
-        SwitchSize::Three => "3",
+        SwitchSize::Size1 => "1",
+        SwitchSize::Size2 => "2",
+        SwitchSize::Size3 => "3",
+        SwitchSize::Size4 => "4",
     }
 }
 

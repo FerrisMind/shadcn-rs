@@ -72,9 +72,7 @@ impl App for ContextMenuExample {
                 if context_menu_item(
                     ui,
                     &self.theme,
-                    ContextMenuItemProps::new("Back")
-                        .with_shortcut("⌘[")
-                        .inset(true),
+                    ContextMenuItemProps::new("Back").shortcut("⌘[").inset(true),
                 )
                 .clicked()
                 {
@@ -86,7 +84,7 @@ impl App for ContextMenuExample {
                     ui,
                     &self.theme,
                     ContextMenuItemProps::new("Forward")
-                        .with_shortcut("⌘]")
+                        .shortcut("⌘]")
                         .inset(true)
                         .disabled(true),
                 )
@@ -100,7 +98,7 @@ impl App for ContextMenuExample {
                     ui,
                     &self.theme,
                     ContextMenuItemProps::new("Reload")
-                        .with_shortcut("⌘R")
+                        .shortcut("⌘R")
                         .inset(true),
                 )
                 .clicked()
@@ -161,7 +159,7 @@ impl App for ContextMenuExample {
                             ui,
                             &self.theme,
                             ContextMenuItemProps::new("Delete")
-                                .with_variant(ContextMenuItemVariant::Destructive),
+                                .variant(ContextMenuItemVariant::Destructive),
                         )
                         .clicked()
                         {

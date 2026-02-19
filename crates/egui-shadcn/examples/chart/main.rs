@@ -155,9 +155,9 @@ mod app {
             ui,
             theme,
             CardProps::default()
-                .with_variant(CardVariant::Outline)
-                .with_shadow(false)
-                .with_padding(vec2(24.0, 24.0)),
+                .variant(CardVariant::Outline)
+                .shadow(false)
+                .padding(vec2(24.0, 24.0)),
             |card_ui| {
                 card_ui.spacing_mut().item_spacing.y = 12.0;
                 render_card_header(card_ui, theme, "Line Chart", "January - June 2024");
@@ -214,9 +214,9 @@ mod app {
             ui,
             theme,
             CardProps::default()
-                .with_variant(CardVariant::Outline)
-                .with_shadow(false)
-                .with_padding(vec2(24.0, 24.0)),
+                .variant(CardVariant::Outline)
+                .shadow(false)
+                .padding(vec2(24.0, 24.0)),
             |card_ui| {
                 card_ui.spacing_mut().item_spacing.y = 12.0;
                 render_card_header(card_ui, theme, "Bar Chart", "January - June 2024");
@@ -274,9 +274,9 @@ mod app {
             ui,
             theme,
             CardProps::default()
-                .with_variant(CardVariant::Outline)
-                .with_shadow(false)
-                .with_padding(vec2(24.0, 24.0)),
+                .variant(CardVariant::Outline)
+                .shadow(false)
+                .padding(vec2(24.0, 24.0)),
             |card_ui| {
                 card_ui.spacing_mut().item_spacing.y = 12.0;
                 render_card_header(
@@ -341,9 +341,9 @@ mod app {
             ui,
             theme,
             CardProps::default()
-                .with_variant(CardVariant::Outline)
-                .with_shadow(false)
-                .with_padding(vec2(24.0, 24.0)),
+                .variant(CardVariant::Outline)
+                .shadow(false)
+                .padding(vec2(24.0, 24.0)),
             |card_ui| {
                 card_ui.spacing_mut().item_spacing.y = 12.0;
                 render_card_header(

@@ -74,7 +74,7 @@ impl Example {
             text(
                 "Price Range",
                 TextProps::new()
-                    .size(TextSize::Three)
+                    .size(TextSize::Size3)
                     .weight(TextWeight::Medium),
                 theme
             ),
@@ -247,7 +247,7 @@ const VARIANTS: [SliderVariant; 3] = [
     SliderVariant::Soft,
 ];
 
-const SIZES: [SliderSize; 3] = [SliderSize::One, SliderSize::Two, SliderSize::Three];
+const SIZES: [SliderSize; 3] = [SliderSize::Size1, SliderSize::Size2, SliderSize::Size3];
 
 const RADII: [ButtonRadius; 5] = [
     ButtonRadius::None,
@@ -305,7 +305,7 @@ fn section<'a, Message: 'a>(
     let title = text(
         title,
         TextProps::new()
-            .size(TextSize::Four)
+            .size(TextSize::Size4)
             .weight(TextWeight::Medium),
         theme,
     );
@@ -357,9 +357,9 @@ fn variant_label(variant: SliderVariant) -> &'static str {
 
 fn size_label(size: SliderSize) -> &'static str {
     match size {
-        SliderSize::One => "size 1",
-        SliderSize::Two => "size 2",
-        SliderSize::Three => "size 3",
+        SliderSize::Size1 => "size 1",
+        SliderSize::Size2 => "size 2",
+        SliderSize::Size3 => "size 3",
     }
 }
 

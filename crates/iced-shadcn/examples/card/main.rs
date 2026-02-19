@@ -24,10 +24,10 @@ impl Example {
             CardVariant::Ghost,
         ];
         let sizes = [
-            CardSize::One,
-            CardSize::Two,
-            CardSize::Three,
-            CardSize::Four,
+            CardSize::Size1,
+            CardSize::Size2,
+            CardSize::Size3,
+            CardSize::Size4,
             CardSize::Five,
         ];
 

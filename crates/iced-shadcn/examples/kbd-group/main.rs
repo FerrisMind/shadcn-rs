@@ -139,19 +139,19 @@ impl Example {
             // Section: Mixed Sizes
             section_header("Mixed Sizes in Group", theme),
             row![
-                kbd("Ctrl", KbdProps::new().size(KbdSize::Two), theme),
+                kbd("Ctrl", KbdProps::new().size(KbdSize::Size2), theme),
                 iced_text("+")
                     .size(12)
                     .style(|_theme: &iced::Theme| iced::widget::text::Style {
                         color: Some(theme.palette.muted_foreground),
                     }),
-                kbd("Alt", KbdProps::new().size(KbdSize::Two), theme),
+                kbd("Alt", KbdProps::new().size(KbdSize::Size2), theme),
                 iced_text("+")
                     .size(12)
                     .style(|_theme: &iced::Theme| iced::widget::text::Style {
                         color: Some(theme.palette.muted_foreground),
                     }),
-                kbd("Delete", KbdProps::new().size(KbdSize::Three), theme),
+                kbd("Delete", KbdProps::new().size(KbdSize::Size3), theme),
             ]
             .spacing(4)
             .align_y(Alignment::Center),
