@@ -92,7 +92,7 @@ pub use carousel::{
 pub use chart::{
     AxisFormatter, BarChart, ChartGrid, ChartPlot, ChartProps, ChartResponse, LineChart, chart,
 };
-pub use checkbox::{CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant, checkbox};
+pub use checkbox::{CheckboxCycle, CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant, checkbox};
 pub use collapsible::{CollapsibleContentProps, CollapsibleProps, collapsible};
 pub use combobox::{
     ButtonJustify, ComboboxProps, ComboboxSize, SelectItem as ComboboxItem, combobox,
@@ -171,8 +171,8 @@ pub use resizable::{
 };
 pub use scroll_area::{ScrollAreaProps, ScrollAreaScrollbars, ScrollAreaSize, scroll_area};
 pub use select::{
-    SelectContentVariant, SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize,
-    SelectTriggerVariant, select, select_entries,
+    ContentVariant, SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize,
+    TriggerVariant, select, select_entries,
 };
 pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separator};
 pub use sheet::{

@@ -31,7 +31,7 @@ pub enum SelectSize {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum SelectTriggerVariant {
+pub enum TriggerVariant {
     Classic,
     Surface,
     Soft,
@@ -39,7 +39,7 @@ pub enum SelectTriggerVariant {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum SelectContentVariant {
+pub enum ContentVariant {
     Solid,
     Soft,
 }
@@ -47,8 +47,8 @@ pub enum SelectContentVariant {
 #[derive(Clone, Copy, Debug)]
 pub struct SelectProps {
     pub size: SelectSize,
-    pub variant: SelectTriggerVariant,
-    pub content_variant: SelectContentVariant,
+    pub variant: TriggerVariant,
+    pub content_variant: ContentVariant,
     pub color: AccentColor,
     pub content_color: Option<AccentColor>,
     pub radius: Option<ButtonRadius>,
@@ -60,8 +60,8 @@ impl Default for SelectProps {
     fn default() -> Self {
         Self {
             size: SelectSize::Size2,
-            variant: SelectTriggerVariant::Surface,
-            content_variant: SelectContentVariant::Solid,
+            variant: TriggerVariant::Surface,
+            content_variant: ContentVariant::Solid,
             color: AccentColor::Gray,
             content_color: None,
             radius: None,
@@ -81,12 +81,12 @@ impl SelectProps {
         self
     }
 
-    pub fn variant(mut self, variant: SelectTriggerVariant) -> Self {
+    pub fn variant(mut self, variant: TriggerVariant) -> Self {
         self.variant = variant;
         self
     }
 
-    pub fn content_variant(mut self, content_variant: SelectContentVariant) -> Self {
+    pub fn content_variant(mut self, content_variant: ContentVariant) -> Self {
         self.content_variant = content_variant;
         self
     }
@@ -1787,44 +1787,44 @@ fn select_trigger_style(
     };
 
     let mut background = match props.variant {
-        SelectTriggerVariant::Soft => Background::Color(soft_bg),
-        SelectTriggerVariant::Ghost => Background::Color(Color::TRANSPARENT),
-        SelectTriggerVariant::Classic | SelectTriggerVariant::Surface => base_bg,
+        TriggerVariant::Soft => Background::Color(soft_bg),
+        TriggerVariant::Ghost => Background::Color(Color::TRANSPARENT),
+        TriggerVariant::Classic | TriggerVariant::Surface => base_bg,
     };
     let mut border_color = match props.variant {
-        SelectTriggerVariant::Soft | SelectTriggerVariant::Ghost => Color::TRANSPARENT,
-        SelectTriggerVariant::Classic | SelectTriggerVariant::Surface => palette.input,
+        TriggerVariant::Soft | TriggerVariant::Ghost => Color::TRANSPARENT,
+        TriggerVariant::Classic | TriggerVariant::Surface => palette.input,
     };
     let mut text_color = match props.variant {
-        SelectTriggerVariant::Soft | SelectTriggerVariant::Ghost => accent_text_color,
+        TriggerVariant::Soft | TriggerVariant::Ghost => accent_text_color,
         _ => palette.foreground,
     };
     let mut placeholder_color = match props.variant {
-        SelectTriggerVariant::Soft | SelectTriggerVariant::Ghost => {
+        TriggerVariant::Soft | TriggerVariant::Ghost => {
             apply_opacity(accent_text_color, 0.6)
         }
         _ => palette.muted_foreground,
     };
     let mut handle_color = match props.variant {
-        SelectTriggerVariant::Soft | SelectTriggerVariant::Ghost => {
+        TriggerVariant::Soft | TriggerVariant::Ghost => {
             apply_opacity(accent_text_color, 0.6)
         }
         _ => apply_opacity(palette.muted_foreground, 0.5),
     };
     let mut shadow = match props.variant {
-        SelectTriggerVariant::Ghost => Shadow::default(),
+        TriggerVariant::Ghost => Shadow::default(),
         _ => shadow_xs(1.0),
     };
 
     match status {
         SelectStatus::Hovered | SelectStatus::Opened { .. } => match props.variant {
-            SelectTriggerVariant::Soft => {
+            TriggerVariant::Soft => {
                 background = Background::Color(mix(soft_bg, accent, 0.1));
             }
-            SelectTriggerVariant::Ghost => {
+            TriggerVariant::Ghost => {
                 background = Background::Color(apply_opacity(soft_bg, 0.5));
             }
-            SelectTriggerVariant::Classic | SelectTriggerVariant::Surface => {
+            TriggerVariant::Classic | TriggerVariant::Surface => {
                 if dark_mode {
                     background = Background::Color(apply_opacity(palette.input, 0.5));
                 }
@@ -1839,7 +1839,7 @@ fn select_trigger_style(
             placeholder_color = apply_opacity(placeholder_color, 0.5);
             handle_color = apply_opacity(handle_color, 0.5);
             shadow = match props.variant {
-                SelectTriggerVariant::Ghost => Shadow::default(),
+                TriggerVariant::Ghost => Shadow::default(),
                 _ => shadow_xs(0.5),
             };
         }
@@ -1887,16 +1887,16 @@ fn select_menu_style(theme: &ShadcnTheme, props: SelectProps) -> MenuStyle {
     };
 
     let background = match props.content_variant {
-        SelectContentVariant::Soft => Background::Color(accent_soft_bg),
-        SelectContentVariant::Solid => Background::Color(palette.popover),
+        ContentVariant::Soft => Background::Color(accent_soft_bg),
+        ContentVariant::Solid => Background::Color(palette.popover),
     };
     let mut selected_background = match props.content_variant {
-        SelectContentVariant::Soft => {
+        ContentVariant::Soft => {
             let blend = if is_gray { palette.foreground } else { accent };
             let mix_ratio = if is_gray { 0.08 } else { 0.2 };
             Background::Color(mix(accent_soft_bg, blend, mix_ratio))
         }
-        SelectContentVariant::Solid => Background::Color(accent),
+        ContentVariant::Solid => Background::Color(accent),
     };
     let mut selected_text_color = accent_fg;
 
@@ -1908,12 +1908,12 @@ fn select_menu_style(theme: &ShadcnTheme, props: SelectProps) -> MenuStyle {
     let shadow = shadow_md(1.0);
 
     let hover_background = match props.content_variant {
-        SelectContentVariant::Soft => {
+        ContentVariant::Soft => {
             let blend = if is_gray { palette.foreground } else { accent };
             let mix_ratio = if is_gray { 0.12 } else { 0.25 };
             Background::Color(mix(accent_soft_bg, blend, mix_ratio))
         }
-        SelectContentVariant::Solid => Background::Color(palette.accent),
+        ContentVariant::Solid => Background::Color(palette.accent),
     };
 
     MenuStyle {

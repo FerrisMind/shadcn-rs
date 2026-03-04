@@ -16,6 +16,7 @@ struct Example {
     content_label: text_editor::Content,
     content_text: text_editor::Content,
     content_button: text_editor::Content,
+    content_form: text_editor::Content,
 }
 
 #[derive(Debug, Clone)]
@@ -24,7 +25,9 @@ enum Message {
     EditLabel(text_editor::Action),
     EditText(text_editor::Action),
     EditButton(text_editor::Action),
+    EditForm(text_editor::Action),
     Send,
+    Submit,
 }
 
 impl Example {
@@ -34,7 +37,9 @@ impl Example {
             Message::EditLabel(action) => self.content_label.perform(action),
             Message::EditText(action) => self.content_text.perform(action),
             Message::EditButton(action) => self.content_button.perform(action),
+            Message::EditForm(action) => self.content_form.perform(action),
             Message::Send => {}
+            Message::Submit => {}
         }
     }
 
@@ -118,6 +123,31 @@ impl Example {
                 ),
             ]
             .spacing(12),
+            column![
+                label("Bio", theme),
+                textarea(
+                    &self.content_form,
+                    "Tell us a little bit about yourself",
+                    Some(Message::EditForm),
+                    TextareaProps::new()
+                        .size(TextareaSize::Size2)
+                        .wrapping(Wrapping::WordOrGlyph),
+                    theme,
+                )
+                .width(420.0),
+                text("You can @mention other users and organizations.")
+                    .size(14)
+                    .style(|_theme| iced::widget::text::Style {
+                        color: Some(theme.palette.muted_foreground),
+                    }),
+                button(
+                    "Submit",
+                    Some(Message::Submit),
+                    ButtonProps::new(),
+                    theme,
+                ),
+            ]
+            .spacing(12),
         ]
         .spacing(24)
         .align_x(Alignment::Start);
@@ -147,6 +177,7 @@ impl Default for Example {
             content_label: text_editor::Content::new(),
             content_text: text_editor::Content::new(),
             content_button: text_editor::Content::new(),
+            content_form: text_editor::Content::new(),
         }
     }
 }

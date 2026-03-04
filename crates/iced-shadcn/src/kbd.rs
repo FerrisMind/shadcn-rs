@@ -250,7 +250,7 @@ use iced::advanced::renderer;
 use iced::advanced::text;
 use iced::advanced::widget::Tree;
 use iced::advanced::{Layout, Widget};
-use iced::{alignment, Font, Rectangle, Size};
+use iced::{Font, Rectangle, Size, alignment};
 
 struct KbdWidget {
     label: String,
@@ -310,9 +310,10 @@ where
         let bounds = layout.bounds();
         let palette = &self.theme.palette;
 
-        let background = self.props.background.unwrap_or_else(|| {
-            mix(palette.muted, palette.background, 0.6)
-        });
+        let background = self
+            .props
+            .background
+            .unwrap_or_else(|| mix(palette.muted, palette.background, 0.6));
         let text_color = self.props.color.unwrap_or(palette.muted_foreground);
         let border_color = self.props.border_color.unwrap_or(palette.border);
         let radius = self.props.size.radius(&self.theme);
@@ -365,8 +366,7 @@ where
     // No operate() → text is not selectable
 }
 
-impl<'a, Message, AppTheme, Renderer> From<KbdWidget>
-    for Element<'a, Message, AppTheme, Renderer>
+impl<'a, Message, AppTheme, Renderer> From<KbdWidget> for Element<'a, Message, AppTheme, Renderer>
 where
     Renderer: renderer::Renderer + text::Renderer<Font = Font> + 'a,
     Message: 'a,

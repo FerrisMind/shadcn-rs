@@ -4,16 +4,12 @@ use iced::{Alignment, Background, Color, Element, Length};
 
 use iced_shadcn::tokens::accent_color;
 use iced_shadcn::{
-    AccentColor, ButtonProps, ButtonSize, CheckboxProps, CheckboxSize, CheckboxState,
-    CheckboxVariant, LabelProps, TextProps, TextSize, TextWeight, Theme, button, checkbox, label,
-    label_with_props, text,
+    AccentColor, ButtonProps, CheckboxCycle, CheckboxProps, CheckboxSize, CheckboxState,
+    CheckboxVariant, TextProps, TextSize, TextWeight, Theme, button, checkbox, label, text,
 };
-use lucide_icons::LUCIDE_FONT_BYTES;
 
 pub fn main() -> iced::Result {
-    iced::application(Example::default, Example::update, Example::view)
-        .font(LUCIDE_FONT_BYTES)
-        .run()
+    iced::application(Example::default, Example::update, Example::view).run()
 }
 
 struct Example {
@@ -39,10 +35,17 @@ impl Example {
         }
     }
 
+    fn state_at(&self, index: usize) -> CheckboxState {
+        self.states
+            .get(index)
+            .copied()
+            .unwrap_or(CheckboxState::Unchecked)
+    }
+
     fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
         let background = theme.palette.background;
-        let border = theme.palette.border;
+        let border_color = theme.palette.border;
         let radius = theme.radius.md;
 
         let mut index = 0;
@@ -52,40 +55,43 @@ impl Example {
             current
         };
 
-        let demo_basic_index = next_index();
-        let demo_terms_index = next_index();
-        let demo_card_index = next_index();
+        // Demo — basic checkbox
+        let demo_idx = next_index();
+        let demo_section = row![
+            checkbox(
+                self.state_at(demo_idx),
+                Some(move |state| Message::Toggle(demo_idx, state)),
+                CheckboxProps::new().size(CheckboxSize::Size2),
+                theme,
+            ),
+            label("Accept terms and conditions", theme),
+        ]
+        .spacing(12)
+        .align_y(Alignment::Center);
 
-        let demo_section = column![
-            row![
-                checkbox(
-                    self.state_at(demo_basic_index),
-                    Some(move |state| Message::Toggle(demo_basic_index, state)),
-                    CheckboxProps::new().size(CheckboxSize::Size2),
-                    theme,
-                ),
+        // With Text — checkbox + label + description
+        let with_text_idx = next_index();
+        let with_text_section = row![
+            checkbox(
+                self.state_at(with_text_idx),
+                Some(move |state| Message::Toggle(with_text_idx, state)),
+                CheckboxProps::new().size(CheckboxSize::Size2),
+                theme,
+            ),
+            column![
                 label("Accept terms and conditions", theme),
-            ]
-            .spacing(12)
-            .align_y(Alignment::Center),
-            row![
-                checkbox(
-                    self.state_at(demo_terms_index),
-                    Some(move |state| Message::Toggle(demo_terms_index, state)),
-                    CheckboxProps::new().size(CheckboxSize::Size2),
-                    theme,
+                muted_text(
+                    "By clicking this checkbox, you agree to the terms and conditions.",
+                    theme
                 ),
-                column![
-                    label("Accept terms and conditions", theme),
-                    muted_text(
-                        "By clicking this checkbox, you agree to the terms and conditions.",
-                        theme
-                    ),
-                ]
-                .spacing(6),
             ]
-            .spacing(12)
-            .align_y(Alignment::Start),
+            .spacing(4),
+        ]
+        .spacing(12)
+        .align_y(Alignment::Start);
+
+        // Disabled
+        let disabled_section = row![
             row![
                 checkbox(
                     CheckboxState::Unchecked,
@@ -95,116 +101,76 @@ impl Example {
                         .disabled(true),
                     theme,
                 ),
-                label("Enable notifications", theme),
+                muted_text("Unchecked disabled", theme),
             ]
-            .spacing(12)
+            .spacing(8)
             .align_y(Alignment::Center),
-            {
-                let card_state = self.state_at(demo_card_index);
-                let card_active = card_state.is_checked();
-                let accent = accent_color(&theme.palette, AccentColor::Blue);
-                let card_border = if card_active {
-                    accent
-                } else {
-                    theme.palette.border
-                };
-                let card_background = if card_active {
-                    apply_opacity(accent, 0.08)
-                } else {
-                    theme.palette.card
-                };
-
-                container(
-                    row![
-                        checkbox(
-                            card_state,
-                            Some(move |state| Message::Toggle(demo_card_index, state)),
-                            CheckboxProps::new()
-                                .size(CheckboxSize::Size2)
-                                .color(AccentColor::Blue),
-                            theme,
-                        ),
-                        column![
-                            iced_text("Enable notifications").size(14).style(|_theme| {
-                                iced::widget::text::Style {
-                                    color: Some(theme.palette.foreground),
-                                }
-                            }),
-                            muted_text(
-                                "You can enable or disable notifications at any time.",
-                                theme
-                            ),
-                        ]
-                        .spacing(6),
-                    ]
-                    .spacing(12)
-                    .align_y(Alignment::Start),
-                )
-                .padding(12)
-                .style(move |_theme| iced::widget::container::Style {
-                    background: Some(Background::Color(card_background)),
-                    border: Border {
-                        radius: theme.radius.md.into(),
-                        width: 1.0,
-                        color: card_border,
-                    },
-                    ..iced::widget::container::Style::default()
-                })
-            },
-        ]
-        .spacing(12);
-
-        let with_text_index = next_index();
-        let with_text_section = row![
-            checkbox(
-                self.state_at(with_text_index),
-                Some(move |state| Message::Toggle(with_text_index, state)),
-                CheckboxProps::new().size(CheckboxSize::Size2),
-                theme,
-            ),
-            column![
-                label("Accept terms and conditions", theme),
-                muted_text(
-                    "You agree to our Terms of Service and Privacy Policy.",
-                    theme
+            row![
+                checkbox(
+                    CheckboxState::Checked,
+                    None::<fn(CheckboxState) -> Message>,
+                    CheckboxProps::new()
+                        .size(CheckboxSize::Size2)
+                        .disabled(true),
+                    theme,
                 ),
+                muted_text("Checked disabled", theme),
             ]
-            .spacing(4),
+            .spacing(8)
+            .align_y(Alignment::Center),
         ]
-        .spacing(12)
-        .align_y(Alignment::Start);
+        .spacing(24)
+        .align_y(Alignment::Center);
 
-        let disabled_section = row![
+        // Indeterminate
+        let indet_idx = next_index();
+        let indeterminate_section = row![
             checkbox(
-                CheckboxState::Unchecked,
-                None::<fn(CheckboxState) -> Message>,
+                self.state_at(indet_idx),
+                Some(move |state| Message::Toggle(indet_idx, state)),
                 CheckboxProps::new()
                     .size(CheckboxSize::Size2)
-                    .disabled(true),
+                    .cycle(CheckboxCycle::TriState),
                 theme,
             ),
-            label_with_props(
-                "Accept terms and conditions",
-                LabelProps::new().disabled(true),
-                theme,
-            ),
+            label("Select all items", theme),
         ]
         .spacing(12)
         .align_y(Alignment::Center);
 
-        let form_single_index = next_index();
-        let form_single_card = container(
+        // Card
+        let card_idx = next_index();
+        let card_state = self.state_at(card_idx);
+        let card_active = card_state.is_checked();
+        let accent = accent_color(&theme.palette, AccentColor::Blue);
+        let card_border = if card_active {
+            accent
+        } else {
+            theme.palette.border
+        };
+        let card_background = if card_active {
+            apply_opacity(accent, 0.08)
+        } else {
+            theme.palette.card
+        };
+        let card_section = container(
             row![
                 checkbox(
-                    self.state_at(form_single_index),
-                    Some(move |state| Message::Toggle(form_single_index, state)),
-                    CheckboxProps::new().size(CheckboxSize::Size2),
+                    card_state,
+                    Some(move |state| Message::Toggle(card_idx, state)),
+                    CheckboxProps::new()
+                        .size(CheckboxSize::Size2)
+                        .color(AccentColor::Blue),
                     theme,
                 ),
                 column![
-                    label("Use different settings for my mobile devices", theme),
+                    iced_text("Enable notifications").size(14).style(|_theme| {
+                        iced::widget::text::Style {
+                            color: Some(theme.palette.foreground),
+                        }
+                    }),
                     muted_text(
-                        "You can manage your mobile notifications in the mobile settings page.",
+                        "You can enable or disable notifications at any time.",
                         theme
                     ),
                 ]
@@ -213,290 +179,148 @@ impl Example {
             .spacing(12)
             .align_y(Alignment::Start),
         )
-        .padding(16)
+        .padding(12)
+        .width(Length::Fixed(400.0))
         .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.card)),
+            background: Some(Background::Color(card_background)),
             border: Border {
                 radius: theme.radius.md.into(),
                 width: 1.0,
-                color: theme.palette.border,
+                color: card_border,
             },
             ..iced::widget::container::Style::default()
         });
 
-        let form_single_section = column![
-            form_single_card,
-            button(
-                "Submit",
-                Some(Message::Submit),
-                ButtonProps::new().size(ButtonSize::Size2),
-                theme,
-            ),
-        ]
-        .spacing(12)
-        .align_x(Alignment::Start);
-
-        let mut form_items = column![].spacing(8);
-        for item in FORM_ITEMS {
-            let item_state_index = next_index();
-            let checkbox_props = CheckboxProps::new().size(CheckboxSize::Size2);
-            let item_row = row![
-                checkbox(
-                    self.state_at(item_state_index),
-                    Some(move |state| Message::Toggle(item_state_index, state)),
-                    checkbox_props,
-                    theme,
-                ),
-                text(
-                    item,
-                    TextProps::new()
-                        .size(TextSize::Size2)
-                        .weight(TextWeight::Regular),
-                    theme,
-                ),
-            ]
-            .spacing(12)
-            .align_y(Alignment::Center);
-
-            form_items = form_items.push(item_row);
-        }
-
-        let form_multiple_section = column![
-            text(
-                "Sidebar",
-                TextProps::new()
-                    .size(TextSize::Size3)
-                    .weight(TextWeight::Medium),
-                theme,
-            ),
-            muted_text(
-                "Select the items you want to display in the sidebar.",
-                theme
-            ),
-            form_items,
-            button(
-                "Submit",
-                Some(Message::Submit),
-                ButtonProps::new().size(ButtonSize::Size2),
-                theme,
-            ),
-        ]
-        .spacing(12)
-        .align_x(Alignment::Start);
-
-        let indeterminate_index = next_index();
-        let indeterminate_section = row![
-            checkbox(
-                self.state_at(indeterminate_index),
-                Some(move |state| Message::Toggle(indeterminate_index, state)),
-                CheckboxProps::new().size(CheckboxSize::Size2),
-                theme,
-            ),
-            label("Select all", theme),
-        ]
-        .spacing(12)
-        .align_y(Alignment::Center);
-
+        // Variants grid
         let variant_header = row![
-            caption("variant", theme).width(Length::Fixed(140.0)),
-            caption("unchecked", theme),
-            caption("checked", theme),
-            caption("indeterminate", theme),
-            caption("disabled", theme),
-            caption("disabled checked", theme),
-            caption("disabled indet", theme),
+            container(caption("Variant", theme)).width(Length::Fixed(80.0)),
+            container(caption("Default", theme)).width(Length::Fixed(60.0)),
+            container(caption("High Contrast", theme)).width(Length::Fixed(100.0)),
+            container(caption("Disabled", theme)).width(Length::Fixed(80.0)),
         ]
-        .spacing(16)
+        .spacing(12)
         .align_y(Alignment::Center);
 
         let mut variant_rows = column![variant_header].spacing(8);
         for variant in VARIANTS {
-            let base_props = CheckboxProps::new()
-                .size(CheckboxSize::Size2)
-                .variant(variant);
-            let row_label = caption(variant_label(variant), theme).width(Length::Fixed(140.0));
-            let unchecked_index = next_index();
-            let checked_index = next_index();
-            let indeterminate_index = next_index();
-            let row = row![
-                row_label,
-                checkbox(
-                    self.state_at(unchecked_index),
-                    Some(move |state| Message::Toggle(unchecked_index, state)),
-                    base_props,
-                    theme,
-                ),
-                checkbox(
-                    self.state_at(checked_index),
-                    Some(move |state| Message::Toggle(checked_index, state)),
-                    base_props,
-                    theme,
-                ),
-                checkbox(
-                    self.state_at(indeterminate_index),
-                    Some(move |state| Message::Toggle(indeterminate_index, state)),
-                    base_props,
-                    theme,
-                ),
-                checkbox(
-                    CheckboxState::Unchecked,
-                    None::<fn(CheckboxState) -> Message>,
-                    base_props.disabled(true),
-                    theme,
-                ),
-                checkbox(
-                    CheckboxState::Checked,
-                    None::<fn(CheckboxState) -> Message>,
-                    base_props.disabled(true),
-                    theme,
-                ),
-                checkbox(
-                    CheckboxState::Indeterminate,
-                    None::<fn(CheckboxState) -> Message>,
-                    base_props.disabled(true),
-                    theme,
-                ),
-            ]
-            .spacing(16)
-            .align_y(Alignment::Center);
+            let def_idx = next_index();
+            let hc_idx = next_index();
+            let dis_idx = next_index();
 
-            let high_label = caption(format!("{} + high contrast", variant_label(variant)), theme)
-                .width(Length::Fixed(140.0));
-            let high_unchecked_index = next_index();
-            let high_checked_index = next_index();
-            let high_indeterminate_index = next_index();
-            let high_row = row![
-                high_label,
-                checkbox(
-                    self.state_at(high_unchecked_index),
-                    Some(move |state| Message::Toggle(high_unchecked_index, state)),
-                    base_props.high_contrast(true),
+            let row_el = row![
+                container(caption(variant_label(variant), theme)).width(Length::Fixed(80.0)),
+                container(checkbox(
+                    self.state_at(def_idx),
+                    Some(move |state| Message::Toggle(def_idx, state)),
+                    CheckboxProps::new()
+                        .size(CheckboxSize::Size2)
+                        .variant(variant),
                     theme,
-                ),
-                checkbox(
-                    self.state_at(high_checked_index),
-                    Some(move |state| Message::Toggle(high_checked_index, state)),
-                    base_props.high_contrast(true),
+                ))
+                .width(Length::Fixed(60.0)),
+                container(checkbox(
+                    self.state_at(hc_idx),
+                    Some(move |state| Message::Toggle(hc_idx, state)),
+                    CheckboxProps::new()
+                        .size(CheckboxSize::Size2)
+                        .variant(variant)
+                        .high_contrast(true),
                     theme,
-                ),
-                checkbox(
-                    self.state_at(high_indeterminate_index),
-                    Some(move |state| Message::Toggle(high_indeterminate_index, state)),
-                    base_props.high_contrast(true),
-                    theme,
-                ),
-                checkbox(
-                    CheckboxState::Unchecked,
+                ))
+                .width(Length::Fixed(100.0)),
+                container(checkbox(
+                    self.state_at(dis_idx),
                     None::<fn(CheckboxState) -> Message>,
-                    base_props.high_contrast(true).disabled(true),
+                    CheckboxProps::new()
+                        .size(CheckboxSize::Size2)
+                        .variant(variant)
+                        .disabled(true),
                     theme,
-                ),
-                checkbox(
-                    CheckboxState::Checked,
-                    None::<fn(CheckboxState) -> Message>,
-                    base_props.high_contrast(true).disabled(true),
-                    theme,
-                ),
-                checkbox(
-                    CheckboxState::Indeterminate,
-                    None::<fn(CheckboxState) -> Message>,
-                    base_props.high_contrast(true).disabled(true),
-                    theme,
-                ),
-            ]
-            .spacing(16)
-            .align_y(Alignment::Center);
-
-            variant_rows = variant_rows.push(row).push(high_row);
-        }
-
-        let mut size_rows = column![].spacing(12);
-        for size in SIZES {
-            let unchecked_index = next_index();
-            let checked_index = next_index();
-            let row = row![
-                caption(size_label(size), theme).width(Length::Fixed(72.0)),
-                checkbox(
-                    self.state_at(unchecked_index),
-                    Some(move |state| Message::Toggle(unchecked_index, state)),
-                    CheckboxProps::new().size(size),
-                    theme,
-                ),
-                checkbox(
-                    self.state_at(checked_index),
-                    Some(move |state| Message::Toggle(checked_index, state)),
-                    CheckboxProps::new().size(size),
-                    theme,
-                ),
-            ]
-            .spacing(16)
-            .align_y(Alignment::Center);
-
-            size_rows = size_rows.push(row);
-        }
-
-        let mut color_rows = column![].spacing(12);
-        for (group_label, high_contrast) in [("default", false), ("high contrast", true)] {
-            let mut group_rows = column![caption(group_label, theme)].spacing(8);
-            for chunk in COLORS.chunks(3) {
-                let mut row = row![].spacing(16).align_y(Alignment::Center);
-                for color in chunk {
-                    let color_index = next_index();
-                    let mut props = CheckboxProps::new().size(CheckboxSize::Size2).color(*color);
-                    if high_contrast {
-                        props = props.high_contrast(true);
-                    }
-                    row = row.push(
-                        row![
-                            checkbox(
-                                self.state_at(color_index),
-                                Some(move |state| Message::Toggle(color_index, state)),
-                                props,
-                                theme,
-                            ),
-                            caption(color_label(*color), theme),
-                        ]
-                        .spacing(8)
-                        .align_y(Alignment::Center),
-                    );
-                }
-                group_rows = group_rows.push(row);
-            }
-            color_rows = color_rows.push(group_rows);
-        }
-
-        let mut alignment_rows = column![].spacing(12);
-        for (text_size, checkbox_size) in ALIGNMENT_ROWS {
-            let alignment_index = next_index();
-            let row = row![
-                checkbox(
-                    self.state_at(alignment_index),
-                    Some(move |state| Message::Toggle(alignment_index, state)),
-                    CheckboxProps::new().size(checkbox_size),
-                    theme,
-                ),
-                iced_text("Agree to Terms and Conditions")
-                    .size(text_size)
-                    .style(|_theme| iced::widget::text::Style {
-                        color: Some(theme.palette.foreground),
-                    }),
+                ))
+                .width(Length::Fixed(80.0)),
             ]
             .spacing(12)
             .align_y(Alignment::Center);
-            alignment_rows = alignment_rows.push(row);
+
+            variant_rows = variant_rows.push(row_el);
         }
 
+        // Sizes
+        let mut sizes_el = row![].spacing(24).align_y(Alignment::Center);
+        for size in SIZES {
+            let s_idx = next_index();
+            sizes_el = sizes_el.push(
+                row![
+                    checkbox(
+                        self.state_at(s_idx),
+                        Some(move |state| Message::Toggle(s_idx, state)),
+                        CheckboxProps::new().size(size),
+                        theme,
+                    ),
+                    caption(size_label(size), theme),
+                ]
+                .spacing(8)
+                .align_y(Alignment::Center),
+            );
+        }
+
+        // Colors
+        let mut colors_el = row![].spacing(16).align_y(Alignment::Center);
+        for color in COLORS {
+            let c_idx = next_index();
+            colors_el = colors_el.push(
+                row![
+                    checkbox(
+                        self.state_at(c_idx),
+                        Some(move |state| Message::Toggle(c_idx, state)),
+                        CheckboxProps::new()
+                            .size(CheckboxSize::Size2)
+                            .color(color),
+                        theme,
+                    ),
+                    caption(color_label(color), theme),
+                ]
+                .spacing(8)
+                .align_y(Alignment::Center),
+            );
+        }
+
+        // Form
+        let form_idx = next_index();
+        let form_section = column![
+            row![
+                checkbox(
+                    self.state_at(form_idx),
+                    Some(move |state| Message::Toggle(form_idx, state)),
+                    CheckboxProps::new().size(CheckboxSize::Size2),
+                    theme,
+                ),
+                column![
+                    label("Accept terms and conditions", theme),
+                    muted_text(
+                        "You agree to our Terms of Service and Privacy Policy.",
+                        theme
+                    ),
+                ]
+                .spacing(4),
+            ]
+            .spacing(12)
+            .align_y(Alignment::Start),
+            button("Submit", Some(Message::Submit), ButtonProps::new(), theme),
+        ]
+        .spacing(12)
+        .align_x(Alignment::Start);
+
         let content = column![
-            section(theme, "Checkbox Demo", demo_section),
-            section(theme, "Checkbox With Text", with_text_section),
-            section(theme, "Checkbox Disabled", disabled_section),
-            section(theme, "Form (Single)", form_single_section),
-            section(theme, "Form (Multiple)", form_multiple_section),
+            section(theme, "Demo", demo_section),
+            section(theme, "With Text", with_text_section),
+            section(theme, "Disabled", disabled_section),
             section(theme, "Indeterminate", indeterminate_section),
+            section(theme, "Card", card_section),
             section(theme, "Variants", variant_rows),
-            section(theme, "Sizes", size_rows),
-            section(theme, "Colors", color_rows),
-            section(theme, "Alignment", alignment_rows),
+            section(theme, "Sizes", sizes_el),
+            section(theme, "Colors", colors_el),
+            section(theme, "Form", form_section),
         ]
         .spacing(16);
 
@@ -510,33 +334,17 @@ impl Example {
                 border: Border {
                     radius: radius.into(),
                     width: 1.0,
-                    color: border,
+                    color: border_color,
                 },
                 ..iced::widget::container::Style::default()
             })
             .into()
     }
-
-    fn state_at(&self, index: usize) -> CheckboxState {
-        self.states
-            .get(index)
-            .copied()
-            .unwrap_or(CheckboxState::Unchecked)
-    }
-}
-
-impl Default for Example {
-    fn default() -> Self {
-        Self {
-            theme: Theme::default(),
-            states: default_states(),
-        }
-    }
 }
 
 const VARIANTS: [CheckboxVariant; 3] = [
-    CheckboxVariant::Classic,
     CheckboxVariant::Surface,
+    CheckboxVariant::Classic,
     CheckboxVariant::Soft,
 ];
 
@@ -547,71 +355,52 @@ const SIZES: [CheckboxSize; 3] = [
 ];
 
 const COLORS: [AccentColor; 6] = [
-    AccentColor::Gray,
     AccentColor::Blue,
     AccentColor::Green,
     AccentColor::Amber,
     AccentColor::Red,
     AccentColor::Purple,
+    AccentColor::Gray,
 ];
 
-const FORM_ITEMS: [&str; 6] = [
-    "Recents",
-    "Home",
-    "Applications",
-    "Desktop",
-    "Downloads",
-    "Documents",
-];
-
-const ALIGNMENT_ROWS: [(u32, CheckboxSize); 6] = [
-    (12, CheckboxSize::Size1),
-    (14, CheckboxSize::Size1),
-    (14, CheckboxSize::Size2),
-    (16, CheckboxSize::Size2),
-    (16, CheckboxSize::Size3),
-    (18, CheckboxSize::Size3),
-];
+impl Default for Example {
+    fn default() -> Self {
+        Self {
+            theme: Theme::default(),
+            states: default_states(),
+        }
+    }
+}
 
 fn default_states() -> Vec<CheckboxState> {
     let mut states = vec![
+        // demo
         CheckboxState::Unchecked,
+        // with text
         CheckboxState::Checked,
-        CheckboxState::Checked,
-        CheckboxState::Unchecked,
-        CheckboxState::Checked,
-        CheckboxState::Checked,
+        // indeterminate
+        CheckboxState::Indeterminate,
+        // card
         CheckboxState::Checked,
     ];
-    for _ in 0..(FORM_ITEMS.len() - 2) {
-        states.push(CheckboxState::Unchecked);
+    // variants: 3 variants × 3 columns (default, hc, disabled)
+    for _ in VARIANTS {
+        states.extend([
+            CheckboxState::Unchecked,
+            CheckboxState::Checked,
+            CheckboxState::Unchecked,
+        ]);
     }
-
-    states.push(CheckboxState::Indeterminate);
-
-    for _variant in VARIANTS {
-        for _ in 0..2 {
-            states.push(CheckboxState::Unchecked);
-            states.push(CheckboxState::Checked);
-            states.push(CheckboxState::Indeterminate);
-        }
-    }
-
+    // sizes: 3
     for _ in SIZES {
-        states.push(CheckboxState::Unchecked);
         states.push(CheckboxState::Checked);
     }
-
-    for _ in 0..2 {
-        for _ in COLORS {
-            states.push(CheckboxState::Checked);
-        }
+    // colors: 6
+    for _ in COLORS {
+        states.push(CheckboxState::Checked);
     }
-
-    for _ in ALIGNMENT_ROWS {
-        states.push(CheckboxState::Unchecked);
-    }
-
+    // form
+    states.push(CheckboxState::Unchecked);
     states
 }
 
@@ -627,19 +416,19 @@ fn section<'a, Message: 'a>(
             .weight(TextWeight::Medium),
         theme,
     );
-    let background = theme.palette.card;
-    let border = theme.palette.border;
-    let radius = theme.radius.md;
+    let bg = theme.palette.card;
+    let border_c = theme.palette.border;
+    let r = theme.radius.md;
 
     container(column![title, content.into()].spacing(12))
         .padding(16)
         .width(Length::Fill)
         .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(background)),
+            background: Some(Background::Color(bg)),
             border: Border {
-                radius: radius.into(),
+                radius: r.into(),
                 width: 1.0,
-                color: border,
+                color: border_c,
             },
             ..iced::widget::container::Style::default()
         })
@@ -667,35 +456,35 @@ fn caption<'a>(
 
 fn variant_label(variant: CheckboxVariant) -> &'static str {
     match variant {
-        CheckboxVariant::Classic => "classic",
-        CheckboxVariant::Surface => "surface",
-        CheckboxVariant::Soft => "soft",
+        CheckboxVariant::Surface => "Surface",
+        CheckboxVariant::Classic => "Classic",
+        CheckboxVariant::Soft => "Soft",
     }
 }
 
 fn size_label(size: CheckboxSize) -> &'static str {
     match size {
-        CheckboxSize::Size1 => "size 1",
-        CheckboxSize::Size2 => "size 2",
-        CheckboxSize::Size3 => "size 3",
+        CheckboxSize::Size1 => "Size 1",
+        CheckboxSize::Size2 => "Size 2",
+        CheckboxSize::Size3 => "Size 3",
     }
 }
 
 fn color_label(color: AccentColor) -> &'static str {
     match color {
-        AccentColor::Gray => "gray",
-        AccentColor::Blue => "blue",
-        AccentColor::Green => "green",
-        AccentColor::Amber => "amber",
-        AccentColor::Red => "red",
-        AccentColor::Purple => "purple",
-        _ => "accent",
+        AccentColor::Blue => "Blue",
+        AccentColor::Green => "Green",
+        AccentColor::Amber => "Amber",
+        AccentColor::Red => "Red",
+        AccentColor::Purple => "Purple",
+        AccentColor::Gray => "Gray",
+        _ => "Other",
     }
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
     Color {
-        a: color.a * opacity,
+        a: opacity,
         ..color
     }
 }

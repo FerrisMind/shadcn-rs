@@ -213,7 +213,7 @@ where
                 let duration = std::time::Duration::from_millis(self.props.duration_ms as u64);
                 state.phase = (elapsed.as_secs_f32() / duration.as_secs_f32()) % 1.0;
             }
-            
+
             shell.request_redraw();
         }
     }

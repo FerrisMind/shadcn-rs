@@ -204,8 +204,8 @@ impl Example {
         }
 
         let content = column![
-            section(theme, "Slider Demo", demo_section),
-            section(theme, "Range Slider", range_section),
+            section(theme, "Demo", demo_section),
+            section(theme, "Range", range_section),
             section(theme, "Variants", variant_rows),
             section(theme, "Sizes", size_rows),
             section(theme, "Vertical", vertical_row),

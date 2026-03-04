@@ -25,7 +25,6 @@ pub enum SwitchSize {
     #[default]
     Size2,
     Size3,
-    Size4,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -129,7 +128,6 @@ impl SwitchSize {
             SwitchSize::Size1 => 0.8,
             SwitchSize::Size2 => 1.0,
             SwitchSize::Size3 => 1.2,
-            SwitchSize::Size4 => 1.4,
         };
         let height = 18.4 * scale;
         let width = 32.0 * scale;
