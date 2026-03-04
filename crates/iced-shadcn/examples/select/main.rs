@@ -3,8 +3,8 @@ use iced::widget::{column, container, row, scrollable, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    AccentColor, ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, SelectContentVariant,
-    SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize, SelectTriggerVariant, Theme,
+    AccentColor, ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, ContentVariant,
+    SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize, TriggerVariant, Theme,
     button, label, select, select_entries,
 };
 use lucide_icons::LUCIDE_FONT_BYTES;
@@ -301,7 +301,7 @@ impl Example {
                     self.selected_variant,
                     "Classic",
                     Message::SelectedVariant,
-                    SelectProps::new().variant(SelectTriggerVariant::Classic),
+                    SelectProps::new().variant(TriggerVariant::Classic),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -310,7 +310,7 @@ impl Example {
                     self.selected_variant,
                     "Surface",
                     Message::SelectedVariant,
-                    SelectProps::new().variant(SelectTriggerVariant::Surface),
+                    SelectProps::new().variant(TriggerVariant::Surface),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -319,7 +319,7 @@ impl Example {
                     self.selected_variant,
                     "Soft",
                     Message::SelectedVariant,
-                    SelectProps::new().variant(SelectTriggerVariant::Soft),
+                    SelectProps::new().variant(TriggerVariant::Soft),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -328,7 +328,7 @@ impl Example {
                     self.selected_variant,
                     "Ghost",
                     Message::SelectedVariant,
-                    SelectProps::new().variant(SelectTriggerVariant::Ghost),
+                    SelectProps::new().variant(TriggerVariant::Ghost),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -493,7 +493,7 @@ impl Example {
                     self.selected_content_variant,
                     "Solid content",
                     Message::SelectedContentVariant,
-                    SelectProps::new().content_variant(SelectContentVariant::Solid),
+                    SelectProps::new().content_variant(ContentVariant::Solid),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -502,7 +502,7 @@ impl Example {
                     self.selected_content_variant,
                     "Soft content",
                     Message::SelectedContentVariant,
-                    SelectProps::new().content_variant(SelectContentVariant::Soft),
+                    SelectProps::new().content_variant(ContentVariant::Soft),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),

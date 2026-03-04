@@ -118,17 +118,17 @@ pub enum ControlSize {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum SwitchSize {
-    One,
-    Two,
-    Three,
+    Size1,
+    Size2,
+    Size3,
 }
 
 impl From<ControlSize> for SwitchSize {
     fn from(size: ControlSize) -> Self {
         match size {
-            ControlSize::Sm => SwitchSize::One,
-            ControlSize::Md | ControlSize::IconSm => SwitchSize::Two,
-            ControlSize::Lg | ControlSize::Icon | ControlSize::IconLg => SwitchSize::Three,
+            ControlSize::Sm => SwitchSize::Size1,
+            ControlSize::Md | ControlSize::IconSm => SwitchSize::Size2,
+            ControlSize::Lg | ControlSize::Icon | ControlSize::IconLg => SwitchSize::Size3,
         }
     }
 }
@@ -136,9 +136,9 @@ impl From<ControlSize> for SwitchSize {
 impl From<SwitchSize> for ControlSize {
     fn from(size: SwitchSize) -> Self {
         match size {
-            SwitchSize::One => ControlSize::Sm,
-            SwitchSize::Two => ControlSize::Md,
-            SwitchSize::Three => ControlSize::Lg,
+            SwitchSize::Size1 => ControlSize::Sm,
+            SwitchSize::Size2 => ControlSize::Md,
+            SwitchSize::Size3 => ControlSize::Lg,
         }
     }
 }
@@ -1418,9 +1418,9 @@ pub fn toggle_metrics(size: ControlSize) -> ToggleMetrics {
 
 pub fn switch_metrics(size: SwitchSize) -> ToggleMetrics {
     let (height, thumb_inset): (f32, f32) = match size {
-        SwitchSize::One => (16.0, 1.0),
-        SwitchSize::Two => (20.0, 1.0),
-        SwitchSize::Three => (24.0, 1.0),
+        SwitchSize::Size1 => (16.0, 1.0),
+        SwitchSize::Size2 => (20.0, 1.0),
+        SwitchSize::Size3 => (24.0, 1.0),
     };
     let track_w = height * 1.75;
     let thumb = (height - thumb_inset * 2.0).max(12.0);

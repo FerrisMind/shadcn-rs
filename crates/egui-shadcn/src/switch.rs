@@ -55,7 +55,7 @@ impl<'a> SwitchProps<'a> {
             value: Some("on".to_string()),
             as_child: false,
             thumb_as_child: false,
-            size: SwitchSize::Two,
+            size: SwitchSize::Size2,
             style: SwitchVariant::Surface,
             high_contrast: false,
             animate: true,
@@ -199,7 +199,7 @@ pub struct SwitchOptions<'a> {
 impl<'a> Default for SwitchOptions<'a> {
     fn default() -> Self {
         Self {
-            size: SwitchSize::Two,
+            size: SwitchSize::Size2,
             style: SwitchVariant::Surface,
             enabled: true,
             high_contrast: false,

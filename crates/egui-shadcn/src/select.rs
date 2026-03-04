@@ -137,19 +137,11 @@ pub enum SelectSize {
     Size2,
 
     Size3,
-
-    Sm,
-
-    Default,
 }
 
 impl SelectSize {
     fn canonical(self) -> Self {
-        match self {
-            SelectSize::Sm => SelectSize::Size2,
-            SelectSize::Default => SelectSize::Size3,
-            other => other,
-        }
+        self
     }
 
     pub fn trigger_height(self) -> f32 {
@@ -258,8 +250,8 @@ pub enum ContentVariant {
 impl From<ControlSize> for SelectSize {
     fn from(size: ControlSize) -> Self {
         match size {
-            ControlSize::Sm | ControlSize::IconSm => SelectSize::Sm,
-            _ => SelectSize::Default,
+            ControlSize::Sm | ControlSize::IconSm => SelectSize::Size1,
+            _ => SelectSize::Size2,
         }
     }
 }

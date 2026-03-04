@@ -58,7 +58,7 @@ impl App for InputOTPExample {
             render_section(
                 ui,
                 &self.theme,
-                "Input OTP demo",
+                "Demo",
                 "Grouped slots with separator.",
             );
             render_input_otp_demo(ui, &self.theme, &mut self.demo_value);
@@ -66,7 +66,7 @@ impl App for InputOTPExample {
             render_section(
                 ui,
                 &self.theme,
-                "Input OTP pattern",
+                "Pattern",
                 "Digits only with regex filtering.",
             );
             render_input_otp_pattern(
@@ -79,7 +79,7 @@ impl App for InputOTPExample {
             render_section(
                 ui,
                 &self.theme,
-                "Input OTP separator",
+                "Separator",
                 "Multiple groups with separators.",
             );
             render_input_otp_separator(ui, &self.theme, &mut self.separator_value);
@@ -87,7 +87,7 @@ impl App for InputOTPExample {
             render_section(
                 ui,
                 &self.theme,
-                "Input OTP controlled",
+                "Controlled",
                 "Controlled value with helper text.",
             );
             render_input_otp_controlled(ui, &self.theme, &mut self.controlled_value);
@@ -95,7 +95,7 @@ impl App for InputOTPExample {
             render_section(
                 ui,
                 &self.theme,
-                "Input OTP form",
+                "Form",
                 "Form validation on submit.",
             );
             render_input_otp_form(
