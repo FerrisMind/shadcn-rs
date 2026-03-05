@@ -66,7 +66,7 @@ pub fn field<'a, Message: 'a>(
     let muted = theme.palette.muted_foreground;
     let destructive = theme.palette.destructive;
 
-    let mut col = column![].spacing(4);
+    let mut col = column![].spacing(theme.styles.field.spacing);
 
     if let Some(label) = props.label {
         let label_color = if props.error.is_some() {
@@ -85,7 +85,7 @@ pub fn field<'a, Message: 'a>(
 
         col = col.push(
             text(label_str)
-                .size(14)
+                .size(theme.styles.field.label_size)
                 .style(move |_t| iced::widget::text::Style {
                     color: Some(label_color),
                 }),
@@ -97,7 +97,7 @@ pub fn field<'a, Message: 'a>(
     if let Some(desc) = props.description {
         col = col.push(
             text(desc)
-                .size(12)
+                .size(theme.styles.field.description_size)
                 .style(move |_t| iced::widget::text::Style { color: Some(muted) }),
         );
     }
@@ -105,7 +105,7 @@ pub fn field<'a, Message: 'a>(
     if let Some(err) = props.error {
         col = col.push(
             text(err)
-                .size(12)
+                .size(theme.styles.field.error_size)
                 .style(move |_t| iced::widget::text::Style {
                     color: Some(destructive),
                 }),

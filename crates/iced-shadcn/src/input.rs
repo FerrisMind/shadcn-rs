@@ -80,11 +80,20 @@ impl InputProps {
 }
 
 impl InputSize {
-    fn padding(self) -> [f32; 2] {
+    fn padding(self, theme: &Theme) -> [f32; 2] {
         match self {
-            InputSize::Size1 => [6.0, 10.0],
-            InputSize::Size2 => [8.0, 12.0],
-            InputSize::Size3 => [10.0, 14.0],
+            InputSize::Size1 => [
+                theme.styles.input.size1_padding_y,
+                theme.styles.input.size1_padding_x,
+            ],
+            InputSize::Size2 => [
+                theme.styles.input.size2_padding_y,
+                theme.styles.input.size2_padding_x,
+            ],
+            InputSize::Size3 => [
+                theme.styles.input.size3_padding_y,
+                theme.styles.input.size3_padding_x,
+            ],
         }
     }
 
@@ -109,7 +118,7 @@ where
 {
     let theme = theme.clone();
     let mut widget = text_input::TextInput::new(placeholder, value)
-        .padding(props.size.padding())
+        .padding(props.size.padding(&theme))
         .size(props.size.text_size())
         .style(move |_iced_theme, status| input_style(&theme, props, status));
 
@@ -146,7 +155,7 @@ fn input_style(theme: &Theme, props: InputProps, status: text_input::Status) -> 
 
     let mut border = Border {
         radius: radius.into(),
-        width: 1.0,
+        width: theme.styles.input.border_width,
         color: palette.border,
     };
     let mut background = match props.variant {
@@ -168,7 +177,7 @@ fn input_style(theme: &Theme, props: InputProps, status: text_input::Status) -> 
         }
         text_input::Status::Focused { .. } => {
             border.color = palette.ring;
-            border.width = 1.5;
+            border.width = theme.styles.input.focused_border_width;
         }
         text_input::Status::Disabled => {
             background = Background::Color(palette.muted);

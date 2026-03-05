@@ -885,7 +885,7 @@ impl ResolvedMenuStyle {
     fn border(&self, radius: f32) -> Border {
         Border {
             color: self.border_color,
-            width: 1.0,
+            width: crate::theme::ThemeStyles::default().menu.border_width,
             radius: radius.into(),
         }
     }
@@ -902,11 +902,11 @@ fn menu_style(theme: &Theme, _props: MenuContentProps) -> ResolvedMenuStyle {
         border_color: theme.palette.border,
         shadow: Shadow {
             color: Color {
-                a: 0.12,
-                ..Color::BLACK
+                a: theme.styles.menu.shadow.opacity,
+                ..theme.palette.foreground
             },
-            offset: Vector::new(0.0, 4.0),
-            blur_radius: 12.0,
+            offset: Vector::new(0.0, theme.styles.menu.shadow.offset_y),
+            blur_radius: theme.styles.menu.shadow.blur_radius,
         },
         text_color: theme.palette.popover_foreground,
         muted_text_color: theme.palette.muted_foreground,

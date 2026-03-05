@@ -8,9 +8,6 @@ use iced::{Background, Color, Element, Length};
 use crate::button::{ButtonProps, ButtonSize, ButtonVariant, button};
 use crate::theme::Theme;
 
-const DEFAULT_EXPANDED_WIDTH: f32 = 240.0;
-const DEFAULT_COLLAPSED_WIDTH: f32 = 64.0;
-
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum SidebarSide {
     #[default]
@@ -28,11 +25,12 @@ pub struct SidebarProviderProps {
 
 impl SidebarProviderProps {
     pub fn new(open: bool) -> Self {
+        let style = crate::theme::ThemeStyles::default().sidebar;
         Self {
             open,
             default_open: true,
-            expanded_width: DEFAULT_EXPANDED_WIDTH,
-            collapsed_width: DEFAULT_COLLAPSED_WIDTH,
+            expanded_width: style.expanded_width,
+            collapsed_width: style.collapsed_width,
             animate: true,
         }
     }
@@ -191,21 +189,37 @@ pub fn sidebar_header<'a, Message: Clone + 'a>(
     ctx: &SidebarContext<'_, Message>,
     content: impl Into<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    sidebar_section(ctx, 12.0, content)
+    sidebar_section(
+        ctx,
+        crate::theme::ThemeStyles::default()
+            .sidebar
+            .header_footer_padding,
+        content,
+    )
 }
 
 pub fn sidebar_content<'a, Message: Clone + 'a>(
     ctx: &SidebarContext<'_, Message>,
     content: impl Into<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    sidebar_section(ctx, 8.0, content)
+    sidebar_section(
+        ctx,
+        crate::theme::ThemeStyles::default().sidebar.content_padding,
+        content,
+    )
 }
 
 pub fn sidebar_footer<'a, Message: Clone + 'a>(
     ctx: &SidebarContext<'_, Message>,
     content: impl Into<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    sidebar_section(ctx, 12.0, content)
+    sidebar_section(
+        ctx,
+        crate::theme::ThemeStyles::default()
+            .sidebar
+            .header_footer_padding,
+        content,
+    )
 }
 
 fn sidebar_section<'a, Message: Clone + 'a>(
@@ -286,13 +300,17 @@ pub fn sidebar_group_label<'a, Message: Clone + 'a>(
 pub fn sidebar_group_content<'a, Message: Clone + 'a>(
     content: impl Into<Vec<Element<'a, Message>>>,
 ) -> Element<'a, Message> {
-    column(content.into()).spacing(4).into()
+    column(content.into())
+        .spacing(crate::theme::ThemeStyles::default().sidebar.menu_spacing)
+        .into()
 }
 
 pub fn sidebar_menu<'a, Message: Clone + 'a>(
     content: impl Into<Vec<Element<'a, Message>>>,
 ) -> Element<'a, Message> {
-    column(content.into()).spacing(4).into()
+    column(content.into())
+        .spacing(crate::theme::ThemeStyles::default().sidebar.menu_spacing)
+        .into()
 }
 
 pub fn sidebar_menu_item<'a, Message: Clone + 'a>(
