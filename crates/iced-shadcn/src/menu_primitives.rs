@@ -564,8 +564,25 @@ where
             .width
             .map(|w| w as f32)
             .unwrap_or(self.target_size.width.max(128.0));
+        let anchor = match self.overlay.kind {
+            MenuKind::Dropdown => self.anchor_position,
+            MenuKind::Context => self.state.opened_at.unwrap_or(self.anchor_position),
+        };
+        let estimated_height = metrics.content_padding * 2.0
+            + metrics.item_height * self.entries.len().max(1) as f32
+            + 12.0;
+        let overlay_bounds = Size::new(
+            bounds
+                .width
+                .max(self.viewport.width)
+                .max(anchor.x + menu_width * 2.0 + 20.0),
+            bounds
+                .height
+                .max(self.viewport.height)
+                .max(anchor.y + estimated_height + 20.0),
+        );
 
-        let limits = layout::Limits::new(Size::ZERO, bounds).width(menu_width);
+        let limits = layout::Limits::new(Size::ZERO, overlay_bounds).width(menu_width);
 
         let mut main_list = MenuList {
             entries: self.entries,
@@ -597,7 +614,7 @@ where
 
         let x = x.clamp(
             collision_padding,
-            (bounds.width - main_size.width - collision_padding).max(collision_padding),
+            (overlay_bounds.width - main_size.width - collision_padding).max(collision_padding),
         );
 
         let y = match self.overlay.kind {
@@ -612,7 +629,7 @@ where
         }
         .clamp(
             collision_padding,
-            (bounds.height - main_size.height - collision_padding).max(collision_padding),
+            (overlay_bounds.height - main_size.height - collision_padding).max(collision_padding),
         );
 
         let mut children = Vec::new();
@@ -646,11 +663,12 @@ where
                 let submenu_size = submenu_node.size();
                 let submenu_x = (x + main_size.width + 4.0).clamp(
                     collision_padding,
-                    (bounds.width - submenu_size.width - collision_padding).max(collision_padding),
+                    (overlay_bounds.width - submenu_size.width - collision_padding)
+                        .max(collision_padding),
                 );
                 let submenu_y = y.clamp(
                     collision_padding,
-                    (bounds.height - submenu_size.height - collision_padding)
+                    (overlay_bounds.height - submenu_size.height - collision_padding)
                         .max(collision_padding),
                 );
 
@@ -665,7 +683,7 @@ where
             self.state.submenu_bounds = None;
         }
 
-        layout::Node::with_children(bounds, children)
+        layout::Node::with_children(overlay_bounds, children)
     }
 
     fn update(
@@ -756,6 +774,7 @@ where
         layout: Layout<'_>,
         cursor: mouse::Cursor,
     ) {
+        let overlay_viewport = layout.bounds();
         let metrics = menu_metrics(&self.theme, self.content.size);
 
         for (index, child_layout) in layout.children().enumerate() {
@@ -793,7 +812,7 @@ where
                     style,
                     child_layout,
                     cursor,
-                    &self.viewport,
+                    &overlay_viewport,
                 );
             } else if let Some(submenu_index) = self.state.open_submenu
                 && let Some(MenuEntry::SubMenu(submenu)) = self.entries.get(submenu_index)
@@ -818,7 +837,7 @@ where
                     style,
                     child_layout,
                     cursor,
-                    &self.viewport,
+                    &overlay_viewport,
                 );
             }
         }
