@@ -130,8 +130,8 @@ impl Example {
         };
 
         let tree = tree_view(
-            &self.tree,
-            &self.state,
+            self.tree.clone(),
+            self.state.clone(),
             Message::TreeAction,
             TreeViewProps::new(),
             theme,

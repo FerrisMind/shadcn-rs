@@ -3,7 +3,7 @@ use iced::border::Border;
 use iced::widget::{
     Space, button as iced_button, column, container, row, rule, scrollable, stack, text,
 };
-use iced::{Background, Color, Element, Font, Length, Padding, Shadow};
+use iced::{Background, Color, Element, Font, Length, Padding};
 use lucide_icons::Icon as LucideIcon;
 
 use crate::theme::Theme;
@@ -169,6 +169,10 @@ pub struct TreeViewProps {
     pub selectable: bool,
     /// Max characters before label is truncated with "…".
     pub max_label_chars: usize,
+    /// Extra left shift for row content (independent from hover background).
+    pub content_offset: f32,
+    /// Scrollbar visibility behavior for the tree viewport.
+    pub scrollbar_visibility: TreeScrollbarVisibility,
 }
 
 impl Default for TreeViewProps {
@@ -180,6 +184,8 @@ impl Default for TreeViewProps {
             row_height: 28.0,
             selectable: true,
             max_label_chars: 30,
+            content_offset: 0.0,
+            scrollbar_visibility: TreeScrollbarVisibility::Auto,
         }
     }
 }
@@ -218,6 +224,27 @@ impl TreeViewProps {
         self.max_label_chars = n;
         self
     }
+
+    pub fn content_offset(mut self, offset: f32) -> Self {
+        self.content_offset = offset.max(0.0);
+        self
+    }
+
+    pub fn scrollbar_visibility(mut self, visibility: TreeScrollbarVisibility) -> Self {
+        self.scrollbar_visibility = visibility;
+        self
+    }
+}
+
+/// Vertical scrollbar visibility policy for the tree view.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TreeScrollbarVisibility {
+    /// Hidden by default, visible on hover/drag.
+    Auto,
+    /// Always visible.
+    Visible,
+    /// Always hidden.
+    Hidden,
 }
 
 // ---------------------------------------------------------------------------
@@ -241,66 +268,121 @@ fn truncate_ellipsis(s: &str, max_chars: usize) -> String {
     if max_chars == 0 || s.chars().count() <= max_chars {
         return s.to_string();
     }
-    let truncated: String = s.chars().take(max_chars.saturating_sub(1)).collect();
-    format!("{truncated}\u{2026}")
-}
-
-/// Walk visible (expanded) nodes and estimate the widest row in pixels.
-fn estimate_content_width(
-    nodes: &[TreeNode],
-    state: &TreeViewState,
-    props: &TreeViewProps,
-    depth: usize,
-    parent_path: &str,
-) -> f32 {
-    let char_w = props.font_size * 0.7;
-    let mut max_w = 0.0f32;
-
-    for node in nodes {
-        let path = if parent_path.is_empty() {
-            node.name().to_string()
-        } else {
-            format!("{parent_path}/{}", node.name())
-        };
-        let label = truncate_ellipsis(node.name(), props.max_label_chars);
-        let indent = props.indent * depth as f32;
-        let text_w = label.chars().count() as f32 * char_w;
-        // indent + icon + spacing + text + right padding
-        let row_w = indent + props.icon_size + 6.0 + text_w + 20.0;
-        max_w = max_w.max(row_w);
-
-        if let TreeNode::Folder { children, .. } = node
-            && state.is_open(&path)
-        {
-            max_w = max_w.max(estimate_content_width(
-                children,
-                state,
-                props,
-                depth + 1,
-                &path,
-            ));
-        }
+    if max_chars <= 3 {
+        return ".".repeat(max_chars);
     }
-    max_w
+    let truncated: String = s.chars().take(max_chars - 3).collect();
+    format!("{truncated}...")
 }
 
-fn scrollbar_rail(scroller_color: Color) -> scrollable::Rail {
+fn apply_opacity(color: Color, opacity: f32) -> Color {
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
+}
+
+fn transparent_rail() -> scrollable::Rail {
     scrollable::Rail {
-        background: Some(Background::Color(Color {
-            a: 0.04,
-            ..Color::WHITE
-        })),
+        background: Some(Background::Color(Color::TRANSPARENT)),
         border: Border::default(),
         scroller: scrollable::Scroller {
-            background: Background::Color(Color {
-                a: 0.35,
-                ..scroller_color
-            }),
+            background: Background::Color(Color::TRANSPARENT),
+            border: Border::default(),
+        },
+    }
+}
+
+fn visible_vertical_rail(theme: &Theme, thumb_opacity: f32) -> scrollable::Rail {
+    let radius = theme.radius.sm;
+
+    scrollable::Rail {
+        background: Some(Background::Color(apply_opacity(theme.palette.muted, 0.18))),
+        border: Border {
+            color: Color::TRANSPARENT,
+            width: 0.0,
+            radius: radius.into(),
+        },
+        scroller: scrollable::Scroller {
+            background: Background::Color(apply_opacity(
+                theme.palette.muted_foreground,
+                thumb_opacity,
+            )),
             border: Border {
-                radius: 4.0.into(),
-                ..Border::default()
+                color: Color::TRANSPARENT,
+                width: 0.0,
+                radius: radius.into(),
             },
         },
+    }
+}
+
+fn transparent_auto_scroll() -> scrollable::AutoScroll {
+    scrollable::AutoScroll {
+        background: Background::Color(Color::TRANSPARENT),
+        border: Border::default(),
+        shadow: Default::default(),
+        icon: Color::TRANSPARENT,
+    }
+}
+
+fn tree_scroll_style(
+    theme: &Theme,
+    visibility: TreeScrollbarVisibility,
+    status: scrollable::Status,
+) -> scrollable::Style {
+    let transparent = transparent_rail();
+    let hidden_style = scrollable::Style {
+        container: container::Style::default(),
+        vertical_rail: transparent,
+        horizontal_rail: transparent,
+        gap: None,
+        auto_scroll: transparent_auto_scroll(),
+    };
+
+    let (show_vertical, thumb_opacity, disabled) = match status {
+        scrollable::Status::Active {
+            is_vertical_scrollbar_disabled,
+            ..
+        } => (
+            matches!(visibility, TreeScrollbarVisibility::Visible),
+            0.48,
+            is_vertical_scrollbar_disabled,
+        ),
+        scrollable::Status::Hovered {
+            is_vertical_scrollbar_disabled,
+            ..
+        } => (
+            !matches!(visibility, TreeScrollbarVisibility::Hidden),
+            0.62,
+            is_vertical_scrollbar_disabled,
+        ),
+        scrollable::Status::Dragged {
+            is_vertical_scrollbar_disabled,
+            ..
+        } => (
+            !matches!(visibility, TreeScrollbarVisibility::Hidden),
+            0.74,
+            is_vertical_scrollbar_disabled,
+        ),
+    };
+
+    if matches!(visibility, TreeScrollbarVisibility::Hidden) || disabled {
+        return hidden_style;
+    }
+
+    let vertical_rail = if show_vertical {
+        visible_vertical_rail(theme, thumb_opacity)
+    } else {
+        transparent
+    };
+
+    scrollable::Style {
+        container: container::Style::default(),
+        vertical_rail,
+        horizontal_rail: transparent,
+        gap: None,
+        auto_scroll: transparent_auto_scroll(),
     }
 }
 
@@ -316,21 +398,21 @@ fn scrollbar_rail(scroller_color: Color) -> scrollable::Rail {
 /// * `props`  – visual tuning knobs.
 /// * `theme`  – shadcn theme.
 pub fn tree_view<'a, Message: Clone + 'a>(
-    nodes: &'a [TreeNode],
-    state: &'a TreeViewState,
+    nodes: Vec<TreeNode>,
+    state: TreeViewState,
     on_action: impl Fn(TreeViewAction) -> Message + 'a + Clone,
     props: TreeViewProps,
     theme: &Theme,
 ) -> Element<'a, Message> {
-    let mut col = column![].spacing(0);
+    let mut col = column![].spacing(0).width(Length::Fill);
 
-    for node in nodes {
-        col = col.push(render_node(node, state, &on_action, props, theme, 0, ""));
+    for node in &nodes {
+        col = col.push(render_node(node, &state, &on_action, props, theme, 0, ""));
     }
 
-    let col_width = estimate_content_width(nodes, state, &props, 0, "").max(200.0);
     let inner = container(col)
-        .width(Length::Fixed(col_width))
+        .width(Length::Fill)
+        .height(Length::Fill)
         .padding(Padding {
             top: 0.0,
             right: 0.0,
@@ -338,30 +420,18 @@ pub fn tree_view<'a, Message: Clone + 'a>(
             left: 0.0,
         });
 
-    let scroller_color = theme.palette.muted_foreground;
     let scrollbar = scrollable::Scrollbar::new()
         .width(6)
         .scroller_width(6)
-        .margin(2);
+        .margin(0);
 
+    let theme = theme.clone();
     scrollable(inner)
-        .direction(scrollable::Direction::Both {
-            vertical: scrollbar,
-            horizontal: scrollbar,
-        })
+        .direction(scrollable::Direction::Vertical(scrollbar))
         .width(Length::Fill)
         .height(Length::Fill)
-        .style(move |_theme, _status| scrollable::Style {
-            container: container::Style::default(),
-            vertical_rail: scrollbar_rail(scroller_color),
-            horizontal_rail: scrollbar_rail(scroller_color),
-            gap: None,
-            auto_scroll: scrollable::AutoScroll {
-                background: Background::Color(Color::TRANSPARENT),
-                border: Border::default(),
-                shadow: Shadow::default(),
-                icon: Color::TRANSPARENT,
-            },
+        .style(move |_iced_theme, status| {
+            tree_scroll_style(&theme, props.scrollbar_visibility, status)
         })
         .into()
 }
@@ -371,8 +441,8 @@ pub fn tree_view<'a, Message: Clone + 'a>(
 // ---------------------------------------------------------------------------
 
 fn render_node<'a, Message: Clone + 'a>(
-    node: &'a TreeNode,
-    state: &'a TreeViewState,
+    node: &TreeNode,
+    state: &TreeViewState,
     on_action: &(impl Fn(TreeViewAction) -> Message + 'a + Clone),
     props: TreeViewProps,
     theme: &Theme,
@@ -411,22 +481,25 @@ fn render_node<'a, Message: Clone + 'a>(
 
 #[allow(clippy::too_many_arguments)]
 fn render_folder<'a, Message: Clone + 'a>(
-    name: &'a str,
-    children: &'a [TreeNode],
+    name: &str,
+    children: &[TreeNode],
     icon_open: Option<LucideIcon>,
     icon_closed: Option<LucideIcon>,
     path: &str,
-    state: &'a TreeViewState,
+    state: &TreeViewState,
     on_action: &(impl Fn(TreeViewAction) -> Message + 'a + Clone),
     props: TreeViewProps,
     theme: &Theme,
     depth: usize,
 ) -> Element<'a, Message> {
     let open = state.is_open(path);
-    let left_pad = props.indent * depth as f32;
+    let left_pad = props.content_offset + props.indent * depth as f32;
     let fg = theme.palette.foreground;
     let muted_fg = theme.palette.muted_foreground;
     let border_color = theme.palette.border;
+    let hover_bg = theme.palette.accent;
+    let hover_fg = theme.palette.accent_foreground;
+    let row_radius = theme.radius.sm;
 
     let icon = if open {
         icon_open.unwrap_or(LucideIcon::FolderOpen)
@@ -445,7 +518,10 @@ fn render_folder<'a, Message: Clone + 'a>(
         .color(fg)
         .wrapping(text::Wrapping::None);
 
-    let trigger_row = row![icon_el, label].spacing(6).align_y(Vertical::Center);
+    let trigger_row = row![icon_el, label]
+        .spacing(6)
+        .align_y(Vertical::Center)
+        .width(Length::Fill);
 
     let path_owned = path.to_string();
     let on_action_clone = on_action.clone();
@@ -458,32 +534,43 @@ fn render_folder<'a, Message: Clone + 'a>(
                 left: left_pad,
             })
             .height(Length::Fixed(props.row_height))
+            .width(Length::Fill)
+            .clip(true)
             .align_y(Vertical::Center),
     )
     .on_press((on_action_clone)(TreeViewAction::ToggleFolder(path_owned)))
-    .padding(Padding::from([0.0, 4.0]))
+    .padding(0)
     .width(Length::Fill)
     .style(move |_theme, status| {
         let bg = match status {
-            iced_button::Status::Hovered => Background::Color(Color {
-                a: 0.06,
-                ..Color::WHITE
-            }),
+            iced_button::Status::Hovered => Background::Color(hover_bg),
             _ => Background::Color(Color::TRANSPARENT),
         };
         iced_button::Style {
             background: Some(bg),
-            text_color: fg,
-            border: Border::default(),
+            text_color: if matches!(status, iced_button::Status::Hovered) {
+                hover_fg
+            } else {
+                fg
+            },
+            border: Border {
+                radius: row_radius.into(),
+                ..Border::default()
+            },
             shadow: Default::default(),
             snap: true,
         }
     });
 
-    let mut col = column![trigger_btn].spacing(0);
+    let mut col = column![
+        container(trigger_btn)
+            .padding(Padding::from([0.0, 4.0]))
+            .width(Length::Fill)
+    ]
+    .spacing(0);
 
     if open {
-        let mut children_col = column![].spacing(0);
+        let mut children_col = column![].spacing(0).width(Length::Fill);
         for child in children {
             children_col = children_col.push(render_node(
                 child,
@@ -522,20 +609,22 @@ fn render_folder<'a, Message: Clone + 'a>(
 
 #[allow(clippy::too_many_arguments)]
 fn render_file<'a, Message: Clone + 'a>(
-    name: &'a str,
+    name: &str,
     icon: Option<LucideIcon>,
     path: &str,
-    state: &'a TreeViewState,
+    state: &TreeViewState,
     on_action: &(impl Fn(TreeViewAction) -> Message + 'a + Clone),
     props: TreeViewProps,
     theme: &Theme,
     depth: usize,
 ) -> Element<'a, Message> {
-    let left_pad = props.indent * depth as f32 + 3.0;
+    let left_pad = props.content_offset + props.indent * depth as f32 + 3.0;
     let fg = theme.palette.foreground;
     let muted_fg = theme.palette.muted_foreground;
     let accent = theme.palette.accent;
     let accent_fg = theme.palette.accent_foreground;
+    let hover_bg = theme.palette.accent;
+    let row_radius = theme.radius.sm;
     let is_selected = state.is_selected(path);
 
     let icon_el: Element<'a, Message> =
@@ -551,7 +640,10 @@ fn render_file<'a, Message: Clone + 'a>(
         .color(label_color)
         .wrapping(text::Wrapping::None);
 
-    let content_row = row![icon_el, label].spacing(6).align_y(Vertical::Center);
+    let content_row = row![icon_el, label]
+        .spacing(6)
+        .align_y(Vertical::Center)
+        .width(Length::Fill);
 
     let path_owned = path.to_string();
     let on_action_clone = on_action.clone();
@@ -566,29 +658,28 @@ fn render_file<'a, Message: Clone + 'a>(
                 left: left_pad,
             })
             .height(Length::Fixed(props.row_height))
+            .width(Length::Fill)
+            .clip(true)
             .align_y(Vertical::Center),
     )
-    .padding(Padding::from([0.0, 4.0]))
+    .padding(0)
     .width(Length::Fill)
     .style(move |_theme, status| {
         let (bg, txt) = if is_selected {
             (Background::Color(bg_selected), accent_fg)
         } else {
             match status {
-                iced_button::Status::Hovered => (
-                    Background::Color(Color {
-                        a: 0.06,
-                        ..Color::WHITE
-                    }),
-                    fg,
-                ),
+                iced_button::Status::Hovered => (Background::Color(hover_bg), fg),
                 _ => (Background::Color(Color::TRANSPARENT), fg),
             }
         };
         iced_button::Style {
             background: Some(bg),
             text_color: txt,
-            border: Border::default(),
+            border: Border {
+                radius: row_radius.into(),
+                ..Border::default()
+            },
             shadow: Default::default(),
             snap: true,
         }
@@ -598,5 +689,8 @@ fn render_file<'a, Message: Clone + 'a>(
         file_btn = file_btn.on_press((on_action_clone)(TreeViewAction::SelectFile(path_owned)));
     }
 
-    file_btn.into()
+    container(file_btn)
+        .padding(Padding::from([0.0, 4.0]))
+        .width(Length::Fill)
+        .into()
 }
