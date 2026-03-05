@@ -201,6 +201,8 @@ pub struct KbdGroupProps {
     pub gap: f32,
     /// Whether to add a separator between items
     pub separator: Option<&'static str>,
+    /// Optional custom separator color
+    pub separator_color: Option<Color>,
 }
 
 impl Default for KbdGroupProps {
@@ -208,6 +210,7 @@ impl Default for KbdGroupProps {
         Self {
             gap: 4.0,
             separator: None,
+            separator_color: None,
         }
     }
 }
@@ -227,6 +230,12 @@ impl KbdGroupProps {
     /// Sets a separator string between items.
     pub fn separator(mut self, separator: &'static str) -> Self {
         self.separator = Some(separator);
+        self
+    }
+
+    /// Sets a custom separator color.
+    pub fn separator_color(mut self, separator_color: Color) -> Self {
+        self.separator_color = Some(separator_color);
         self
     }
 }
@@ -392,6 +401,9 @@ pub fn kbd_group<'a, Message: 'a>(
     let gap = props.gap;
 
     if let Some(separator) = props.separator {
+        let separator_color = props
+            .separator_color
+            .unwrap_or(Color::from_rgb(0.5, 0.5, 0.5));
         // Build row with separators
         let mut elements: Vec<Element<'a, Message>> = Vec::with_capacity(items.len() * 2 - 1);
         for (i, item) in items.into_iter().enumerate() {
@@ -399,8 +411,8 @@ pub fn kbd_group<'a, Message: 'a>(
                 elements.push(
                     text_widget(separator)
                         .size(12)
-                        .style(|_theme: &iced::Theme| iced::widget::text::Style {
-                            color: Some(Color::from_rgb(0.5, 0.5, 0.5)),
+                        .style(move |_theme: &iced::Theme| iced::widget::text::Style {
+                            color: Some(separator_color),
                         })
                         .into(),
                 );

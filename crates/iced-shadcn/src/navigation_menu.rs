@@ -1526,8 +1526,8 @@ where
         let min = limits.min();
         let max = limits.max();
         let size = Size::new(
-            width.clamp(min.width, max.width),
-            height.clamp(min.height, max.height),
+            width.clamp(min.width, max.width.max(min.width)),
+            height.clamp(min.height, max.height.max(min.height)),
         );
 
         let mut y = metrics.list_padding;

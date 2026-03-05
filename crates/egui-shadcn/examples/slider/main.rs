@@ -244,8 +244,7 @@ impl App for SliderExample {
                     .num_columns(2)
                     .spacing(egui::vec2(16.0, 12.0))
                     .show(ui, |grid| {
-                        for (s_idx, (size, name)) in
-                            SIZES.iter().zip(SIZE_NAMES.iter()).enumerate()
+                        for (s_idx, (size, name)) in SIZES.iter().zip(SIZE_NAMES.iter()).enumerate()
                         {
                             grid.label(caption(grid, &self.theme, name));
                             slider_with_props(
@@ -268,9 +267,7 @@ impl App for SliderExample {
                 section_title(ui, "Vertical");
                 ui.horizontal(|row| {
                     row.spacing_mut().item_spacing.x = 16.0;
-                    for (v_idx, (size, _name)) in
-                        SIZES.iter().zip(SIZE_NAMES.iter()).enumerate()
-                    {
+                    for (v_idx, (size, _name)) in SIZES.iter().zip(SIZE_NAMES.iter()).enumerate() {
                         slider_with_props(
                             row,
                             &self.theme,

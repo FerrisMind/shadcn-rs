@@ -846,8 +846,8 @@ where
         let min = limits.min();
         let max = limits.max();
         let size = Size::new(
-            width.clamp(min.width, max.width),
-            height.clamp(min.height, max.height),
+            width.clamp(min.width, max.width.max(min.width)),
+            height.clamp(min.height, max.height.max(min.height)),
         );
 
         let mut y = metrics.list_padding;
@@ -1318,7 +1318,7 @@ fn lerp_rect(from: Rectangle, to: Rectangle, t: f32) -> Rectangle {
 
 pub fn tabs_list<'a, Message: Clone + 'a, F>(
     items: Vec<TabsTriggerItem<'a, Message>>,
-    active: &'a str,
+    active: &str,
     on_value_change: Option<F>,
     root_props: TabsRootProps,
     list_props: TabsListProps,
@@ -1396,7 +1396,7 @@ pub fn tabs_root<'a, Message: Clone + 'a>(
 
 pub fn tabs<'a, Message: Clone + 'a, F>(
     items: Vec<TabItem>,
-    active: &'a str,
+    active: &str,
     on_value_change: Option<F>,
     props: TabsProps,
     theme: &Theme,

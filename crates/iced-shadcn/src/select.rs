@@ -1800,15 +1800,11 @@ fn select_trigger_style(
         _ => palette.foreground,
     };
     let mut placeholder_color = match props.variant {
-        TriggerVariant::Soft | TriggerVariant::Ghost => {
-            apply_opacity(accent_text_color, 0.6)
-        }
+        TriggerVariant::Soft | TriggerVariant::Ghost => apply_opacity(accent_text_color, 0.6),
         _ => palette.muted_foreground,
     };
     let mut handle_color = match props.variant {
-        TriggerVariant::Soft | TriggerVariant::Ghost => {
-            apply_opacity(accent_text_color, 0.6)
-        }
+        TriggerVariant::Soft | TriggerVariant::Ghost => apply_opacity(accent_text_color, 0.6),
         _ => apply_opacity(palette.muted_foreground, 0.5),
     };
     let mut shadow = match props.variant {

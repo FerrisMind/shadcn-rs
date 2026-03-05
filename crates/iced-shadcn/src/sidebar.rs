@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use iced::alignment::{Horizontal, Vertical};
 use iced::border::Border;
 use iced::widget::{button as iced_button, column, container, row, text};
@@ -61,7 +63,7 @@ pub struct SidebarContext<'a, Message> {
     pub expanded_width: f32,
     pub collapsed_width: f32,
     pub animate: bool,
-    on_open_change: Option<&'a dyn Fn(bool) -> Message>,
+    on_open_change: Option<Rc<dyn Fn(bool) -> Message + 'a>>,
 }
 
 impl<'a, Message: Clone> SidebarContext<'a, Message> {
@@ -70,11 +72,11 @@ impl<'a, Message: Clone> SidebarContext<'a, Message> {
     }
 
     pub fn set_open_message(&self, open: bool) -> Option<Message> {
-        self.on_open_change.map(|f| f(open))
+        self.on_open_change.as_ref().map(|f| f(open))
     }
 
     pub fn toggle_message(&self) -> Option<Message> {
-        self.on_open_change.map(|f| f(!self.open))
+        self.on_open_change.as_ref().map(|f| f(!self.open))
     }
 }
 
@@ -124,7 +126,7 @@ pub fn sidebar_provider<'a, Message: Clone + 'a, F>(
 where
     F: Fn(bool) -> Message + 'a,
 {
-    let on_open_change = on_open_change.as_ref().map(|f| f as &dyn Fn(bool) -> Message);
+    let on_open_change = on_open_change.map(|f| Rc::new(f) as Rc<dyn Fn(bool) -> Message + 'a>);
     let ctx = SidebarContext {
         open: props.open,
         expanded_width: props.expanded_width,
@@ -241,7 +243,7 @@ pub fn sidebar_group<'a, Message: Clone + 'a>(
     props: SidebarGroupProps,
     content: impl Into<Vec<Element<'a, Message>>>,
 ) -> Element<'a, Message> {
-    column(content).spacing(props.spacing).into()
+    column(content.into()).spacing(props.spacing).into()
 }
 
 #[derive(Clone, Debug)]
@@ -273,30 +275,30 @@ pub fn sidebar_group_label<'a, Message: Clone + 'a>(
         return container(text("")).into();
     }
 
+    let color = apply_opacity(theme.palette.sidebar_foreground, 0.6);
+
     text(props.text)
-        .size(11)
-        .style(move |_t| iced::widget::text::Style {
-            color: Some(apply_opacity(theme.palette.sidebar_foreground, 0.6)),
-        })
+        .size(11u32)
+        .style(move |_t| iced::widget::text::Style { color: Some(color) })
         .into()
 }
 
 pub fn sidebar_group_content<'a, Message: Clone + 'a>(
     content: impl Into<Vec<Element<'a, Message>>>,
 ) -> Element<'a, Message> {
-    column(content).spacing(4).into()
+    column(content.into()).spacing(4).into()
 }
 
 pub fn sidebar_menu<'a, Message: Clone + 'a>(
     content: impl Into<Vec<Element<'a, Message>>>,
 ) -> Element<'a, Message> {
-    column(content).spacing(4).into()
+    column(content.into()).spacing(4).into()
 }
 
 pub fn sidebar_menu_item<'a, Message: Clone + 'a>(
     content: impl Into<Vec<Element<'a, Message>>>,
 ) -> Element<'a, Message> {
-    row(content).spacing(0).into()
+    row(content.into()).spacing(0).into()
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -324,7 +326,7 @@ impl SidebarMenuButtonSize {
         }
     }
 
-    fn text_size(self) -> u16 {
+    fn text_size(self) -> u32 {
         match self {
             SidebarMenuButtonSize::Sm => 12,
             SidebarMenuButtonSize::Md => 13,
@@ -394,7 +396,9 @@ pub fn sidebar_menu_button<'a, Message: Clone + 'a>(
     if collapsed && !props.show_label_when_collapsed {
         content = content.align_x(Horizontal::Center).padding(0);
     } else {
-        content = content.align_x(Horizontal::Left).padding(props.size.padding());
+        content = content
+            .align_x(Horizontal::Left)
+            .padding(props.size.padding());
     }
 
     let mut button = iced_button(content);
@@ -452,5 +456,8 @@ fn sidebar_menu_button_style(
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color { a: color.a * opacity, ..color }
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
 }

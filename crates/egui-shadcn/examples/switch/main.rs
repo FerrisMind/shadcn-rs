@@ -11,8 +11,8 @@ mod screenshot;
 use eframe::{App, Frame, egui};
 use egui::RichText;
 use egui_shadcn::{
-    ControlSize, ControlVariant, SwitchSize, SwitchVariant, Theme, button, switch,
-    switch_with_props, SwitchProps,
+    ControlSize, ControlVariant, SwitchProps, SwitchSize, SwitchVariant, Theme, button, switch,
+    switch_with_props,
 };
 
 struct SwitchDemo {
@@ -34,11 +34,7 @@ struct SwitchDemo {
     form_submitted: bool,
 }
 
-const SWITCH_SIZES: [SwitchSize; 3] = [
-    SwitchSize::Size1,
-    SwitchSize::Size2,
-    SwitchSize::Size3,
-];
+const SWITCH_SIZES: [SwitchSize; 3] = [SwitchSize::Size1, SwitchSize::Size2, SwitchSize::Size3];
 
 const SIZE_NAMES: [&str; 3] = ["Size 1", "Size 2", "Size 3"];
 

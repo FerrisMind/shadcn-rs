@@ -6,8 +6,7 @@ use iced::{Alignment, Background, Element, Length, Subscription, mouse};
 
 use iced_shadcn::{
     AccentColor, ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, Spinner, SpinnerSize,
-    TextProps, TextSize, TextWeight, Theme,
-    button, button_content, icon_button, spinner,
+    TextProps, TextSize, TextWeight, Theme, button, button_content, icon_button, spinner,
 };
 use lucide_icons::LUCIDE_FONT_BYTES;
 use lucide_icons::iced::{
@@ -377,9 +376,7 @@ fn tile<'a, Message: 'a>(
 
     let label_text = iced::widget::text(label)
         .size(11)
-        .style(move |_theme| iced::widget::text::Style {
-            color: Some(muted),
-        });
+        .style(move |_theme| iced::widget::text::Style { color: Some(muted) });
 
     container(column![label_text, content.into()].spacing(8))
         .padding(12)

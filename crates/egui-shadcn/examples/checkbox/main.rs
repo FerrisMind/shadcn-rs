@@ -49,8 +49,16 @@ impl CheckboxDemo {
             disabled_unchecked: false,
             indeterminate_state: CheckboxState::Indeterminate,
             card_checked: true,
-            variant_states: [[CheckboxState::Unchecked, CheckboxState::Checked, CheckboxState::Unchecked]; 3],
-            size_states: [CheckboxState::Unchecked, CheckboxState::Checked, CheckboxState::Unchecked],
+            variant_states: [[
+                CheckboxState::Unchecked,
+                CheckboxState::Checked,
+                CheckboxState::Unchecked,
+            ]; 3],
+            size_states: [
+                CheckboxState::Unchecked,
+                CheckboxState::Checked,
+                CheckboxState::Unchecked,
+            ],
             color_states: [CheckboxState::Checked; 6],
             form_terms: false,
             form_submitted: false,
@@ -166,8 +174,7 @@ impl App for CheckboxDemo {
                         &self.theme,
                         &mut self.indeterminate_state,
                         "Select all items",
-                        CheckboxProps::default()
-                            .cycle(CheckboxCycle::TriState),
+                        CheckboxProps::default().cycle(CheckboxCycle::TriState),
                     );
                 });
 
@@ -209,9 +216,7 @@ impl App for CheckboxDemo {
                                 row.vertical(|col| {
                                     col.spacing_mut().item_spacing.y = 6.0;
                                     col.label(
-                                        RichText::new("Enable notifications")
-                                            .size(14.0)
-                                            .strong(),
+                                        RichText::new("Enable notifications").size(14.0).strong(),
                                     );
                                     col.label(
                                         RichText::new(
@@ -236,10 +241,26 @@ impl App for CheckboxDemo {
                     .spacing(egui::vec2(24.0, 12.0))
                     .show(ui, |grid| {
                         // Header
-                        grid.label(RichText::new("Variant").size(12.0).color(self.theme.palette.muted_foreground));
-                        grid.label(RichText::new("Default").size(12.0).color(self.theme.palette.muted_foreground));
-                        grid.label(RichText::new("High Contrast").size(12.0).color(self.theme.palette.muted_foreground));
-                        grid.label(RichText::new("Disabled").size(12.0).color(self.theme.palette.muted_foreground));
+                        grid.label(
+                            RichText::new("Variant")
+                                .size(12.0)
+                                .color(self.theme.palette.muted_foreground),
+                        );
+                        grid.label(
+                            RichText::new("Default")
+                                .size(12.0)
+                                .color(self.theme.palette.muted_foreground),
+                        );
+                        grid.label(
+                            RichText::new("High Contrast")
+                                .size(12.0)
+                                .color(self.theme.palette.muted_foreground),
+                        );
+                        grid.label(
+                            RichText::new("Disabled")
+                                .size(12.0)
+                                .color(self.theme.palette.muted_foreground),
+                        );
                         grid.end_row();
 
                         for (v_idx, (variant, name)) in
@@ -277,9 +298,7 @@ impl App for CheckboxDemo {
                                 &self.theme,
                                 &mut self.variant_states[v_idx][2],
                                 "",
-                                CheckboxProps::default()
-                                    .variant(*variant)
-                                    .enabled(false),
+                                CheckboxProps::default().variant(*variant).enabled(false),
                             );
 
                             grid.end_row();
@@ -290,9 +309,7 @@ impl App for CheckboxDemo {
                 section_title(ui, "Sizes");
                 ui.horizontal(|row| {
                     row.spacing_mut().item_spacing.x = 24.0;
-                    for (s_idx, (size, name)) in
-                        SIZES.iter().zip(SIZE_NAMES.iter()).enumerate()
-                    {
+                    for (s_idx, (size, name)) in SIZES.iter().zip(SIZE_NAMES.iter()).enumerate() {
                         let _ = checkbox_with_props(
                             row,
                             &self.theme,
@@ -307,12 +324,12 @@ impl App for CheckboxDemo {
                 section_title(ui, "Colors");
                 {
                     let colors: [(egui::Color32, &str); 6] = [
-                        (egui::Color32::from_rgb(37, 99, 235), COLOR_NAMES[0]),   // Blue
-                        (egui::Color32::from_rgb(34, 197, 94), COLOR_NAMES[1]),    // Green
-                        (egui::Color32::from_rgb(245, 158, 11), COLOR_NAMES[2]),   // Amber
-                        (egui::Color32::from_rgb(239, 68, 68), COLOR_NAMES[3]),    // Red
-                        (egui::Color32::from_rgb(168, 85, 247), COLOR_NAMES[4]),   // Purple
-                        (egui::Color32::from_rgb(115, 115, 115), COLOR_NAMES[5]),  // Gray
+                        (egui::Color32::from_rgb(37, 99, 235), COLOR_NAMES[0]), // Blue
+                        (egui::Color32::from_rgb(34, 197, 94), COLOR_NAMES[1]), // Green
+                        (egui::Color32::from_rgb(245, 158, 11), COLOR_NAMES[2]), // Amber
+                        (egui::Color32::from_rgb(239, 68, 68), COLOR_NAMES[3]), // Red
+                        (egui::Color32::from_rgb(168, 85, 247), COLOR_NAMES[4]), // Purple
+                        (egui::Color32::from_rgb(115, 115, 115), COLOR_NAMES[5]), // Gray
                     ];
                     ui.horizontal(|row| {
                         row.spacing_mut().item_spacing.x = 24.0;

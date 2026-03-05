@@ -279,14 +279,10 @@ impl App for RadioDemo {
 
                 // High Contrast
                 section_title(ui, "High Contrast");
-                RadioGroup::new(
-                    "radio-hc",
-                    &mut self.hc_value,
-                    &RadioDemo::plan_options(),
-                )
-                .high_contrast(true)
-                .custom_spacing(8.0)
-                .show(ui, &self.theme);
+                RadioGroup::new("radio-hc", &mut self.hc_value, &RadioDemo::plan_options())
+                    .high_contrast(true)
+                    .custom_spacing(8.0)
+                    .show(ui, &self.theme);
 
                 // Form with validation
                 section_title(ui, "Form");
