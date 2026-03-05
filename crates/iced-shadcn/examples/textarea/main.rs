@@ -140,12 +140,7 @@ impl Example {
                     .style(|_theme| iced::widget::text::Style {
                         color: Some(theme.palette.muted_foreground),
                     }),
-                button(
-                    "Submit",
-                    Some(Message::Submit),
-                    ButtonProps::new(),
-                    theme,
-                ),
+                button("Submit", Some(Message::Submit), ButtonProps::new(), theme,),
             ]
             .spacing(12),
         ]

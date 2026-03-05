@@ -191,7 +191,7 @@ pub fn chart<'a, Message: Clone + 'a>(
 pub struct LineChart {
     points: Vec<[f64; 2]>,
     label: Option<String>,
-    color: Color,
+    color: Option<Color>,
     stroke_width: f32,
 }
 
@@ -200,7 +200,7 @@ impl LineChart {
         Self {
             points,
             label: None,
-            color: Color::from_rgb(0.6, 0.8, 1.0),
+            color: None,
             stroke_width: 2.0,
         }
     }
@@ -211,7 +211,7 @@ impl LineChart {
     }
 
     pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+        self.color = Some(color);
         self
     }
 
@@ -229,7 +229,7 @@ impl LineChart {
 pub struct BarChart {
     bars: Vec<(f64, f64)>,
     label: Option<String>,
-    color: Color,
+    color: Option<Color>,
     bar_width: Option<f64>,
 }
 
@@ -238,7 +238,7 @@ impl BarChart {
         Self {
             bars: values,
             label: None,
-            color: Color::from_rgb(0.4, 0.7, 0.9),
+            color: None,
             bar_width: Some(0.6),
         }
     }
@@ -249,7 +249,7 @@ impl BarChart {
     }
 
     pub fn color(mut self, color: Color) -> Self {
-        self.color = color;
+        self.color = Some(color);
         self
     }
 
@@ -342,6 +342,7 @@ impl<Message> canvas::Program<Message> for ChartProgram {
                     draw_line(
                         &mut frame,
                         plot_bounds,
+                        self.theme.palette.chart_1,
                         line,
                         min_x,
                         range_x,
@@ -350,7 +351,16 @@ impl<Message> canvas::Program<Message> for ChartProgram {
                     );
                 }
                 ChartSeries::Bar(bar) => {
-                    draw_bars(&mut frame, plot_bounds, bar, min_x, range_x, min_y, range_y);
+                    draw_bars(
+                        &mut frame,
+                        plot_bounds,
+                        self.theme.palette.chart_2,
+                        bar,
+                        min_x,
+                        range_x,
+                        min_y,
+                        range_y,
+                    );
                 }
             }
         }
@@ -368,12 +378,12 @@ fn chart_legend<'a, Message: Clone + 'a>(
         match series {
             ChartSeries::Line(line) => {
                 if let Some(label) = &line.label {
-                    entries.push((label.clone(), line.color));
+                    entries.push((label.clone(), line.color.unwrap_or(theme.palette.chart_1)));
                 }
             }
             ChartSeries::Bar(bar) => {
                 if let Some(label) = &bar.label {
-                    entries.push((label.clone(), bar.color));
+                    entries.push((label.clone(), bar.color.unwrap_or(theme.palette.chart_2)));
                 }
             }
         }
@@ -467,6 +477,7 @@ fn map_point(
 fn draw_line(
     frame: &mut canvas::Frame,
     bounds: Rectangle,
+    fallback_color: Color,
     line: &LineChart,
     min_x: f64,
     range_x: f64,
@@ -489,7 +500,7 @@ fn draw_line(
     frame.stroke(
         &path,
         Stroke::default()
-            .with_color(line.color)
+            .with_color(line.color.unwrap_or(fallback_color))
             .with_width(line.stroke_width),
     );
 }
@@ -497,6 +508,7 @@ fn draw_line(
 fn draw_bars(
     frame: &mut canvas::Frame,
     bounds: Rectangle,
+    fallback_color: Color,
     bar: &BarChart,
     min_x: f64,
     range_x: f64,
@@ -519,6 +531,10 @@ fn draw_bars(
             Point::new(top.x - width_px / 2.0, top.y),
             Size::new(width_px, height),
         );
-        frame.fill_rectangle(rect.position(), rect.size(), bar.color);
+        frame.fill_rectangle(
+            rect.position(),
+            rect.size(),
+            bar.color.unwrap_or(fallback_color),
+        );
     }
 }

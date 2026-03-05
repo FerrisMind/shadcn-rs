@@ -273,9 +273,7 @@ impl Example {
                     checkbox(
                         self.state_at(c_idx),
                         Some(move |state| Message::Toggle(c_idx, state)),
-                        CheckboxProps::new()
-                            .size(CheckboxSize::Size2)
-                            .color(color),
+                        CheckboxProps::new().size(CheckboxSize::Size2).color(color),
                         theme,
                     ),
                     caption(color_label(color), theme),

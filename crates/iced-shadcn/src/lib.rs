@@ -46,6 +46,7 @@ pub mod scroll_area;
 pub mod select;
 pub mod separator;
 pub mod sheet;
+pub mod sidebar;
 pub mod skeleton;
 pub mod slider;
 pub mod spinner;
@@ -58,6 +59,7 @@ pub mod toast;
 pub mod toggle_group;
 pub mod tokens;
 pub mod tooltip;
+pub mod tree_view;
 pub mod typography;
 
 mod menu_primitives;
@@ -92,7 +94,9 @@ pub use carousel::{
 pub use chart::{
     AxisFormatter, BarChart, ChartGrid, ChartPlot, ChartProps, ChartResponse, LineChart, chart,
 };
-pub use checkbox::{CheckboxCycle, CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant, checkbox};
+pub use checkbox::{
+    CheckboxCycle, CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant, checkbox,
+};
 pub use collapsible::{CollapsibleContentProps, CollapsibleProps, collapsible};
 pub use combobox::{
     ButtonJustify, ComboboxProps, ComboboxSize, SelectItem as ComboboxItem, combobox,
@@ -171,12 +175,19 @@ pub use resizable::{
 };
 pub use scroll_area::{ScrollAreaProps, ScrollAreaScrollbars, ScrollAreaSize, scroll_area};
 pub use select::{
-    ContentVariant, SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize,
-    TriggerVariant, select, select_entries,
+    ContentVariant, SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize, TriggerVariant,
+    select, select_entries,
 };
 pub use separator::{SeparatorOrientation, SeparatorProps, SeparatorSize, separator};
 pub use sheet::{
     SheetProps, SheetSide, sheet, sheet_description, sheet_footer, sheet_header, sheet_title,
+};
+pub use sidebar::{
+    SidebarContext, SidebarGroupLabelProps, SidebarGroupProps, SidebarMenuButtonProps,
+    SidebarMenuButtonSize, SidebarProps, SidebarProviderProps, SidebarSide, sidebar,
+    sidebar_content, sidebar_footer, sidebar_group, sidebar_group_content, sidebar_group_label,
+    sidebar_header, sidebar_menu, sidebar_menu_button, sidebar_menu_item, sidebar_provider,
+    sidebar_trigger,
 };
 pub use skeleton::{SkeletonProps, skeleton, skeleton_text};
 pub use slider::{
@@ -197,7 +208,7 @@ pub use tabs::{
 pub use textarea::{
     TextareaProps, TextareaResize, TextareaSize, TextareaVariant, textarea, textarea_apply_action,
 };
-pub use theme::Theme;
+pub use theme::{ColorToken, RadiusToken, SpacingToken, Theme, ThemeTokensSource};
 pub use toast::{Toast, ToastPosition, ToastPromise, ToastVariant, Toaster};
 pub use toggle_group::{
     ToggleGroupContext, ToggleGroupProps, ToggleVariant, toggle_group, toggle_group_item,
@@ -205,6 +216,7 @@ pub use toggle_group::{
 };
 pub use tokens::{AccentColor, ControlSize, ControlVariant, Palette, Radius, Spacing};
 pub use tooltip::{TooltipPosition, TooltipProps, tooltip};
+pub use tree_view::{TreeNode, TreeViewAction, TreeViewProps, TreeViewState, tree_view};
 pub use typography::{
     HeadingAs, HeadingProps, LeadingTrim, TextAlign, TextAs, TextProps, TextSize, TextWeight,
     TextWrap, heading, text,

@@ -159,10 +159,11 @@ pub fn command<'a, Message: Clone + 'a>(
     props: CommandProps,
     state: &'a CommandState,
     on_query_change: Option<impl Fn(String) -> Message + 'a>,
-    theme: &'a Theme,
+    theme: &Theme,
     add_contents: impl FnOnce(&CommandContext<'a, Message>) -> Element<'a, Message>,
 ) -> Element<'a, Message> {
     let tokens = command_tokens(theme);
+    let radius_md = theme.radius.md;
     let ctx = CommandContext {
         state,
         on_query_change: on_query_change.map(|f| Box::new(f) as _),
@@ -178,7 +179,7 @@ pub fn command<'a, Message: Clone + 'a>(
             background: Some(Background::Color(tokens.bg)),
             text_color: Some(tokens.text),
             border: Border {
-                radius: theme.radius.md.into(),
+                radius: radius_md.into(),
                 width: if props.show_border { 1.0 } else { 0.0 },
                 color: tokens.border,
             },
@@ -190,8 +191,12 @@ pub fn command<'a, Message: Clone + 'a>(
 pub fn command_input<'a, Message: Clone + 'a>(
     ctx: &'a CommandContext<'a, Message>,
     props: CommandInputProps,
-    theme: &'a Theme,
+    theme: &Theme,
 ) -> Element<'a, Message> {
+    let background = theme.palette.background;
+    let border = theme.palette.border;
+    let radius_sm = theme.radius.sm;
+
     let mut input = text_input::TextInput::new(&props.placeholder, &ctx.state.query)
         .padding([8.0, 12.0])
         .size(14);
@@ -205,11 +210,11 @@ pub fn command_input<'a, Message: Clone + 'a>(
     container(input)
         .width(Length::Fill)
         .style(move |_t| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.background)),
+            background: Some(Background::Color(background)),
             border: Border {
-                radius: theme.radius.sm.into(),
+                radius: radius_sm.into(),
                 width: 1.0,
-                color: theme.palette.border,
+                color: border,
             },
             ..Default::default()
         })
@@ -262,10 +267,10 @@ pub fn command_separator<'a, Message: Clone + 'a>() -> Element<'a, Message> {
     rule::horizontal(1).into()
 }
 
-pub fn command_item<'a, Message: Clone + 'a, IdSource: Hash>(
+pub fn command_item<'a, 'b, Message: Clone + 'a, IdSource: Hash>(
     ctx: &'a CommandContext<'a, Message>,
-    props: CommandItemProps<'a, IdSource, Message>,
-    theme: &'a Theme,
+    props: CommandItemProps<'b, IdSource, Message>,
+    theme: &Theme,
 ) -> Option<Element<'a, Message>> {
     let query = ctx.state.query.trim();
     if !command_matches(query, &props.label, &props.keywords) {

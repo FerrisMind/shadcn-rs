@@ -1318,7 +1318,7 @@ where
                             renderer::Quad {
                                 bounds: row_bounds,
                                 border: Border {
-                                    radius: (self.metrics.radius - 4.0).max(0.0).into(),
+                                    radius: (self.metrics.radius - 2.0).max(0.0).into(),
                                     ..Border::default()
                                 },
                                 ..renderer::Quad::default()

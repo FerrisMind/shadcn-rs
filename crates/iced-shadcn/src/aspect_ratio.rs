@@ -71,8 +71,8 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for AspectRatio<'_, M
             width = height * ratio;
         }
 
-        width = width.clamp(min.width, max.width);
-        height = height.clamp(min.height, max.height);
+        width = width.clamp(min.width, max.width.max(min.width));
+        height = height.clamp(min.height, max.height.max(min.height));
 
         let fixed = layout::Limits::new(Size::new(width, height), Size::new(width, height));
         let child = self

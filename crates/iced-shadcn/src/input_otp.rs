@@ -128,7 +128,7 @@ where
                     } else if is_filled {
                         theme.palette.border
                     } else {
-                        Color::from_rgb(0.8, 0.8, 0.8)
+                        theme.palette.input
                     },
                     width: if is_active { 1.5 } else { 1.0 },
                     radius: if i == 0 && max_length == 1 {

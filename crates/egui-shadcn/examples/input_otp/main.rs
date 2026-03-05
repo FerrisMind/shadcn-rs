@@ -55,12 +55,7 @@ impl App for InputOTPExample {
 
             ui.spacing_mut().item_spacing.y = 20.0;
 
-            render_section(
-                ui,
-                &self.theme,
-                "Demo",
-                "Grouped slots with separator.",
-            );
+            render_section(ui, &self.theme, "Demo", "Grouped slots with separator.");
             render_input_otp_demo(ui, &self.theme, &mut self.demo_value);
 
             render_section(
@@ -92,12 +87,7 @@ impl App for InputOTPExample {
             );
             render_input_otp_controlled(ui, &self.theme, &mut self.controlled_value);
 
-            render_section(
-                ui,
-                &self.theme,
-                "Form",
-                "Form validation on submit.",
-            );
+            render_section(ui, &self.theme, "Form", "Form validation on submit.");
             render_input_otp_form(
                 ui,
                 &self.theme,

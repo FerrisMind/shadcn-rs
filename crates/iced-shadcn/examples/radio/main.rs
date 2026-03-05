@@ -267,9 +267,7 @@ impl Example {
             let color = theme.palette.destructive;
             iced_text(err.as_str())
                 .size(13)
-                .style(move |_| iced::widget::text::Style {
-                    color: Some(color),
-                })
+                .style(move |_| iced::widget::text::Style { color: Some(color) })
                 .into()
         } else {
             column![].into()
@@ -280,12 +278,7 @@ impl Example {
             form_radio,
             error_text,
             row![
-                button(
-                    "Save",
-                    Some(Message::Submit),
-                    ButtonProps::new(),
-                    theme,
-                ),
+                button("Save", Some(Message::Submit), ButtonProps::new(), theme,),
                 button(
                     "Reset",
                     Some(Message::Reset),
@@ -341,10 +334,8 @@ fn plan_items_with_desc() -> Vec<RadioItem<Plan>> {
     vec![
         RadioItem::new("Starter", Plan::Starter)
             .description("For everyday use with basic features."),
-        RadioItem::new("Pro", Plan::Pro)
-            .description("For professionals who need more features."),
-        RadioItem::new("Team", Plan::Team)
-            .description("Best for teams and organizations."),
+        RadioItem::new("Pro", Plan::Pro).description("For professionals who need more features."),
+        RadioItem::new("Team", Plan::Team).description("Best for teams and organizations."),
     ]
 }
 

@@ -3,9 +3,9 @@ use iced::widget::{column, container, row, scrollable, text as iced_text};
 use iced::{Alignment, Background, Element, Length};
 
 use iced_shadcn::{
-    AccentColor, ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, ContentVariant,
-    SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize, TriggerVariant, Theme,
-    button, label, select, select_entries,
+    AccentColor, ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, ContentVariant, SelectEntry,
+    SelectGroup, SelectItem, SelectProps, SelectSize, Theme, TriggerVariant, button, label, select,
+    select_entries,
 };
 use lucide_icons::LUCIDE_FONT_BYTES;
 

@@ -117,9 +117,7 @@ impl Example {
                     .width(Length::Fill),
                     make_switch(
                         next_index(),
-                        SwitchProps::new()
-                            .size(SwitchSize::Size2)
-                            .disabled(true),
+                        SwitchProps::new().size(SwitchSize::Size2).disabled(true),
                     ),
                 ]
                 .spacing(12)
@@ -202,8 +200,7 @@ impl Example {
             }
         }
 
-        let variants_content =
-            column![variant_header, column(variant_rows).spacing(8)].spacing(12);
+        let variants_content = column![variant_header, column(variant_rows).spacing(8)].spacing(12);
 
         // Sizes
         let mut sizes_rows: Vec<Element<'_, Message>> = Vec::new();
@@ -244,8 +241,7 @@ impl Example {
             .align_y(Alignment::Center);
             color_rows.push(row_el.into());
         }
-        let colors_content =
-            column![colors_header, column(color_rows).spacing(8)].spacing(12);
+        let colors_content = column![colors_header, column(color_rows).spacing(8)].spacing(12);
 
         // Form (React Hook Form)
         let rhf_header = column![

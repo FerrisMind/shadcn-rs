@@ -24,6 +24,10 @@ const DEFAULT_TOAST_WIDTH: f32 = 360.0;
 const DEFAULT_TOAST_HEIGHT: f32 = 64.0;
 const DEFAULT_MARGIN: f32 = 16.0;
 const DEFAULT_GAP: f32 = 8.0;
+const TOAST_CLOSE_INSET: f32 = 10.0;
+const TOAST_CLOSE_SIZE: f32 = 14.0;
+const TOAST_CLOSE_GLYPH_NUDGE_X: f32 = 1.0;
+const TOAST_CLOSE_GLYPH_NUDGE_Y: f32 = 1.0;
 const ANIM_MS: u64 = 180;
 
 static TOAST_ID_COUNTER: AtomicU64 = AtomicU64::new(0);
@@ -544,10 +548,10 @@ fn compute_layout(
         let (id, id_len) = id_to_small(&entry.toast.id);
 
         let close_bounds = Rectangle {
-            x: bounds.x + bounds.width - 14.0 - 10.0,
-            y: bounds.y + 10.0,
-            width: 14.0,
-            height: 14.0,
+            x: bounds.x + bounds.width - TOAST_CLOSE_SIZE - TOAST_CLOSE_INSET,
+            y: bounds.y + TOAST_CLOSE_INSET,
+            width: TOAST_CLOSE_SIZE,
+            height: TOAST_CLOSE_SIZE,
         };
 
         let anim = std::time::Duration::from_millis(ANIM_MS);
@@ -596,10 +600,10 @@ fn variant_icon(variant: ToastVariant) -> Option<LucideIcon> {
 fn variant_color(variant: ToastVariant, theme: &Theme) -> Color {
     match variant {
         ToastVariant::Default => theme.palette.muted_foreground,
-        ToastVariant::Success => Color::from_rgb8(34, 197, 94),
+        ToastVariant::Success => theme.palette.chart_2,
         ToastVariant::Error => theme.palette.destructive,
-        ToastVariant::Warning => Color::from_rgb8(245, 158, 11),
-        ToastVariant::Info => Color::from_rgb8(59, 130, 246),
+        ToastVariant::Warning => theme.palette.chart_4,
+        ToastVariant::Info => theme.palette.chart_1,
         ToastVariant::Loading => theme.palette.muted_foreground,
     }
 }
@@ -744,16 +748,19 @@ fn draw_toasts(
             renderer.fill_text(
                 text::Text {
                     content: char::from(icon).to_string(),
-                    size: 14.0.into(),
-                    line_height: text::LineHeight::Absolute(14.0.into()),
+                    size: TOAST_CLOSE_SIZE.into(),
+                    line_height: text::LineHeight::Absolute(TOAST_CLOSE_SIZE.into()),
                     font: icon_font,
                     bounds: Size::new(close.width, close.height),
-                    align_x: text::Alignment::Center,
-                    align_y: iced::alignment::Vertical::Center,
+                    align_x: text::Alignment::Left,
+                    align_y: iced::alignment::Vertical::Top,
                     shaping: text::Shaping::Basic,
                     wrapping: text::Wrapping::default(),
                 },
-                Point::new(close.x, close.y),
+                Point::new(
+                    close.x + TOAST_CLOSE_GLYPH_NUDGE_X,
+                    close.y + TOAST_CLOSE_GLYPH_NUDGE_Y,
+                ),
                 close_color,
                 *viewport,
             );
