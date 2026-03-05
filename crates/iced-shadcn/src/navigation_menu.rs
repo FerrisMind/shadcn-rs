@@ -2178,16 +2178,16 @@ where
                 bounds,
                 border: Border {
                     color: palette.border,
-                    width: 1.0,
+                    width: self.theme.styles.navigation_menu.border_width,
                     radius: radius.into(),
                 },
                 shadow: Shadow {
                     color: Color {
-                        a: 0.18,
-                        ..Color::BLACK
+                        a: self.theme.styles.navigation_menu.shadow.opacity,
+                        ..palette.foreground
                     },
-                    offset: Vector::new(0.0, 8.0),
-                    blur_radius: 22.0,
+                    offset: Vector::new(0.0, self.theme.styles.navigation_menu.shadow.offset_y),
+                    blur_radius: self.theme.styles.navigation_menu.shadow.blur_radius,
                 },
                 ..renderer::Quad::default()
             },

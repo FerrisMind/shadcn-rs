@@ -456,10 +456,10 @@ pub fn tabs_contents<'a, Message: Clone + 'a>(
 }
 
 impl TabsSize {
-    fn padding(self) -> [f32; 2] {
+    fn padding(self, theme: &Theme) -> [f32; 2] {
         match self {
-            TabsSize::Size1 => [6.0, 10.0],
-            TabsSize::Size2 => [8.0, 12.0],
+            TabsSize::Size1 => [theme.spacing.sm - 2.0, theme.spacing.md - 2.0],
+            TabsSize::Size2 => [theme.spacing.sm, theme.spacing.md],
         }
     }
 
@@ -482,15 +482,15 @@ struct TabsMetrics {
 
 fn tabs_metrics(props: TabsListProps, theme: &Theme) -> TabsMetrics {
     let list_padding = match props.size {
-        TabsSize::Size1 => 2.0,
-        TabsSize::Size2 => 3.0,
+        TabsSize::Size1 => theme.styles.tabs.list_padding_size1,
+        TabsSize::Size2 => theme.styles.tabs.list_padding_size2,
     };
 
     TabsMetrics {
         list_padding,
-        gap: 6.0,
-        line_gap: 6.0,
-        indicator_height: 2.0,
+        gap: theme.styles.tabs.gap,
+        line_gap: theme.styles.tabs.line_gap,
+        indicator_height: theme.styles.tabs.indicator_height,
         radius: theme.radius.sm,
     }
 }
@@ -655,11 +655,15 @@ fn trigger_style(
     }
 
     let shadow = if is_active && matches!(props.variant, TabsListVariant::Pill) {
-        let strength = if is_dark(&palette) { 0.35 } else { 0.18 };
+        let strength = if is_dark(&palette) {
+            (theme.styles.tabs.active_pill_shadow.opacity * 1.95).clamp(0.0, 1.0)
+        } else {
+            theme.styles.tabs.active_pill_shadow.opacity
+        };
         Shadow {
-            color: apply_opacity(Color::BLACK, strength),
-            offset: Vector::new(0.0, 1.0),
-            blur_radius: 6.0,
+            color: apply_opacity(palette.foreground, strength),
+            offset: Vector::new(0.0, theme.styles.tabs.active_pill_shadow.offset_y),
+            blur_radius: theme.styles.tabs.active_pill_shadow.blur_radius,
         }
     } else {
         Shadow::default()
@@ -1354,7 +1358,7 @@ where
                 .center_x(Length::Shrink)
                 .center_y(Length::Shrink),
         )
-        .padding(list_props.size.padding())
+        .padding(list_props.size.padding(&theme))
         .style({
             let theme = theme.clone();
             move |_iced_theme, status| trigger_style(&theme, list_props, is_active, status)

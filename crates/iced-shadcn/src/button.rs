@@ -295,8 +295,10 @@ fn button_style(
             accent_txt,
             palette.border,
         ),
-        ButtonVariant::Outline => (None, accent_txt, palette.border),
-        ButtonVariant::Ghost => (None, accent_txt, Color::TRANSPARENT),
+        // shadcn-svelte: outline defaults to foreground text on background with input border.
+        ButtonVariant::Outline => (None, palette.foreground, palette.input),
+        // shadcn-svelte: ghost defaults to foreground text and transparent background.
+        ButtonVariant::Ghost => (None, palette.foreground, Color::TRANSPARENT),
         ButtonVariant::Link => (None, accent, Color::TRANSPARENT),
     };
 
@@ -320,10 +322,14 @@ fn button_style(
                     palette.background,
                     0.1,
                 ))),
-                ButtonVariant::Soft
-                | ButtonVariant::Surface
-                | ButtonVariant::Outline
-                | ButtonVariant::Ghost => Some(Background::Color(palette.muted)),
+                ButtonVariant::Soft | ButtonVariant::Surface => {
+                    Some(Background::Color(palette.muted))
+                }
+                // shadcn-svelte: outline/ghost hover -> accent background + accent foreground.
+                ButtonVariant::Outline | ButtonVariant::Ghost => {
+                    text_color = palette.accent_foreground;
+                    Some(Background::Color(palette.accent))
+                }
                 ButtonVariant::Link => None,
             };
         }

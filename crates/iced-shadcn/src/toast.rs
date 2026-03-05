@@ -20,15 +20,6 @@ use lucide_icons::Icon as LucideIcon;
 use crate::theme::Theme;
 
 const DEFAULT_TOAST_DURATION_MS: u64 = 5000;
-const DEFAULT_TOAST_WIDTH: f32 = 360.0;
-const DEFAULT_TOAST_HEIGHT: f32 = 64.0;
-const DEFAULT_MARGIN: f32 = 16.0;
-const DEFAULT_GAP: f32 = 8.0;
-const TOAST_CLOSE_INSET: f32 = 10.0;
-const TOAST_CLOSE_SIZE: f32 = 14.0;
-const TOAST_CLOSE_GLYPH_NUDGE_X: f32 = 1.0;
-const TOAST_CLOSE_GLYPH_NUDGE_Y: f32 = 1.0;
-const ANIM_MS: u64 = 180;
 
 static TOAST_ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -366,10 +357,15 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
             state.last_redraw = Some(*now);
 
             if let Ok(mut toaster) = self.toaster.state.lock() {
-                update_toasts(&mut toaster, *now);
-                state.layout =
-                    compute_layout(layout.bounds(), &toaster.entries, toaster.position, *now)
-                        .layout;
+                update_toasts(&mut toaster, *now, &self.theme);
+                state.layout = compute_layout(
+                    layout.bounds(),
+                    &toaster.entries,
+                    toaster.position,
+                    *now,
+                    &self.theme,
+                )
+                .layout;
             }
         }
 
@@ -447,7 +443,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
         };
 
         let layout = if state.layout.is_empty() && !entries.is_empty() {
-            compute_layout(bounds, &entries, position, now).layout
+            compute_layout(bounds, &entries, position, now, &self.theme).layout
         } else {
             state.layout.clone()
         };
@@ -470,8 +466,8 @@ impl<'a, Message: 'a> From<ToasterOverlay> for Element<'a, Message> {
     }
 }
 
-fn update_toasts(state: &mut ToasterState, now: std::time::Instant) {
-    let anim = std::time::Duration::from_millis(ANIM_MS);
+fn update_toasts(state: &mut ToasterState, now: std::time::Instant, theme: &Theme) {
+    let anim = std::time::Duration::from_millis(theme.styles.toast.animation_ms);
 
     for entry in &mut state.entries {
         if entry.open
@@ -505,56 +501,58 @@ fn compute_layout(
     entries: &[ToastEntry],
     position: ToastPosition,
     now: std::time::Instant,
+    theme: &Theme,
 ) -> LayoutResult {
+    let toast_style = theme.styles.toast;
     let mut y = if position.is_top() {
-        viewport.y + DEFAULT_MARGIN
+        viewport.y + toast_style.margin
     } else {
-        viewport.y + viewport.height - DEFAULT_MARGIN
+        viewport.y + viewport.height - toast_style.margin
     };
 
     let x = if position.is_center() {
-        viewport.x + (viewport.width - DEFAULT_TOAST_WIDTH).max(0.0) / 2.0
+        viewport.x + (viewport.width - toast_style.width).max(0.0) / 2.0
     } else if position.is_left() {
-        viewport.x + DEFAULT_MARGIN
+        viewport.x + toast_style.margin
     } else {
-        viewport.x + viewport.width - DEFAULT_MARGIN - DEFAULT_TOAST_WIDTH
+        viewport.x + viewport.width - toast_style.margin - toast_style.width
     };
 
     let mut layout_out = Vec::with_capacity(entries.len());
 
     for entry in entries {
-        let height = DEFAULT_TOAST_HEIGHT;
+        let height = toast_style.height;
         let bounds = if position.is_top() {
             let bounds = Rectangle {
                 x,
                 y,
-                width: DEFAULT_TOAST_WIDTH,
+                width: toast_style.width,
                 height,
             };
-            y += height + DEFAULT_GAP;
+            y += height + toast_style.gap;
             bounds
         } else {
             y -= height;
             let bounds = Rectangle {
                 x,
                 y,
-                width: DEFAULT_TOAST_WIDTH,
+                width: toast_style.width,
                 height,
             };
-            y -= DEFAULT_GAP;
+            y -= toast_style.gap;
             bounds
         };
 
         let (id, id_len) = id_to_small(&entry.toast.id);
 
         let close_bounds = Rectangle {
-            x: bounds.x + bounds.width - TOAST_CLOSE_SIZE - TOAST_CLOSE_INSET,
-            y: bounds.y + TOAST_CLOSE_INSET,
-            width: TOAST_CLOSE_SIZE,
-            height: TOAST_CLOSE_SIZE,
+            x: bounds.x + bounds.width - toast_style.close_size - toast_style.close_inset,
+            y: bounds.y + toast_style.close_inset,
+            width: toast_style.close_size,
+            height: toast_style.close_size,
         };
 
-        let anim = std::time::Duration::from_millis(ANIM_MS);
+        let anim = std::time::Duration::from_millis(toast_style.animation_ms);
         let mut anim_t = 1.0;
         if entry.open {
             let elapsed = now.saturating_duration_since(entry.created_at);
@@ -564,7 +562,7 @@ fn compute_layout(
             anim_t = 1.0 - (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
         }
 
-        let slide = (1.0 - anim_t) * 12.0;
+        let slide = (1.0 - anim_t) * theme.spacing.md;
         let bounds = Rectangle {
             y: bounds.y + slide,
             ..bounds
@@ -631,7 +629,7 @@ fn draw_toasts(
             continue;
         }
 
-        let anim = std::time::Duration::from_millis(ANIM_MS);
+        let anim = std::time::Duration::from_millis(theme.styles.toast.animation_ms);
         let mut alpha = 1.0;
         if entry.open {
             let elapsed = now.saturating_duration_since(entry.created_at);
@@ -645,16 +643,16 @@ fn draw_toasts(
             bounds,
             border: Border {
                 color: apply_opacity(border_color, alpha),
-                width: 1.0,
+                width: theme.styles.menu.border_width,
                 radius: radius.into(),
             },
             shadow: Shadow {
-                color: Color {
-                    a: 0.15 * alpha,
-                    ..Color::BLACK
-                },
-                offset: Vector::new(0.0, 12.0),
-                blur_radius: 28.0,
+                color: apply_opacity(
+                    theme.palette.foreground,
+                    theme.styles.toast.shadow.opacity * alpha,
+                ),
+                offset: Vector::new(0.0, theme.styles.toast.shadow.offset_y),
+                blur_radius: theme.styles.toast.shadow.blur_radius,
             },
             ..renderer::Quad::default()
         };
@@ -748,8 +746,8 @@ fn draw_toasts(
             renderer.fill_text(
                 text::Text {
                     content: char::from(icon).to_string(),
-                    size: TOAST_CLOSE_SIZE.into(),
-                    line_height: text::LineHeight::Absolute(TOAST_CLOSE_SIZE.into()),
+                    size: theme.styles.toast.close_size.into(),
+                    line_height: text::LineHeight::Absolute(theme.styles.toast.close_size.into()),
                     font: icon_font,
                     bounds: Size::new(close.width, close.height),
                     align_x: text::Alignment::Left,
@@ -758,8 +756,8 @@ fn draw_toasts(
                     wrapping: text::Wrapping::default(),
                 },
                 Point::new(
-                    close.x + TOAST_CLOSE_GLYPH_NUDGE_X,
-                    close.y + TOAST_CLOSE_GLYPH_NUDGE_Y,
+                    close.x + theme.styles.toast.close_glyph_nudge_x,
+                    close.y + theme.styles.toast.close_glyph_nudge_y,
                 ),
                 close_color,
                 *viewport,

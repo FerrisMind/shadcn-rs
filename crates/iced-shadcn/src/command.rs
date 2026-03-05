@@ -61,7 +61,9 @@ pub struct CommandListProps {
 
 impl Default for CommandListProps {
     fn default() -> Self {
-        Self { max_height: 300.0 }
+        Self {
+            max_height: crate::theme::ThemeStyles::default().command.list_max_height,
+        }
     }
 }
 
@@ -138,6 +140,8 @@ struct CommandTokens {
     text: Color,
     muted: Color,
     border: Color,
+    list_item_gap: f32,
+    group_item_gap: f32,
 }
 
 fn command_tokens(theme: &Theme) -> CommandTokens {
@@ -146,6 +150,8 @@ fn command_tokens(theme: &Theme) -> CommandTokens {
         text: theme.palette.popover_foreground,
         muted: theme.palette.muted_foreground,
         border: theme.palette.border,
+        list_item_gap: theme.styles.command.list_item_gap,
+        group_item_gap: theme.styles.command.group_item_gap,
     }
 }
 
@@ -171,7 +177,7 @@ pub fn command<'a, Message: Clone + 'a>(
     };
 
     let content = add_contents(&ctx);
-    let min_width = props.min_width.unwrap_or(280.0);
+    let min_width = props.min_width.unwrap_or(theme.styles.command.min_width);
 
     container(content)
         .width(Length::Fixed(min_width))
@@ -198,7 +204,10 @@ pub fn command_input<'a, Message: Clone + 'a>(
     let radius_sm = theme.radius.sm;
 
     let mut input = text_input::TextInput::new(&props.placeholder, &ctx.state.query)
-        .padding([8.0, 12.0])
+        .padding([
+            theme.styles.command.input_padding_y,
+            theme.styles.command.input_padding_x,
+        ])
         .size(14);
 
     if let Some(on_query_change) = ctx.on_query_change.as_ref() {
@@ -222,11 +231,11 @@ pub fn command_input<'a, Message: Clone + 'a>(
 }
 
 pub fn command_list<'a, Message: Clone + 'a>(
-    _ctx: &'a CommandContext<'a, Message>,
+    ctx: &'a CommandContext<'a, Message>,
     props: CommandListProps,
     items: Vec<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    let list = column(items).spacing(4);
+    let list = column(items).spacing(ctx.tokens.list_item_gap);
     let list = container(list).width(Length::Fill);
     let max_height = props.max_height.max(1.0);
     let scroll = iced::widget::scrollable(list).height(Length::Fixed(max_height));
@@ -250,7 +259,7 @@ pub fn command_group<'a, Message: Clone + 'a>(
     props: CommandGroupProps,
     items: Vec<Element<'a, Message>>,
 ) -> Element<'a, Message> {
-    let mut group = column(items).spacing(2);
+    let mut group = column(items).spacing(ctx.tokens.group_item_gap);
     if let Some(heading) = props.heading {
         group = group.push(
             text(heading)

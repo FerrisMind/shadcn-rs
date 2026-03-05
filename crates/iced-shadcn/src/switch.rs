@@ -123,15 +123,15 @@ impl SwitchProps {
 }
 
 impl SwitchSize {
-    fn metrics(self) -> SwitchMetrics {
+    fn metrics(self, theme: &Theme) -> SwitchMetrics {
         let scale = match self {
             SwitchSize::Size1 => 0.8,
             SwitchSize::Size2 => 1.0,
             SwitchSize::Size3 => 1.2,
         };
-        let height = 18.4 * scale;
-        let width = 32.0 * scale;
-        let thumb = 14.0 * scale;
+        let height = theme.styles.switch.base_height * scale;
+        let width = theme.styles.switch.base_width * scale;
+        let thumb = theme.styles.switch.base_thumb * scale;
         let thumb_inset_y = (height - thumb) / 2.0;
         let thumb_inset_x = thumb_inset_y;
         SwitchMetrics {
@@ -160,7 +160,7 @@ struct SwitchColors {
 }
 
 fn switch_radius(theme: &Theme, props: &SwitchProps) -> f32 {
-    let height = props.size.metrics().height;
+    let height = props.size.metrics(theme).height;
     let radius = match props.radius {
         Some(crate::button::ButtonRadius::None) => 0.0,
         Some(crate::button::ButtonRadius::Small) => theme.radius.sm,
@@ -181,7 +181,7 @@ pub fn switch<'a, Message: Clone + 'a, F>(
 where
     F: Fn(bool) -> Message + 'a,
 {
-    let metrics = props.size.metrics();
+    let metrics = props.size.metrics(theme);
     let radius = switch_radius(theme, &props);
     let thumb_radius = (radius - metrics.thumb_inset_y)
         .max(0.0)
@@ -190,7 +190,7 @@ where
     let disabled = props.disabled || on_toggle.is_none();
     let colors_off = switch_colors(theme, &props, false, disabled, dark_mode);
     let colors_on = switch_colors(theme, &props, true, disabled, dark_mode);
-    let track_shadow = shadow_xs(if disabled { 0.5 } else { 1.0 });
+    let track_shadow = shadow_xs(theme, if disabled { 0.5 } else { 1.0 });
 
     let content = SwitchVisual {
         is_checked,
@@ -200,6 +200,7 @@ where
         colors_off,
         colors_on,
         track_shadow,
+        animation_duration: Duration::from_millis(theme.styles.switch.animation_ms),
     };
 
     let mut widget = button_widget(content)
@@ -277,15 +278,16 @@ fn apply_opacity(color: iced::Color, opacity: f32) -> iced::Color {
     }
 }
 
-fn shadow_xs(opacity: f32) -> Shadow {
+fn shadow_xs(theme: &Theme, opacity: f32) -> Shadow {
     Shadow {
-        color: apply_opacity(iced::Color::BLACK, 0.05 * opacity),
-        offset: Vector::new(0.0, 1.0),
-        blur_radius: 2.0,
+        color: apply_opacity(
+            theme.palette.foreground,
+            theme.styles.switch.track_shadow.opacity * opacity,
+        ),
+        offset: Vector::new(0.0, theme.styles.switch.track_shadow.offset_y),
+        blur_radius: theme.styles.switch.track_shadow.blur_radius,
     }
 }
-
-const SWITCH_ANIMATION_DURATION: Duration = Duration::from_millis(150);
 
 #[derive(Debug)]
 struct SwitchAnimation {
@@ -320,6 +322,7 @@ struct SwitchVisual {
     colors_off: SwitchColors,
     colors_on: SwitchColors,
     track_shadow: Shadow,
+    animation_duration: Duration,
 }
 
 impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer> for SwitchVisual
@@ -385,7 +388,7 @@ where
             if state.animating {
                 let start = state.start.get_or_insert(*now);
                 let elapsed = (*now - *start).as_secs_f32();
-                let duration = SWITCH_ANIMATION_DURATION.as_secs_f32().max(0.0001);
+                let duration = self.animation_duration.as_secs_f32().max(0.0001);
                 let t = (elapsed / duration).min(1.0);
                 let eased = cubic_bezier(t, 0.4, 0.0, 0.2, 1.0);
                 state.progress = state.from + (state.to - state.from) * eased;
