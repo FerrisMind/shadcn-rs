@@ -41,6 +41,7 @@ pub mod pagination;
 pub mod popover;
 pub mod progress;
 pub mod radio;
+pub mod rename;
 pub mod resizable;
 pub mod scroll_area;
 pub mod select;
@@ -169,6 +170,12 @@ pub use pagination::{
 pub use popover::{PopoverProps, PopoverSize, popover};
 pub use progress::{ProgressProps, ProgressSize, ProgressVariant, progress};
 pub use radio::{RadioDirection, RadioGroupProps, RadioItem, radio_group};
+pub use rename::{
+    RenameAction, RenameActionHandler, RenameBlurBehavior, RenameButtonProps, RenameContext,
+    RenameFallbackSelectionBehavior, RenameInputTag, RenameMode, RenameProviderProps,
+    RenameRootProps, RenameSelectionRequest, RenameState, RenameUpdate, rename_apply_action,
+    rename_cancel, rename_edit, rename_provider, rename_root, rename_save, rename_update_task,
+};
 pub use resizable::{
     ResizableContext, ResizableDirection, ResizableHandleProps, ResizablePanelGroupProps,
     ResizablePanelProps, resizable_handle, resizable_panel, resizable_panel_group,
@@ -221,7 +228,9 @@ pub use toggle_group::{
 };
 pub use tokens::{AccentColor, ControlSize, ControlVariant, Palette, Radius, Spacing};
 pub use tooltip::{TooltipPosition, TooltipProps, tooltip};
-pub use tree_view::{TreeNode, TreeViewAction, TreeViewProps, TreeViewState, tree_view};
+pub use tree_view::{
+    TreeNode, TreeScrollbarVisibility, TreeViewAction, TreeViewProps, TreeViewState, tree_view,
+};
 pub use typography::{
     HeadingAs, HeadingProps, LeadingTrim, TextAlign, TextAs, TextProps, TextSize, TextWeight,
     TextWrap, heading, text,
