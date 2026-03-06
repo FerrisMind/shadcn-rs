@@ -339,6 +339,25 @@ impl Default for NavigationMenuStyleTokens {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct ScrollAreaStyleTokens {
+    pub size1_scrollbar_width: f32,
+    pub size2_scrollbar_width: f32,
+    pub size3_scrollbar_width: f32,
+    pub default_scrollbar_margin: f32,
+}
+
+impl Default for ScrollAreaStyleTokens {
+    fn default() -> Self {
+        Self {
+            size1_scrollbar_width: 4.0,
+            size2_scrollbar_width: 8.0,
+            size3_scrollbar_width: 12.0,
+            default_scrollbar_margin: 4.0,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct ThemeStyles {
     pub command: CommandStyleTokens,
@@ -350,6 +369,7 @@ pub struct ThemeStyles {
     pub sidebar: SidebarStyleTokens,
     pub field: FieldStyleTokens,
     pub navigation_menu: NavigationMenuStyleTokens,
+    pub scroll_area: ScrollAreaStyleTokens,
 }
 
 #[derive(Clone, Debug)]
