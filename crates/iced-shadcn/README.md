@@ -116,6 +116,22 @@ fn view<'a, Message: Clone + 'a>(
 Example:
 - `crates/iced-shadcn/examples/navigation-menu-demo`
 
+## Resizable
+
+Example demonstrating both splitter directions, live `Vec<f32>` state management, and handle options:
+
+```rust
+use iced_shadcn::{
+    ResizableDirection, ResizableHandleProps, ResizablePanelGroupProps, ResizablePanelProps,
+    Theme, resizable_handle, resizable_panel, resizable_panel_group,
+};
+
+// See crates/iced-shadcn/examples/resizable-demo/main.rs for a complete example.
+```
+
+Example:
+- `crates/iced-shadcn/examples/resizable-demo`
+
 ## License
 
 MIT
