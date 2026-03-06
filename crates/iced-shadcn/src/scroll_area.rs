@@ -26,6 +26,11 @@ pub struct ScrollAreaProps {
     pub size: ScrollAreaSize,
     pub radius: Option<ButtonRadius>,
     pub scrollbars: ScrollAreaScrollbars,
+    pub scrollbar_width: Option<f32>,
+    pub scrollbar_rail_width: Option<f32>,
+    pub scrollbar_thumb_width: Option<f32>,
+    pub scrollbar_margin: Option<f32>,
+    pub scrollbar_spacing: Option<f32>,
 }
 
 impl Default for ScrollAreaProps {
@@ -34,6 +39,11 @@ impl Default for ScrollAreaProps {
             size: ScrollAreaSize::Size1,
             radius: None,
             scrollbars: ScrollAreaScrollbars::Both,
+            scrollbar_width: None,
+            scrollbar_rail_width: None,
+            scrollbar_thumb_width: None,
+            scrollbar_margin: None,
+            scrollbar_spacing: None,
         }
     }
 }
@@ -57,6 +67,51 @@ impl ScrollAreaProps {
         self.scrollbars = scrollbars;
         self
     }
+
+    pub fn scrollbar_width(mut self, scrollbar_width: f32) -> Self {
+        self.scrollbar_width = Some(scrollbar_width.clamp(2.0, 32.0));
+        self
+    }
+
+    pub fn scrollbar_rail_width(mut self, scrollbar_rail_width: f32) -> Self {
+        self.scrollbar_rail_width = Some(scrollbar_rail_width.clamp(2.0, 32.0));
+        self
+    }
+
+    pub fn scrollbar_thumb_width(mut self, scrollbar_thumb_width: f32) -> Self {
+        self.scrollbar_thumb_width = Some(scrollbar_thumb_width.clamp(2.0, 32.0));
+        self
+    }
+
+    pub fn scrollbar_margin(mut self, scrollbar_margin: f32) -> Self {
+        self.scrollbar_margin = Some(scrollbar_margin.clamp(0.0, 32.0));
+        self
+    }
+
+    pub fn scrollbar_spacing(mut self, scrollbar_spacing: f32) -> Self {
+        self.scrollbar_spacing = Some(scrollbar_spacing.clamp(0.0, 64.0));
+        self
+    }
+
+    fn resolved_scrollbar_widths(self, theme: &Theme) -> (f32, f32) {
+        let fallback = self
+            .scrollbar_width
+            .unwrap_or_else(|| self.size.scrollbar_width(theme));
+
+        let rail_width = self.scrollbar_rail_width.unwrap_or(fallback);
+        let thumb_width = self.scrollbar_thumb_width.unwrap_or(fallback);
+
+        (rail_width, thumb_width)
+    }
+
+    fn resolved_scrollbar_margin(self, theme: &Theme) -> f32 {
+        self.scrollbar_margin
+            .unwrap_or(theme.styles.scroll_area.default_scrollbar_margin)
+    }
+
+    fn resolved_scrollbar_spacing(self) -> Option<f32> {
+        self.scrollbar_spacing
+    }
 }
 
 fn apply_opacity(color: Color, opacity: f32) -> Color {
@@ -78,11 +133,11 @@ fn scroll_area_radius(theme: &Theme, props: ScrollAreaProps) -> f32 {
 }
 
 impl ScrollAreaSize {
-    fn scrollbar_width(self) -> f32 {
+    fn scrollbar_width(self, theme: &Theme) -> f32 {
         match self {
-            ScrollAreaSize::Size1 => 4.0,
-            ScrollAreaSize::Size2 => 8.0,
-            ScrollAreaSize::Size3 => 12.0,
+            ScrollAreaSize::Size1 => theme.styles.scroll_area.size1_scrollbar_width,
+            ScrollAreaSize::Size2 => theme.styles.scroll_area.size2_scrollbar_width,
+            ScrollAreaSize::Size3 => theme.styles.scroll_area.size3_scrollbar_width,
         }
     }
 }
@@ -152,11 +207,15 @@ pub fn scroll_area<'a, Message: 'a>(
     props: ScrollAreaProps,
     theme: &Theme,
 ) -> scrollable::Scrollable<'a, Message> {
-    let scrollbar_width = props.size.scrollbar_width();
-    let scrollbar = Scrollbar::new()
+    let (scrollbar_width, scroller_width) = props.resolved_scrollbar_widths(theme);
+    let mut scrollbar = Scrollbar::new()
         .width(scrollbar_width)
-        .scroller_width(scrollbar_width)
-        .margin(4.0);
+        .scroller_width(scroller_width)
+        .margin(props.resolved_scrollbar_margin(theme));
+
+    if let Some(spacing) = props.resolved_scrollbar_spacing() {
+        scrollbar = scrollbar.spacing(spacing);
+    }
 
     let direction = match props.scrollbars {
         ScrollAreaScrollbars::Vertical => Direction::Vertical(scrollbar),

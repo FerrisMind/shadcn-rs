@@ -8,11 +8,13 @@ repository.workspace = true
 description = "Shadcn-inspired component kit for iced"
 
 [dependencies]
-iced = { version = "0.14", features = ["advanced", "canvas", "tokio", "tiny-skia"] }
+iced = { version = "0.14", features = ["advanced", "canvas", "image", "tokio", "tiny-skia"] }
 lucide-icons = { version = "0.562", features = ["iced"] }
 num-traits = "0.2"
 regex = "1.10"
 chrono = { version = "0.4", optional = true, default-features = false, features = ["std"] }
+image = { version = "0.25", default-features = false, features = ["avif", "bmp", "dds", "gif", "ico", "jpeg", "png", "pnm", "qoi", "tga", "webp"] }
+rfd = { version = "0.16", optional = true }
 
 [dev-dependencies]
 rfd = "0.16"
@@ -21,3 +23,4 @@ rfd = "0.16"
 default = []
 date-components = ["dep:chrono"]
 charts = []
+image-cropper-picker = ["dep:rfd"]

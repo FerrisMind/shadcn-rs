@@ -116,6 +116,35 @@ fn view<'a, Message: Clone + 'a>(
 Example:
 - `crates/iced-shadcn/examples/navigation-menu-demo`
 
+## Breadcrumb
+
+Minimal example using the Breadcrumb API:
+
+```rust
+use iced_shadcn::{
+    BreadcrumbProps, Theme, breadcrumb, breadcrumb_item, breadcrumb_link, breadcrumb_list,
+    breadcrumb_page, breadcrumb_separator,
+};
+
+fn view<'a, Message: Clone + 'a>(theme: &Theme) -> iced::Element<'a, Message> {
+    breadcrumb(theme, BreadcrumbProps::new(), |ctx| {
+        breadcrumb_list(
+            ctx,
+            vec![
+                breadcrumb_item(ctx, vec![breadcrumb_link("Docs", None, ctx)]),
+                breadcrumb_separator(ctx, None),
+                breadcrumb_item(ctx, vec![breadcrumb_link("Components", None, ctx)]),
+                breadcrumb_separator(ctx, None),
+                breadcrumb_item(ctx, vec![breadcrumb_page("Breadcrumb", ctx)]),
+            ],
+        )
+    })
+}
+```
+
+Example:
+- `crates/iced-shadcn/examples/breadcrumb`
+
 ## Resizable
 
 Example demonstrating both splitter directions, live `Vec<f32>` state management, and handle options:
@@ -131,6 +160,23 @@ use iced_shadcn::{
 
 Example:
 - `crates/iced-shadcn/examples/resizable-demo`
+
+## Image Cropper
+
+Example demonstrating dialog-based crop flow, PNG export, round/rect preview, and optional picker integration:
+
+```rust
+use iced_shadcn::{
+    ImageCropShape, ImageCropperAction, ImageCropperProps, ImageCropperState, Theme,
+    image_cropper_cancel, image_cropper_canvas, image_cropper_controls, image_cropper_crop,
+    image_cropper_dialog, image_cropper_preview, image_cropper_root, image_cropper_upload_trigger,
+};
+
+// See crates/iced-shadcn/examples/image-cropper-demo/main.rs for a complete example.
+```
+
+Example:
+- `crates/iced-shadcn/examples/image-cropper-demo`
 
 ## License
 

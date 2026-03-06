@@ -140,13 +140,13 @@ pub fn breadcrumb_item<'a, Message: Clone + 'a>(
 pub fn breadcrumb_link<'a, Message: Clone + 'a>(
     text_value: impl Into<String>,
     on_press: Option<Message>,
-    ctx: &'a BreadcrumbContext,
+    ctx: &BreadcrumbContext,
 ) -> Element<'a, Message> {
+    let muted = ctx.tokens.muted;
+    let text_size = ctx.metrics.text_size;
     let label = text(text_value.into())
-        .size(ctx.metrics.text_size)
-        .style(move |_t| iced::widget::text::Style {
-            color: Some(ctx.tokens.muted),
-        });
+        .size(text_size)
+        .style(move |_t| iced::widget::text::Style { color: Some(muted) });
 
     let mut area = mouse_area(label);
     if let Some(msg) = on_press {
@@ -157,39 +157,45 @@ pub fn breadcrumb_link<'a, Message: Clone + 'a>(
 
 pub fn breadcrumb_page<'a, Message: Clone + 'a>(
     text_value: impl Into<String>,
-    ctx: &'a BreadcrumbContext,
+    ctx: &BreadcrumbContext,
 ) -> Element<'a, Message> {
+    let foreground = ctx.tokens.foreground;
+    let text_size = ctx.metrics.text_size;
     text(text_value.into())
-        .size(ctx.metrics.text_size)
+        .size(text_size)
         .style(move |_t| iced::widget::text::Style {
-            color: Some(ctx.tokens.foreground),
+            color: Some(foreground),
         })
         .into()
 }
 
 pub fn breadcrumb_separator<'a, Message: Clone + 'a>(
-    ctx: &'a BreadcrumbContext,
+    ctx: &BreadcrumbContext,
     custom: Option<String>,
 ) -> Element<'a, Message> {
     let text_value = custom.unwrap_or_else(|| "›".to_string());
+    let separator = ctx.tokens.separator;
+    let separator_size = ctx.metrics.separator_size;
     text(text_value)
-        .size(ctx.metrics.separator_size)
+        .size(separator_size)
         .style(move |_t| iced::widget::text::Style {
-            color: Some(ctx.tokens.separator),
+            color: Some(separator),
         })
         .into()
 }
 
 pub fn breadcrumb_ellipsis<'a, Message: Clone + 'a>(
-    ctx: &'a BreadcrumbContext,
+    ctx: &BreadcrumbContext,
 ) -> Element<'a, Message> {
-    container(text("…").size(ctx.metrics.ellipsis_size).style(move |_t| {
-        iced::widget::text::Style {
-            color: Some(ctx.tokens.muted),
-        }
-    }))
-    .width(Length::Fixed(ctx.metrics.ellipsis_size.max(12.0)))
-    .height(Length::Fixed(ctx.metrics.ellipsis_size.max(12.0)))
+    let muted = ctx.tokens.muted;
+    let ellipsis_size = ctx.metrics.ellipsis_size;
+    container(
+        text("…")
+            .size(ellipsis_size)
+            .style(move |_t| iced::widget::text::Style { color: Some(muted) }),
+    )
+    .width(Length::Fixed(ellipsis_size.max(12.0)))
+    .height(Length::Fixed(ellipsis_size.max(12.0)))
     .center_x(Length::Fill)
     .center_y(Length::Fill)
     .into()

@@ -28,6 +28,7 @@ pub mod empty;
 pub mod field;
 pub mod form;
 pub mod hover_card;
+pub mod image_cropper;
 pub mod input;
 pub mod input_group;
 pub mod input_otp;
@@ -135,6 +136,14 @@ pub use form::{
     min_length, none, required,
 };
 pub use hover_card::{HoverCardProps, HoverCardSize, hover_card};
+#[cfg(feature = "image-cropper-picker")]
+pub use image_cropper::image_cropper_pick_file_task;
+pub use image_cropper::{
+    ImageCropRect, ImageCropResult, ImageCropShape, ImageCropStatus, ImageCropperAction,
+    ImageCropperContext, ImageCropperProps, ImageCropperSource, ImageCropperState,
+    image_cropper_cancel, image_cropper_canvas, image_cropper_controls, image_cropper_crop,
+    image_cropper_dialog, image_cropper_preview, image_cropper_root, image_cropper_upload_trigger,
+};
 pub use input::{InputProps, InputSize, InputVariant, input};
 pub use input_group::{
     InputGroupAddon, InputGroupAddonAlign, InputGroupAddonProps, InputGroupButtonProps,
@@ -217,9 +226,9 @@ pub use textarea::{
 };
 pub use theme::{
     ColorToken, CommandStyleTokens, FieldStyleTokens, InputStyleTokens, MenuStyleTokens,
-    NavigationMenuStyleTokens, RadiusToken, ShadowStyle, SidebarStyleTokens, SpacingToken,
-    SwitchStyleTokens, TabsStyleTokens, Theme, ThemeStyles, ThemeTokenRegistry, ThemeTokensSource,
-    ToastStyleTokens,
+    NavigationMenuStyleTokens, RadiusToken, ScrollAreaStyleTokens, ShadowStyle, SidebarStyleTokens,
+    SpacingToken, SwitchStyleTokens, TabsStyleTokens, Theme, ThemeStyles, ThemeTokenRegistry,
+    ThemeTokensSource, ToastStyleTokens,
 };
 pub use toast::{Toast, ToastPosition, ToastPromise, ToastVariant, Toaster};
 pub use toggle_group::{
