@@ -83,8 +83,7 @@ impl Example {
     fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
 
-        let provider_handler: RenameActionHandler<'_, Message> =
-            Rc::new(|action| Message::Provider(action));
+        let provider_handler: RenameActionHandler<'_, Message> = Rc::new(Message::Provider);
         let provider_block = rename_provider(
             &self.provider_state,
             Some(Rc::clone(&provider_handler)),
@@ -133,8 +132,7 @@ impl Example {
             },
         );
 
-        let standalone_handler: RenameActionHandler<'_, Message> =
-            Rc::new(|action| Message::Standalone(action));
+        let standalone_handler: RenameActionHandler<'_, Message> = Rc::new(Message::Standalone);
         let standalone_block = column![
             text("Standalone Root (click text to edit)").size(16),
             rename_root(
@@ -147,8 +145,7 @@ impl Example {
         ]
         .spacing(10);
 
-        let textarea_handler: RenameActionHandler<'_, Message> =
-            Rc::new(|action| Message::Textarea(action));
+        let textarea_handler: RenameActionHandler<'_, Message> = Rc::new(Message::Textarea);
         let textarea_block = column![
             text("Textarea mode (Enter=Save, Escape=Cancel, blur=Exit)").size(16),
             rename_root(

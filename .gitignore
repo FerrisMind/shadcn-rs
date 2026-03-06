@@ -1,5 +1,6 @@
 # Rust
 /target
+/target-codex-check
 **/*.rs.bk
 
 # Cargo
