@@ -264,6 +264,7 @@ impl Example {
 
         let viewer = tree_viewer(
             &self.state,
+            None,
             Message::Toggle,
             Message::Select,
             Message::Load,
