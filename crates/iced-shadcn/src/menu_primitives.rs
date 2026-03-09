@@ -222,21 +222,23 @@ pub(crate) enum MenuKind {
     Context,
 }
 
-#[derive(Clone, Copy, Debug)]
-pub(crate) struct MenuOverlayProps {
+#[derive(Clone, Debug)]
+pub(crate) struct MenuOverlayProps<Message> {
     pub kind: MenuKind,
     pub width: Option<u32>,
     pub offset: f32,
     pub disabled: bool,
+    pub on_close: Option<Message>,
 }
 
-impl Default for MenuOverlayProps {
+impl<Message> Default for MenuOverlayProps<Message> {
     fn default() -> Self {
         Self {
             kind: MenuKind::Dropdown,
             width: None,
             offset: 4.0,
             disabled: false,
+            on_close: None,
         }
     }
 }
@@ -273,7 +275,7 @@ pub(crate) fn menu<'a, Message: Clone + 'a>(
     trigger: impl Into<Element<'a, Message>>,
     entries: Vec<MenuEntry<'a, Message>>,
     content: MenuContentProps,
-    overlay: MenuOverlayProps,
+    overlay: MenuOverlayProps<Message>,
     theme: &Theme,
 ) -> Menu<'a, Message> {
     Menu {
@@ -289,7 +291,7 @@ pub(crate) struct Menu<'a, Message> {
     trigger: Element<'a, Message>,
     entries: Vec<MenuEntry<'a, Message>>,
     content: MenuContentProps,
-    overlay: MenuOverlayProps,
+    overlay: MenuOverlayProps<Message>,
     theme: Theme,
 }
 
@@ -457,6 +459,13 @@ where
             state.submenu_bounds = None;
         }
 
+        if was_open
+            && !state.is_open
+            && let Some(on_close) = self.overlay.on_close.clone()
+        {
+            shell.publish(on_close);
+        }
+
         if was_open != state.is_open
             || was_open_submenu != state.open_submenu
             || was_opened_at != state.opened_at
@@ -487,7 +496,7 @@ where
             state,
             theme: self.theme.clone(),
             content: self.content,
-            overlay: self.overlay,
+            overlay: self.overlay.clone(),
             viewport: *viewport,
             font,
             anchor_position,
@@ -545,7 +554,7 @@ struct MenuOverlay<'a, 'b, Message> {
     state: &'a mut MenuState,
     theme: Theme,
     content: MenuContentProps,
-    overlay: MenuOverlayProps,
+    overlay: MenuOverlayProps<Message>,
     viewport: Rectangle,
     font: Font,
     anchor_position: Point,

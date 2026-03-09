@@ -7,6 +7,7 @@ pub use widget::{TreeViewer, TreeViewerProps};
 /// Convenience helper to create a tree viewer widget.
 pub fn tree_viewer<'a, Message: Clone + 'a>(
     state: &'a TreeViewerState,
+    context_path: Option<String>,
     on_toggle: impl Fn(String) -> Message + 'a,
     on_select: impl Fn(String) -> Message + 'a,
     on_load: impl Fn(String) -> Message + 'a,
@@ -16,6 +17,14 @@ pub fn tree_viewer<'a, Message: Clone + 'a>(
     theme: &'a crate::theme::Theme,
 ) -> TreeViewer<'a, Message> {
     TreeViewer::new(
-        state, on_toggle, on_select, on_load, on_hover, on_context, props, theme,
+        state,
+        context_path,
+        on_toggle,
+        on_select,
+        on_load,
+        on_hover,
+        on_context,
+        props,
+        theme,
     )
 }
