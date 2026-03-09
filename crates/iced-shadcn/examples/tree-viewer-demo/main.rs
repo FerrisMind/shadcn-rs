@@ -128,6 +128,8 @@ pub enum Message {
     Select(String),
     Load(String),
     FolderLoaded(String, Vec<FlatNode>),
+    Hover(Option<String>),
+    Context(String),
 }
 
 impl Example {
@@ -245,6 +247,12 @@ impl Example {
                 
                 Task::none()
             }
+            Message::Hover(_path) => {
+                Task::none()
+            }
+            Message::Context(_path) => {
+                Task::none()
+            }
         }
     }
     fn view(&self) -> Element<'_, Message> {
@@ -259,6 +267,8 @@ impl Example {
             Message::Toggle,
             Message::Select,
             Message::Load,
+            Message::Hover,
+            Message::Context,
             TreeViewerProps::default(),
             theme,
         );
