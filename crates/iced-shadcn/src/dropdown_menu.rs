@@ -93,6 +93,7 @@ pub fn dropdown_menu<'a, Message: Clone + 'a>(
             width: props.width,
             offset: props.offset,
             disabled: props.disabled,
+            on_close: None,
         },
         theme,
     )

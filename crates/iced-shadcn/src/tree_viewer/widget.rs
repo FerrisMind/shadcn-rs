@@ -11,6 +11,7 @@ use lucide_icons::Icon as LucideIcon;
 
 pub struct TreeViewer<'a, Message> {
     state: &'a TreeViewerState,
+    context_path: Option<String>,
     on_toggle: Box<dyn Fn(String) -> Message + 'a>,
     on_select: Box<dyn Fn(String) -> Message + 'a>,
     on_load: Box<dyn Fn(String) -> Message + 'a>,
@@ -44,6 +45,7 @@ impl Default for TreeViewerProps {
 impl<'a, Message> TreeViewer<'a, Message> {
     pub fn new(
         state: &'a TreeViewerState,
+        context_path: Option<String>,
         on_toggle: impl Fn(String) -> Message + 'a,
         on_select: impl Fn(String) -> Message + 'a,
         on_load: impl Fn(String) -> Message + 'a,
@@ -54,6 +56,7 @@ impl<'a, Message> TreeViewer<'a, Message> {
     ) -> Self {
         Self {
             state,
+            context_path,
             on_toggle: Box::new(on_toggle),
             on_select: Box::new(on_select),
             on_load: Box::new(on_load),
@@ -155,7 +158,9 @@ where
             };
 
             let is_selected = self.state.is_selected(&node.path);
-            let is_hovered = cursor.position_over(clickable_bounds).is_some();
+            let has_context = self.context_path.is_some();
+            let is_context_active = self.context_path.as_deref() == Some(node.path.as_str());
+            let is_hovered = !has_context && cursor.position_over(clickable_bounds).is_some();
 
             // Background
             let bg_color = if is_selected || is_hovered {
@@ -169,12 +174,27 @@ where
                     renderer::Quad {
                         bounds: highlight_bounds,
                         border: Border {
-                            radius: self.theme.radius.sm.into(),
+                            radius: self.theme.radius.md.into(),
                             ..Default::default()
                         },
                         ..Default::default()
                     },
                     bg,
+                );
+            }
+
+            if is_context_active {
+                renderer.fill_quad(
+                    renderer::Quad {
+                        bounds: highlight_bounds,
+                        border: Border {
+                            color: self.theme.palette.border,
+                            width: 1.0,
+                            radius: self.theme.radius.md.into(),
+                        },
+                        ..Default::default()
+                    },
+                    iced::Color::TRANSPARENT,
                 );
             }
 

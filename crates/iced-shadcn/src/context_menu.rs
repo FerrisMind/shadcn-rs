@@ -18,24 +18,26 @@ pub type ContextMenuContentSize = MenuContentSize;
 pub type ContextMenuContentVariant = MenuContentVariant;
 pub type ContextMenuEntry<'a, Message> = MenuEntry<'a, Message>;
 
-#[derive(Clone, Copy, Debug)]
-pub struct ContextMenuProps {
+#[derive(Clone, Debug)]
+pub struct ContextMenuProps<Message> {
     pub content: ContextMenuContentProps,
     pub width: Option<u32>,
     pub disabled: bool,
+    pub on_close: Option<Message>,
 }
 
-impl Default for ContextMenuProps {
+impl<Message> Default for ContextMenuProps<Message> {
     fn default() -> Self {
         Self {
             content: ContextMenuContentProps::new(),
             width: None,
             disabled: false,
+            on_close: None,
         }
     }
 }
 
-impl ContextMenuProps {
+impl<Message> ContextMenuProps<Message> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -69,12 +71,17 @@ impl ContextMenuProps {
         self.disabled = disabled;
         self
     }
+
+    pub fn on_close(mut self, on_close: Message) -> Self {
+        self.on_close = Some(on_close);
+        self
+    }
 }
 
 pub fn context_menu<'a, Message: Clone + 'a>(
     trigger: impl Into<Element<'a, Message>>,
     entries: Vec<ContextMenuEntry<'a, Message>>,
-    props: ContextMenuProps,
+    props: ContextMenuProps<Message>,
     theme: &Theme,
 ) -> Element<'a, Message> {
     menu(
@@ -86,6 +93,7 @@ pub fn context_menu<'a, Message: Clone + 'a>(
             width: props.width,
             offset: 0.0,
             disabled: props.disabled,
+            on_close: props.on_close,
         },
         theme,
     )
