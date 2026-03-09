@@ -643,7 +643,7 @@ fn render_folder<'a, Message: Clone + 'static>(
     .spacing(0);
 
     // Only render children if the folder is both OPEN and has children.
-    if open && children.len() > 0 {
+    if open && !children.is_empty() {
         let mut children_col = column![].spacing(0).width(Length::Fill);
         for child in children {
             children_col = children_col.push(render_node(

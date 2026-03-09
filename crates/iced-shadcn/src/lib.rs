@@ -62,6 +62,7 @@ pub mod toggle_group;
 pub mod tokens;
 pub mod tooltip;
 pub mod tree_view;
+pub mod tree_viewer;
 pub mod typography;
 
 mod menu_primitives;
@@ -244,6 +245,7 @@ pub use tooltip::{TooltipPosition, TooltipProps, tooltip};
 pub use tree_view::{
     TreeNode, TreeScrollbarVisibility, TreeViewAction, TreeViewProps, TreeViewState, tree_view,
 };
+pub use tree_viewer::{FlatNode, FolderState, TreeViewer, TreeViewerProps, TreeViewerState, tree_viewer};
 pub use typography::{
     HeadingAs, HeadingProps, LeadingTrim, TextAlign, TextAs, TextProps, TextSize, TextWeight,
     TextWrap, heading, text,
