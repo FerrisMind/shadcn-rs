@@ -194,7 +194,10 @@ pub use resizable::{
     ResizableContext, ResizableDirection, ResizableHandleProps, ResizablePanelGroupProps,
     ResizablePanelProps, resizable_handle, resizable_panel, resizable_panel_group,
 };
-pub use scroll_area::{ScrollAreaProps, ScrollAreaScrollbars, ScrollAreaSize, scroll_area};
+pub use scroll_area::{
+    ScrollAreaProps, ScrollAreaScrollbarVisibility, ScrollAreaScrollbars, ScrollAreaSize,
+    scroll_area,
+};
 pub use select::{
     ContentVariant, SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize, TriggerVariant,
     select, select_entries,

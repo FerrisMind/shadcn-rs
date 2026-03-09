@@ -21,11 +21,20 @@ pub enum ScrollAreaScrollbars {
     Both,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ScrollAreaScrollbarVisibility {
+    Auto,
+    Visible,
+    Hidden,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct ScrollAreaProps {
     pub size: ScrollAreaSize,
     pub radius: Option<ButtonRadius>,
+    pub bordered: bool,
     pub scrollbars: ScrollAreaScrollbars,
+    pub scrollbar_visibility: ScrollAreaScrollbarVisibility,
     pub scrollbar_width: Option<f32>,
     pub scrollbar_rail_width: Option<f32>,
     pub scrollbar_thumb_width: Option<f32>,
@@ -38,7 +47,9 @@ impl Default for ScrollAreaProps {
         Self {
             size: ScrollAreaSize::Size1,
             radius: None,
+            bordered: true,
             scrollbars: ScrollAreaScrollbars::Both,
+            scrollbar_visibility: ScrollAreaScrollbarVisibility::Auto,
             scrollbar_width: None,
             scrollbar_rail_width: None,
             scrollbar_thumb_width: None,
@@ -63,8 +74,18 @@ impl ScrollAreaProps {
         self
     }
 
+    pub fn bordered(mut self, bordered: bool) -> Self {
+        self.bordered = bordered;
+        self
+    }
+
     pub fn scrollbars(mut self, scrollbars: ScrollAreaScrollbars) -> Self {
         self.scrollbars = scrollbars;
+        self
+    }
+
+    pub fn scrollbar_visibility(mut self, visibility: ScrollAreaScrollbarVisibility) -> Self {
+        self.scrollbar_visibility = visibility;
         self
     }
 
@@ -142,7 +163,7 @@ impl ScrollAreaSize {
     }
 }
 
-fn scroll_area_style(theme: &Theme, props: ScrollAreaProps, _status: Status) -> Style {
+fn scroll_area_style(theme: &Theme, props: ScrollAreaProps, status: Status) -> Style {
     let palette = theme.palette;
     let radius = scroll_area_radius(theme, props);
 
@@ -157,7 +178,7 @@ fn scroll_area_style(theme: &Theme, props: ScrollAreaProps, _status: Status) -> 
         apply_opacity(accent_high(&palette, AccentColor::Gray), 0.8)
     };
 
-    let rail = scrollable::Rail {
+    let rail_visible = scrollable::Rail {
         background: Some(Background::Color(rail_bg)),
         border: Border {
             color: Color::TRANSPARENT,
@@ -173,14 +194,46 @@ fn scroll_area_style(theme: &Theme, props: ScrollAreaProps, _status: Status) -> 
             },
         },
     };
+    let rail_hidden = scrollable::Rail {
+        background: Some(Background::Color(Color::TRANSPARENT)),
+        border: Border {
+            color: Color::TRANSPARENT,
+            width: 0.0,
+            radius: (radius.min(9999.0)).into(),
+        },
+        scroller: scrollable::Scroller {
+            background: Background::Color(Color::TRANSPARENT),
+            border: Border {
+                color: Color::TRANSPARENT,
+                width: 0.0,
+                radius: (radius.min(9999.0)).into(),
+            },
+        },
+    };
+
+    let show_scrollbars = match props.scrollbar_visibility {
+        ScrollAreaScrollbarVisibility::Visible => true,
+        ScrollAreaScrollbarVisibility::Hidden => false,
+        ScrollAreaScrollbarVisibility::Auto => {
+            matches!(status, Status::Hovered { .. } | Status::Dragged { .. })
+        }
+    };
+    let rail = if show_scrollbars { rail_visible } else { rail_hidden };
+
+    let border_width = if props.bordered { 1.0 } else { 0.0 };
+    let border_color = if props.bordered {
+        palette.border
+    } else {
+        Color::TRANSPARENT
+    };
 
     Style {
         container: container::Style {
             background: Some(Background::Color(palette.card)),
             text_color: Some(palette.card_foreground),
             border: Border {
-                color: palette.border,
-                width: 1.0,
+                color: border_color,
+                width: border_width,
                 radius: radius.into(),
             },
             shadow: Shadow::default(),
@@ -188,7 +241,11 @@ fn scroll_area_style(theme: &Theme, props: ScrollAreaProps, _status: Status) -> 
         },
         vertical_rail: rail,
         horizontal_rail: rail,
-        gap: Some(Background::Color(rail_bg)),
+        gap: if show_scrollbars {
+            Some(Background::Color(rail_bg))
+        } else {
+            Some(Background::Color(Color::TRANSPARENT))
+        },
         auto_scroll: scrollable::AutoScroll {
             background: Background::Color(apply_opacity(palette.background, 0.85)),
             border: Border {
