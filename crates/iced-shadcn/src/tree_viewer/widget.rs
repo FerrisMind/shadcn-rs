@@ -146,6 +146,13 @@ where
                 width: bounds.width.max(0.0),
                 height: row_height,
             };
+            let hover_inset_x = self.theme.spacing.xs;
+            let highlight_bounds = Rectangle {
+                x: clickable_bounds.x + hover_inset_x,
+                y: clickable_bounds.y,
+                width: (clickable_bounds.width - hover_inset_x * 2.0).max(0.0),
+                height: clickable_bounds.height,
+            };
 
             let is_selected = self.state.is_selected(&node.path);
             let is_hovered = cursor.position_over(clickable_bounds).is_some();
@@ -160,7 +167,7 @@ where
             if let Some(bg) = bg_color {
                 renderer.fill_quad(
                     renderer::Quad {
-                        bounds: clickable_bounds,
+                        bounds: highlight_bounds,
                         border: Border {
                             radius: self.theme.radius.sm.into(),
                             ..Default::default()
