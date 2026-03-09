@@ -14,6 +14,8 @@ pub struct TreeViewer<'a, Message> {
     on_toggle: Box<dyn Fn(String) -> Message + 'a>,
     on_select: Box<dyn Fn(String) -> Message + 'a>,
     on_load: Box<dyn Fn(String) -> Message + 'a>,
+    on_hover: Box<dyn Fn(Option<String>) -> Message + 'a>,
+    on_context: Box<dyn Fn(String) -> Message + 'a>,
     props: TreeViewerProps,
     theme: &'a Theme,
 }
@@ -45,6 +47,8 @@ impl<'a, Message> TreeViewer<'a, Message> {
         on_toggle: impl Fn(String) -> Message + 'a,
         on_select: impl Fn(String) -> Message + 'a,
         on_load: impl Fn(String) -> Message + 'a,
+        on_hover: impl Fn(Option<String>) -> Message + 'a,
+        on_context: impl Fn(String) -> Message + 'a,
         props: TreeViewerProps,
         theme: &'a Theme,
     ) -> Self {
@@ -53,6 +57,8 @@ impl<'a, Message> TreeViewer<'a, Message> {
             on_toggle: Box::new(on_toggle),
             on_select: Box::new(on_select),
             on_load: Box::new(on_load),
+            on_hover: Box::new(on_hover),
+            on_context: Box::new(on_context),
             props,
             theme,
         }
@@ -135,9 +141,9 @@ where
             }
 
             let clickable_bounds = Rectangle {
-                x: bounds.x + 4.0,
+                x: bounds.x,
                 y: row_bounds.y,
-                width: (bounds.width - 8.0).max(0.0),
+                width: bounds.width.max(0.0),
                 height: row_height,
             };
 
@@ -211,10 +217,15 @@ where
                 node.icon_file.unwrap_or(LucideIcon::File)
             };
 
-            let icon_color = if is_selected {
+            let default_icon_color = if is_selected {
                 self.theme.palette.accent_foreground
             } else {
                 self.theme.palette.muted_foreground
+            };
+            let icon_color = if is_selected {
+                default_icon_color
+            } else {
+                node.icon_color.unwrap_or(default_icon_color)
             };
 
             let text_color = if is_selected {
@@ -224,13 +235,18 @@ where
             };
 
             // Draw Icon
+            let icon_glyph = node.icon_glyph.unwrap_or(char::from(icon)).to_string();
+            let icon_font = node
+                .icon_font_family
+                .map(Font::with_name)
+                .unwrap_or(Font::with_name("lucide"));
             renderer.fill_text(
                 iced::advanced::text::Text {
-                    content: char::from(icon).to_string(),
+                    content: icon_glyph,
                     bounds: Size::new(self.props.icon_size * 2.0, row_height),
                     size: iced::Pixels(self.props.icon_size),
                     line_height: iced::advanced::text::LineHeight::default(),
-                    font: Font::with_name("lucide"),
+                    font: icon_font,
                     align_x: iced::advanced::text::Alignment::Center,
                     align_y: iced::alignment::Vertical::Center,
                     shaping: iced::advanced::text::Shaping::Basic,
@@ -281,6 +297,13 @@ where
                 if cursor.is_over(layout.bounds()) {
                     shell.request_redraw();
                 }
+                let hovered = cursor.position_over(layout.bounds()).and_then(|cursor_pos| {
+                    let bounds = layout.bounds();
+                    let relative_y = cursor_pos.y - bounds.y;
+                    let index = (relative_y / self.props.row_height).floor() as usize;
+                    self.state.nodes.get(index).map(|node| node.path.clone())
+                });
+                shell.publish((self.on_hover)(hovered));
             }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
                 if let Some(cursor_pos) = cursor.position_over(layout.bounds()) {
@@ -290,9 +313,9 @@ where
 
                     let y_offset = index as f32 * self.props.row_height;
                     let clickable_bounds = Rectangle {
-                        x: bounds.x + 4.0,
+                        x: bounds.x,
                         y: bounds.y + y_offset,
-                        width: (bounds.width - 8.0).max(0.0),
+                        width: bounds.width.max(0.0),
                         height: self.props.row_height,
                     };
 
@@ -308,6 +331,16 @@ where
                         } else {
                             shell.publish((self.on_select)(node.path.clone()));
                         }
+                    }
+                }
+            }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Right)) => {
+                if let Some(cursor_pos) = cursor.position_over(layout.bounds()) {
+                    let bounds = layout.bounds();
+                    let relative_y = cursor_pos.y - bounds.y;
+                    let index = (relative_y / self.props.row_height).floor() as usize;
+                    if let Some(node) = self.state.nodes.get(index) {
+                        shell.publish((self.on_context)(node.path.clone()));
                     }
                 }
             }
