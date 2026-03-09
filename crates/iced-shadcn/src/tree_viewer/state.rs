@@ -1,4 +1,5 @@
 use lucide_icons::Icon as LucideIcon;
+use iced::Color;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum FolderState {
@@ -19,6 +20,9 @@ pub struct FlatNode {
     pub icon_open: Option<LucideIcon>,
     pub icon_closed: Option<LucideIcon>,
     pub icon_file: Option<LucideIcon>,
+    pub icon_glyph: Option<char>,
+    pub icon_font_family: Option<&'static str>,
+    pub icon_color: Option<Color>,
 }
 
 impl FlatNode {
@@ -41,6 +45,9 @@ impl FlatNode {
             icon_open: None,
             icon_closed: None,
             icon_file: None,
+            icon_glyph: None,
+            icon_font_family: None,
+            icon_color: None,
         }
     }
 
@@ -61,6 +68,9 @@ impl FlatNode {
             icon_open: None,
             icon_closed: None,
             icon_file: None,
+            icon_glyph: None,
+            icon_font_family: None,
+            icon_color: None,
         }
     }
 
