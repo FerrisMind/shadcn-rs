@@ -496,6 +496,81 @@ struct LayoutResult {
     layout: Vec<ToastLayout>,
 }
 
+fn estimate_max_chars_per_line(text_width: f32, font_size: f32) -> usize {
+    let avg_char_width = (font_size * 0.55).max(1.0);
+    (text_width / avg_char_width).floor().max(1.0) as usize
+}
+
+fn estimate_wrapped_lines(text: &str, max_chars_per_line: usize) -> usize {
+    if text.is_empty() {
+        return 0;
+    }
+
+    let max_chars = max_chars_per_line.max(1);
+    let mut total_lines = 0usize;
+
+    for raw_line in text.lines() {
+        let line = raw_line.trim();
+        if line.is_empty() {
+            total_lines += 1;
+            continue;
+        }
+
+        let mut lines = 1usize;
+        let mut current = 0usize;
+
+        for word in line.split_whitespace() {
+            let word_len = word.chars().count();
+
+            if current == 0 {
+                if word_len <= max_chars {
+                    current = word_len;
+                } else {
+                    lines += (word_len - 1) / max_chars;
+                    current = word_len % max_chars;
+                    if current == 0 {
+                        current = max_chars;
+                    }
+                }
+                continue;
+            }
+
+            if current + 1 + word_len <= max_chars {
+                current += 1 + word_len;
+            } else {
+                lines += 1;
+                if word_len <= max_chars {
+                    current = word_len;
+                } else {
+                    lines += (word_len - 1) / max_chars;
+                    current = word_len % max_chars;
+                    if current == 0 {
+                        current = max_chars;
+                    }
+                }
+            }
+        }
+
+        total_lines += lines;
+    }
+
+    total_lines.max(1)
+}
+
+fn estimate_toast_width(
+    title: &str,
+    description: &str,
+    min_width: f32,
+    max_width: f32,
+    text_chrome_width: f32,
+) -> f32 {
+    let title_chars = title.chars().count().min(96);
+    let desc_chars = description.chars().count().min(120);
+    let max_chars = title_chars.max(desc_chars) as f32;
+    let estimated_text_width = max_chars * 6.8;
+    (text_chrome_width + estimated_text_width).clamp(min_width, max_width)
+}
+
 fn compute_layout(
     viewport: Rectangle,
     entries: &[ToastEntry],
@@ -504,29 +579,63 @@ fn compute_layout(
     theme: &Theme,
 ) -> LayoutResult {
     let toast_style = theme.styles.toast;
+    let max_width = (viewport.width - toast_style.margin * 2.0).max(180.0);
+    let min_width = 220.0_f32.min(max_width);
+    let base_width = toast_style.width.clamp(min_width, max_width);
+
+    const LEFT_PADDING: f32 = 12.0;
+    const RIGHT_PADDING: f32 = 12.0;
+    const ICON_WITH_GAP: f32 = 22.0;
+    const TOP_PADDING: f32 = 12.0;
+    const TITLE_HEIGHT: f32 = 20.0;
+    const DESCRIPTION_TOP: f32 = 34.0;
+    const DESCRIPTION_LINE_HEIGHT: f32 = 16.0;
+    const BOTTOM_PADDING: f32 = 12.0;
+
     let mut y = if position.is_top() {
         viewport.y + toast_style.margin
     } else {
         viewport.y + viewport.height - toast_style.margin
     };
 
-    let x = if position.is_center() {
-        viewport.x + (viewport.width - toast_style.width).max(0.0) / 2.0
-    } else if position.is_left() {
-        viewport.x + toast_style.margin
-    } else {
-        viewport.x + viewport.width - toast_style.margin - toast_style.width
-    };
-
     let mut layout_out = Vec::with_capacity(entries.len());
 
     for entry in entries {
-        let height = toast_style.height;
+        let title = entry.toast.title.as_deref().unwrap_or("");
+        let description = entry.toast.description.as_deref().unwrap_or("");
+        let text_chrome_width = LEFT_PADDING + RIGHT_PADDING + ICON_WITH_GAP;
+        let width = estimate_toast_width(title, description, min_width, max_width, text_chrome_width)
+            .max(base_width.min(max_width));
+        let text_width = (width - text_chrome_width).max(1.0);
+
+        let description_lines = if description.is_empty() {
+            0
+        } else {
+            let max_chars = estimate_max_chars_per_line(text_width, 12.0);
+            estimate_wrapped_lines(description, max_chars)
+        };
+
+        let content_height = if description_lines == 0 {
+            TOP_PADDING + TITLE_HEIGHT + BOTTOM_PADDING
+        } else {
+            DESCRIPTION_TOP + DESCRIPTION_LINE_HEIGHT * description_lines as f32 + BOTTOM_PADDING
+        };
+
+        let height = toast_style.height.max(content_height);
+
+        let x = if position.is_center() {
+            viewport.x + (viewport.width - width).max(0.0) / 2.0
+        } else if position.is_left() {
+            viewport.x + toast_style.margin
+        } else {
+            viewport.x + viewport.width - toast_style.margin - width
+        };
+
         let bounds = if position.is_top() {
             let bounds = Rectangle {
                 x,
                 y,
-                width: toast_style.width,
+                width,
                 height,
             };
             y += height + toast_style.gap;
@@ -536,7 +645,7 @@ fn compute_layout(
             let bounds = Rectangle {
                 x,
                 y,
-                width: toast_style.width,
+                width,
                 height,
             };
             y -= toast_style.gap;
@@ -704,7 +813,7 @@ fn draw_toasts(
                 align_x: text::Alignment::Left,
                 align_y: iced::alignment::Vertical::Top,
                 shaping: text::Shaping::Basic,
-                wrapping: text::Wrapping::default(),
+                wrapping: text::Wrapping::None,
             },
             Point::new(text_x, bounds.y + 12.0),
             apply_opacity(text_color, alpha),
@@ -712,19 +821,21 @@ fn draw_toasts(
         );
 
         if !description.is_empty() {
+            let description_y = bounds.y + 34.0;
+            let description_height = (bounds.height - (description_y - bounds.y) - 12.0).max(0.0);
             renderer.fill_text(
                 text::Text {
                     content: description.to_string(),
                     size: 12.0.into(),
                     line_height: text::LineHeight::Absolute(16.0.into()),
                     font,
-                    bounds: Size::new(text_width, 32.0),
+                    bounds: Size::new(text_width, description_height),
                     align_x: text::Alignment::Left,
                     align_y: iced::alignment::Vertical::Top,
                     shaping: text::Shaping::Basic,
                     wrapping: text::Wrapping::Word,
                 },
-                Point::new(text_x, bounds.y + 34.0),
+                Point::new(text_x, description_y),
                 apply_opacity(apply_opacity(text_color, 0.8), alpha),
                 *viewport,
             );
