@@ -145,6 +145,48 @@ fn view<'a, Message: Clone + 'a>(theme: &Theme) -> iced::Element<'a, Message> {
 Example:
 - `crates/iced-shadcn/examples/breadcrumb`
 
+## Empty
+
+Composable example matching the shadcn-svelte structure:
+
+```rust
+use lucide_icons::Icon;
+use iced_shadcn::{
+    EmptyContentProps, EmptyHeaderProps, EmptyMediaProps, EmptyMediaVariant, EmptyRootProps,
+    EmptyTitleProps, Theme, button, empty_content, empty_description, empty_header, empty_media,
+    empty_root, empty_title,
+};
+
+fn view<'a, Message: Clone + 'a>(theme: &'a Theme) -> iced::Element<'a, Message> {
+    empty_root(
+        iced::widget::column![
+            empty_header(
+                vec![
+                    empty_media(
+                        iced::widget::text(char::from(Icon::Folder).to_string()),
+                        EmptyMediaProps::new().variant(EmptyMediaVariant::Icon),
+                        theme,
+                    ),
+                    empty_title("No data", EmptyTitleProps::new(), theme),
+                    empty_description("No data found", Default::default(), theme),
+                ],
+                EmptyHeaderProps::new(),
+            ),
+            empty_content(
+                vec![button("Add data", None::<Message>, Default::default(), theme).into()],
+                EmptyContentProps::new(),
+            ),
+        ]
+        .spacing(24),
+        EmptyRootProps::new(),
+        theme,
+    )
+}
+```
+
+Example:
+- `crates/iced-shadcn/examples/empty`
+
 ## Resizable
 
 Example demonstrating both splitter directions, live `Vec<f32>` state management, and handle options:

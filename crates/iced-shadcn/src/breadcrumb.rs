@@ -1,5 +1,6 @@
 use iced::widget::{container, mouse_area, row, text};
-use iced::{Alignment, Color, Element, Length, mouse};
+use iced::{Alignment, Color, Element, Font, Length, mouse};
+use lucide_icons::Icon as LucideIcon;
 
 use crate::theme::Theme;
 
@@ -11,17 +12,23 @@ pub struct BreadcrumbProps {
     pub separator_size: f32,
     pub ellipsis_size: f32,
     pub wrap: bool,
+    pub muted_color: Option<Color>,
+    pub current_color: Option<Color>,
+    pub separator_color: Option<Color>,
 }
 
 impl Default for BreadcrumbProps {
     fn default() -> Self {
         Self {
             text_size: 12.0,
-            item_spacing: 6.0,
+            item_spacing: 4.0,
             line_spacing: 4.0,
             separator_size: 12.0,
             ellipsis_size: 20.0,
             wrap: true,
+            muted_color: None,
+            current_color: None,
+            separator_color: None,
         }
     }
 }
@@ -60,6 +67,21 @@ impl BreadcrumbProps {
         self.wrap = wrap;
         self
     }
+
+    pub fn muted_color(mut self, color: Color) -> Self {
+        self.muted_color = Some(color);
+        self
+    }
+
+    pub fn current_color(mut self, color: Color) -> Self {
+        self.current_color = Some(color);
+        self
+    }
+
+    pub fn separator_color(mut self, color: Color) -> Self {
+        self.separator_color = Some(color);
+        self
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -95,9 +117,11 @@ pub fn breadcrumb<R>(
     add_contents: impl FnOnce(&BreadcrumbContext) -> R,
 ) -> R {
     let tokens = BreadcrumbTokens {
-        muted: theme.palette.muted_foreground,
-        foreground: theme.palette.foreground,
-        separator: theme.palette.muted_foreground,
+        muted: props.muted_color.unwrap_or(theme.palette.muted_foreground),
+        foreground: props.current_color.unwrap_or(theme.palette.foreground),
+        separator: props
+            .separator_color
+            .unwrap_or(props.muted_color.unwrap_or(theme.palette.muted_foreground)),
     };
     let metrics = BreadcrumbMetrics {
         text_size: props.text_size,
@@ -173,14 +197,32 @@ pub fn breadcrumb_separator<'a, Message: Clone + 'a>(
     ctx: &BreadcrumbContext,
     custom: Option<String>,
 ) -> Element<'a, Message> {
-    let text_value = custom.unwrap_or_else(|| "›".to_string());
     let separator = ctx.tokens.separator;
     let separator_size = ctx.metrics.separator_size;
-    text(text_value)
-        .size(separator_size)
-        .style(move |_t| iced::widget::text::Style {
-            color: Some(separator),
-        })
+    let (text_value, use_lucide_font) = match custom {
+        Some(custom) => (custom, false),
+        None => (char::from(LucideIcon::ChevronRight).to_string(), true),
+    };
+    let separator_width = if use_lucide_font {
+        (separator_size * 0.7).max(6.0)
+    } else {
+        separator_size.max(6.0)
+    };
+
+    let mut label =
+        text(text_value)
+            .size(separator_size)
+            .style(move |_t| iced::widget::text::Style {
+                color: Some(separator),
+            });
+
+    if use_lucide_font {
+        label = label.font(Font::with_name("lucide"));
+    }
+
+    container(label)
+        .width(Length::Fixed(separator_width))
+        .center_x(Length::Fill)
         .into()
 }
 

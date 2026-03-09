@@ -1,3 +1,4 @@
+use iced::alignment::{Horizontal, Vertical};
 use iced::border::Border;
 use iced::widget::{container, text};
 use iced::{Background, Color, Element, Length};
@@ -108,8 +109,8 @@ pub fn avatar<'a, Message: Clone + 'a>(
     container(content)
         .width(Length::Fixed(size))
         .height(Length::Fixed(size))
-        .center_x(Length::Fill)
-        .center_y(Length::Fill)
+        .align_x(Horizontal::Center)
+        .align_y(Vertical::Center)
         .style(move |_t| iced::widget::container::Style {
             background: Some(Background::Color(bg_color)),
             border: Border {
