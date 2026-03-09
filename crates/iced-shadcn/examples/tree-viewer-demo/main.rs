@@ -69,6 +69,16 @@ impl Default for Example {
         // src/lib.rs
         all_nodes.push(FlatNode::file("lib.rs", "/src/lib.rs", "lib.rs", 1));
 
+        // Let's create an Unloaded folder to demonstrate Async Lazy Loading
+        all_nodes.push(FlatNode::folder(
+            "unloaded_folder",
+            "/unloaded_folder",
+            "unloaded_folder (Click to load 10k files)",
+            0,
+            false,
+            FolderState::Unloaded,
+        ));
+
         // Let's add thousands of nested generated files to show virtualization
         all_nodes.push(FlatNode::folder(
             "big_folder",
@@ -96,64 +106,146 @@ impl Default for Example {
             all_nodes,
         };
 
-        example.update_visible_nodes();
+        // Initial loading of visible nodes
+        let mut visible = Vec::new();
+        let mut skip_depth = None;
+        for node in &example.all_nodes {
+            if let Some(depth) = skip_depth {
+                if node.depth > depth { continue; } else { skip_depth = None; }
+            }
+            visible.push(node.clone());
+            if node.is_folder && !node.is_expanded { skip_depth = Some(node.depth); }
+        }
+        example.state.nodes = visible;
+
         example
     }
 }
 
 #[derive(Debug, Clone)]
-enum Message {
+pub enum Message {
     Toggle(String),
     Select(String),
     Load(String),
+    FolderLoaded(String, Vec<FlatNode>),
 }
 
 impl Example {
-    fn update_visible_nodes(&mut self) {
-        // A simple algorithm to filter all_nodes into state.nodes based on what is expanded.
-        // It skips children of collapsed folders.
-        let mut visible = Vec::new();
-        let mut skip_depth = None;
-
-        for node in &self.all_nodes {
-            if let Some(depth) = skip_depth {
-                if node.depth > depth {
-                    continue; // Skip because a parent is collapsed
-                } else {
-                    skip_depth = None; // Back to a visible level
-                }
-            }
-
-            visible.push(node.clone());
-
-            if node.is_folder && !node.is_expanded {
-                skip_depth = Some(node.depth);
-            }
-        }
-
-        self.state.nodes = visible;
-    }
-
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
             Message::Toggle(path) => {
-                // Find node and toggle it
-                if let Some(node) = self.all_nodes.iter_mut().find(|n| n.path == path) {
-                    node.is_expanded = !node.is_expanded;
-                }
+                // Find node in visible state to toggle
+                if let Some(state_index) = self.state.nodes.iter().position(|n| n.path == path) {
+                    let is_expanded = !self.state.nodes[state_index].is_expanded;
+                    self.state.nodes[state_index].is_expanded = is_expanded;
+                    
+                    // Also update it in all_nodes for persistence
+                    if let Some(all_node) = self.all_nodes.iter_mut().find(|n| n.path == path) {
+                        all_node.is_expanded = is_expanded;
+                    }
 
-                // Re-evaluate visibility
-                self.update_visible_nodes();
+                    if is_expanded {
+                        // O(K) Insertion: Find children in all_nodes and splice them in
+                        let depth = self.state.nodes[state_index].depth;
+                        
+                        // We need to find this folder's immediate children, and if those children are expanded folders, their children too.
+                        // Since we just want to mimic the old `update_visible_nodes` but locally:
+                        let start_all = self.all_nodes.iter().position(|n| n.path == path).unwrap() + 1;
+                        let mut children_to_insert = Vec::new();
+                        let mut skip_depth = None;
+                        
+                        for node in self.all_nodes.iter().skip(start_all) {
+                            if node.depth <= depth {
+                                break; // Reached next sibling or uncle
+                            }
+                            
+                            if let Some(s_depth) = skip_depth {
+                                if node.depth > s_depth {
+                                    continue;
+                                } else {
+                                    skip_depth = None;
+                                }
+                            }
+                            
+                            children_to_insert.push(node.clone());
+                            
+                            if node.is_folder && !node.is_expanded {
+                                skip_depth = Some(node.depth);
+                            }
+                        }
+                        
+                        self.state.nodes.splice(state_index + 1..state_index + 1, children_to_insert);
+
+                    } else {
+                        // O(K) Deletion: Find how many visible descendants to remove
+                        let depth = self.state.nodes[state_index].depth;
+                        let mut end_index = state_index + 1;
+                        while end_index < self.state.nodes.len() && self.state.nodes[end_index].depth > depth {
+                            end_index += 1;
+                        }
+                        
+                        // Drain to remove elements without reallocating
+                        self.state.nodes.drain(state_index + 1..end_index);
+                    }
+                }
+                Task::none()
             }
             Message::Select(path) => {
                 self.state.select(&path);
+                Task::none()
             }
             Message::Load(path) => {
-                println!("Loading folder: {}", path);
-                // Simulate loading
+                // Find node and set to Loading
+                if let Some(state_index) = self.state.nodes.iter().position(|n| n.path == path) {
+                    self.state.nodes[state_index].folder_state = FolderState::Loading;
+                    if let Some(all_node) = self.all_nodes.iter_mut().find(|n| n.path == path) {
+                        all_node.folder_state = FolderState::Loading;
+                    }
+                    
+                    let depth = self.state.nodes[state_index].depth;
+                    let path_clone = path.clone();
+                    
+                    // Simulate async lazy loading
+                    return Task::perform(
+                        async move {
+                            // Simulate async loading without external runtime explicitly
+                            std::thread::sleep(std::time::Duration::from_millis(500));
+                            
+                            let mut new_nodes = Vec::new();
+                            for i in 0..10_000 {
+                                new_nodes.push(FlatNode::file(
+                                    format!("file_{}", i),
+                                    format!("{}/lazy_file_{}.rs", path_clone, i),
+                                    format!("lazy_file_{}.rs", i),
+                                    depth + 1,
+                                ));
+                            }
+                            new_nodes
+                        },
+                        move |children| Message::FolderLoaded(path.clone(), children)
+                    );
+                }
+                Task::none()
+            }
+            Message::FolderLoaded(path, children) => {
+                // 1. Update all_nodes with new loaded children right below the parent
+                if let Some(all_index) = self.all_nodes.iter().position(|n| n.path == path) {
+                    self.all_nodes[all_index].folder_state = FolderState::Loaded;
+                    self.all_nodes[all_index].is_expanded = true;
+                    // Because `all_nodes` holds the data structure, we splice it in
+                    self.all_nodes.splice(all_index + 1..all_index + 1, children.clone());
+                }
+
+                // 2. Update visible state
+                if let Some(state_index) = self.state.nodes.iter().position(|n| n.path == path) {
+                    self.state.nodes[state_index].folder_state = FolderState::Loaded;
+                    self.state.nodes[state_index].is_expanded = true;
+                    self.state.nodes.splice(state_index + 1..state_index + 1, children);
+                }
+                
+                Task::none()
             }
         }
-        Task::none()
     }
     fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
