@@ -37,7 +37,7 @@ impl Default for TreeViewerProps {
             indent: 16.0,
             icon_size: 16.0,
             text_size: 13.0,
-            content_offset: 0.0,
+            content_offset: 8.0,
         }
     }
 }
