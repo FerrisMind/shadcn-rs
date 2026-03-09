@@ -1,7 +1,7 @@
 use iced::alignment::Vertical;
 use iced::border::Border;
 use iced::widget::{
-    Space, button as iced_button, column, container, row, rule, scrollable, stack, text,
+    Space, button as iced_button, column, container, lazy, row, rule, scrollable, stack, text,
 };
 use iced::{Background, Color, Element, Font, Length, Padding};
 use lucide_icons::Icon as LucideIcon;
@@ -12,6 +12,17 @@ use crate::theme::Theme;
 // TreeNode – declarative tree data model
 // ---------------------------------------------------------------------------
 
+/// State of a folder node, for lazy loading.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum FolderState {
+    /// Folder contents are not yet loaded.
+    Unloaded,
+    /// Folder contents are currently being loaded.
+    Loading,
+    /// Folder contents are fully loaded.
+    Loaded,
+}
+
 /// A single node in the tree.  Can be either a folder (with children) or a
 /// file (leaf).
 #[derive(Clone, Debug)]
@@ -21,6 +32,7 @@ pub enum TreeNode {
         children: Vec<TreeNode>,
         icon_open: Option<LucideIcon>,
         icon_closed: Option<LucideIcon>,
+        state: FolderState,
     },
     File {
         name: String,
@@ -36,6 +48,18 @@ impl TreeNode {
             children,
             icon_open: None,
             icon_closed: None,
+            state: FolderState::Loaded,
+        }
+    }
+
+    /// Convenience constructor for an unloaded folder.
+    pub fn unloaded_folder(name: impl Into<String>) -> Self {
+        Self::Folder {
+            name: name.into(),
+            children: vec![],
+            icon_open: None,
+            icon_closed: None,
+            state: FolderState::Unloaded,
         }
     }
 
@@ -68,6 +92,14 @@ impl TreeNode {
                 *icon_closed = Some(closed);
             }
             Self::File { .. } => {}
+        }
+        self
+    }
+
+    /// Set the folder state (useful for setting generic Loading state).
+    pub fn with_state(mut self, new_state: FolderState) -> Self {
+        if let Self::Folder { state, .. } = &mut self {
+            *state = new_state;
         }
         self
     }
@@ -114,6 +146,12 @@ impl TreeViewState {
         if let Some(idx) = self.open_folders.iter().position(|p| p == path) {
             self.open_folders.remove(idx);
         } else {
+            self.open_folders.push(path.to_string());
+        }
+    }
+
+    pub fn open_folder(&mut self, path: &str) {
+        if !self.is_open(path) {
             self.open_folders.push(path.to_string());
         }
     }
@@ -258,6 +296,8 @@ pub enum TreeViewAction {
     ToggleFolder(String),
     /// A file was selected (path).
     SelectFile(String),
+    /// An Unloaded folder was clicked and needs to load data (path).
+    LoadFolder(String),
 }
 
 // ---------------------------------------------------------------------------
@@ -397,17 +437,25 @@ fn tree_scroll_style(
 /// * `on_action` – closure that wraps [`TreeViewAction`] into your app `Message`.
 /// * `props`  – visual tuning knobs.
 /// * `theme`  – shadcn theme.
-pub fn tree_view<'a, Message: Clone + 'a>(
+pub fn tree_view<'a, Message: Clone + 'static>(
     nodes: Vec<TreeNode>,
     state: TreeViewState,
-    on_action: impl Fn(TreeViewAction) -> Message + 'a + Clone,
+    on_action: impl Fn(TreeViewAction) -> Message + 'static + Clone,
     props: TreeViewProps,
     theme: &Theme,
 ) -> Element<'a, Message> {
     let mut col = column![].spacing(0).width(Length::Fill);
 
     for node in &nodes {
-        col = col.push(render_node(node, &state, &on_action, props, theme, 0, ""));
+        col = col.push(render_node(
+            node,
+            &state,
+            on_action.clone(),
+            props,
+            theme,
+            0,
+            "",
+        ));
     }
 
     let inner = container(col)
@@ -440,10 +488,10 @@ pub fn tree_view<'a, Message: Clone + 'a>(
 // Recursive rendering
 // ---------------------------------------------------------------------------
 
-fn render_node<'a, Message: Clone + 'a>(
+fn render_node<'a, Message: Clone + 'static>(
     node: &TreeNode,
     state: &TreeViewState,
-    on_action: &(impl Fn(TreeViewAction) -> Message + 'a + Clone),
+    on_action: impl Fn(TreeViewAction) -> Message + 'static + Clone,
     props: TreeViewProps,
     theme: &Theme,
     depth: usize,
@@ -461,11 +509,13 @@ fn render_node<'a, Message: Clone + 'a>(
             children,
             icon_open,
             icon_closed,
+            state: folder_state,
         } => render_folder(
             name,
             children,
             *icon_open,
             *icon_closed,
+            *folder_state,
             &path,
             state,
             on_action,
@@ -480,14 +530,15 @@ fn render_node<'a, Message: Clone + 'a>(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn render_folder<'a, Message: Clone + 'a>(
+fn render_folder<'a, Message: Clone + 'static>(
     name: &str,
     children: &[TreeNode],
     icon_open: Option<LucideIcon>,
     icon_closed: Option<LucideIcon>,
+    folder_state: FolderState,
     path: &str,
     state: &TreeViewState,
-    on_action: &(impl Fn(TreeViewAction) -> Message + 'a + Clone),
+    on_action: impl Fn(TreeViewAction) -> Message + 'static + Clone,
     props: TreeViewProps,
     theme: &Theme,
     depth: usize,
@@ -501,66 +552,88 @@ fn render_folder<'a, Message: Clone + 'a>(
     let hover_fg = theme.palette.accent_foreground;
     let row_radius = theme.radius.sm;
 
-    let icon = if open {
+    let is_loading = folder_state == FolderState::Loading;
+
+    let icon = if is_loading {
+        LucideIcon::Loader
+    } else if open {
         icon_open.unwrap_or(LucideIcon::FolderOpen)
     } else {
         icon_closed.unwrap_or(LucideIcon::Folder)
     };
 
-    let icon_el: Element<'a, Message> = text(char::from(icon).to_string())
-        .font(Font::with_name("lucide"))
-        .size(props.icon_size)
-        .color(muted_fg)
-        .into();
-
-    let label = text(truncate_ellipsis(name, props.max_label_chars))
-        .size(props.font_size)
-        .color(fg)
-        .wrapping(text::Wrapping::None);
-
-    let trigger_row = row![icon_el, label]
-        .spacing(6)
-        .align_y(Vertical::Center)
-        .width(Length::Fill);
-
     let path_owned = path.to_string();
+    let name_owned = name.to_string();
     let on_action_clone = on_action.clone();
-    let trigger_btn = iced_button(
-        container(trigger_row)
-            .padding(Padding {
-                top: 0.0,
-                right: 0.0,
-                bottom: 0.0,
-                left: left_pad,
-            })
-            .height(Length::Fixed(props.row_height))
+
+    // The dependency tuple includes everything that could change the styling or layout of this specific button.
+    let dep = (path_owned.clone(), open, folder_state);
+
+    let trigger_btn = lazy(
+        dep,
+        move |(path_dep, open_dep, state_dep)| -> Element<'static, Message> {
+            let icon_el: Element<'static, Message> = text(char::from(icon).to_string())
+                .font(Font::with_name("lucide"))
+                .size(props.icon_size)
+                .color(muted_fg)
+                .into();
+
+            let label = text(truncate_ellipsis(&name_owned, props.max_label_chars))
+                .size(props.font_size)
+                .color(fg)
+                .wrapping(text::Wrapping::None);
+
+            let trigger_row = row![icon_el, label]
+                .spacing(6)
+                .align_y(Vertical::Center)
+                .width(Length::Fill);
+
+            let btn = iced_button(
+                container(trigger_row)
+                    .padding(Padding {
+                        top: 0.0,
+                        right: 0.0,
+                        bottom: 0.0,
+                        left: left_pad,
+                    })
+                    .height(Length::Fixed(props.row_height))
+                    .width(Length::Fill)
+                    .clip(true)
+                    .align_y(Vertical::Center),
+            )
+            .padding(0)
             .width(Length::Fill)
-            .clip(true)
-            .align_y(Vertical::Center),
-    )
-    .on_press((on_action_clone)(TreeViewAction::ToggleFolder(path_owned)))
-    .padding(0)
-    .width(Length::Fill)
-    .style(move |_theme, status| {
-        let bg = match status {
-            iced_button::Status::Hovered => Background::Color(hover_bg),
-            _ => Background::Color(Color::TRANSPARENT),
-        };
-        iced_button::Style {
-            background: Some(bg),
-            text_color: if matches!(status, iced_button::Status::Hovered) {
-                hover_fg
+            .style(move |_theme, status| {
+                let bg = match status {
+                    iced_button::Status::Hovered => Background::Color(hover_bg),
+                    _ => Background::Color(Color::TRANSPARENT),
+                };
+                iced_button::Style {
+                    background: Some(bg),
+                    text_color: if matches!(status, iced_button::Status::Hovered) {
+                        hover_fg
+                    } else {
+                        fg
+                    },
+                    border: Border {
+                        radius: row_radius.into(),
+                        ..Border::default()
+                    },
+                    shadow: Default::default(),
+                    snap: true,
+                }
+            });
+
+            // Determine action based on state
+            let action = if *state_dep == FolderState::Unloaded && !*open_dep {
+                TreeViewAction::LoadFolder(path_dep.clone())
             } else {
-                fg
-            },
-            border: Border {
-                radius: row_radius.into(),
-                ..Border::default()
-            },
-            shadow: Default::default(),
-            snap: true,
-        }
-    });
+                TreeViewAction::ToggleFolder(path_dep.clone())
+            };
+
+            btn.on_press((on_action_clone)(action)).into()
+        },
+    );
 
     let mut col = column![
         container(trigger_btn)
@@ -569,13 +642,14 @@ fn render_folder<'a, Message: Clone + 'a>(
     ]
     .spacing(0);
 
-    if open {
+    // Only render children if the folder is both OPEN and has children.
+    if open && children.len() > 0 {
         let mut children_col = column![].spacing(0).width(Length::Fill);
         for child in children {
             children_col = children_col.push(render_node(
                 child,
                 state,
-                on_action,
+                on_action.clone(),
                 props,
                 theme,
                 depth + 1,
@@ -608,12 +682,12 @@ fn render_folder<'a, Message: Clone + 'a>(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn render_file<'a, Message: Clone + 'a>(
+fn render_file<'a, Message: Clone + 'static>(
     name: &str,
     icon: Option<LucideIcon>,
     path: &str,
     state: &TreeViewState,
-    on_action: &(impl Fn(TreeViewAction) -> Message + 'a + Clone),
+    on_action: impl Fn(TreeViewAction) -> Message + 'static + Clone,
     props: TreeViewProps,
     theme: &Theme,
     depth: usize,
@@ -627,67 +701,79 @@ fn render_file<'a, Message: Clone + 'a>(
     let row_radius = theme.radius.sm;
     let is_selected = state.is_selected(path);
 
-    let icon_el: Element<'a, Message> =
-        text(char::from(icon.unwrap_or(LucideIcon::File)).to_string())
-            .font(Font::with_name("lucide"))
-            .size(props.icon_size)
-            .color(if is_selected { accent_fg } else { muted_fg })
-            .into();
-
-    let label_color = if is_selected { accent_fg } else { fg };
-    let label = text(truncate_ellipsis(name, props.max_label_chars))
-        .size(props.font_size)
-        .color(label_color)
-        .wrapping(text::Wrapping::None);
-
-    let content_row = row![icon_el, label]
-        .spacing(6)
-        .align_y(Vertical::Center)
-        .width(Length::Fill);
-
     let path_owned = path.to_string();
+    let name_owned = name.to_string();
+    let icon_owned = icon;
     let on_action_clone = on_action.clone();
 
-    let bg_selected = accent;
-    let mut file_btn = iced_button(
-        container(content_row)
-            .padding(Padding {
-                top: 0.0,
-                right: 0.0,
-                bottom: 0.0,
-                left: left_pad,
-            })
-            .height(Length::Fixed(props.row_height))
-            .width(Length::Fill)
-            .clip(true)
-            .align_y(Vertical::Center),
-    )
-    .padding(0)
-    .width(Length::Fill)
-    .style(move |_theme, status| {
-        let (bg, txt) = if is_selected {
-            (Background::Color(bg_selected), accent_fg)
-        } else {
-            match status {
-                iced_button::Status::Hovered => (Background::Color(hover_bg), fg),
-                _ => (Background::Color(Color::TRANSPARENT), fg),
-            }
-        };
-        iced_button::Style {
-            background: Some(bg),
-            text_color: txt,
-            border: Border {
-                radius: row_radius.into(),
-                ..Border::default()
-            },
-            shadow: Default::default(),
-            snap: true,
-        }
-    });
+    let dep = (path_owned.clone(), is_selected);
 
-    if props.selectable {
-        file_btn = file_btn.on_press((on_action_clone)(TreeViewAction::SelectFile(path_owned)));
-    }
+    let file_btn = lazy(
+        dep,
+        move |(path_dep, _is_selected_dep)| -> Element<'static, Message> {
+            let icon_el: Element<'static, Message> =
+                text(char::from(icon_owned.unwrap_or(LucideIcon::File)).to_string())
+                    .font(Font::with_name("lucide"))
+                    .size(props.icon_size)
+                    .color(if is_selected { accent_fg } else { muted_fg })
+                    .into();
+
+            let label_color = if is_selected { accent_fg } else { fg };
+            let label = text(truncate_ellipsis(&name_owned, props.max_label_chars))
+                .size(props.font_size)
+                .color(label_color)
+                .wrapping(text::Wrapping::None);
+
+            let content_row = row![icon_el, label]
+                .spacing(6)
+                .align_y(Vertical::Center)
+                .width(Length::Fill);
+
+            let mut btn = iced_button(
+                container(content_row)
+                    .padding(Padding {
+                        top: 0.0,
+                        right: 0.0,
+                        bottom: 0.0,
+                        left: left_pad,
+                    })
+                    .height(Length::Fixed(props.row_height))
+                    .width(Length::Fill)
+                    .clip(true)
+                    .align_y(Vertical::Center),
+            )
+            .padding(0)
+            .width(Length::Fill)
+            .style(move |_theme, status| {
+                let (bg, txt) = if is_selected {
+                    (Background::Color(accent), accent_fg)
+                } else {
+                    match status {
+                        iced_button::Status::Hovered => (Background::Color(hover_bg), fg),
+                        _ => (Background::Color(Color::TRANSPARENT), fg),
+                    }
+                };
+                iced_button::Style {
+                    background: Some(bg),
+                    text_color: txt,
+                    border: Border {
+                        radius: row_radius.into(),
+                        ..Border::default()
+                    },
+                    shadow: Default::default(),
+                    snap: true,
+                }
+            });
+
+            if props.selectable {
+                btn = btn.on_press((on_action_clone)(TreeViewAction::SelectFile(
+                    path_dep.clone(),
+                )));
+            }
+
+            btn.into()
+        },
+    );
 
     container(file_btn)
         .padding(Padding::from([0.0, 4.0]))

@@ -108,6 +108,10 @@ impl Example {
                 TreeViewAction::SelectFile(path) => {
                     self.state.select(&path);
                 }
+                TreeViewAction::LoadFolder(path) => {
+                    // Start loading async in real app, here we just toggle
+                    self.state.toggle_folder(&path);
+                }
             },
         }
     }
