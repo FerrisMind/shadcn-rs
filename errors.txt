@@ -1,0 +1,255 @@
+    Checking iced-shadcn v0.4.0 (H:\Nova-Code\tp\shadcn-rs\crates\iced-shadcn)
+error[E0432]: unresolved import `crate::core`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:1952:16
+     |
+1952 |     use crate::core::{Point, Rectangle};
+     |                ^^^^
+     |                |
+     |                you might be missing crate `core`
+     |                help: try using `std` instead of `core`: `std`
+
+error[E0433]: failed to resolve: use of unresolved module or unlinked crate `log`
+   --> crates\iced-shadcn\src\vscode_scrollable.rs:485:21
+    |
+485 |                     log::trace!("Scrollbar status quo has changed");
+    |                     ^^^ use of unresolved module or unlinked crate `log`
+
+error[E0433]: failed to resolve: could not find `Ellipsis` in `text`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:1339:33
+     |
+1339 |                 ellipsis: text::Ellipsis::None,
+     |                                 ^^^^^^^^ could not find `Ellipsis` in `text`
+     |
+help: there is an enum variant `crate::PaginationItem::Ellipsis` and 3 others; try using the variant's enum
+     |
+1339 -                 ellipsis: text::Ellipsis::None,
+1339 +                 ellipsis: crate::PaginationItem::None,
+     |
+1339 -                 ellipsis: text::Ellipsis::None,
+1339 +                 ellipsis: crate::data_table::PageItem::None,
+     |
+1339 -                 ellipsis: text::Ellipsis::None,
+1339 +                 ellipsis: lucide_icons::Icon::None,
+     |
+
+error[E0425]: cannot find type `Renderer` in the crate root
+  --> crates\iced-shadcn\src\vscode_scrollable.rs:48:76
+   |
+48 | pub struct Scrollable<'a, Message, Theme = crate::Theme, Renderer = crate::Renderer>
+   |                                                                            ^^^^^^^^ not found in the crate root
+   |
+help: consider importing one of these items
+   |
+ 1 + use crate::vscode_scrollable::renderer::Renderer;
+   |
+ 1 + use crate::vscode_scrollable::text::Renderer;
+   |
+ 1 + use iced::Renderer;
+   |
+ 1 + use iced::advanced::Renderer;
+   |
+   = and 3 other candidates
+help: if you import `Renderer`, refer to it directly
+   |
+48 - pub struct Scrollable<'a, Message, Theme = crate::Theme, Renderer = crate::Renderer>
+48 + pub struct Scrollable<'a, Message, Theme = crate::Theme, Renderer = Renderer>
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `InputMethod`
+   --> crates\iced-shadcn\src\vscode_scrollable.rs:748:28
+    |
+748 |                     && let InputMethod::Enabled { cursor, .. } = shell.input_method_mut()
+    |                            ^^^^^^^^^^^ use of undeclared type `InputMethod`
+    |
+help: consider importing this enum
+    |
+  1 + use iced::advanced::InputMethod;
+    |
+
+error[E0405]: cannot find trait `Overlay` in crate `core`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:1275:38
+     |
+1275 | impl<Message, Theme, Renderer> core::Overlay<Message, Theme, Renderer>
+     |                                      ^^^^^^^ not found in `core`
+     |
+help: consider importing one of these traits
+     |
+   1 + use crate::vscode_scrollable::overlay::Overlay;
+     |
+   1 + use iced::advanced::Overlay;
+     |
+help: if you import `Overlay`, refer to it directly
+     |
+1275 - impl<Message, Theme, Renderer> core::Overlay<Message, Theme, Renderer>
+1275 + impl<Message, Theme, Renderer> Overlay<Message, Theme, Renderer>
+     |
+
+error[E0422]: cannot find struct, variant or union type `Text` in crate `core`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:1329:31
+     |
+1329 |             let arrow = core::Text {
+     |                               ^^^^ not found in `core`
+     |
+help: consider importing one of these items
+     |
+   1 + use crate::FieldValue::Text;
+     |
+   1 + use crate::TabsTriggerContent::Text;
+     |
+   1 + use crate::navigation_menu::NavigationMenuTriggerContent::Text;
+     |
+   1 + use crate::vscode_scrollable::mouse::Interaction::Text;
+     |
+     = and 7 other candidates
+help: if you import `Text`, refer to it directly
+     |
+1329 -             let arrow = core::Text {
+1329 +             let arrow = Text {
+     |
+
+error[E0422]: cannot find struct, variant or union type `Text` in crate `core`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:1345:27
+     |
+1345 |                     core::Text {
+     |                           ^^^^ not found in `core`
+     |
+help: consider importing one of these items
+     |
+   1 + use crate::FieldValue::Text;
+     |
+   1 + use crate::TabsTriggerContent::Text;
+     |
+   1 + use crate::navigation_menu::NavigationMenuTriggerContent::Text;
+     |
+   1 + use crate::vscode_scrollable::mouse::Interaction::Text;
+     |
+     = and 7 other candidates
+help: if you import `Text`, refer to it directly
+     |
+1345 -                     core::Text {
+1345 +                     Text {
+     |
+
+error[E0422]: cannot find struct, variant or union type `Text` in crate `core`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:1356:27
+     |
+1356 |                     core::Text {
+     |                           ^^^^ not found in `core`
+     |
+help: consider importing one of these items
+     |
+   1 + use crate::FieldValue::Text;
+     |
+   1 + use crate::TabsTriggerContent::Text;
+     |
+   1 + use crate::navigation_menu::NavigationMenuTriggerContent::Text;
+     |
+   1 + use crate::vscode_scrollable::mouse::Interaction::Text;
+     |
+     = and 7 other candidates
+help: if you import `Text`, refer to it directly
+     |
+1356 -                     core::Text {
+1356 +                     Text {
+     |
+
+error[E0422]: cannot find struct, variant or union type `Text` in crate `core`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:1372:27
+     |
+1372 |                     core::Text {
+     |                           ^^^^ not found in `core`
+     |
+help: consider importing one of these items
+     |
+   1 + use crate::FieldValue::Text;
+     |
+   1 + use crate::TabsTriggerContent::Text;
+     |
+   1 + use crate::navigation_menu::NavigationMenuTriggerContent::Text;
+     |
+   1 + use crate::vscode_scrollable::mouse::Interaction::Text;
+     |
+     = and 7 other candidates
+help: if you import `Text`, refer to it directly
+     |
+1372 -                     core::Text {
+1372 +                     Text {
+     |
+
+error[E0422]: cannot find struct, variant or union type `Text` in crate `core`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:1383:27
+     |
+1383 |                     core::Text {
+     |                           ^^^^ not found in `core`
+     |
+help: consider importing one of these items
+     |
+   1 + use crate::FieldValue::Text;
+     |
+   1 + use crate::TabsTriggerContent::Text;
+     |
+   1 + use crate::navigation_menu::NavigationMenuTriggerContent::Text;
+     |
+   1 + use crate::vscode_scrollable::mouse::Interaction::Text;
+     |
+     = and 7 other candidates
+help: if you import `Text`, refer to it directly
+     |
+1383 -                     core::Text {
+1383 +                     Text {
+     |
+
+warning: unexpected `cfg` condition value: `advanced`
+   --> crates\iced-shadcn\src\vscode_scrollable.rs:224:11
+    |
+224 |     #[cfg(feature = "advanced")]
+    |           ^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: expected values for `feature` are: `charts`, `date-components`, `default`, and `image-cropper-picker`
+    = help: consider adding `advanced` as a feature in `Cargo.toml`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: `#[warn(unexpected_cfgs)]` on by default
+
+error[E0277]: the trait bound `theme::Theme: vscode_scrollable::Catalog` is not satisfied
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:50:12
+     |
+  50 |     Theme: Catalog,
+     |            ^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `vscode_scrollable::Catalog` is not implemented for `theme::Theme`
+    --> crates\iced-shadcn\src\theme.rs:414:1
+     |
+ 414 | pub struct Theme {
+     | ^^^^^^^^^^^^^^^^
+help: the trait `vscode_scrollable::Catalog` is implemented for `iced::Theme`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:2109:1
+     |
+2109 | impl Catalog for Theme {
+     | ^^^^^^^^^^^^^^^^^^^^^^
+note: required by a bound in `vscode_scrollable::Scrollable`
+    --> crates\iced-shadcn\src\vscode_scrollable.rs:50:12
+     |
+  48 | pub struct Scrollable<'a, Message, Theme = crate::Theme, Renderer = crate::Renderer>
+     |            ---------- required by a bound in this struct
+  49 | where
+  50 |     Theme: Catalog,
+     |            ^^^^^^^ required by this bound in `Scrollable`
+
+error[E0050]: method `update` has 8 parameters but the declaration in trait `iced::advanced::Widget::update` has 9
+   --> crates\iced-shadcn\src\vscode_scrollable.rs:533:9
+    |
+533 | /         &mut self,
+534 | |         tree: &mut Tree,
+535 | |         event: &Event,
+536 | |         layout: Layout<'_>,
+...   |
+539 | |         shell: &mut Shell<'_, Message>,
+540 | |         _viewport: &Rectangle,
+    | |_____________________________^ expected 9 parameters, found 8
+    |
+    = note: `update` from trait: `fn(&mut Self, &mut Tree, &iced::Event, iced::advanced::Layout<'_>, iced::mouse::Cursor, &Renderer, &mut dyn iced::advanced::Clipboard, &mut iced::advanced::Shell<'_, Message>, &iced::Rectangle)`
+
+Some errors have detailed explanations: E0050, E0277, E0405, E0422, E0425, E0432, E0433.
+For more information about an error, try `rustc --explain E0050`.
+warning: `iced-shadcn` (lib) generated 1 warning
+error: could not compile `iced-shadcn` (lib) due to 13 previous errors; 1 warning emitted

@@ -1,7 +1,7 @@
 use iced::alignment::Vertical;
 use iced::border::Border;
 use iced::widget::{
-    Space, button as iced_button, column, container, lazy, row, rule, scrollable, stack, text,
+    Space, button as iced_button, column, container, lazy, row, rule, stack, text,
 };
 use iced::{Background, Color, Element, Font, Length, Padding};
 use lucide_icons::Icon as LucideIcon;
@@ -315,117 +315,6 @@ fn truncate_ellipsis(s: &str, max_chars: usize) -> String {
     format!("{truncated}...")
 }
 
-fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color {
-        a: color.a * opacity,
-        ..color
-    }
-}
-
-fn transparent_rail() -> scrollable::Rail {
-    scrollable::Rail {
-        background: Some(Background::Color(Color::TRANSPARENT)),
-        border: Border::default(),
-        scroller: scrollable::Scroller {
-            background: Background::Color(Color::TRANSPARENT),
-            border: Border::default(),
-        },
-    }
-}
-
-fn visible_vertical_rail(theme: &Theme, thumb_opacity: f32) -> scrollable::Rail {
-    let radius = theme.radius.sm;
-
-    scrollable::Rail {
-        background: Some(Background::Color(apply_opacity(theme.palette.muted, 0.18))),
-        border: Border {
-            color: Color::TRANSPARENT,
-            width: 0.0,
-            radius: radius.into(),
-        },
-        scroller: scrollable::Scroller {
-            background: Background::Color(apply_opacity(
-                theme.palette.muted_foreground,
-                thumb_opacity,
-            )),
-            border: Border {
-                color: Color::TRANSPARENT,
-                width: 0.0,
-                radius: radius.into(),
-            },
-        },
-    }
-}
-
-fn transparent_auto_scroll() -> scrollable::AutoScroll {
-    scrollable::AutoScroll {
-        background: Background::Color(Color::TRANSPARENT),
-        border: Border::default(),
-        shadow: Default::default(),
-        icon: Color::TRANSPARENT,
-    }
-}
-
-fn tree_scroll_style(
-    theme: &Theme,
-    visibility: TreeScrollbarVisibility,
-    status: scrollable::Status,
-) -> scrollable::Style {
-    let transparent = transparent_rail();
-    let hidden_style = scrollable::Style {
-        container: container::Style::default(),
-        vertical_rail: transparent,
-        horizontal_rail: transparent,
-        gap: None,
-        auto_scroll: transparent_auto_scroll(),
-    };
-
-    let (show_vertical, thumb_opacity, disabled) = match status {
-        scrollable::Status::Active {
-            is_vertical_scrollbar_disabled,
-            ..
-        } => (
-            matches!(visibility, TreeScrollbarVisibility::Visible),
-            0.48,
-            is_vertical_scrollbar_disabled,
-        ),
-        scrollable::Status::Hovered {
-            is_vertical_scrollbar_disabled,
-            ..
-        } => (
-            !matches!(visibility, TreeScrollbarVisibility::Hidden),
-            0.62,
-            is_vertical_scrollbar_disabled,
-        ),
-        scrollable::Status::Dragged {
-            is_vertical_scrollbar_disabled,
-            ..
-        } => (
-            !matches!(visibility, TreeScrollbarVisibility::Hidden),
-            0.74,
-            is_vertical_scrollbar_disabled,
-        ),
-    };
-
-    if matches!(visibility, TreeScrollbarVisibility::Hidden) || disabled {
-        return hidden_style;
-    }
-
-    let vertical_rail = if show_vertical {
-        visible_vertical_rail(theme, thumb_opacity)
-    } else {
-        transparent
-    };
-
-    scrollable::Style {
-        container: container::Style::default(),
-        vertical_rail,
-        horizontal_rail: transparent,
-        gap: None,
-        auto_scroll: transparent_auto_scroll(),
-    }
-}
-
 // ---------------------------------------------------------------------------
 // Public render function
 // ---------------------------------------------------------------------------
@@ -468,19 +357,16 @@ pub fn tree_view<'a, Message: Clone + 'static>(
             left: 0.0,
         });
 
-    let scrollbar = scrollable::Scrollbar::new()
-        .width(6)
-        .scroller_width(6)
-        .margin(0);
-
-    let theme = theme.clone();
-    scrollable(inner)
-        .direction(scrollable::Direction::Vertical(scrollbar))
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .style(move |_iced_theme, status| {
-            tree_scroll_style(&theme, props.scrollbar_visibility, status)
-        })
+    crate::scroll_area::scroll_area(
+        inner,
+        crate::scroll_area::ScrollAreaProps::new()
+            .scrollbars(crate::scroll_area::ScrollAreaScrollbars::Vertical)
+            .scrollbar_width(6.0)
+            .scrollbar_rail_width(6.0)
+            .scrollbar_thumb_width(6.0)
+            .scrollbar_margin(0.0),
+        &theme,
+    )
         .into()
 }
 
