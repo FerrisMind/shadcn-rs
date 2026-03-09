@@ -564,22 +564,9 @@ where
             .width
             .map(|w| w as f32)
             .unwrap_or(self.target_size.width.max(128.0));
-        let anchor = match self.overlay.kind {
-            MenuKind::Dropdown => self.anchor_position,
-            MenuKind::Context => self.state.opened_at.unwrap_or(self.anchor_position),
-        };
-        let estimated_height = metrics.content_padding * 2.0
-            + metrics.item_height * self.entries.len().max(1) as f32
-            + 12.0;
         let overlay_bounds = Size::new(
-            bounds
-                .width
-                .max(self.viewport.width)
-                .max(anchor.x + menu_width * 2.0 + 20.0),
-            bounds
-                .height
-                .max(self.viewport.height)
-                .max(anchor.y + estimated_height + 20.0),
+            bounds.width.max(self.viewport.width),
+            bounds.height.max(self.viewport.height),
         );
 
         let limits = layout::Limits::new(Size::ZERO, overlay_bounds).width(menu_width);
@@ -604,6 +591,12 @@ where
         let main_size = main_node.size();
 
         let collision_padding = 10.0;
+        let min_x = self.viewport.x + collision_padding;
+        let max_x = (self.viewport.x + self.viewport.width - main_size.width - collision_padding)
+            .max(min_x);
+        let min_y = self.viewport.y + collision_padding;
+        let max_y = (self.viewport.y + self.viewport.height - main_size.height - collision_padding)
+            .max(min_y);
         let space_below = bounds.height - (self.anchor_position.y + self.target_size.height);
         let space_above = self.anchor_position.y;
 
@@ -612,10 +605,7 @@ where
             MenuKind::Context => self.state.opened_at.unwrap_or(self.anchor_position).x,
         };
 
-        let x = x.clamp(
-            collision_padding,
-            (overlay_bounds.width - main_size.width - collision_padding).max(collision_padding),
-        );
+        let x = x.clamp(min_x, max_x);
 
         let y = match self.overlay.kind {
             MenuKind::Dropdown => {
@@ -627,10 +617,7 @@ where
             }
             MenuKind::Context => self.state.opened_at.unwrap_or(self.anchor_position).y,
         }
-        .clamp(
-            collision_padding,
-            (overlay_bounds.height - main_size.height - collision_padding).max(collision_padding),
-        );
+        .clamp(min_y, max_y);
 
         let mut children = Vec::new();
         let main_node = main_node.move_to(Point::new(x, y));
@@ -661,16 +648,25 @@ where
                     submenu_list.layout(&mut self.state.overlay.submenu_tree, renderer, &limits);
 
                 let submenu_size = submenu_node.size();
-                let submenu_x = (x + main_size.width + 4.0).clamp(
-                    collision_padding,
-                    (overlay_bounds.width - submenu_size.width - collision_padding)
-                        .max(collision_padding),
-                );
-                let submenu_y = y.clamp(
-                    collision_padding,
-                    (overlay_bounds.height - submenu_size.height - collision_padding)
-                        .max(collision_padding),
-                );
+                let submenu_gap = 4.0;
+                let right_x = x + main_size.width + submenu_gap;
+                let left_x = x - submenu_size.width - submenu_gap;
+                let submenu_min_x = self.viewport.x + collision_padding;
+                let submenu_max_x = (self.viewport.x + self.viewport.width
+                    - submenu_size.width
+                    - collision_padding)
+                    .max(submenu_min_x);
+                let submenu_x = if right_x <= submenu_max_x {
+                    right_x
+                } else {
+                    left_x.clamp(submenu_min_x, submenu_max_x)
+                };
+                let submenu_min_y = self.viewport.y + collision_padding;
+                let submenu_max_y = (self.viewport.y + self.viewport.height
+                    - submenu_size.height
+                    - collision_padding)
+                    .max(submenu_min_y);
+                let submenu_y = y.clamp(submenu_min_y, submenu_max_y);
 
                 let submenu_node = submenu_node.move_to(Point::new(submenu_x, submenu_y));
                 self.state.submenu_bounds = Some(submenu_node.bounds());
@@ -870,9 +866,9 @@ fn menu_metrics(theme: &Theme, size: MenuContentSize) -> MenuMetrics {
             label_font_size: 12.0,
             shortcut_font_size: 10.0,
             indicator_size: 12.0,
-            base_padding_x: 6.0,
+            base_padding_x: theme.spacing.sm,
             inset_padding_x: 20.0,
-            radius: theme.radius.sm,
+            radius: theme.radius.md,
         },
         MenuContentSize::Size2 => MenuMetrics {
             content_padding: theme.spacing.xs,
@@ -883,9 +879,9 @@ fn menu_metrics(theme: &Theme, size: MenuContentSize) -> MenuMetrics {
             label_font_size: 14.0,
             shortcut_font_size: 12.0,
             indicator_size: 14.0,
-            base_padding_x: 8.0,
+            base_padding_x: theme.spacing.sm,
             inset_padding_x: 24.0,
-            radius: theme.radius.sm,
+            radius: theme.radius.md,
         },
     }
 }
@@ -1337,7 +1333,7 @@ where
                             renderer::Quad {
                                 bounds: row_bounds,
                                 border: Border {
-                                    radius: (self.metrics.radius - 2.0).max(0.0).into(),
+                                    radius: self.metrics.radius.into(),
                                     ..Border::default()
                                 },
                                 ..renderer::Quad::default()

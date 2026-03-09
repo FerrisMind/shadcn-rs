@@ -358,6 +358,43 @@ impl Default for ScrollAreaStyleTokens {
     }
 }
 
+#[derive(Clone, Copy, Debug)]
+pub struct EmptyStyleTokens {
+    pub root_gap: f32,
+    pub root_padding: f32,
+    pub root_max_width: f32,
+    pub root_min_height: f32,
+    pub header_gap: f32,
+    pub header_max_width: f32,
+    pub media_size: f32,
+    pub media_icon_size: f32,
+    pub title_size: f32,
+    pub description_size: f32,
+    pub description_max_width: f32,
+    pub content_gap: f32,
+    pub content_max_width: f32,
+}
+
+impl Default for EmptyStyleTokens {
+    fn default() -> Self {
+        Self {
+            root_gap: 24.0,
+            root_padding: 24.0,
+            root_max_width: 384.0,
+            root_min_height: 0.0,
+            header_gap: 8.0,
+            header_max_width: 384.0,
+            media_size: 40.0,
+            media_icon_size: 24.0,
+            title_size: 18.0,
+            description_size: 14.0,
+            description_max_width: 320.0,
+            content_gap: 16.0,
+            content_max_width: 384.0,
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default)]
 pub struct ThemeStyles {
     pub command: CommandStyleTokens,
@@ -370,6 +407,7 @@ pub struct ThemeStyles {
     pub field: FieldStyleTokens,
     pub navigation_menu: NavigationMenuStyleTokens,
     pub scroll_area: ScrollAreaStyleTokens,
+    pub empty: EmptyStyleTokens,
 }
 
 #[derive(Clone, Debug)]
