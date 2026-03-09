@@ -6,9 +6,7 @@ use iced::advanced::widget::{self, Widget};
 use iced::advanced::{Clipboard, Shell};
 use iced::event::Event;
 use iced::mouse::{self, Cursor};
-use iced::{
-    Border, Element, Font, Length, Point, Rectangle, Size,
-};
+use iced::{Border, Element, Font, Length, Point, Rectangle, Size};
 use lucide_icons::Icon as LucideIcon;
 
 pub struct TreeViewer<'a, Message> {
@@ -32,11 +30,11 @@ pub struct TreeViewerProps {
 impl Default for TreeViewerProps {
     fn default() -> Self {
         Self {
-            row_height: 32.0,
+            row_height: 28.0,
             indent: 16.0,
             icon_size: 16.0,
-            text_size: 14.0,
-            content_offset: 8.0,
+            text_size: 13.0,
+            content_offset: 0.0,
         }
     }
 }
@@ -136,47 +134,78 @@ where
                 continue;
             }
 
+            let clickable_bounds = Rectangle {
+                x: bounds.x + 4.0,
+                y: row_bounds.y,
+                width: (bounds.width - 8.0).max(0.0),
+                height: row_height,
+            };
+
             let is_selected = self.state.is_selected(&node.path);
-            let is_hovered = cursor.position_over(row_bounds).is_some();
+            let is_hovered = cursor.position_over(clickable_bounds).is_some();
 
             // Background
-            if is_selected {
+            let bg_color = if is_selected || is_hovered {
+                Some(self.theme.palette.accent)
+            } else {
+                None
+            };
+
+            if let Some(bg) = bg_color {
                 renderer.fill_quad(
                     renderer::Quad {
-                        bounds: row_bounds,
+                        bounds: clickable_bounds,
                         border: Border {
-                            radius: 4.0.into(),
+                            radius: self.theme.radius.sm.into(),
                             ..Default::default()
                         },
                         ..Default::default()
                     },
-                    self.theme.palette.accent,
+                    bg,
                 );
-            } else if is_hovered {
+            }
+
+            // Draw vertical guides for ancestor levels (should be on top of background)
+            for d in 0..node.depth {
+                let ancestor_left_pad = self.props.content_offset + d as f32 * self.props.indent;
+                let guide_x = bounds.x + 4.0 + ancestor_left_pad + self.props.icon_size * 0.5;
+                let line_bounds = Rectangle {
+                    x: guide_x.floor(),
+                    y: row_bounds.y,
+                    width: 1.0,
+                    height: row_height,
+                };
                 renderer.fill_quad(
                     renderer::Quad {
-                        bounds: row_bounds,
-                        border: Border {
-                            radius: 4.0.into(),
-                            ..Default::default()
-                        },
+                        bounds: line_bounds,
+                        border: Border::default(),
                         ..Default::default()
                     },
-                    self.theme.palette.accent.scale_alpha(0.5),
+                    self.theme.palette.border,
                 );
             }
 
             // Icons and Text
-            let x_pad = self.props.content_offset + node.depth as f32 * self.props.indent;
-            
+            let base_pad = self.props.content_offset + node.depth as f32 * self.props.indent;
+            let left_pad = if node.is_folder {
+                base_pad
+            } else {
+                base_pad + 3.0
+            };
+
+            let icon_x = clickable_bounds.x + left_pad;
+            let icon_center_x = icon_x + self.props.icon_size / 2.0;
+
+            let text_x = icon_x + self.props.icon_size + 6.0;
+
             // Render Icon
             let icon = if node.is_folder {
                 if node.folder_state == FolderState::Loading {
                     LucideIcon::Loader
                 } else if node.is_expanded {
-                    node.icon_open.unwrap_or(LucideIcon::ChevronDown)
+                    node.icon_open.unwrap_or(LucideIcon::FolderOpen)
                 } else {
-                    node.icon_closed.unwrap_or(LucideIcon::ChevronRight)
+                    node.icon_closed.unwrap_or(LucideIcon::Folder)
                 }
             } else {
                 node.icon_file.unwrap_or(LucideIcon::File)
@@ -198,7 +227,7 @@ where
             renderer.fill_text(
                 iced::advanced::text::Text {
                     content: char::from(icon).to_string(),
-                    bounds: row_bounds.size(),
+                    bounds: Size::new(self.props.icon_size * 2.0, row_height),
                     size: iced::Pixels(self.props.icon_size),
                     line_height: iced::advanced::text::LineHeight::default(),
                     font: Font::with_name("lucide"),
@@ -207,7 +236,7 @@ where
                     shaping: iced::advanced::text::Shaping::Basic,
                     wrapping: iced::advanced::text::Wrapping::default(),
                 },
-                iced::Point::new(row_bounds.x + x_pad + self.props.icon_size / 2.0, row_bounds.y + self.props.row_height / 2.0),
+                Point::new(icon_center_x, row_bounds.y + row_height / 2.0),
                 icon_color,
                 *viewport,
             );
@@ -217,8 +246,8 @@ where
                 iced::advanced::text::Text {
                     content: node.name.clone(),
                     bounds: Size::new(
-                        row_bounds.width - x_pad - self.props.icon_size - 8.0,
-                        self.props.row_height,
+                        (clickable_bounds.width - (text_x - clickable_bounds.x)).max(0.0),
+                        row_height,
                     ),
                     size: iced::Pixels(self.props.text_size),
                     line_height: iced::advanced::text::LineHeight::default(),
@@ -228,10 +257,7 @@ where
                     shaping: iced::advanced::text::Shaping::Basic,
                     wrapping: iced::advanced::text::Wrapping::default(),
                 },
-                Point::new(
-                    row_bounds.x + x_pad + self.props.icon_size + 8.0,
-                    row_bounds.y + self.props.row_height / 2.0,
-                ),
+                Point::new(text_x, row_bounds.y + row_height / 2.0),
                 text_color,
                 *viewport,
             );
@@ -246,27 +272,46 @@ where
         cursor: Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
-        _shell: &mut Shell<'_, Message>,
+        shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
-        if let Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) = event
-            && let Some(cursor_pos) = cursor.position_over(layout.bounds())
-        {
-            let bounds = layout.bounds();
-            let relative_y = cursor_pos.y - bounds.y;
-            let index = (relative_y / self.props.row_height).floor() as usize;
-
-            if let Some(node) = self.state.nodes.get(index) {
-                if node.is_folder {
-                    if node.folder_state == FolderState::Unloaded {
-                        _shell.publish((self.on_load)(node.path.clone()));
-                    } else {
-                        _shell.publish((self.on_toggle)(node.path.clone()));
-                    }
-                } else {
-                    _shell.publish((self.on_select)(node.path.clone()));
+        match event {
+            Event::Mouse(mouse::Event::CursorMoved { .. }) => {
+                // To trigger hover redraws for our custom rendered tree
+                if cursor.is_over(layout.bounds()) {
+                    shell.request_redraw();
                 }
             }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
+                if let Some(cursor_pos) = cursor.position_over(layout.bounds()) {
+                    let bounds = layout.bounds();
+                    let relative_y = cursor_pos.y - bounds.y;
+                    let index = (relative_y / self.props.row_height).floor() as usize;
+
+                    let y_offset = index as f32 * self.props.row_height;
+                    let clickable_bounds = Rectangle {
+                        x: bounds.x + 4.0,
+                        y: bounds.y + y_offset,
+                        width: (bounds.width - 8.0).max(0.0),
+                        height: self.props.row_height,
+                    };
+
+                    if clickable_bounds.contains(cursor_pos)
+                        && let Some(node) = self.state.nodes.get(index)
+                    {
+                        if node.is_folder {
+                            if node.folder_state == FolderState::Unloaded {
+                                shell.publish((self.on_load)(node.path.clone()));
+                            } else {
+                                shell.publish((self.on_toggle)(node.path.clone()));
+                            }
+                        } else {
+                            shell.publish((self.on_select)(node.path.clone()));
+                        }
+                    }
+                }
+            }
+            _ => {}
         }
     }
 
@@ -286,7 +331,8 @@ where
     }
 }
 
-impl<'a, Message, Theme, Renderer> From<TreeViewer<'a, Message>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> From<TreeViewer<'a, Message>>
+    for Element<'a, Message, Theme, Renderer>
 where
     Message: Clone + 'a,
     Renderer: renderer::Renderer + iced::advanced::text::Renderer<Font = Font> + 'a,

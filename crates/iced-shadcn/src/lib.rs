@@ -245,7 +245,9 @@ pub use tooltip::{TooltipPosition, TooltipProps, tooltip};
 pub use tree_view::{
     TreeNode, TreeScrollbarVisibility, TreeViewAction, TreeViewProps, TreeViewState, tree_view,
 };
-pub use tree_viewer::{FlatNode, FolderState, TreeViewer, TreeViewerProps, TreeViewerState, tree_viewer};
+pub use tree_viewer::{
+    FlatNode, FolderState, TreeViewer, TreeViewerProps, TreeViewerState, tree_viewer,
+};
 pub use typography::{
     HeadingAs, HeadingProps, LeadingTrim, TextAlign, TextAs, TextProps, TextSize, TextWeight,
     TextWrap, heading, text,
