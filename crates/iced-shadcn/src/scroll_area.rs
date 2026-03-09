@@ -5,7 +5,7 @@ use iced::{Background, Color, Element, Length, Shadow};
 
 use crate::button::ButtonRadius;
 use crate::theme::Theme;
-use crate::tokens::{AccentColor, accent_high, accent_low, is_dark};
+use crate::tokens::{AccentColor, accent_high, is_dark};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ScrollAreaSize {
@@ -167,15 +167,29 @@ fn scroll_area_style(theme: &Theme, props: ScrollAreaProps, status: Status) -> S
     let palette = theme.palette;
     let radius = scroll_area_radius(theme, props);
 
-    let rail_bg = if is_dark(&palette) {
-        apply_opacity(accent_low(&palette, AccentColor::Gray), 0.7)
-    } else {
-        apply_opacity(accent_low(&palette, AccentColor::Gray), 0.6)
-    };
-    let scroller_bg = if is_dark(&palette) {
-        apply_opacity(accent_high(&palette, AccentColor::Gray), 0.9)
-    } else {
-        apply_opacity(accent_high(&palette, AccentColor::Gray), 0.8)
+    let rail_bg = Color::TRANSPARENT;
+    let scroller_bg = match status {
+        Status::Active { .. } => {
+            if is_dark(&palette) {
+                apply_opacity(accent_high(&palette, AccentColor::Gray), 0.3)
+            } else {
+                apply_opacity(accent_high(&palette, AccentColor::Gray), 0.2)
+            }
+        }
+        Status::Hovered { .. } => {
+            if is_dark(&palette) {
+                apply_opacity(accent_high(&palette, AccentColor::Gray), 0.6)
+            } else {
+                apply_opacity(accent_high(&palette, AccentColor::Gray), 0.5)
+            }
+        }
+        Status::Dragged { .. } => {
+            if is_dark(&palette) {
+                apply_opacity(accent_high(&palette, AccentColor::Gray), 0.8)
+            } else {
+                apply_opacity(accent_high(&palette, AccentColor::Gray), 0.7)
+            }
+        }
     };
 
     let rail_visible = scrollable::Rail {
