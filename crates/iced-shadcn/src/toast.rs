@@ -20,6 +20,7 @@ use lucide_icons::Icon as LucideIcon;
 use crate::theme::Theme;
 
 const DEFAULT_TOAST_DURATION_MS: u64 = 5000;
+const TOAST_CLOSE_RESERVED_WIDTH: f32 = 28.0;
 
 static TOAST_ID_COUNTER: AtomicU64 = AtomicU64::new(0);
 
@@ -81,6 +82,7 @@ pub struct Toast {
     pub description: Option<String>,
     pub duration_ms: Option<u64>,
     pub dismissible: bool,
+    pub expandable: bool,
 }
 
 impl Toast {
@@ -92,6 +94,7 @@ impl Toast {
             description: None,
             duration_ms: Some(DEFAULT_TOAST_DURATION_MS),
             dismissible: true,
+            expandable: true,
         }
     }
 
@@ -103,6 +106,7 @@ impl Toast {
             description: None,
             duration_ms: Some(DEFAULT_TOAST_DURATION_MS),
             dismissible: true,
+            expandable: true,
         }
     }
 
@@ -132,6 +136,11 @@ impl Toast {
 
     pub fn dismissible(mut self, dismissible: bool) -> Self {
         self.dismissible = dismissible;
+        self
+    }
+
+    pub fn expandable(mut self, expandable: bool) -> Self {
+        self.expandable = expandable;
         self
     }
 }
@@ -195,6 +204,11 @@ impl Toaster {
             {
                 entry.toast = toast.clone();
                 entry.created_at = now;
+                entry.paused_at = None;
+                entry.paused_total = std::time::Duration::ZERO;
+                if !entry.toast.expandable {
+                    entry.expanded = false;
+                }
                 entry.open = true;
                 entry.dismissed_at = None;
                 return entry.toast.id.clone();
@@ -228,6 +242,19 @@ impl Toaster {
         }
     }
 
+    pub fn toggle_expanded(&self, toast_id: &str) {
+        if let Ok(mut state) = self.state.lock() {
+            for entry in &mut state.entries {
+                if entry.toast.id == toast_id {
+                    if entry.toast.expandable {
+                        entry.expanded = !entry.expanded;
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
     pub fn promise(&self, mut toast: Toast) -> ToastPromise {
         toast.variant = ToastVariant::Loading;
         toast.duration_ms = None;
@@ -250,6 +277,9 @@ impl Toaster {
 struct ToastEntry {
     toast: Toast,
     created_at: std::time::Instant,
+    paused_at: Option<std::time::Instant>,
+    paused_total: std::time::Duration,
+    expanded: bool,
     open: bool,
     dismissed_at: Option<std::time::Instant>,
 }
@@ -259,6 +289,9 @@ impl ToastEntry {
         Self {
             toast,
             created_at: now,
+            paused_at: None,
+            paused_total: std::time::Duration::ZERO,
+            expanded: false,
             open: true,
             dismissed_at: None,
         }
@@ -285,7 +318,10 @@ struct ToastLayout {
     id: [u8; 24],
     id_len: usize,
     bounds: Rectangle,
+    toggle_bounds: Rectangle,
     close_bounds: Rectangle,
+    expandable: bool,
+    expanded: bool,
     dismissible: bool,
 }
 
@@ -301,10 +337,21 @@ fn small_to_string(buf: [u8; 24], len: usize) -> String {
     String::from_utf8_lossy(&buf[..len]).to_string()
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 struct ToasterOverlayState {
     last_redraw: Option<std::time::Instant>,
     layout: Vec<ToastLayout>,
+    window_focused: bool,
+}
+
+impl Default for ToasterOverlayState {
+    fn default() -> Self {
+        Self {
+            last_redraw: None,
+            layout: Vec::new(),
+            window_focused: true,
+        }
+    }
 }
 
 struct ToasterOverlay {
@@ -353,11 +400,52 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
     ) {
         let state = tree.state.downcast_mut::<ToasterOverlayState>();
 
+        match event {
+            Event::Window(window::Event::Focused) => {
+                state.window_focused = true;
+            }
+            Event::Window(window::Event::Unfocused) => {
+                state.window_focused = false;
+            }
+            _ => {}
+        }
+
         if let Event::Window(window::Event::RedrawRequested(now)) = event {
             state.last_redraw = Some(*now);
 
             if let Ok(mut toaster) = self.toaster.state.lock() {
-                update_toasts(&mut toaster, *now, &self.theme);
+                let preview = compute_layout(
+                    layout.bounds(),
+                    &toaster.entries,
+                    toaster.position,
+                    *now,
+                    &self.theme,
+                );
+
+                let hovered_toast = cursor
+                    .position_in(*viewport)
+                    .and_then(|pos| {
+                        preview
+                            .layout
+                            .iter()
+                            .find(|item| item.bounds.contains(pos))
+                            .map(|item| small_to_string(item.id, item.id_len))
+                    });
+                let visible_toasts = preview
+                    .layout
+                    .iter()
+                    .map(|item| small_to_string(item.id, item.id_len))
+                    .collect::<Vec<_>>();
+
+                update_toasts(
+                    &mut toaster,
+                    *now,
+                    &self.theme,
+                    &visible_toasts,
+                    hovered_toast.as_deref(),
+                    state.window_focused,
+                );
+
                 state.layout = compute_layout(
                     layout.bounds(),
                     &toaster.entries,
@@ -378,9 +466,13 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
 
                 if let Some(pos) = cursor.position_in(*viewport) {
                     for layout in &state.layout {
-                        if layout.dismissible
-                            && (layout.close_bounds.contains(pos) || layout.bounds.contains(pos))
-                        {
+                        if layout.expandable && layout.toggle_bounds.contains(pos) {
+                            self.toaster
+                                .toggle_expanded(&small_to_string(layout.id, layout.id_len));
+                            shell.capture_event();
+                            break;
+                        }
+                        if layout.dismissible && layout.close_bounds.contains(pos) {
                             self.toaster
                                 .dismiss(&small_to_string(layout.id, layout.id_len));
                             shell.capture_event();
@@ -466,17 +558,39 @@ impl<'a, Message: 'a> From<ToasterOverlay> for Element<'a, Message> {
     }
 }
 
-fn update_toasts(state: &mut ToasterState, now: std::time::Instant, theme: &Theme) {
+fn update_toasts(
+    state: &mut ToasterState,
+    now: std::time::Instant,
+    theme: &Theme,
+    visible_toasts: &[String],
+    hovered_toast: Option<&str>,
+    window_focused: bool,
+) {
     let anim = std::time::Duration::from_millis(theme.styles.toast.animation_ms);
 
     for entry in &mut state.entries {
-        if entry.open
-            && let Some(duration_ms) = entry.toast.duration_ms
-        {
-            let duration = std::time::Duration::from_millis(duration_ms);
-            if now.saturating_duration_since(entry.created_at) >= duration {
-                entry.open = false;
-                entry.dismissed_at.get_or_insert(now);
+        let is_visible = visible_toasts.iter().any(|id| id == &entry.toast.id);
+        let is_hovered = hovered_toast.is_some_and(|id| id == entry.toast.id);
+        let should_pause = is_hovered || !window_focused;
+
+        if should_pause {
+            if entry.paused_at.is_none() {
+                entry.paused_at = Some(now);
+            }
+        } else if let Some(paused_at) = entry.paused_at.take() {
+            entry.paused_total += now.saturating_duration_since(paused_at);
+        }
+
+        if entry.open && is_visible && window_focused && entry.paused_at.is_none() {
+            if let Some(duration_ms) = entry.toast.duration_ms {
+                let duration = std::time::Duration::from_millis(duration_ms);
+                let elapsed = now
+                    .saturating_duration_since(entry.created_at)
+                    .saturating_sub(entry.paused_total);
+                if elapsed >= duration {
+                    entry.open = false;
+                    entry.dismissed_at.get_or_insert(now);
+                }
             }
         }
     }
@@ -571,6 +685,23 @@ fn estimate_toast_width(
     (text_chrome_width + estimated_text_width).clamp(min_width, max_width)
 }
 
+fn truncate_for_single_line(text: &str, max_chars: usize) -> String {
+    if max_chars == 0 {
+        return String::new();
+    }
+
+    let mut chars = text.chars().collect::<Vec<_>>();
+    if chars.len() <= max_chars {
+        return text.to_string();
+    }
+
+    let keep = max_chars.saturating_sub(1);
+    chars.truncate(keep);
+    let mut out = chars.into_iter().collect::<String>();
+    out.push('…');
+    out
+}
+
 fn compute_layout(
     viewport: Rectangle,
     entries: &[ToastEntry],
@@ -579,56 +710,106 @@ fn compute_layout(
     theme: &Theme,
 ) -> LayoutResult {
     let toast_style = theme.styles.toast;
-    let max_width = (viewport.width - toast_style.margin * 2.0).max(180.0);
+    let horizontal_margin = if viewport.width
+        < toast_style.max_width + toast_style.horizontal_margin * 2.0
+    {
+        toast_style.narrow_viewport_padding
+    } else {
+        toast_style.horizontal_margin
+    };
+    let max_width = toast_style
+        .max_width
+        .min((viewport.width - horizontal_margin * 2.0).max(180.0));
     let min_width = 220.0_f32.min(max_width);
     let base_width = toast_style.width.clamp(min_width, max_width);
+    let max_stack_height = (viewport.height * toast_style.max_viewport_height_ratio).max(0.0);
+    let mut used_stack_height = 0.0;
+    let mut shown = 0usize;
 
     const LEFT_PADDING: f32 = 12.0;
-    const RIGHT_PADDING: f32 = 12.0;
+    const RIGHT_PADDING_BASE: f32 = 12.0;
     const ICON_WITH_GAP: f32 = 22.0;
     const TOP_PADDING: f32 = 12.0;
-    const TITLE_HEIGHT: f32 = 20.0;
-    const DESCRIPTION_TOP: f32 = 34.0;
+    const TITLE_LINE_HEIGHT: f32 = 20.0;
+    const TITLE_DESC_GAP: f32 = 4.0;
     const DESCRIPTION_LINE_HEIGHT: f32 = 16.0;
     const BOTTOM_PADDING: f32 = 12.0;
 
     let mut y = if position.is_top() {
-        viewport.y + toast_style.margin
+        viewport.y + toast_style.vertical_margin
     } else {
-        viewport.y + viewport.height - toast_style.margin
+        viewport.y + viewport.height - toast_style.vertical_margin
     };
 
     let mut layout_out = Vec::with_capacity(entries.len());
 
     for entry in entries {
+        if shown >= toast_style.max_visible {
+            break;
+        }
+
         let title = entry.toast.title.as_deref().unwrap_or("");
         let description = entry.toast.description.as_deref().unwrap_or("");
-        let text_chrome_width = LEFT_PADDING + RIGHT_PADDING + ICON_WITH_GAP;
+        let controls_reserved_width = RIGHT_PADDING_BASE
+            + if entry.toast.dismissible {
+                TOAST_CLOSE_RESERVED_WIDTH
+            } else {
+                0.0
+            }
+            + if entry.toast.expandable {
+                TOAST_CLOSE_RESERVED_WIDTH
+            } else {
+                0.0
+            };
+        let text_chrome_width = LEFT_PADDING + controls_reserved_width + ICON_WITH_GAP;
         let width = estimate_toast_width(title, description, min_width, max_width, text_chrome_width)
             .max(base_width.min(max_width));
         let text_width = (width - text_chrome_width).max(1.0);
-
+        let title_lines = if title.is_empty() {
+            0
+        } else if entry.expanded {
+            let max_chars = estimate_max_chars_per_line(text_width, 14.0);
+            estimate_wrapped_lines(title, max_chars)
+        } else {
+            1
+        };
         let description_lines = if description.is_empty() {
             0
-        } else {
+        } else if entry.expanded {
             let max_chars = estimate_max_chars_per_line(text_width, 12.0);
             estimate_wrapped_lines(description, max_chars)
+        } else {
+            1
         };
 
-        let content_height = if description_lines == 0 {
-            TOP_PADDING + TITLE_HEIGHT + BOTTOM_PADDING
-        } else {
-            DESCRIPTION_TOP + DESCRIPTION_LINE_HEIGHT * description_lines as f32 + BOTTOM_PADDING
-        };
+        let title_block = TITLE_LINE_HEIGHT * title_lines as f32;
+        let description_block = DESCRIPTION_LINE_HEIGHT * description_lines as f32;
+        let content_height = TOP_PADDING
+            + title_block
+            + if description_lines > 0 && title_lines > 0 {
+                TITLE_DESC_GAP
+            } else {
+                0.0
+            }
+            + description_block
+            + BOTTOM_PADDING;
 
         let height = toast_style.height.max(content_height);
+        let next_stack_height = if shown == 0 {
+            height
+        } else {
+            used_stack_height + toast_style.gap + height
+        };
+        if shown > 0 && next_stack_height > max_stack_height {
+            break;
+        }
 
         let x = if position.is_center() {
             viewport.x + (viewport.width - width).max(0.0) / 2.0
         } else if position.is_left() {
-            viewport.x + toast_style.margin
+            viewport.x + horizontal_margin
         } else {
-            viewport.x + viewport.width - toast_style.margin - width
+            viewport.x + viewport.width - horizontal_margin - width
         };
 
         let bounds = if position.is_top() {
@@ -654,24 +835,54 @@ fn compute_layout(
 
         let (id, id_len) = id_to_small(&entry.toast.id);
 
-        let close_bounds = Rectangle {
-            x: bounds.x + bounds.width - toast_style.close_size - toast_style.close_inset,
-            y: bounds.y + toast_style.close_inset,
-            width: toast_style.close_size,
-            height: toast_style.close_size,
+        let mut control_right = bounds.x + bounds.width - toast_style.close_inset;
+        let close_bounds = if entry.toast.dismissible {
+            control_right -= toast_style.close_size;
+            let rect = Rectangle {
+                x: control_right,
+                y: bounds.y + toast_style.close_inset,
+                width: toast_style.close_size,
+                height: toast_style.close_size,
+            };
+            control_right -= 10.0;
+            rect
+        } else {
+            Rectangle {
+                x: 0.0,
+                y: 0.0,
+                width: 0.0,
+                height: 0.0,
+            }
+        };
+        let toggle_bounds = if entry.toast.expandable {
+            control_right -= toast_style.close_size;
+            Rectangle {
+                x: control_right,
+                y: bounds.y + toast_style.close_inset,
+                width: toast_style.close_size,
+                height: toast_style.close_size,
+            }
+        } else {
+            Rectangle {
+                x: 0.0,
+                y: 0.0,
+                width: 0.0,
+                height: 0.0,
+            }
         };
 
         let anim = std::time::Duration::from_millis(toast_style.animation_ms);
         let mut anim_t = 1.0;
         if entry.open {
             let elapsed = now.saturating_duration_since(entry.created_at);
-            anim_t = (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
+            let raw_t = (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
+            anim_t = ease_out_cubic(raw_t);
         } else if let Some(dismissed) = entry.dismissed_at {
             let elapsed = now.saturating_duration_since(dismissed);
             anim_t = 1.0 - (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
         }
 
-        let slide = (1.0 - anim_t) * theme.spacing.md;
+        let slide = (1.0 - anim_t) * bounds.height;
         let bounds = Rectangle {
             y: bounds.y + slide,
             ..bounds
@@ -680,17 +891,31 @@ fn compute_layout(
             y: close_bounds.y + slide,
             ..close_bounds
         };
+        let toggle_bounds = Rectangle {
+            y: toggle_bounds.y + slide,
+            ..toggle_bounds
+        };
 
         layout_out.push(ToastLayout {
             id,
             id_len,
             bounds,
+            toggle_bounds,
             close_bounds,
+            expandable: entry.toast.expandable,
+            expanded: entry.expanded,
             dismissible: entry.toast.dismissible,
         });
+        used_stack_height = next_stack_height;
+        shown += 1;
     }
 
     LayoutResult { layout: layout_out }
+}
+
+fn ease_out_cubic(t: f32) -> f32 {
+    let one_minus = 1.0 - t.clamp(0.0, 1.0);
+    1.0 - one_minus * one_minus * one_minus
 }
 
 fn variant_icon(variant: ToastVariant) -> Option<LucideIcon> {
@@ -742,7 +967,8 @@ fn draw_toasts(
         let mut alpha = 1.0;
         if entry.open {
             let elapsed = now.saturating_duration_since(entry.created_at);
-            alpha = (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
+            let raw_t = (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
+            alpha = ease_out_cubic(raw_t);
         } else if let Some(dismissed) = entry.dismissed_at {
             let elapsed = now.saturating_duration_since(dismissed);
             alpha = 1.0 - (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
@@ -801,19 +1027,50 @@ fn draw_toasts(
         let description = entry.toast.description.as_deref().unwrap_or("");
 
         let text_x = bounds.x + 12.0 + 22.0;
-        let text_width = (bounds.width - 12.0 - 12.0 - 22.0).max(0.0);
+        let controls_reserved_width = 12.0
+            + if entry.toast.dismissible {
+                TOAST_CLOSE_RESERVED_WIDTH
+            } else {
+                0.0
+            }
+            + if entry.toast.expandable {
+                TOAST_CLOSE_RESERVED_WIDTH
+            } else {
+                0.0
+            };
+        let text_width = (bounds.width - 12.0 - controls_reserved_width - 22.0).max(0.0);
+        let title_text = if entry.expanded {
+            title.to_string()
+        } else {
+            let title_max_chars = estimate_max_chars_per_line(text_width, 14.0);
+            truncate_for_single_line(title, title_max_chars)
+        };
+        let title_wrapping = if entry.expanded {
+            text::Wrapping::Word
+        } else {
+            text::Wrapping::None
+        };
+        let title_lines = if title.is_empty() {
+            0
+        } else if entry.expanded {
+            let max_chars = estimate_max_chars_per_line(text_width, 14.0);
+            estimate_wrapped_lines(title, max_chars)
+        } else {
+            1
+        };
+        let title_height = (20.0 * title_lines as f32).max(20.0);
 
         renderer.fill_text(
             text::Text {
-                content: title.to_string(),
+                content: title_text,
                 size: 14.0.into(),
                 line_height: text::LineHeight::Absolute(20.0.into()),
                 font,
-                bounds: Size::new(text_width, 20.0),
+                bounds: Size::new(text_width, title_height),
                 align_x: text::Alignment::Left,
                 align_y: iced::alignment::Vertical::Top,
                 shaping: text::Shaping::Basic,
-                wrapping: text::Wrapping::None,
+                wrapping: title_wrapping,
             },
             Point::new(text_x, bounds.y + 12.0),
             apply_opacity(text_color, alpha),
@@ -821,11 +1078,22 @@ fn draw_toasts(
         );
 
         if !description.is_empty() {
-            let description_y = bounds.y + 34.0;
+            let description_y = bounds.y + 12.0 + title_height + 4.0;
             let description_height = (bounds.height - (description_y - bounds.y) - 12.0).max(0.0);
+            let description_text = if entry.expanded {
+                description.to_string()
+            } else {
+                let desc_max_chars = estimate_max_chars_per_line(text_width, 12.0);
+                truncate_for_single_line(description, desc_max_chars)
+            };
+            let description_wrapping = if entry.expanded {
+                text::Wrapping::Word
+            } else {
+                text::Wrapping::None
+            };
             renderer.fill_text(
                 text::Text {
-                    content: description.to_string(),
+                    content: description_text,
                     size: 12.0.into(),
                     line_height: text::LineHeight::Absolute(16.0.into()),
                     font,
@@ -833,10 +1101,46 @@ fn draw_toasts(
                     align_x: text::Alignment::Left,
                     align_y: iced::alignment::Vertical::Top,
                     shaping: text::Shaping::Basic,
-                    wrapping: text::Wrapping::Word,
+                    wrapping: description_wrapping,
                 },
                 Point::new(text_x, description_y),
                 apply_opacity(apply_opacity(text_color, 0.8), alpha),
+                *viewport,
+            );
+        }
+
+        if layout.expandable {
+            let toggle = layout.toggle_bounds;
+            let toggle_hovered = cursor
+                .position_in(*viewport)
+                .is_some_and(|pos| toggle.contains(pos));
+            let icon = if layout.expanded {
+                LucideIcon::ChevronUp
+            } else {
+                LucideIcon::ChevronDown
+            };
+            let toggle_color = if toggle_hovered {
+                apply_opacity(text_color, 0.95 * alpha)
+            } else {
+                apply_opacity(text_color, 0.75 * alpha)
+            };
+            renderer.fill_text(
+                text::Text {
+                    content: char::from(icon).to_string(),
+                    size: theme.styles.toast.close_size.into(),
+                    line_height: text::LineHeight::Absolute(theme.styles.toast.close_size.into()),
+                    font: icon_font,
+                    bounds: Size::new(toggle.width, toggle.height),
+                    align_x: text::Alignment::Left,
+                    align_y: iced::alignment::Vertical::Top,
+                    shaping: text::Shaping::Basic,
+                    wrapping: text::Wrapping::default(),
+                },
+                Point::new(
+                    toggle.x + theme.styles.toast.close_glyph_nudge_x,
+                    toggle.y + theme.styles.toast.close_glyph_nudge_y,
+                ),
+                toggle_color,
                 *viewport,
             );
         }

@@ -204,9 +204,14 @@ impl Default for SwitchStyleTokens {
 #[derive(Clone, Copy, Debug)]
 pub struct ToastStyleTokens {
     pub width: f32,
+    pub max_width: f32,
     pub height: f32,
-    pub margin: f32,
+    pub horizontal_margin: f32,
+    pub vertical_margin: f32,
+    pub narrow_viewport_padding: f32,
     pub gap: f32,
+    pub max_visible: usize,
+    pub max_viewport_height_ratio: f32,
     pub close_inset: f32,
     pub close_size: f32,
     pub close_glyph_nudge_x: f32,
@@ -219,14 +224,19 @@ impl Default for ToastStyleTokens {
     fn default() -> Self {
         Self {
             width: 360.0,
+            max_width: 452.0,
             height: 64.0,
-            margin: 16.0,
+            horizontal_margin: 16.0,
+            vertical_margin: 16.0,
+            narrow_viewport_padding: 8.0,
             gap: 8.0,
+            max_visible: 3,
+            max_viewport_height_ratio: 0.618,
             close_inset: 10.0,
             close_size: 14.0,
             close_glyph_nudge_x: 1.0,
             close_glyph_nudge_y: 1.0,
-            animation_ms: 180,
+            animation_ms: 300,
             shadow: ShadowStyle {
                 opacity: 0.15,
                 offset_y: 12.0,
