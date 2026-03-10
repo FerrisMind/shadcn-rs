@@ -1,5 +1,5 @@
-use lucide_icons::Icon as LucideIcon;
 use iced::Color;
+use lucide_icons::Icon as LucideIcon;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum FolderState {

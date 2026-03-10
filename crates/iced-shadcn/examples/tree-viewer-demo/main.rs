@@ -111,10 +111,16 @@ impl Default for Example {
         let mut skip_depth = None;
         for node in &example.all_nodes {
             if let Some(depth) = skip_depth {
-                if node.depth > depth { continue; } else { skip_depth = None; }
+                if node.depth > depth {
+                    continue;
+                } else {
+                    skip_depth = None;
+                }
             }
             visible.push(node.clone());
-            if node.is_folder && !node.is_expanded { skip_depth = Some(node.depth); }
+            if node.is_folder && !node.is_expanded {
+                skip_depth = Some(node.depth);
+            }
         }
         example.state.nodes = visible;
 
@@ -140,7 +146,7 @@ impl Example {
                 if let Some(state_index) = self.state.nodes.iter().position(|n| n.path == path) {
                     let is_expanded = !self.state.nodes[state_index].is_expanded;
                     self.state.nodes[state_index].is_expanded = is_expanded;
-                    
+
                     // Also update it in all_nodes for persistence
                     if let Some(all_node) = self.all_nodes.iter_mut().find(|n| n.path == path) {
                         all_node.is_expanded = is_expanded;
@@ -149,18 +155,19 @@ impl Example {
                     if is_expanded {
                         // O(K) Insertion: Find children in all_nodes and splice them in
                         let depth = self.state.nodes[state_index].depth;
-                        
+
                         // We need to find this folder's immediate children, and if those children are expanded folders, their children too.
                         // Since we just want to mimic the old `update_visible_nodes` but locally:
-                        let start_all = self.all_nodes.iter().position(|n| n.path == path).unwrap() + 1;
+                        let start_all =
+                            self.all_nodes.iter().position(|n| n.path == path).unwrap() + 1;
                         let mut children_to_insert = Vec::new();
                         let mut skip_depth = None;
-                        
+
                         for node in self.all_nodes.iter().skip(start_all) {
                             if node.depth <= depth {
                                 break; // Reached next sibling or uncle
                             }
-                            
+
                             if let Some(s_depth) = skip_depth {
                                 if node.depth > s_depth {
                                     continue;
@@ -168,24 +175,27 @@ impl Example {
                                     skip_depth = None;
                                 }
                             }
-                            
+
                             children_to_insert.push(node.clone());
-                            
+
                             if node.is_folder && !node.is_expanded {
                                 skip_depth = Some(node.depth);
                             }
                         }
-                        
-                        self.state.nodes.splice(state_index + 1..state_index + 1, children_to_insert);
 
+                        self.state
+                            .nodes
+                            .splice(state_index + 1..state_index + 1, children_to_insert);
                     } else {
                         // O(K) Deletion: Find how many visible descendants to remove
                         let depth = self.state.nodes[state_index].depth;
                         let mut end_index = state_index + 1;
-                        while end_index < self.state.nodes.len() && self.state.nodes[end_index].depth > depth {
+                        while end_index < self.state.nodes.len()
+                            && self.state.nodes[end_index].depth > depth
+                        {
                             end_index += 1;
                         }
-                        
+
                         // Drain to remove elements without reallocating
                         self.state.nodes.drain(state_index + 1..end_index);
                     }
@@ -203,16 +213,16 @@ impl Example {
                     if let Some(all_node) = self.all_nodes.iter_mut().find(|n| n.path == path) {
                         all_node.folder_state = FolderState::Loading;
                     }
-                    
+
                     let depth = self.state.nodes[state_index].depth;
                     let path_clone = path.clone();
-                    
+
                     // Simulate async lazy loading
                     return Task::perform(
                         async move {
                             // Simulate async loading without external runtime explicitly
                             std::thread::sleep(std::time::Duration::from_millis(500));
-                            
+
                             let mut new_nodes = Vec::new();
                             for i in 0..10_000 {
                                 new_nodes.push(FlatNode::file(
@@ -224,7 +234,7 @@ impl Example {
                             }
                             new_nodes
                         },
-                        move |children| Message::FolderLoaded(path.clone(), children)
+                        move |children| Message::FolderLoaded(path.clone(), children),
                     );
                 }
                 Task::none()
@@ -235,24 +245,23 @@ impl Example {
                     self.all_nodes[all_index].folder_state = FolderState::Loaded;
                     self.all_nodes[all_index].is_expanded = true;
                     // Because `all_nodes` holds the data structure, we splice it in
-                    self.all_nodes.splice(all_index + 1..all_index + 1, children.clone());
+                    self.all_nodes
+                        .splice(all_index + 1..all_index + 1, children.clone());
                 }
 
                 // 2. Update visible state
                 if let Some(state_index) = self.state.nodes.iter().position(|n| n.path == path) {
                     self.state.nodes[state_index].folder_state = FolderState::Loaded;
                     self.state.nodes[state_index].is_expanded = true;
-                    self.state.nodes.splice(state_index + 1..state_index + 1, children);
+                    self.state
+                        .nodes
+                        .splice(state_index + 1..state_index + 1, children);
                 }
-                
+
                 Task::none()
             }
-            Message::Hover(_path) => {
-                Task::none()
-            }
-            Message::Context(_path) => {
-                Task::none()
-            }
+            Message::Hover(_path) => Task::none(),
+            Message::Context(_path) => Task::none(),
         }
     }
     fn view(&self) -> Element<'_, Message> {

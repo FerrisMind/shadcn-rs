@@ -422,15 +422,13 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
                     &self.theme,
                 );
 
-                let hovered_toast = cursor
-                    .position_in(*viewport)
-                    .and_then(|pos| {
-                        preview
-                            .layout
-                            .iter()
-                            .find(|item| item.bounds.contains(pos))
-                            .map(|item| small_to_string(item.id, item.id_len))
-                    });
+                let hovered_toast = cursor.position_in(*viewport).and_then(|pos| {
+                    preview
+                        .layout
+                        .iter()
+                        .find(|item| item.bounds.contains(pos))
+                        .map(|item| small_to_string(item.id, item.id_len))
+                });
                 let visible_toasts = preview
                     .layout
                     .iter()
@@ -710,13 +708,12 @@ fn compute_layout(
     theme: &Theme,
 ) -> LayoutResult {
     let toast_style = theme.styles.toast;
-    let horizontal_margin = if viewport.width
-        < toast_style.max_width + toast_style.horizontal_margin * 2.0
-    {
-        toast_style.narrow_viewport_padding
-    } else {
-        toast_style.horizontal_margin
-    };
+    let horizontal_margin =
+        if viewport.width < toast_style.max_width + toast_style.horizontal_margin * 2.0 {
+            toast_style.narrow_viewport_padding
+        } else {
+            toast_style.horizontal_margin
+        };
     let max_width = toast_style
         .max_width
         .min((viewport.width - horizontal_margin * 2.0).max(180.0));
@@ -762,8 +759,9 @@ fn compute_layout(
                 0.0
             };
         let text_chrome_width = LEFT_PADDING + controls_reserved_width + ICON_WITH_GAP;
-        let width = estimate_toast_width(title, description, min_width, max_width, text_chrome_width)
-            .max(base_width.min(max_width));
+        let width =
+            estimate_toast_width(title, description, min_width, max_width, text_chrome_width)
+                .max(base_width.min(max_width));
         let text_width = (width - text_chrome_width).max(1.0);
         let title_lines = if title.is_empty() {
             0
@@ -1027,13 +1025,12 @@ fn draw_toasts(
         let description = entry.toast.description.as_deref().unwrap_or("");
 
         let text_x = bounds.x + 12.0 + 22.0;
-        let controls_reserved_width = 12.0
-            + if entry.toast.dismissible {
+        let controls_reserved_width =
+            12.0 + if entry.toast.dismissible {
                 TOAST_CLOSE_RESERVED_WIDTH
             } else {
                 0.0
-            }
-            + if entry.toast.expandable {
+            } + if entry.toast.expandable {
                 TOAST_CLOSE_RESERVED_WIDTH
             } else {
                 0.0
