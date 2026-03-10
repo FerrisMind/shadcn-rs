@@ -232,7 +232,11 @@ fn scroll_area_style(theme: &Theme, props: ScrollAreaProps, status: Status) -> S
             matches!(status, Status::Hovered { .. } | Status::Dragged { .. })
         }
     };
-    let rail = if show_scrollbars { rail_visible } else { rail_hidden };
+    let rail = if show_scrollbars {
+        rail_visible
+    } else {
+        rail_hidden
+    };
 
     let border_width = if props.bordered { 1.0 } else { 0.0 };
     let border_color = if props.bordered {

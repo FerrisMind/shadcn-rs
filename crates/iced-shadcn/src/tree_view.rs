@@ -1,8 +1,6 @@
 use iced::alignment::Vertical;
 use iced::border::Border;
-use iced::widget::{
-    Space, button as iced_button, column, container, lazy, row, rule, stack, text,
-};
+use iced::widget::{Space, button as iced_button, column, container, lazy, row, rule, stack, text};
 use iced::{Background, Color, Element, Font, Length, Padding};
 use lucide_icons::Icon as LucideIcon;
 
@@ -367,7 +365,7 @@ pub fn tree_view<'a, Message: Clone + 'static>(
             .scrollbar_margin(0.0),
         &theme,
     )
-        .into()
+    .into()
 }
 
 // ---------------------------------------------------------------------------

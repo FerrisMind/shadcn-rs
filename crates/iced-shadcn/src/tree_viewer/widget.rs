@@ -139,11 +139,7 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let size = limits.resolve(
-            Length::Fill,
-            Length::Fixed(self.total_height()),
-            Size::ZERO,
-        );
+        let size = limits.resolve(Length::Fill, Length::Fixed(self.total_height()), Size::ZERO);
 
         layout::Node::new(size)
     }
@@ -349,8 +345,8 @@ where
 
             // Draw Text
             let text_width = (clickable_bounds.width - (text_x - clickable_bounds.x)).max(0.0);
-            let width_limited_max =
-                max_chars_for_width(text_width, self.props.text_size).min(self.props.max_label_chars);
+            let width_limited_max = max_chars_for_width(text_width, self.props.text_size)
+                .min(self.props.max_label_chars);
             let display_name = truncate_ellipsis(&single_line_text(&node.name), width_limited_max);
             renderer.fill_text(
                 iced::advanced::text::Text {
