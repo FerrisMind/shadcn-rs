@@ -684,9 +684,13 @@ fn paint_icon_button(
     } else if let Some(icon_fn) = props.icon {
         icon_fn(painter, center, icon_size, text_color);
     } else {
-        let label_text = props.label.text().to_string();
-        if !label_text.is_empty() {
-            let text_galley = painter.layout_no_wrap(label_text, props.size.font(), text_color);
+        let text_galley = props.label.clone().into_galley(
+            ui,
+            Some(TextWrapMode::Extend),
+            f32::INFINITY,
+            TextStyle::Button,
+        );
+        if !text_galley.text().is_empty() {
             let text_pos = pos2(
                 center.x - text_galley.rect.width() / 2.0,
                 center.y - text_galley.rect.height() / 2.0,
