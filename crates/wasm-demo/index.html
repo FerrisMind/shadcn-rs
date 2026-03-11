@@ -12,7 +12,6 @@
         .btn.active { background: #fafafa; color: #18181b; border-color: #fafafa; }
         .view-container { flex-grow: 1; position: relative; width: 100%; height: 100%; }
         iframe { border: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -23,18 +22,25 @@
     </div>
 
     <div class="view-container">
-        <iframe id="frame-iced" src="iced/index.html"></iframe>
-        <iframe id="frame-egui" src="egui/index.html" class="hidden"></iframe>
+        <iframe id="app-frame" src="iced/index.html" title="WASM Demo"></iframe>
     </div>
 
     <script>
+        let currentApp = 'iced';
+        const loadedApps = new Set(['iced']);
+
         function switchApp(name) {
-            const icedFrame = document.getElementById('frame-iced');
-            const eguiFrame = document.getElementById('frame-egui');
-            
-            icedFrame.classList.toggle('hidden', name !== 'iced');
-            eguiFrame.classList.toggle('hidden', name !== 'egui');
-            
+            if (name === currentApp) return;
+
+            const frame = document.getElementById('app-frame');
+            if (!loadedApps.has(name)) {
+                frame.src = name + '/index.html';
+                loadedApps.add(name);
+            } else {
+                frame.src = name + '/index.html';
+            }
+            currentApp = name;
+
             document.getElementById('btn-iced').classList.toggle('active', name === 'iced');
             document.getElementById('btn-egui').classList.toggle('active', name === 'egui');
         }
