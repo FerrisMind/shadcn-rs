@@ -36,7 +36,14 @@ impl Default for Example {
                 true,
                 FolderState::Loaded,
             ),
-            FlatNode::folder("ui", "/src/components/ui", "ui", 2, false, FolderState::Loaded),
+            FlatNode::folder(
+                "ui",
+                "/src/components/ui",
+                "ui",
+                2,
+                false,
+                FolderState::Loaded,
+            ),
             FlatNode::file("button.rs", "/src/components/ui/button.rs", "button.rs", 3),
             FlatNode::file(
                 "tree_viewer.rs",

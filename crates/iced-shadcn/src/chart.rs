@@ -455,12 +455,7 @@ fn data_bounds(series: &[ChartSeries]) -> (f64, f64, f64, f64) {
     }
 }
 
-fn map_point(
-    x: f64,
-    y: f64,
-    bounds: Rectangle,
-    scale: ChartScale,
-) -> Point {
+fn map_point(x: f64, y: f64, bounds: Rectangle, scale: ChartScale) -> Point {
     let x_norm = ((x - scale.min_x) / scale.range_x).clamp(0.0, 1.0) as f32;
     let y_norm = ((y - scale.min_y) / scale.range_y).clamp(0.0, 1.0) as f32;
     Point::new(
