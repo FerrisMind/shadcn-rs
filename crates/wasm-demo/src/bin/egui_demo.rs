@@ -2,18 +2,27 @@ use eframe::{App, Frame, egui};
 use egui::{FontData, FontDefinitions, FontFamily};
 use egui_shadcn::tokens::ColorPalette;
 use egui_shadcn::{
-    Button, ButtonSize, ButtonVariant, CardProps, CardVariant, ControlSize,
-    ControlVariant, Input, InputSize, InputType, Label, Theme, card,
+    Button, ButtonVariant, CardProps, CardVariant, ControlSize, Input, InputType, Label, Theme,
+    card,
 };
-use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
+use lucide_icons::LUCIDE_FONT_BYTES;
+use wasm_bindgen::JsCast;
 
 fn main() -> eframe::Result {
     let web_options = eframe::WebOptions::default();
-    
+
     wasm_bindgen_futures::spawn_local(async {
+        let window = web_sys::window().expect("window is not available");
+        let document = window.document().expect("document is not available");
+        let canvas = document
+            .get_element_by_id("egui-canvas")
+            .expect("egui-canvas element was not found")
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .expect("egui-canvas is not an HtmlCanvasElement");
+
         eframe::WebRunner::new()
             .start(
-                "egui-canvas",
+                canvas,
                 web_options,
                 Box::new(|_cc| {
                     ensure_lucide_font(&_cc.egui_ctx);

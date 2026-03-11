@@ -135,7 +135,7 @@ fn progress_radius(theme: &Theme, props: ProgressProps) -> f32 {
 
 #[derive(Debug, Default)]
 struct ProgressState {
-    start_time: Option<std::time::Instant>,
+    start_time: Option<iced::time::Instant>,
     phase: f32,
 }
 
@@ -210,7 +210,7 @@ where
 
             if let Some(start) = state.start_time {
                 let elapsed = now.saturating_duration_since(start);
-                let duration = std::time::Duration::from_millis(self.props.duration_ms as u64);
+                let duration = iced::time::Duration::from_millis(self.props.duration_ms as u64);
                 state.phase = (elapsed.as_secs_f32() / duration.as_secs_f32()) % 1.0;
             }
 

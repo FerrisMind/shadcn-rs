@@ -12,6 +12,7 @@ egui-shadcn = { path = "../egui-shadcn" }
 log = "0.4"
 wasm-bindgen = "0.2.114"
 wasm-bindgen-futures = "0.4.64"
+web-sys = { version = "0.3.82", features = ["Window", "Document", "HtmlCanvasElement"] }
 lucide-icons = "0.575.0"
 
 # Iced WASM specific

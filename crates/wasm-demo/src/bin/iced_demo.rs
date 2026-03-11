@@ -1,62 +1,63 @@
+use iced::border::Border;
 use iced::widget::{column, container, text};
-use iced::{Alignment, Element, Length, Sandbox, Settings};
-use iced_shadcn::{CardProps, CardVariant, Theme, card};
+use iced::{Background, Element, Length};
+use iced_shadcn::{CardProps, CardSize, CardVariant, Theme, card};
 
 pub fn main() -> iced::Result {
-    IcedApp::run(Settings::default())
+    iced::application(Example::default, Example::update, Example::view).run()
 }
 
-struct IcedApp {
+#[derive(Default)]
+struct Example {
     theme: Theme,
 }
 
-impl Sandbox for IcedApp {
-    type Message = ();
+impl Example {
+    fn update(&mut self, _message: ()) {}
 
-    fn new() -> Self {
-        Self {
-            theme: Theme::default(),
-        }
-    }
-
-    fn title(&self) -> String {
-        String::from("Iced Shadcn Card Demo")
-    }
-
-    fn update(&mut self, _message: Self::Message) {}
-
-    fn view(&self) -> Element<Self::Message> {
+    fn view(&self) -> Element<'_, ()> {
         let theme = &self.theme;
-        
+        let content = card(
+            column![
+                text("Login to account").size(18),
+                text("Enter your email below to login.").size(13),
+                text("m@example.com").size(14),
+                text("••••••••").size(14),
+            ]
+            .spacing(10),
+            CardProps::new()
+                .variant(CardVariant::Surface)
+                .size(CardSize::Size3),
+            theme,
+        )
+        .width(Length::Fixed(350.0));
+
+        let background = theme.palette.background;
+        let panel = theme.palette.card;
+        let border = theme.palette.border;
+        let radius = theme.radius.md;
+
         container(
-            card(
-                column![
-                    text("Login to account").size(18).bold(),
-                    text("Enter your email below to login.").size(13),
-                    column![
-                        text("Email").size(12),
-                        // Note: Iced Shadcn might have Input too, but for now simple Card content
-                        text("m@example.com").size(14),
-                    ]
-                    .spacing(8),
-                    column![
-                        text("Password").size(12),
-                        text("••••••••").size(14),
-                    ]
-                    .spacing(8),
-                ]
-                .spacing(20),
-                CardProps::new()
-                    .variant(CardVariant::Outline)
-                    .padding(24.0),
-                theme,
-            )
-            .width(Length::Fixed(350.0))
+            container(content)
+                .padding(16)
+                .style(move |_theme| iced::widget::container::Style {
+                    background: Some(Background::Color(panel)),
+                    border: Border {
+                        radius: radius.into(),
+                        width: 1.0,
+                        color: border,
+                    },
+                    ..iced::widget::container::Style::default()
+                }),
         )
         .width(Length::Fill)
         .height(Length::Fill)
-        .center_x()
-        .center_y()
+        .center_x(Length::Fill)
+        .center_y(Length::Fill)
+        .style(move |_theme| iced::widget::container::Style {
+            background: Some(Background::Color(background)),
+            ..iced::widget::container::Style::default()
+        })
         .into()
     }
 }

@@ -193,7 +193,7 @@ impl Toaster {
             toast.id = next_toast_id();
         }
 
-        let now = std::time::Instant::now();
+        let now = iced::time::Instant::now();
         let toast_id = toast.id.clone();
 
         if let Ok(mut state) = self.state.lock() {
@@ -205,7 +205,7 @@ impl Toaster {
                 entry.toast = toast.clone();
                 entry.created_at = now;
                 entry.paused_at = None;
-                entry.paused_total = std::time::Duration::ZERO;
+                entry.paused_total = iced::time::Duration::ZERO;
                 if !entry.toast.expandable {
                     entry.expanded = false;
                 }
@@ -221,7 +221,7 @@ impl Toaster {
     }
 
     pub fn dismiss(&self, toast_id: &str) {
-        let now = std::time::Instant::now();
+        let now = iced::time::Instant::now();
         if let Ok(mut state) = self.state.lock() {
             for entry in &mut state.entries {
                 if entry.toast.id == toast_id {
@@ -233,7 +233,7 @@ impl Toaster {
     }
 
     pub fn dismiss_all(&self) {
-        let now = std::time::Instant::now();
+        let now = iced::time::Instant::now();
         if let Ok(mut state) = self.state.lock() {
             for entry in &mut state.entries {
                 entry.open = false;
@@ -276,21 +276,21 @@ impl Toaster {
 #[derive(Clone, Debug)]
 struct ToastEntry {
     toast: Toast,
-    created_at: std::time::Instant,
-    paused_at: Option<std::time::Instant>,
-    paused_total: std::time::Duration,
+    created_at: iced::time::Instant,
+    paused_at: Option<iced::time::Instant>,
+    paused_total: iced::time::Duration,
     expanded: bool,
     open: bool,
-    dismissed_at: Option<std::time::Instant>,
+    dismissed_at: Option<iced::time::Instant>,
 }
 
 impl ToastEntry {
-    fn new(toast: Toast, now: std::time::Instant) -> Self {
+    fn new(toast: Toast, now: iced::time::Instant) -> Self {
         Self {
             toast,
             created_at: now,
             paused_at: None,
-            paused_total: std::time::Duration::ZERO,
+            paused_total: iced::time::Duration::ZERO,
             expanded: false,
             open: true,
             dismissed_at: None,
@@ -339,7 +339,7 @@ fn small_to_string(buf: [u8; 24], len: usize) -> String {
 
 #[derive(Debug)]
 struct ToasterOverlayState {
-    last_redraw: Option<std::time::Instant>,
+    last_redraw: Option<iced::time::Instant>,
     layout: Vec<ToastLayout>,
     window_focused: bool,
 }
@@ -459,7 +459,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerPressed { .. }) => {
                 if state.last_redraw.is_none() {
-                    state.last_redraw = Some(std::time::Instant::now());
+                    state.last_redraw = Some(iced::time::Instant::now());
                 }
 
                 if let Some(pos) = cursor.position_in(*viewport) {
@@ -526,7 +526,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for ToasterOverlay {
         }
 
         let state = tree.state.downcast_ref::<ToasterOverlayState>();
-        let now = state.last_redraw.unwrap_or_else(std::time::Instant::now);
+        let now = state.last_redraw.unwrap_or_else(iced::time::Instant::now);
         let (entries, position) = match self.toaster.state.lock() {
             Ok(toaster) => (toaster.entries.clone(), toaster.position),
             Err(_) => return,
@@ -558,13 +558,13 @@ impl<'a, Message: 'a> From<ToasterOverlay> for Element<'a, Message> {
 
 fn update_toasts(
     state: &mut ToasterState,
-    now: std::time::Instant,
+    now: iced::time::Instant,
     theme: &Theme,
     visible_toasts: &[String],
     hovered_toast: Option<&str>,
     window_focused: bool,
 ) {
-    let anim = std::time::Duration::from_millis(theme.styles.toast.animation_ms);
+    let anim = iced::time::Duration::from_millis(theme.styles.toast.animation_ms);
 
     for entry in &mut state.entries {
         let is_visible = visible_toasts.iter().any(|id| id == &entry.toast.id);
@@ -585,7 +585,7 @@ fn update_toasts(
             && entry.paused_at.is_none()
             && let Some(duration_ms) = entry.toast.duration_ms
         {
-            let duration = std::time::Duration::from_millis(duration_ms);
+            let duration = iced::time::Duration::from_millis(duration_ms);
             let elapsed = now
                 .saturating_duration_since(entry.created_at)
                 .saturating_sub(entry.paused_total);
@@ -707,7 +707,7 @@ fn compute_layout(
     viewport: Rectangle,
     entries: &[ToastEntry],
     position: ToastPosition,
-    now: std::time::Instant,
+    now: iced::time::Instant,
     theme: &Theme,
 ) -> LayoutResult {
     let toast_style = theme.styles.toast;
@@ -871,7 +871,7 @@ fn compute_layout(
             }
         };
 
-        let anim = std::time::Duration::from_millis(toast_style.animation_ms);
+        let anim = iced::time::Duration::from_millis(toast_style.animation_ms);
         let mut anim_t = 1.0;
         if entry.open {
             let elapsed = now.saturating_duration_since(entry.created_at);
@@ -946,7 +946,21 @@ fn draw_toasts(
     layout: &[ToastLayout],
     cursor: mouse::Cursor,
     viewport: &Rectangle,
-    now: std::time::Instant,
+    now: iced::time::Instant,
+) {
+    for (entry, layout) in entries.iter().zip(layout.iter()) {
+        draw_toast(renderer, theme, entry, layout, cursor, viewport, now);
+    }
+}
+
+fn draw_toast(
+    renderer: &mut iced::Renderer,
+    theme: &Theme,
+    entry: &ToastEntry,
+    layout: &ToastLayout,
+    cursor: mouse::Cursor,
+    viewport: &Rectangle,
+    now: iced::time::Instant,
 ) {
     let font = renderer.default_font();
     let icon_font = Font::with_name("lucide");
@@ -956,225 +970,224 @@ fn draw_toasts(
     let border_color = theme.palette.border;
     let radius = theme.radius.md.max(0.0);
 
-    for (entry, layout) in entries.iter().zip(layout.iter()) {
-        let bounds = layout.bounds;
-        if !bounds.intersects(viewport) {
-            continue;
-        }
+    let bounds = layout.bounds;
+    if !bounds.intersects(viewport) {
+        return;
+    }
 
-        let anim = std::time::Duration::from_millis(theme.styles.toast.animation_ms);
-        let mut alpha = 1.0;
-        if entry.open {
-            let elapsed = now.saturating_duration_since(entry.created_at);
-            let raw_t = (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
-            alpha = ease_out_cubic(raw_t);
-        } else if let Some(dismissed) = entry.dismissed_at {
-            let elapsed = now.saturating_duration_since(dismissed);
-            alpha = 1.0 - (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
-        }
+    let anim = iced::time::Duration::from_millis(theme.styles.toast.animation_ms);
+    let mut alpha = 1.0;
+    if entry.open {
+        let elapsed = now.saturating_duration_since(entry.created_at);
+        let raw_t = (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
+        alpha = ease_out_cubic(raw_t);
+    } else if let Some(dismissed) = entry.dismissed_at {
+        let elapsed = now.saturating_duration_since(dismissed);
+        alpha = 1.0 - (elapsed.as_secs_f32() / anim.as_secs_f32()).clamp(0.0, 1.0);
+    }
 
-        let style = renderer::Quad {
-            bounds,
-            border: Border {
-                color: apply_opacity(border_color, alpha),
-                width: theme.styles.menu.border_width,
-                radius: radius.into(),
+    let style = renderer::Quad {
+        bounds,
+        border: Border {
+            color: apply_opacity(border_color, alpha),
+            width: theme.styles.menu.border_width,
+            radius: radius.into(),
+        },
+        shadow: Shadow {
+            color: apply_opacity(
+                theme.palette.foreground,
+                theme.styles.toast.shadow.opacity * alpha,
+            ),
+            offset: Vector::new(0.0, theme.styles.toast.shadow.offset_y),
+            blur_radius: theme.styles.toast.shadow.blur_radius,
+        },
+        ..renderer::Quad::default()
+    };
+
+    renderer.fill_quad(
+        style,
+        Background::Color(apply_opacity(
+            match background {
+                Background::Color(c) => c,
+                _ => theme.palette.popover,
             },
-            shadow: Shadow {
-                color: apply_opacity(
-                    theme.palette.foreground,
-                    theme.styles.toast.shadow.opacity * alpha,
-                ),
-                offset: Vector::new(0.0, theme.styles.toast.shadow.offset_y),
-                blur_radius: theme.styles.toast.shadow.blur_radius,
-            },
-            ..renderer::Quad::default()
-        };
+            alpha,
+        )),
+    );
 
-        renderer.fill_quad(
-            style,
-            Background::Color(apply_opacity(
-                match background {
-                    Background::Color(c) => c,
-                    _ => theme.palette.popover,
-                },
-                alpha,
-            )),
+    let icon_color = variant_color(entry.toast.variant, theme);
+    if let Some(icon) = variant_icon(entry.toast.variant) {
+        renderer.fill_text(
+            text::Text {
+                content: char::from(icon).to_string(),
+                size: 18.0.into(),
+                line_height: text::LineHeight::Absolute(18.0.into()),
+                font: icon_font,
+                bounds: Size::new(bounds.width, bounds.height),
+                align_x: text::Alignment::Left,
+                align_y: iced::alignment::Vertical::Top,
+                shaping: text::Shaping::Basic,
+                wrapping: text::Wrapping::default(),
+            },
+            Point::new(bounds.x + 12.0, bounds.y + 12.0),
+            apply_opacity(icon_color, alpha),
+            *viewport,
         );
+    }
 
-        let icon_color = variant_color(entry.toast.variant, theme);
-        if let Some(icon) = variant_icon(entry.toast.variant) {
-            renderer.fill_text(
-                text::Text {
-                    content: char::from(icon).to_string(),
-                    size: 18.0.into(),
-                    line_height: text::LineHeight::Absolute(18.0.into()),
-                    font: icon_font,
-                    bounds: Size::new(bounds.width, bounds.height),
-                    align_x: text::Alignment::Left,
-                    align_y: iced::alignment::Vertical::Top,
-                    shaping: text::Shaping::Basic,
-                    wrapping: text::Wrapping::default(),
-                },
-                Point::new(bounds.x + 12.0, bounds.y + 12.0),
-                apply_opacity(icon_color, alpha),
-                *viewport,
-            );
-        }
+    let title = entry.toast.title.as_deref().unwrap_or("");
+    let description = entry.toast.description.as_deref().unwrap_or("");
 
-        let title = entry.toast.title.as_deref().unwrap_or("");
-        let description = entry.toast.description.as_deref().unwrap_or("");
-
-        let text_x = bounds.x + 12.0 + 22.0;
-        let controls_reserved_width =
-            12.0 + if entry.toast.dismissible {
-                TOAST_CLOSE_RESERVED_WIDTH
-            } else {
-                0.0
-            } + if entry.toast.expandable {
-                TOAST_CLOSE_RESERVED_WIDTH
-            } else {
-                0.0
-            };
-        let text_width = (bounds.width - 12.0 - controls_reserved_width - 22.0).max(0.0);
-        let title_text = if entry.expanded {
-            title.to_string()
+    let text_x = bounds.x + 12.0 + 22.0;
+    let controls_reserved_width = 12.0
+        + if entry.toast.dismissible {
+            TOAST_CLOSE_RESERVED_WIDTH
         } else {
-            let title_max_chars = estimate_max_chars_per_line(text_width, 14.0);
-            truncate_for_single_line(title, title_max_chars)
+            0.0
+        }
+        + if entry.toast.expandable {
+            TOAST_CLOSE_RESERVED_WIDTH
+        } else {
+            0.0
         };
-        let title_wrapping = if entry.expanded {
+    let text_width = (bounds.width - 12.0 - controls_reserved_width - 22.0).max(0.0);
+    let title_text = if entry.expanded {
+        title.to_string()
+    } else {
+        let title_max_chars = estimate_max_chars_per_line(text_width, 14.0);
+        truncate_for_single_line(title, title_max_chars)
+    };
+    let title_wrapping = if entry.expanded {
+        text::Wrapping::Word
+    } else {
+        text::Wrapping::None
+    };
+    let title_lines = if title.is_empty() {
+        0
+    } else if entry.expanded {
+        let max_chars = estimate_max_chars_per_line(text_width, 14.0);
+        estimate_wrapped_lines(title, max_chars)
+    } else {
+        1
+    };
+    let title_height = (20.0 * title_lines as f32).max(20.0);
+
+    renderer.fill_text(
+        text::Text {
+            content: title_text,
+            size: 14.0.into(),
+            line_height: text::LineHeight::Absolute(20.0.into()),
+            font,
+            bounds: Size::new(text_width, title_height),
+            align_x: text::Alignment::Left,
+            align_y: iced::alignment::Vertical::Top,
+            shaping: text::Shaping::Basic,
+            wrapping: title_wrapping,
+        },
+        Point::new(text_x, bounds.y + 12.0),
+        apply_opacity(text_color, alpha),
+        *viewport,
+    );
+
+    if !description.is_empty() {
+        let description_y = bounds.y + 12.0 + title_height + 4.0;
+        let description_height = (bounds.height - (description_y - bounds.y) - 12.0).max(0.0);
+        let description_text = if entry.expanded {
+            description.to_string()
+        } else {
+            let desc_max_chars = estimate_max_chars_per_line(text_width, 12.0);
+            truncate_for_single_line(description, desc_max_chars)
+        };
+        let description_wrapping = if entry.expanded {
             text::Wrapping::Word
         } else {
             text::Wrapping::None
         };
-        let title_lines = if title.is_empty() {
-            0
-        } else if entry.expanded {
-            let max_chars = estimate_max_chars_per_line(text_width, 14.0);
-            estimate_wrapped_lines(title, max_chars)
-        } else {
-            1
-        };
-        let title_height = (20.0 * title_lines as f32).max(20.0);
-
         renderer.fill_text(
             text::Text {
-                content: title_text,
-                size: 14.0.into(),
-                line_height: text::LineHeight::Absolute(20.0.into()),
+                content: description_text,
+                size: 12.0.into(),
+                line_height: text::LineHeight::Absolute(16.0.into()),
                 font,
-                bounds: Size::new(text_width, title_height),
+                bounds: Size::new(text_width, description_height),
                 align_x: text::Alignment::Left,
                 align_y: iced::alignment::Vertical::Top,
                 shaping: text::Shaping::Basic,
-                wrapping: title_wrapping,
+                wrapping: description_wrapping,
             },
-            Point::new(text_x, bounds.y + 12.0),
-            apply_opacity(text_color, alpha),
+            Point::new(text_x, description_y),
+            apply_opacity(apply_opacity(text_color, 0.8), alpha),
             *viewport,
         );
+    }
 
-        if !description.is_empty() {
-            let description_y = bounds.y + 12.0 + title_height + 4.0;
-            let description_height = (bounds.height - (description_y - bounds.y) - 12.0).max(0.0);
-            let description_text = if entry.expanded {
-                description.to_string()
-            } else {
-                let desc_max_chars = estimate_max_chars_per_line(text_width, 12.0);
-                truncate_for_single_line(description, desc_max_chars)
-            };
-            let description_wrapping = if entry.expanded {
-                text::Wrapping::Word
-            } else {
-                text::Wrapping::None
-            };
-            renderer.fill_text(
-                text::Text {
-                    content: description_text,
-                    size: 12.0.into(),
-                    line_height: text::LineHeight::Absolute(16.0.into()),
-                    font,
-                    bounds: Size::new(text_width, description_height),
-                    align_x: text::Alignment::Left,
-                    align_y: iced::alignment::Vertical::Top,
-                    shaping: text::Shaping::Basic,
-                    wrapping: description_wrapping,
-                },
-                Point::new(text_x, description_y),
-                apply_opacity(apply_opacity(text_color, 0.8), alpha),
-                *viewport,
-            );
-        }
+    if layout.expandable {
+        let toggle = layout.toggle_bounds;
+        let toggle_hovered = cursor
+            .position_in(*viewport)
+            .is_some_and(|pos| toggle.contains(pos));
+        let icon = if layout.expanded {
+            LucideIcon::ChevronUp
+        } else {
+            LucideIcon::ChevronDown
+        };
+        let toggle_color = if toggle_hovered {
+            apply_opacity(text_color, 0.95 * alpha)
+        } else {
+            apply_opacity(text_color, 0.75 * alpha)
+        };
+        renderer.fill_text(
+            text::Text {
+                content: char::from(icon).to_string(),
+                size: theme.styles.toast.close_size.into(),
+                line_height: text::LineHeight::Absolute(theme.styles.toast.close_size.into()),
+                font: icon_font,
+                bounds: Size::new(toggle.width, toggle.height),
+                align_x: text::Alignment::Left,
+                align_y: iced::alignment::Vertical::Top,
+                shaping: text::Shaping::Basic,
+                wrapping: text::Wrapping::default(),
+            },
+            Point::new(
+                toggle.x + theme.styles.toast.close_glyph_nudge_x,
+                toggle.y + theme.styles.toast.close_glyph_nudge_y,
+            ),
+            toggle_color,
+            *viewport,
+        );
+    }
 
-        if layout.expandable {
-            let toggle = layout.toggle_bounds;
-            let toggle_hovered = cursor
-                .position_in(*viewport)
-                .is_some_and(|pos| toggle.contains(pos));
-            let icon = if layout.expanded {
-                LucideIcon::ChevronUp
-            } else {
-                LucideIcon::ChevronDown
-            };
-            let toggle_color = if toggle_hovered {
-                apply_opacity(text_color, 0.95 * alpha)
-            } else {
-                apply_opacity(text_color, 0.75 * alpha)
-            };
-            renderer.fill_text(
-                text::Text {
-                    content: char::from(icon).to_string(),
-                    size: theme.styles.toast.close_size.into(),
-                    line_height: text::LineHeight::Absolute(theme.styles.toast.close_size.into()),
-                    font: icon_font,
-                    bounds: Size::new(toggle.width, toggle.height),
-                    align_x: text::Alignment::Left,
-                    align_y: iced::alignment::Vertical::Top,
-                    shaping: text::Shaping::Basic,
-                    wrapping: text::Wrapping::default(),
-                },
-                Point::new(
-                    toggle.x + theme.styles.toast.close_glyph_nudge_x,
-                    toggle.y + theme.styles.toast.close_glyph_nudge_y,
-                ),
-                toggle_color,
-                *viewport,
-            );
-        }
+    if entry.toast.dismissible {
+        let close = layout.close_bounds;
+        let is_hovered = cursor
+            .position_in(*viewport)
+            .is_some_and(|pos| close.contains(pos));
 
-        if entry.toast.dismissible {
-            let close = layout.close_bounds;
-            let is_hovered = cursor
-                .position_in(*viewport)
-                .is_some_and(|pos| close.contains(pos));
+        let icon = LucideIcon::X;
+        let close_color = if is_hovered {
+            apply_opacity(text_color, 0.95 * alpha)
+        } else {
+            apply_opacity(text_color, 0.75 * alpha)
+        };
 
-            let icon = LucideIcon::X;
-            let close_color = if is_hovered {
-                apply_opacity(text_color, 0.95 * alpha)
-            } else {
-                apply_opacity(text_color, 0.75 * alpha)
-            };
-
-            renderer.fill_text(
-                text::Text {
-                    content: char::from(icon).to_string(),
-                    size: theme.styles.toast.close_size.into(),
-                    line_height: text::LineHeight::Absolute(theme.styles.toast.close_size.into()),
-                    font: icon_font,
-                    bounds: Size::new(close.width, close.height),
-                    align_x: text::Alignment::Left,
-                    align_y: iced::alignment::Vertical::Top,
-                    shaping: text::Shaping::Basic,
-                    wrapping: text::Wrapping::default(),
-                },
-                Point::new(
-                    close.x + theme.styles.toast.close_glyph_nudge_x,
-                    close.y + theme.styles.toast.close_glyph_nudge_y,
-                ),
-                close_color,
-                *viewport,
-            );
-        }
+        renderer.fill_text(
+            text::Text {
+                content: char::from(icon).to_string(),
+                size: theme.styles.toast.close_size.into(),
+                line_height: text::LineHeight::Absolute(theme.styles.toast.close_size.into()),
+                font: icon_font,
+                bounds: Size::new(close.width, close.height),
+                align_x: text::Alignment::Left,
+                align_y: iced::alignment::Vertical::Top,
+                shaping: text::Shaping::Basic,
+                wrapping: text::Wrapping::default(),
+            },
+            Point::new(
+                close.x + theme.styles.toast.close_glyph_nudge_x,
+                close.y + theme.styles.toast.close_glyph_nudge_y,
+            ),
+            close_color,
+            *viewport,
+        );
     }
 }
