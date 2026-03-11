@@ -448,10 +448,10 @@ where
 
         let is_disabled = disabled || loading || (on_press.is_none() && href.is_none());
 
-        if let Some(msg) = on_press {
-            if !is_disabled {
-                widget = widget.on_press(msg);
-            }
+        if let Some(msg) = on_press
+            && !is_disabled
+        {
+            widget = widget.on_press(msg);
         }
 
         // Render using existing style logic in iced-shadcn
