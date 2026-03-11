@@ -42,16 +42,31 @@
             overlay.style.font = "12px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
             overlay.style.zIndex = "2147483647";
             overlay.style.whiteSpace = "pre-wrap";
-            overlay.style.pointerEvents = "none";
+            overlay.style.pointerEvents = "auto";
+            overlay.style.userSelect = "text";
 
             const title = document.createElement("div");
             title.style.color = "#f4f4f5";
             title.style.fontWeight = "700";
             title.style.marginBottom = "6px";
             title.textContent = "ICED DEBUG OVERLAY";
+            
+            const clearBtn = document.createElement("button");
+            clearBtn.textContent = "clear";
+            clearBtn.style.marginLeft = "8px";
+            clearBtn.style.font = "11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
+            clearBtn.style.background = "#27272a";
+            clearBtn.style.color = "#e4e4e7";
+            clearBtn.style.border = "1px solid #3f3f46";
+            clearBtn.style.borderRadius = "4px";
+            clearBtn.style.cursor = "pointer";
+            clearBtn.style.pointerEvents = "auto";
+            title.appendChild(clearBtn);
+
             overlay.appendChild(title);
 
             const logBox = document.createElement("div");
+            logBox.style.pointerEvents = "auto";
             overlay.appendChild(logBox);
 
             function append(line) {
@@ -64,10 +79,21 @@
                 }
             }
 
+            clearBtn.addEventListener("click", function () {
+                logBox.textContent = "";
+                append("log cleared");
+            });
+
             function canvasState() {
                 const list = Array.from(document.querySelectorAll("canvas"));
                 if (list.length === 0) {
-                    return "canvas: none";
+                    return (
+                        "canvas: none" +
+                        " | viewport=" +
+                        window.innerWidth +
+                        "x" +
+                        window.innerHeight
+                    );
                 }
                 const parts = list.map(function (c, i) {
                     const r = c.getBoundingClientRect();
@@ -81,10 +107,40 @@
                         " attr=" +
                         (c.getAttribute("width") || "?") +
                         "x" +
-                        (c.getAttribute("height") || "?")
+                        (c.getAttribute("height") || "?") +
+                        " style=" +
+                        (c.getAttribute("style") || "")
                     );
                 });
-                return "canvas: " + parts.join(" | ");
+                return (
+                    "canvas: " +
+                    parts.join(" | ") +
+                    " | viewport=" +
+                    window.innerWidth +
+                    "x" +
+                    window.innerHeight
+                );
+            }
+
+            function enforceCanvasSize() {
+                const canvases = Array.from(document.querySelectorAll("canvas"));
+                if (canvases.length === 0) return;
+
+                const targetW = Math.max(1, Math.floor(window.innerWidth));
+                const targetH = Math.max(1, Math.floor(window.innerHeight));
+
+                canvases.forEach(function (c) {
+                    c.style.position = "fixed";
+                    c.style.left = "0";
+                    c.style.top = "0";
+                    c.style.width = "100vw";
+                    c.style.height = "100vh";
+                    c.style.display = "block";
+                    c.style.backgroundColor = "#09090b";
+
+                    if (c.width !== targetW) c.width = targetW;
+                    if (c.height !== targetH) c.height = targetH;
+                });
             }
 
             document.addEventListener("DOMContentLoaded", function () {
@@ -122,12 +178,20 @@
 
             window.addEventListener("TrunkApplicationStarted", function () {
                 append("TrunkApplicationStarted");
+                enforceCanvasSize();
                 append(canvasState());
             });
 
             setInterval(function () {
+                enforceCanvasSize();
                 append(canvasState());
             }, 2000);
+
+            window.addEventListener("resize", function () {
+                enforceCanvasSize();
+                append("resize");
+                append(canvasState());
+            });
         })();
     </script>
 </body>
