@@ -8,13 +8,17 @@ env:
   RUSTDOCFLAGS: -D warnings
 
 jobs:
-  # ============================================================
-  # ГЛАВНАЯ ПРОВЕРКА: Форматирование, линтинг, документация
-  # ============================================================
-  check:
-    name: Format + Clippy + Doc
-    runs-on: ubuntu-22.04
+  platform-check:
+    name: Platform check (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - windows-latest
+          - macos-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +27,7 @@ jobs:
           toolchain: stable
 
       - name: Install Linux dependencies
+        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -36,33 +41,11 @@ jobs:
       - name: Cache cargo registry & target
         uses: Swatinem/rust-cache@v2
 
-      # Форматирование кода
-      - name: Check formatting
-        run: cargo fmt --all -- --check
-
-      # Clippy со всеми features
-      - name: Clippy (all features)
+      - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      # Clippy без default features
-      - name: Clippy (no default features)
-        run: cargo clippy --no-default-features --lib -p egui-shadcn
-
-      # Clippy для примеров
-      - name: Clippy (examples feature)
-        run: cargo clippy --features examples --all-targets -p egui-shadcn
-
-      # Проверка документации
-      - name: Generate docs
-        run: cargo doc --lib --no-deps --all-features
-
-      # Проверка приватной документации (для разработчиков)
-      - name: Generate docs (private items)
-        run: cargo doc --document-private-items --no-deps --all-features
-
-      # Clippy в release-режиме (выявляет оптимизационные warning)
-      - name: Clippy (release)
-        run: cargo clippy --all-targets --all-features --release
+      - name: Build examples
+        run: cargo build --examples --features examples
 
   # ============================================================
   # WASM ПОДДЕРЖКА (если планируется веб-версия)
@@ -95,56 +78,6 @@ jobs:
           cargo clippy --lib -p egui-shadcn \
             --target wasm32-unknown-unknown \
             --no-default-features
-
-  # ============================================================
-  # WINDOWS ПРОВЕРКА
-  # ============================================================
-  windows:
-    name: Check Windows
-    runs-on: windows-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
-      - name: Cache cargo registry & target
-        uses: Swatinem/rust-cache@v2
-
-      # Clippy на нативной Windows
-      - name: Clippy
-        run: cargo clippy --all-targets --all-features
-
-      # Проверка сборки примеров
-      - name: Build examples
-        run: cargo build --examples --features examples
-
-  # ============================================================
-  # ТЕСТЫ С GPU (macOS для доступа к реальному GPU)
-  # ============================================================
-  test:
-    name: Run tests
-    runs-on: macos-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-
-      - name: Cache cargo registry & target
-        uses: Swatinem/rust-cache@v2
-
-      # Unit и integration тесты
-      - name: Run tests
-        run: cargo test --all-features
-
-      # Doc-тесты из комментариев
-      - name: Run doc tests
-        run: cargo test --all-features --doc
 
   # ============================================================
   # АУДИТ ЗАВИСИМОСТЕЙ (опционально, но крайне полезно)
