@@ -4,6 +4,10 @@
   <img src="https://raw.githubusercontent.com/FerrisMind/shadcn-rs/master/crates/egui-shadcn/assets/icons/shadcn-egui/icon.svg" width="200" alt="shadcn-egui logo" />
 </p>
 
+> [!WARNING]
+> AVISO: a API do `egui-shadcn` é atualmente instável e pode mudar entre versões, incluindo breaking changes.
+> Fixe versões exatas das dependências e revise as release notes antes de atualizar.
+
 ## Visão geral
 `egui-shadcn` é um conjunto de componentes de formulário para egui inspirados no shadcn/ui. Replica variantes e tamanhos do shadcn e expõe tokens de tema para visuais consistentes.
 
@@ -48,4 +52,3 @@ Os estados visuais vêm de `Theme::control` e `Theme::input`, baseados em `Color
 - `select` agora usa `SelectProps`: `select(ui, &theme, SelectProps { ... })`.
 - `textarea` usa `TextareaProps`; passe o placeholder como `WidgetText` (`"text".into()`).
 - `SelectProps` inclui `is_invalid`; defina como `false` para o comportamento anterior.
-

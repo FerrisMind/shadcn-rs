@@ -4,6 +4,10 @@
   <img src="https://raw.githubusercontent.com/FerrisMind/shadcn-rs/master/crates/egui-shadcn/assets/icons/shadcn-egui/icon.svg" width="200" alt="shadcn-egui logo" />
 </p>
 
+> [!WARNING]
+> ВНИМАНИЕ: API `egui-shadcn` сейчас нестабилен и может меняться от версии к версии, включая breaking changes.
+> Фиксируйте точные версии зависимостей и проверяйте release notes перед обновлением.
+
 ## Обзор
 `egui-shadcn` — набор компонентов ввода для egui в стиле shadcn/ui. Повторяет варианты и размеры shadcn и использует токены темы для единых визуальных состояний.
 

@@ -14,6 +14,10 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> [!WARNING]
+> ВНИМАНИЕ: API `shadcn-rs` сейчас нестабилен и может меняться от версии к версии, включая breaking changes.
+> Фиксируйте точные версии зависимостей и проверяйте release notes перед обновлением.
+
 ## Кратко
 - Workspace под библиотеки в стиле shadcn на Rust.
 
@@ -30,6 +34,5 @@ MIT (см. workspace `Cargo.toml`).
 - Lucide Icons — набор иконок, используемый через `lucide-icons`.
 - Radix UI — паттерны взаимодействия и доступности.
 - shadcn/ui — дизайн-язык и вдохновение для компонентов.
-
 
 

@@ -14,6 +14,10 @@
 
 ---
 
+> [!WARNING]
+> API STABILITY NOTICE: `egui-shadcn` API is currently unstable and may change between versions, including breaking changes.
+> Always pin exact crate versions and review release notes before upgrading.
+
 ## Overview
 
 `egui-shadcn` provides a set of form components for [egui](https://github.com/emilk/egui) styled after [shadcn/ui](https://ui.shadcn.com). It mirrors shadcn variants and sizes while exposing theme tokens for consistent visuals and per-control customization.

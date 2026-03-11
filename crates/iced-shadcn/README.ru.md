@@ -4,6 +4,10 @@
   <img src="https://raw.githubusercontent.com/FerrisMind/shadcn-rs/master/crates/iced-shadcn/assets/icons/shadcn-iced/icon.svg" width="200" alt="shadcn-iced logo" />
 </p>
 
+> [!WARNING]
+> ВНИМАНИЕ: API `iced-shadcn` сейчас нестабилен и может меняться от версии к версии, включая breaking changes.
+> Фиксируйте точные версии зависимостей и проверяйте release notes перед обновлением.
+
 ## Обзор
 
 `iced-shadcn` задуман как набор компонентов для [iced](https://github.com/iced-rs/iced) в стиле [shadcn/ui](https://ui.shadcn.com).  

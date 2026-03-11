@@ -33,6 +33,8 @@ pub struct DialogProps {
     pub max_width: u32,
     pub overlay_opacity: f32,
     pub close_on_blur: bool,
+    pub padding: Option<u16>,
+    pub draggable: bool,
 }
 
 impl Default for DialogProps {
@@ -43,6 +45,8 @@ impl Default for DialogProps {
             max_width: 600,
             overlay_opacity: 0.8,
             close_on_blur: true,
+            padding: None,
+            draggable: false,
         }
     }
 }
@@ -76,9 +80,22 @@ impl DialogProps {
         self.close_on_blur = close_on_blur;
         self
     }
+
+    pub fn padding(mut self, padding: u16) -> Self {
+        self.padding = Some(padding);
+        self
+    }
+
+    pub fn draggable(mut self, draggable: bool) -> Self {
+        self.draggable = draggable;
+        self
+    }
 }
 
-fn dialog_padding(theme: &Theme, size: DialogSize) -> u16 {
+fn dialog_padding(theme: &Theme, size: DialogSize, override_padding: Option<u16>) -> u16 {
+    if let Some(padding) = override_padding {
+        return padding;
+    }
     let px = match size {
         DialogSize::Size1 => theme.spacing.md,
         DialogSize::Size2 => theme.spacing.lg,
@@ -99,6 +116,9 @@ fn dialog_radius(theme: &Theme, size: DialogSize) -> f32 {
 struct DialogOverlayState {
     content_bounds: Option<Rectangle>,
     keyboard_modifiers: keyboard::Modifiers,
+    drag_anchor: Option<Point>,
+    drag_start_offset: Point,
+    drag_offset: Point,
 }
 
 struct DialogOverlay<'a, Message> {
@@ -175,14 +195,22 @@ where
 
         let content_size = content.size();
 
-        let x = padding_x + (available_w - content_size.width).max(0.0) / 2.0;
+        let base_x = padding_x + (available_w - content_size.width).max(0.0) / 2.0;
 
         let desired_y = match self.props.align {
             DialogAlign::Start => padding_top,
             DialogAlign::Center => (size.height - content_size.height).max(0.0) / 2.0,
         };
         let max_y = (size.height - padding_bottom - content_size.height).max(padding_top);
-        let y = desired_y.clamp(padding_top, max_y);
+        let base_y = desired_y.clamp(padding_top, max_y);
+
+        let min_x = padding_x;
+        let max_x = (size.width - padding_x - content_size.width).max(min_x);
+        let min_y = padding_top;
+        let max_y = (size.height - padding_bottom - content_size.height).max(min_y);
+
+        let x = (base_x + state.drag_offset.x).clamp(min_x, max_x);
+        let y = (base_y + state.drag_offset.y).clamp(min_y, max_y);
 
         content = content.move_to(Point::new(x, y));
         state.content_bounds = Some(content.bounds());
@@ -226,11 +254,35 @@ where
                     .map(|bounds| cursor.is_over(bounds))
                     .unwrap_or(false);
 
+                if self.props.draggable
+                    && over_content
+                    && let Some(position) = cursor.position()
+                {
+                    state.drag_anchor = Some(position);
+                    state.drag_start_offset = state.drag_offset;
+                }
+
                 if self.props.close_on_blur && !over_content {
                     shell.publish(self.on_close.clone());
                 }
 
                 shell.capture_event();
+            }
+            Event::Mouse(mouse::Event::CursorMoved { position }) => {
+                if self.props.draggable
+                    && let Some(anchor) = state.drag_anchor
+                {
+                    state.drag_offset = Point::new(
+                        state.drag_start_offset.x + position.x - anchor.x,
+                        state.drag_start_offset.y + position.y - anchor.y,
+                    );
+                    shell.capture_event();
+                }
+            }
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerLifted { .. })
+            | Event::Touch(touch::Event::FingerLost { .. }) => {
+                state.drag_anchor = None;
             }
             Event::Keyboard(keyboard::Event::KeyPressed { .. })
                 if matches!(
@@ -337,12 +389,12 @@ pub fn dialog<'a, Message: Clone + 'a>(
     }
 
     let theme = theme.clone();
-    let padding = dialog_padding(&theme, props.size);
+    let padding = dialog_padding(&theme, props.size, props.padding);
     let radius = dialog_radius(&theme, props.size);
 
     let dialog_content = iced::widget::container(content)
         .padding(padding)
-        .width(Length::Fill)
+        .width(Length::Shrink)
         .max_width(props.max_width)
         .style(move |_t: &iced::Theme| iced::widget::container::Style {
             background: Some(Background::Color(theme.palette.card)),

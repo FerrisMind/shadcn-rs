@@ -14,6 +14,10 @@
 
 ---
 
+> [!WARNING]
+> API STABILITY NOTICE: `iced-shadcn` API is currently unstable and may change between versions, including breaking changes.
+> Always pin exact crate versions and review release notes before upgrading.
+
 ## Overview
 
 `iced-shadcn` is planned as a set of components for [iced](https://github.com/iced-rs/iced) styled after [shadcn/ui](https://ui.shadcn.com).  
