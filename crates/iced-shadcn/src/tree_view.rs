@@ -363,7 +363,7 @@ pub fn tree_view<'a, Message: Clone + 'static>(
             .scrollbar_rail_width(6.0)
             .scrollbar_thumb_width(6.0)
             .scrollbar_margin(0.0),
-        &theme,
+        theme,
     )
     .into()
 }

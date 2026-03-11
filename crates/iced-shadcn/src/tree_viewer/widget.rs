@@ -12,13 +12,35 @@ use lucide_icons::Icon as LucideIcon;
 pub struct TreeViewer<'a, Message> {
     state: &'a TreeViewerState,
     context_path: Option<String>,
-    on_toggle: Box<dyn Fn(String) -> Message + 'a>,
-    on_select: Box<dyn Fn(String) -> Message + 'a>,
-    on_load: Box<dyn Fn(String) -> Message + 'a>,
-    on_hover: Box<dyn Fn(Option<String>) -> Message + 'a>,
-    on_context: Box<dyn Fn(String) -> Message + 'a>,
+    handlers: TreeViewerHandlers<'a, Message>,
     props: TreeViewerProps,
     theme: &'a Theme,
+}
+
+pub struct TreeViewerHandlers<'a, Message> {
+    pub on_toggle: Box<dyn Fn(String) -> Message + 'a>,
+    pub on_select: Box<dyn Fn(String) -> Message + 'a>,
+    pub on_load: Box<dyn Fn(String) -> Message + 'a>,
+    pub on_hover: Box<dyn Fn(Option<String>) -> Message + 'a>,
+    pub on_context: Box<dyn Fn(String) -> Message + 'a>,
+}
+
+impl<'a, Message> TreeViewerHandlers<'a, Message> {
+    pub fn new(
+        on_toggle: impl Fn(String) -> Message + 'a,
+        on_select: impl Fn(String) -> Message + 'a,
+        on_load: impl Fn(String) -> Message + 'a,
+        on_hover: impl Fn(Option<String>) -> Message + 'a,
+        on_context: impl Fn(String) -> Message + 'a,
+    ) -> Self {
+        Self {
+            on_toggle: Box::new(on_toggle),
+            on_select: Box::new(on_select),
+            on_load: Box::new(on_load),
+            on_hover: Box::new(on_hover),
+            on_context: Box::new(on_context),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -84,22 +106,14 @@ impl<'a, Message> TreeViewer<'a, Message> {
     pub fn new(
         state: &'a TreeViewerState,
         context_path: Option<String>,
-        on_toggle: impl Fn(String) -> Message + 'a,
-        on_select: impl Fn(String) -> Message + 'a,
-        on_load: impl Fn(String) -> Message + 'a,
-        on_hover: impl Fn(Option<String>) -> Message + 'a,
-        on_context: impl Fn(String) -> Message + 'a,
+        handlers: TreeViewerHandlers<'a, Message>,
         props: TreeViewerProps,
         theme: &'a Theme,
     ) -> Self {
         Self {
             state,
             context_path,
-            on_toggle: Box::new(on_toggle),
-            on_select: Box::new(on_select),
-            on_load: Box::new(on_load),
-            on_hover: Box::new(on_hover),
-            on_context: Box::new(on_context),
+            handlers,
             props,
             theme,
         }
@@ -391,7 +405,7 @@ where
                     self.row_index_at(bounds, cursor_pos)
                         .and_then(|index| self.state.nodes.get(index).map(|node| node.path.clone()))
                 });
-                shell.publish((self.on_hover)(hovered));
+                shell.publish((self.handlers.on_hover)(hovered));
             }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
                 let bounds = layout.bounds();
@@ -413,12 +427,12 @@ where
                     {
                         if node.is_folder {
                             if node.folder_state == FolderState::Unloaded {
-                                shell.publish((self.on_load)(node.path.clone()));
+                                shell.publish((self.handlers.on_load)(node.path.clone()));
                             } else {
-                                shell.publish((self.on_toggle)(node.path.clone()));
+                                shell.publish((self.handlers.on_toggle)(node.path.clone()));
                             }
                         } else {
-                            shell.publish((self.on_select)(node.path.clone()));
+                            shell.publish((self.handlers.on_select)(node.path.clone()));
                         }
                     }
                 }
@@ -430,7 +444,7 @@ where
                         return;
                     };
                     if let Some(node) = self.state.nodes.get(index) {
-                        shell.publish((self.on_context)(node.path.clone()));
+                        shell.publish((self.handlers.on_context)(node.path.clone()));
                     }
                 }
             }

@@ -41,6 +41,7 @@ pub struct MenuContentProps {
     pub variant: MenuContentVariant,
     pub color: AccentColor,
     pub high_contrast: bool,
+    pub show_shadow: bool,
 }
 
 impl Default for MenuContentProps {
@@ -50,6 +51,7 @@ impl Default for MenuContentProps {
             variant: MenuContentVariant::Solid,
             color: AccentColor::Gray,
             high_contrast: false,
+            show_shadow: true,
         }
     }
 }
@@ -76,6 +78,11 @@ impl MenuContentProps {
 
     pub fn high_contrast(mut self, high_contrast: bool) -> Self {
         self.high_contrast = high_contrast;
+        self
+    }
+
+    pub fn show_shadow(mut self, show_shadow: bool) -> Self {
+        self.show_shadow = show_shadow;
         self
     }
 }
@@ -920,18 +927,24 @@ fn apply_opacity(mut color: Color, opacity: f32) -> Color {
     color
 }
 
-fn menu_style(theme: &Theme, _props: MenuContentProps) -> ResolvedMenuStyle {
-    ResolvedMenuStyle {
-        background: Background::Color(theme.palette.popover),
-        border_color: theme.palette.border,
-        shadow: Shadow {
+fn menu_style(theme: &Theme, props: MenuContentProps) -> ResolvedMenuStyle {
+    let shadow = if props.show_shadow {
+        Shadow {
             color: Color {
                 a: theme.styles.menu.shadow.opacity,
                 ..theme.palette.foreground
             },
             offset: Vector::new(0.0, theme.styles.menu.shadow.offset_y),
             blur_radius: theme.styles.menu.shadow.blur_radius,
-        },
+        }
+    } else {
+        Shadow::default()
+    };
+
+    ResolvedMenuStyle {
+        background: Background::Color(theme.palette.popover),
+        border_color: theme.palette.border,
+        shadow,
         text_color: theme.palette.popover_foreground,
         muted_text_color: theme.palette.muted_foreground,
         disabled_text_color: apply_opacity(theme.palette.popover_foreground, 0.45),

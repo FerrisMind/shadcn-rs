@@ -2,8 +2,8 @@ use iced::widget::{column, container, text as iced_text};
 use iced::{Background, Border, Element, Length, Task};
 
 use iced_shadcn::{
-    FlatNode, FolderState, ScrollAreaProps, Theme, TreeViewerProps, TreeViewerState, scroll_area,
-    scroll_area::ScrollAreaScrollbars, tree_viewer,
+    FlatNode, FolderState, ScrollAreaProps, Theme, TreeViewerHandlers, TreeViewerProps,
+    TreeViewerState, scroll_area, scroll_area::ScrollAreaScrollbars, tree_viewer,
 };
 use lucide_icons::LUCIDE_FONT_BYTES;
 
@@ -274,11 +274,13 @@ impl Example {
         let viewer = tree_viewer(
             &self.state,
             None,
-            Message::Toggle,
-            Message::Select,
-            Message::Load,
-            Message::Hover,
-            Message::Context,
+            TreeViewerHandlers::new(
+                Message::Toggle,
+                Message::Select,
+                Message::Load,
+                Message::Hover,
+                Message::Context,
+            ),
             TreeViewerProps::default(),
             theme,
         );

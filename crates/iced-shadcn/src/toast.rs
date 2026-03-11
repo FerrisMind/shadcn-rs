@@ -579,16 +579,19 @@ fn update_toasts(
             entry.paused_total += now.saturating_duration_since(paused_at);
         }
 
-        if entry.open && is_visible && window_focused && entry.paused_at.is_none() {
-            if let Some(duration_ms) = entry.toast.duration_ms {
-                let duration = std::time::Duration::from_millis(duration_ms);
-                let elapsed = now
-                    .saturating_duration_since(entry.created_at)
-                    .saturating_sub(entry.paused_total);
-                if elapsed >= duration {
-                    entry.open = false;
-                    entry.dismissed_at.get_or_insert(now);
-                }
+        if entry.open
+            && is_visible
+            && window_focused
+            && entry.paused_at.is_none()
+            && let Some(duration_ms) = entry.toast.duration_ms
+        {
+            let duration = std::time::Duration::from_millis(duration_ms);
+            let elapsed = now
+                .saturating_duration_since(entry.created_at)
+                .saturating_sub(entry.paused_total);
+            if elapsed >= duration {
+                entry.open = false;
+                entry.dismissed_at.get_or_insert(now);
             }
         }
     }
@@ -721,7 +724,6 @@ fn compute_layout(
     let base_width = toast_style.width.clamp(min_width, max_width);
     let max_stack_height = (viewport.height * toast_style.max_viewport_height_ratio).max(0.0);
     let mut used_stack_height = 0.0;
-    let mut shown = 0usize;
 
     const LEFT_PADDING: f32 = 12.0;
     const RIGHT_PADDING_BASE: f32 = 12.0;
@@ -740,7 +742,7 @@ fn compute_layout(
 
     let mut layout_out = Vec::with_capacity(entries.len());
 
-    for entry in entries {
+    for (shown, entry) in entries.iter().enumerate() {
         if shown >= toast_style.max_visible {
             break;
         }
@@ -905,7 +907,6 @@ fn compute_layout(
             dismissible: entry.toast.dismissible,
         });
         used_stack_height = next_stack_height;
-        shown += 1;
     }
 
     LayoutResult { layout: layout_out }
