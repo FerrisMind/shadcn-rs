@@ -320,10 +320,18 @@ pub(crate) fn button_style(
                 }
                 ButtonVariant::Secondary => {
                     if is_dark(&palette) {
-                        Some(Background::Color(mix(palette.secondary, palette.background, 0.2)))
+                        Some(Background::Color(mix(
+                            palette.secondary,
+                            palette.background,
+                            0.2,
+                        )))
                     } else {
                         // In light theme, mix with foreground to darken it noticeably
-                        Some(Background::Color(mix(palette.secondary, palette.foreground, 0.1)))
+                        Some(Background::Color(mix(
+                            palette.secondary,
+                            palette.foreground,
+                            0.1,
+                        )))
                     }
                 }
                 ButtonVariant::Destructive => Some(Background::Color(mix(
@@ -361,10 +369,18 @@ pub(crate) fn button_style(
                 }
                 ButtonVariant::Secondary => {
                     if is_dark(&palette) {
-                        Some(Background::Color(mix(palette.secondary, palette.background, 0.4)))
+                        Some(Background::Color(mix(
+                            palette.secondary,
+                            palette.background,
+                            0.4,
+                        )))
                     } else {
                         // In light theme, mix with foreground more to darken it strongly
-                        Some(Background::Color(mix(palette.secondary, palette.foreground, 0.25)))
+                        Some(Background::Color(mix(
+                            palette.secondary,
+                            palette.foreground,
+                            0.25,
+                        )))
                     }
                 }
                 ButtonVariant::Destructive => Some(Background::Color(mix(
