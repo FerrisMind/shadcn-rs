@@ -1,0 +1,45 @@
+name: Deploy WASM Demo
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'crates/wasm-demo/**'
+      - 'crates/iced-shadcn/**'
+      - 'crates/egui-shadcn/**'
+      - '.github/workflows/deploy-wasm.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Download Trunk
+        run: |
+          wget -qO- https://github.com/trunk-rs/trunk/releases/latest/download/trunk-x86_64-unknown-linux-gnu.tar.gz | tar -xzf-
+          sudo mv trunk /usr/local/bin/
+
+      - name: Build WASM Demo
+        run: |
+          cd crates/wasm-demo
+          # Build Iced version into dist/iced
+          trunk build iced.html --release -d dist/iced --public-url /shadcn-rs/iced/
+          # Build Egui version into dist/egui
+          trunk build egui.html --release -d dist/egui --public-url /shadcn-rs/egui/
+          # Copy main switcher index.html to dist/
+          cp index.html dist/index.html
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: crates/wasm-demo/dist
+          branch: gh-pages

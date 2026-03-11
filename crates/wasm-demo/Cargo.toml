@@ -1,0 +1,29 @@
+[package]
+name = "wasm-demo"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+iced-shadcn = { path = "../iced-shadcn" }
+egui-shadcn = { path = "../egui-shadcn" }
+
+# Common
+log = "0.4"
+wasm-bindgen = "0.2.114"
+wasm-bindgen-futures = "0.4.64"
+lucide-icons = "0.575.0"
+
+# Iced WASM specific
+iced = { version = "0.14", features = ["wgpu", "canvas", "webgl", "fira-sans"] }
+
+# Egui WASM specific
+eframe = { version = "0.33", default-features = false, features = ["web_screen_reader", "wgpu"] }
+
+[[bin]]
+name = "iced_demo"
+path = "src/bin/iced_demo.rs"
+
+[[bin]]
+name = "egui_demo"
+path = "src/bin/egui_demo.rs"
