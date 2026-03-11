@@ -4,9 +4,9 @@ version.workspace = true
 edition.workspace = true
 license.workspace = true
 description = "Shadcn-inspired component kit for egui"
-authors = ["FerrisMind"]
-repository = "https://github.com/FerrisMind/shadcn-rs"
-homepage = "https://github.com/FerrisMind/shadcn-rs"
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
 readme = "README.md"
 documentation = "https://docs.rs/egui-shadcn"
 keywords = ["egui", "ui", "components", "shadcn", "radix"]
@@ -19,12 +19,10 @@ include = [
     "LICENSE*",
 ]
 
-
-
 [dependencies]
-egui = { workspace = true }
+egui = "0.33"
 log = { workspace = true }
-lucide-icons = "0.562"
+lucide-icons = "0.575"
 chrono = "0.4"
 regex = "1.11"
 egui_plot = { version = "0.34", optional = true }
