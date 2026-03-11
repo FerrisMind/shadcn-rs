@@ -267,7 +267,7 @@ fn apply_opacity(mut color: Color, opacity: f32) -> Color {
     color
 }
 
-fn button_style(
+pub(crate) fn button_style(
     theme: &Theme,
     props: ButtonProps,
     status: button_widget::Status,
@@ -318,15 +318,18 @@ fn button_style(
                 ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
                     Some(Background::Color(mix(accent, palette.background, 0.1)))
                 }
-                ButtonVariant::Secondary => Some(Background::Color(mix(
-                    palette.secondary,
-                    palette.background,
-                    0.1,
-                ))),
+                ButtonVariant::Secondary => {
+                    if is_dark(&palette) {
+                        Some(Background::Color(mix(palette.secondary, palette.background, 0.2)))
+                    } else {
+                        // In light theme, mix with foreground to darken it noticeably
+                        Some(Background::Color(mix(palette.secondary, palette.foreground, 0.1)))
+                    }
+                }
                 ButtonVariant::Destructive => Some(Background::Color(mix(
                     palette.destructive,
                     palette.background,
-                    0.1,
+                    0.2,
                 ))),
                 ButtonVariant::Soft | ButtonVariant::Surface => {
                     if is_dark(&palette) {
@@ -345,7 +348,10 @@ fn button_style(
                         Some(Background::Color(apply_opacity(palette.foreground, 0.10)))
                     }
                 }
-                ButtonVariant::Link => None,
+                ButtonVariant::Link => {
+                    text_color = mix(text_color, palette.foreground, 0.2);
+                    None
+                }
             };
         }
         button_widget::Status::Pressed => {
@@ -353,15 +359,18 @@ fn button_style(
                 ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
                     Some(Background::Color(mix(accent, palette.background, 0.2)))
                 }
-                ButtonVariant::Secondary => Some(Background::Color(mix(
-                    palette.secondary,
-                    palette.background,
-                    0.2,
-                ))),
+                ButtonVariant::Secondary => {
+                    if is_dark(&palette) {
+                        Some(Background::Color(mix(palette.secondary, palette.background, 0.4)))
+                    } else {
+                        // In light theme, mix with foreground more to darken it strongly
+                        Some(Background::Color(mix(palette.secondary, palette.foreground, 0.25)))
+                    }
+                }
                 ButtonVariant::Destructive => Some(Background::Color(mix(
                     palette.destructive,
                     palette.background,
-                    0.2,
+                    0.3,
                 ))),
                 ButtonVariant::Soft
                 | ButtonVariant::Surface

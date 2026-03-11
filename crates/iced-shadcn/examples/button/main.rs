@@ -1,7 +1,7 @@
 use iced::border::Border;
 use iced::time::{self, Duration};
 use iced::widget::text::{Rich, Span};
-use iced::widget::{column, container, row, text};
+use iced::widget::{column, container, row, scrollable, text};
 use iced::{Alignment, Background, Element, Length, Subscription, mouse};
 
 use iced_shadcn::{
@@ -315,12 +315,10 @@ impl Example {
         .spacing(20)
         .align_x(Alignment::Start);
 
-        container(content)
+        container(scrollable(content))
             .padding(24)
             .width(Length::Fill)
             .height(Length::Fill)
-            .center_x(Length::Fill)
-            .center_y(Length::Fill)
             .style(move |_theme| iced::widget::container::Style {
                 background: Some(Background::Color(background)),
                 border: Border {
