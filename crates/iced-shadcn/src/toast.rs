@@ -1039,13 +1039,12 @@ fn draw_toast(
     let description = entry.toast.description.as_deref().unwrap_or("");
 
     let text_x = bounds.x + 12.0 + 22.0;
-    let controls_reserved_width = 12.0
-        + if entry.toast.dismissible {
+    let controls_reserved_width =
+        12.0 + if entry.toast.dismissible {
             TOAST_CLOSE_RESERVED_WIDTH
         } else {
             0.0
-        }
-        + if entry.toast.expandable {
+        } + if entry.toast.expandable {
             TOAST_CLOSE_RESERVED_WIDTH
         } else {
             0.0

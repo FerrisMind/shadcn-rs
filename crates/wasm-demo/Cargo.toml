@@ -10,6 +10,7 @@ egui-shadcn = { path = "../egui-shadcn" }
 
 # Common
 log = "0.4"
+env_logger = "0.11"
 wasm-bindgen = "0.2.114"
 wasm-bindgen-futures = "0.4.64"
 web-sys = { version = "0.3.82", features = ["Window", "Document", "HtmlCanvasElement"] }
