@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use iced::time::{Duration, Instant};
 
 use iced::advanced::Renderer as _;
 use iced::advanced::layout;

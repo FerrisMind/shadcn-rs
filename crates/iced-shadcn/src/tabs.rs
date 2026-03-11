@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use iced::time::{Duration, Instant};
 
 use iced::advanced::Renderer as _;
 use iced::advanced::layout;
@@ -693,8 +693,8 @@ struct TabsListState {
     trigger_bounds: Vec<Rectangle>,
     indicator_from: Option<Rectangle>,
     indicator_to: Option<Rectangle>,
-    indicator_started: Option<Instant>,
-    last_redraw: Option<Instant>,
+    indicator_started: Option<iced::time::Instant>,
+    last_redraw: Option<iced::time::Instant>,
 }
 
 struct TabsListWidget<'a, Message> {
@@ -1278,10 +1278,10 @@ fn indicator_rect(
 ) -> Option<Rectangle> {
     let to = state.indicator_to;
     let from = state.indicator_from;
-    let now = state.last_redraw.unwrap_or_else(Instant::now);
+    let now = state.last_redraw.unwrap_or_else(iced::time::Instant::now);
 
     let rect = if let Some(started) = state.indicator_started {
-        let duration = Duration::from_millis(INDICATOR_ANIM_MS);
+        let duration = iced::time::Duration::from_millis(INDICATOR_ANIM_MS);
         let t = (now.saturating_duration_since(started).as_secs_f32() / duration.as_secs_f32())
             .clamp(0.0, 1.0);
         if let (Some(from), Some(to)) = (from, to) {
