@@ -309,8 +309,12 @@ impl<Message> canvas::Program<Message> for ChartProgram {
         );
 
         let (min_x, max_x, min_y, max_y) = data_bounds(&self.plot.series);
-        let range_x = (max_x - min_x).max(1.0);
-        let range_y = (max_y - min_y).max(1.0);
+        let scale = ChartScale {
+            min_x,
+            range_x: (max_x - min_x).max(1.0),
+            min_y,
+            range_y: (max_y - min_y).max(1.0),
+        };
 
         if self.props.show_grid.x || self.props.show_grid.y {
             let grid_color = self.theme.palette.muted;
@@ -344,10 +348,7 @@ impl<Message> canvas::Program<Message> for ChartProgram {
                         plot_bounds,
                         self.theme.palette.chart_1,
                         line,
-                        min_x,
-                        range_x,
-                        min_y,
-                        range_y,
+                        scale,
                     );
                 }
                 ChartSeries::Bar(bar) => {
@@ -356,10 +357,7 @@ impl<Message> canvas::Program<Message> for ChartProgram {
                         plot_bounds,
                         self.theme.palette.chart_2,
                         bar,
-                        min_x,
-                        range_x,
-                        min_y,
-                        range_y,
+                        scale,
                     );
                 }
             }
@@ -461,17 +459,22 @@ fn map_point(
     x: f64,
     y: f64,
     bounds: Rectangle,
-    min_x: f64,
-    range_x: f64,
-    min_y: f64,
-    range_y: f64,
+    scale: ChartScale,
 ) -> Point {
-    let x_norm = ((x - min_x) / range_x).clamp(0.0, 1.0) as f32;
-    let y_norm = ((y - min_y) / range_y).clamp(0.0, 1.0) as f32;
+    let x_norm = ((x - scale.min_x) / scale.range_x).clamp(0.0, 1.0) as f32;
+    let y_norm = ((y - scale.min_y) / scale.range_y).clamp(0.0, 1.0) as f32;
     Point::new(
         bounds.x + bounds.width * x_norm,
         bounds.y + bounds.height * (1.0 - y_norm),
     )
+}
+
+#[derive(Clone, Copy, Debug)]
+struct ChartScale {
+    min_x: f64,
+    range_x: f64,
+    min_y: f64,
+    range_y: f64,
 }
 
 fn draw_line(
@@ -479,17 +482,14 @@ fn draw_line(
     bounds: Rectangle,
     fallback_color: Color,
     line: &LineChart,
-    min_x: f64,
-    range_x: f64,
-    min_y: f64,
-    range_y: f64,
+    scale: ChartScale,
 ) {
     if line.points.len() < 2 {
         return;
     }
     let path = Path::new(|builder| {
         for (index, [x, y]) in line.points.iter().enumerate() {
-            let point = map_point(*x, *y, bounds, min_x, range_x, min_y, range_y);
+            let point = map_point(*x, *y, bounds, scale);
             if index == 0 {
                 builder.move_to(point);
             } else {
@@ -510,22 +510,19 @@ fn draw_bars(
     bounds: Rectangle,
     fallback_color: Color,
     bar: &BarChart,
-    min_x: f64,
-    range_x: f64,
-    min_y: f64,
-    range_y: f64,
+    scale: ChartScale,
 ) {
     let count = bar.bars.len().max(1) as f32;
     let default_width = bounds.width / count * 0.6;
     let width_px = bar
         .bar_width
-        .map(|w| (w / range_x) as f32 * bounds.width)
+        .map(|w| (w / scale.range_x) as f32 * bounds.width)
         .unwrap_or(default_width)
         .max(2.0);
 
     for (x, y) in &bar.bars {
-        let base = map_point(*x, min_y, bounds, min_x, range_x, min_y, range_y);
-        let top = map_point(*x, *y, bounds, min_x, range_x, min_y, range_y);
+        let base = map_point(*x, scale.min_y, bounds, scale);
+        let top = map_point(*x, *y, bounds, scale);
         let height = (base.y - top.y).max(0.0);
         let rect = Rectangle::new(
             Point::new(top.x - width_px / 2.0, top.y),

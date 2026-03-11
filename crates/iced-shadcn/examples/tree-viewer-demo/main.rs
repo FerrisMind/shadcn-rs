@@ -23,71 +23,48 @@ struct Example {
 
 impl Default for Example {
     fn default() -> Self {
-        let mut all_nodes = Vec::new();
-
-        // Let's create a nested structure similar to tree-view
-        // src/
-        all_nodes.push(FlatNode::folder(
-            "src",
-            "/src",
-            "src",
-            0,
-            true,
-            FolderState::Loaded,
-        ));
-
-        // src/components
-        all_nodes.push(FlatNode::folder(
-            "components",
-            "/src/components",
-            "components",
-            1,
-            true,
-            FolderState::Loaded,
-        ));
-        all_nodes.push(FlatNode::folder(
-            "ui",
-            "/src/components/ui",
-            "ui",
-            2,
-            false,
-            FolderState::Loaded,
-        ));
-        all_nodes.push(FlatNode::file(
-            "button.rs",
-            "/src/components/ui/button.rs",
-            "button.rs",
-            3,
-        ));
-        all_nodes.push(FlatNode::file(
-            "tree_viewer.rs",
-            "/src/components/tree_viewer.rs",
-            "tree_viewer.rs",
-            2,
-        ));
-
-        // src/lib.rs
-        all_nodes.push(FlatNode::file("lib.rs", "/src/lib.rs", "lib.rs", 1));
-
-        // Let's create an Unloaded folder to demonstrate Async Lazy Loading
-        all_nodes.push(FlatNode::folder(
-            "unloaded_folder",
-            "/unloaded_folder",
-            "unloaded_folder (Click to load 10k files)",
-            0,
-            false,
-            FolderState::Unloaded,
-        ));
-
-        // Let's add thousands of nested generated files to show virtualization
-        all_nodes.push(FlatNode::folder(
-            "big_folder",
-            "/big_folder",
-            "big_folder (10,000 files)",
-            0,
-            false,
-            FolderState::Loaded,
-        ));
+        let mut all_nodes = vec![
+            // Let's create a nested structure similar to tree-view
+            // src/
+            FlatNode::folder("src", "/src", "src", 0, true, FolderState::Loaded),
+            // src/components
+            FlatNode::folder(
+                "components",
+                "/src/components",
+                "components",
+                1,
+                true,
+                FolderState::Loaded,
+            ),
+            FlatNode::folder("ui", "/src/components/ui", "ui", 2, false, FolderState::Loaded),
+            FlatNode::file("button.rs", "/src/components/ui/button.rs", "button.rs", 3),
+            FlatNode::file(
+                "tree_viewer.rs",
+                "/src/components/tree_viewer.rs",
+                "tree_viewer.rs",
+                2,
+            ),
+            // src/lib.rs
+            FlatNode::file("lib.rs", "/src/lib.rs", "lib.rs", 1),
+            // Let's create an Unloaded folder to demonstrate Async Lazy Loading
+            FlatNode::folder(
+                "unloaded_folder",
+                "/unloaded_folder",
+                "unloaded_folder (Click to load 10k files)",
+                0,
+                false,
+                FolderState::Unloaded,
+            ),
+            // Let's add thousands of nested generated files to show virtualization
+            FlatNode::folder(
+                "big_folder",
+                "/big_folder",
+                "big_folder (10,000 files)",
+                0,
+                false,
+                FolderState::Loaded,
+            ),
+        ];
         for i in 0..10_000 {
             all_nodes.push(FlatNode::file(
                 format!("file_{i}"),
