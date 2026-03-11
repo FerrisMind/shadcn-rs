@@ -8,8 +8,8 @@ use iced::{Alignment, Background, Element, Length, Subscription, Task};
 use iced_shadcn::{
     ButtonProps, ButtonVariant, CommandDialogProps, CommandEmptyProps, CommandGroupProps,
     CommandInputProps, CommandItemProps, CommandLinkItemProps, CommandListEntry, CommandListProps,
-    CommandLoadingProps, CommandProps, CommandSeparatorProps, KbdProps, Theme, button, command,
-    command_dialog, kbd_shortcut,
+    CommandLoadingProps, CommandProps, CommandSeparatorProps, DialogProps, KbdProps, Theme, button,
+    command, command_dialog, kbd_shortcut,
 };
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
 
@@ -262,6 +262,12 @@ impl Example {
                     self.dialog_open,
                     Message::CloseDialog,
                     self.dialog_command_props(),
+                )
+                .dialog_props(
+                    DialogProps::new()
+                        .padding(0)
+                        .overlay_opacity(0.0)
+                        .draggable(true),
                 )
                 .title("Command Palette")
                 .description("Search for a command to run..."),

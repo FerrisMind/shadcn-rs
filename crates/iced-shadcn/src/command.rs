@@ -656,7 +656,7 @@ fn command_item<'a, Message: Clone + 'a>(
 ) -> Element<'a, Message> {
     let mut content = row!().align_y(Alignment::Center).spacing(8);
     if let Some(icon) = props.icon {
-        content = content.push(text(icon).size(13));
+        content = content.push(text(icon).font(iced::Font::with_name("lucide")).size(13));
     }
     content = content
         .push(text(props.label).size(13))
@@ -721,7 +721,7 @@ fn command_link_item<'a, Message: Clone + 'a>(
 ) -> Element<'a, Message> {
     let mut content = row!().align_y(Alignment::Center).spacing(8);
     if let Some(icon) = props.icon {
-        content = content.push(text(icon).size(13));
+        content = content.push(text(icon).font(iced::Font::with_name("lucide")).size(13));
     }
     content = content
         .push(text(props.label).size(13))
@@ -904,7 +904,7 @@ impl<'a, Message> CommandDialogProps<'a, Message> {
             title: "Command Palette".to_string(),
             description: "Search for a command to run...".to_string(),
             show_close_button: true,
-            dialog_props: DialogProps::new(),
+            dialog_props: DialogProps::new().padding(0),
             command,
         }
     }
