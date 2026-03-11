@@ -3,6 +3,8 @@
 /target-codex-check
 **/*.rs.bk
 **/dist
+**/dist-egui
+**/dist-iced
 
 # Cargo
 /Cargo.lock

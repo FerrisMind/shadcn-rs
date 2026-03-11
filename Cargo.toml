@@ -4,7 +4,7 @@ resolver = "2"
 
 [workspace.package]
 edition = "2024"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 version = "0.5.0"
 authors = ["FerrisMind"]
 homepage = "https://github.com/FerrisMind/shadcn-rs"
