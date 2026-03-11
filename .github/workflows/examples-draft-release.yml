@@ -1,0 +1,132 @@
+name: Examples Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: "Tag for draft release (optional)"
+        required: false
+        default: ""
+      release_name:
+        description: "Release title (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build-examples:
+    name: Build ${{ matrix.crate }} examples (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        crate:
+          - egui-shadcn
+          - iced-shadcn
+        os:
+          - ubuntu-22.04
+          - windows-latest
+          - macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxcb-render0-dev \
+            libxcb-shape0-dev \
+            libxcb-xfixes0-dev \
+            libxkbcommon-dev \
+            libssl-dev \
+            libgtk-3-dev
+
+      - name: Cache cargo registry & target
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build crate examples (release)
+        shell: pwsh
+        run: |
+          cargo build --release --examples -p ${{ matrix.crate }}
+
+      - name: Pack example binaries to ZIP
+        shell: pwsh
+        run: |
+          $examplesDir = "target/release/examples"
+          if (-not (Test-Path $examplesDir)) {
+            throw "Examples directory not found: $examplesDir"
+          }
+
+          $distDir = "dist"
+          New-Item -ItemType Directory -Force -Path $distDir | Out-Null
+
+          if ($IsWindows) {
+            $bins = Get-ChildItem -Path $examplesDir -File | Where-Object { $_.Extension -eq ".exe" }
+          } else {
+            $bins = Get-ChildItem -Path $examplesDir -File | Where-Object {
+              $_.Extension -eq "" -and $_.Name -notlike "*.d"
+            }
+          }
+
+          if (-not $bins -or $bins.Count -eq 0) {
+            throw "No example binaries found in $examplesDir"
+          }
+
+          $crate = "${{ matrix.crate }}"
+          $osSlug = "${{ runner.os }}".ToLower()
+          $pkgName = "examples-$crate-$osSlug-${{ github.run_id }}"
+          $pkgDir = Join-Path $distDir $pkgName
+          New-Item -ItemType Directory -Force -Path $pkgDir | Out-Null
+
+          foreach ($bin in $bins) {
+            Copy-Item -Path $bin.FullName -Destination (Join-Path $pkgDir $bin.Name) -Force
+          }
+
+          $manifest = Join-Path $pkgDir "MANIFEST.txt"
+          $bins | Select-Object -ExpandProperty Name | Sort-Object | Set-Content -Path $manifest -Encoding utf8
+
+          $zipPath = Join-Path $distDir "$pkgName.zip"
+          Compress-Archive -Path (Join-Path $pkgDir "*") -DestinationPath $zipPath -Force
+
+      - name: Upload ZIP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: examples-zip-${{ matrix.crate }}-${{ runner.os }}
+          path: dist/*.zip
+          if-no-files-found: error
+
+  draft-release-per-crate:
+    name: Create ${{ matrix.crate }} draft release
+    runs-on: ubuntu-22.04
+    needs: build-examples
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        crate:
+          - egui-shadcn
+          - iced-shadcn
+    steps:
+      - name: Download all ZIP artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: examples-zip-${{ matrix.crate }}-*
+          merge-multiple: true
+          path: release-assets/${{ matrix.crate }}
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          generate_release_notes: true
+          tag_name: ${{ inputs.tag_name != '' && format('{0}-{1}', inputs.tag_name, matrix.crate) || format('examples-{0}-{1}', matrix.crate, github.run_number) }}
+          name: ${{ inputs.release_name != '' && format('{0} ({1})', inputs.release_name, matrix.crate) || format('Examples build {0} ({1})', github.run_number, matrix.crate) }}
+          files: release-assets/${{ matrix.crate }}/*.zip
