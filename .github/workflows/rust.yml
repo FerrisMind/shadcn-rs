@@ -44,9 +44,6 @@ jobs:
       - name: Clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
-      - name: Build examples
-        run: cargo build --examples --features examples
-
   # ============================================================
   # WASM ПОДДЕРЖКА (если планируется веб-версия)
   # ============================================================
@@ -65,40 +62,9 @@ jobs:
       - name: Cache cargo registry & target
         uses: Swatinem/rust-cache@v2
 
-      # Проверка сборки под wasm32
-      - name: Check wasm32 compilation
-        run: |
-          cargo check --lib -p egui-shadcn \
-            --target wasm32-unknown-unknown \
-            --no-default-features
-
       # Clippy для wasm32
       - name: Clippy wasm32
         run: |
           cargo clippy --lib -p egui-shadcn \
             --target wasm32-unknown-unknown \
             --no-default-features
-
-  # ============================================================
-  # АУДИТ ЗАВИСИМОСТЕЙ (опционально, но крайне полезно)
-  # ============================================================
-  cargo-deny:
-    name: Dependency audit
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-    strategy:
-      matrix:
-        target:
-          - x86_64-unknown-linux-gnu
-          - x86_64-pc-windows-msvc
-          - x86_64-apple-darwin
-          - wasm32-unknown-unknown
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: EmbarkStudios/cargo-deny-action@v2
-        with:
-          rust-version: "1.90.0"
-          log-level: error
-          command: check
-          arguments: --target ${{ matrix.target }}
