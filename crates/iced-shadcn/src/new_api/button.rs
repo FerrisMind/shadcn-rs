@@ -1,11 +1,9 @@
-use std::borrow::Cow;
-use iced::widget::{
-    button as iced_button, text as iced_text,
-};
-use iced::{Element, Length};
-use crate::theme::Theme;
+use crate::button::{ButtonRadius, ButtonSize, ButtonVariant, button_style};
 use crate::spinner::{Spinner, SpinnerSize, spinner};
-use crate::button::{ButtonVariant, ButtonSize, ButtonRadius, button_style};
+use crate::theme::Theme;
+use iced::widget::{button as iced_button, text as iced_text};
+use iced::{Element, Length};
+use std::borrow::Cow;
 
 /// Helper trait to unify icon types.
 pub trait ButtonIcon<'a, Message> {
@@ -283,8 +281,9 @@ where
 
     /// Adds an icon to the button and returns a new button type.
     #[must_use]
-    pub fn icon<NewI>(self, icon: NewI) -> Button<'a, Message, AsElement<'a, Message>> 
-    where NewI: Into<Element<'a, Message>>
+    pub fn icon<NewI>(self, icon: NewI) -> Button<'a, Message, AsElement<'a, Message>>
+    where
+        NewI: Into<Element<'a, Message>>,
     {
         Button {
             label: self.label,
@@ -317,15 +316,39 @@ where
 
     // --- Shorthand Helpers (Friendly API) ---
 
-    #[must_use] pub fn outline(self) -> Self { self.variant(ButtonVariant::Outline) }
-    #[must_use] pub fn ghost(self) -> Self { self.variant(ButtonVariant::Ghost) }
-    #[must_use] pub fn destructive(self) -> Self { self.variant(ButtonVariant::Destructive) }
-    #[must_use] pub fn secondary(self) -> Self { self.variant(ButtonVariant::Secondary) }
-    #[must_use] pub fn link_variant(self) -> Self { self.variant(ButtonVariant::Link) }
+    #[must_use]
+    pub fn outline(self) -> Self {
+        self.variant(ButtonVariant::Outline)
+    }
+    #[must_use]
+    pub fn ghost(self) -> Self {
+        self.variant(ButtonVariant::Ghost)
+    }
+    #[must_use]
+    pub fn destructive(self) -> Self {
+        self.variant(ButtonVariant::Destructive)
+    }
+    #[must_use]
+    pub fn secondary(self) -> Self {
+        self.variant(ButtonVariant::Secondary)
+    }
+    #[must_use]
+    pub fn link_variant(self) -> Self {
+        self.variant(ButtonVariant::Link)
+    }
 
-    #[must_use] pub fn sm(self) -> Self { self.size(ButtonSize::Size1) }
-    #[must_use] pub fn lg(self) -> Self { self.size(ButtonSize::Size3) }
-    #[must_use] pub fn xl(self) -> Self { self.size(ButtonSize::Size4) }
+    #[must_use]
+    pub fn sm(self) -> Self {
+        self.size(ButtonSize::Size1)
+    }
+    #[must_use]
+    pub fn lg(self) -> Self {
+        self.size(ButtonSize::Size3)
+    }
+    #[must_use]
+    pub fn xl(self) -> Self {
+        self.size(ButtonSize::Size4)
+    }
 }
 
 impl<'a, Message, I> Button<'a, Message, I>
@@ -378,33 +401,36 @@ where
                 content_elements.push(icon);
                 if has_label {
                     content_elements.push(iced::widget::Space::new().width(8.0).into());
-                    content_elements.push(iced_text(label).size(Self::size_to_pixels_val(size)).into());
+                    content_elements
+                        .push(iced_text(label).size(Self::size_to_pixels_val(size)).into());
                 }
             }
             (Some(icon), IconPosition::Right) => {
                 if has_label {
-                    content_elements.push(iced_text(label).size(Self::size_to_pixels_val(size)).into());
+                    content_elements
+                        .push(iced_text(label).size(Self::size_to_pixels_val(size)).into());
                     content_elements.push(iced::widget::Space::new().width(8.0).into());
                 }
                 content_elements.push(icon);
             }
             (None, _) => {
                 if has_label {
-                    content_elements.push(iced_text(label).size(Self::size_to_pixels_val(size)).into());
+                    content_elements
+                        .push(iced_text(label).size(Self::size_to_pixels_val(size)).into());
                 }
             }
         }
 
         let height_val = Self::size_to_height_val(size);
-        
+
         // Wrap content in a container for centering
-        let row = iced::widget::Row::with_children(content_elements)
-            .align_y(iced::Alignment::Center);
+        let row =
+            iced::widget::Row::with_children(content_elements).align_y(iced::Alignment::Center);
 
         let mut content_container = iced::widget::container(row)
             .height(Length::Fill)
             .center_y(Length::Fill);
-            
+
         if is_icon_only {
             // For icon-only buttons, fill the entire space (limited by button's fixed width)
             content_container = content_container.width(Length::Fill).center_x(Length::Fill);
@@ -412,9 +438,7 @@ where
 
         let content: Element<'a, Message> = content_container.into();
 
-        let mut widget = iced_button(content)
-            .width(width)
-            .height(height);
+        let mut widget = iced_button(content).width(width).height(height);
 
         if is_icon_only {
             widget = widget.width(Length::Fixed(height_val)).padding(0);
@@ -423,7 +447,7 @@ where
         }
 
         let is_disabled = disabled || loading || (on_press.is_none() && href.is_none());
-        
+
         if let Some(msg) = on_press {
             if !is_disabled {
                 widget = widget.on_press(msg);
@@ -443,7 +467,9 @@ where
             disabled,
         };
 
-        widget.style(move |_iced_theme, status| button_style(&theme_clone, props, status)).into()
+        widget
+            .style(move |_iced_theme, status| button_style(&theme_clone, props, status))
+            .into()
     }
 }
 
@@ -489,8 +515,16 @@ where
 /// ```
 #[macro_export]
 macro_rules! button {
-    ($label:expr) => { $crate::new_api::Button::new($label) };
-    ($label:expr, on_press: $msg:expr) => { $crate::new_api::Button::new($label).on_press($msg) };
-    ($label:expr, href: $href:expr) => { $crate::new_api::Button::link($label, $href) };
-    ($label:expr, $variant:ident) => { $crate::new_api::Button::new($label).$variant() };
+    ($label:expr) => {
+        $crate::new_api::Button::new($label)
+    };
+    ($label:expr, on_press: $msg:expr) => {
+        $crate::new_api::Button::new($label).on_press($msg)
+    };
+    ($label:expr, href: $href:expr) => {
+        $crate::new_api::Button::link($label, $href)
+    };
+    ($label:expr, $variant:ident) => {
+        $crate::new_api::Button::new($label).$variant()
+    };
 }

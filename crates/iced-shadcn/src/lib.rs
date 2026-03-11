@@ -39,6 +39,7 @@ pub mod light_switch;
 mod menu_primitives;
 pub mod menubar;
 pub mod navigation_menu;
+pub mod new_api;
 mod overlay;
 pub mod pagination;
 pub mod popover;
@@ -66,7 +67,6 @@ pub mod tooltip;
 pub mod tree_view;
 pub mod tree_viewer;
 pub mod typography;
-pub mod new_api;
 
 pub use accordion::{AccordionItemProps, AccordionProps, AccordionState, AccordionType, accordion};
 pub use alert::{AlertProps, AlertVariant, alert};

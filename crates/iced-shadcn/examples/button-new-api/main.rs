@@ -4,10 +4,7 @@ use iced::widget::text::{Rich, Span};
 use iced::widget::{column, container, row, scrollable};
 use iced::{Alignment, Background, Element, Length, Subscription, mouse};
 
-use iced_shadcn::{
-    Theme, ButtonRadius,
-    new_api::{Button},
-};
+use iced_shadcn::{ButtonRadius, Theme, new_api::Button};
 use lucide_icons::LUCIDE_FONT_BYTES;
 use lucide_icons::iced::{
     icon_arrow_up, icon_arrow_up_right, icon_circle_fading_arrow_up, icon_git_branch,
@@ -106,13 +103,13 @@ impl Example {
                     Span::new("Link").underline(self.link_hovered),
                 ])
                 .size(14);
-                
+
                 let btn = Button::new("")
                     .link_variant()
                     .on_press(Message::Pressed)
                     .icon(link_label)
                     .render(theme);
-                
+
                 iced::widget::mouse_area(btn)
                     .on_enter(Message::LinkHover(true))
                     .on_exit(Message::LinkHover(false))
@@ -144,7 +141,8 @@ impl Example {
                         .icon(icon_arrow_up().size(20))
                         .on_press(Message::Pressed)
                         .render(theme),
-                ].spacing(8),
+                ]
+                .spacing(8),
             ),
             tile(
                 theme,
@@ -172,7 +170,8 @@ impl Example {
                         .icon(icon_git_branch().size(16))
                         .on_press(Message::Pressed)
                         .render(theme),
-                ].spacing(8),
+                ]
+                .spacing(8),
             ),
         ]
         .spacing(12);
@@ -292,8 +291,10 @@ fn section<'a, Message: 'a>(
 ) -> iced::widget::Container<'a, Message> {
     let title = iced::widget::text(title)
         .size(18)
-        .style(move |_| iced::widget::text::Style { color: Some(theme.palette.foreground) });
-    
+        .style(move |_| iced::widget::text::Style {
+            color: Some(theme.palette.foreground),
+        });
+
     let bg = theme.palette.card;
     let border_c = theme.palette.border;
     let r = theme.radius.md;
