@@ -26,102 +26,6 @@
 <body>
     <script>
         (function () {
-            const overlay = document.createElement("div");
-            overlay.id = "iced-debug-overlay";
-            overlay.style.position = "fixed";
-            overlay.style.left = "8px";
-            overlay.style.bottom = "8px";
-            overlay.style.width = "min(780px, calc(100vw - 16px))";
-            overlay.style.maxHeight = "42vh";
-            overlay.style.overflow = "auto";
-            overlay.style.background = "rgba(0,0,0,0.82)";
-            overlay.style.color = "#d4d4d8";
-            overlay.style.border = "1px solid #3f3f46";
-            overlay.style.borderRadius = "8px";
-            overlay.style.padding = "8px 10px";
-            overlay.style.font = "12px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
-            overlay.style.zIndex = "2147483647";
-            overlay.style.whiteSpace = "pre-wrap";
-            overlay.style.pointerEvents = "auto";
-            overlay.style.userSelect = "text";
-
-            const title = document.createElement("div");
-            title.style.color = "#f4f4f5";
-            title.style.fontWeight = "700";
-            title.style.marginBottom = "6px";
-            title.textContent = "ICED DEBUG OVERLAY";
-            
-            const clearBtn = document.createElement("button");
-            clearBtn.textContent = "clear";
-            clearBtn.style.marginLeft = "8px";
-            clearBtn.style.font = "11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace";
-            clearBtn.style.background = "#27272a";
-            clearBtn.style.color = "#e4e4e7";
-            clearBtn.style.border = "1px solid #3f3f46";
-            clearBtn.style.borderRadius = "4px";
-            clearBtn.style.cursor = "pointer";
-            clearBtn.style.pointerEvents = "auto";
-            title.appendChild(clearBtn);
-
-            overlay.appendChild(title);
-
-            const logBox = document.createElement("div");
-            logBox.style.pointerEvents = "auto";
-            overlay.appendChild(logBox);
-
-            function append(line) {
-                const ts = new Date().toISOString().slice(11, 23);
-                const row = document.createElement("div");
-                row.textContent = "[" + ts + "] " + line;
-                logBox.appendChild(row);
-                while (logBox.childNodes.length > 120) {
-                    logBox.removeChild(logBox.firstChild);
-                }
-            }
-
-            clearBtn.addEventListener("click", function () {
-                logBox.textContent = "";
-                append("log cleared");
-            });
-
-            function canvasState() {
-                const list = Array.from(document.querySelectorAll("canvas"));
-                if (list.length === 0) {
-                    return (
-                        "canvas: none" +
-                        " | viewport=" +
-                        window.innerWidth +
-                        "x" +
-                        window.innerHeight
-                    );
-                }
-                const parts = list.map(function (c, i) {
-                    const r = c.getBoundingClientRect();
-                    return (
-                        "#" +
-                        i +
-                        " css=" +
-                        Math.round(r.width) +
-                        "x" +
-                        Math.round(r.height) +
-                        " attr=" +
-                        (c.getAttribute("width") || "?") +
-                        "x" +
-                        (c.getAttribute("height") || "?") +
-                        " style=" +
-                        (c.getAttribute("style") || "")
-                    );
-                });
-                return (
-                    "canvas: " +
-                    parts.join(" | ") +
-                    " | viewport=" +
-                    window.innerWidth +
-                    "x" +
-                    window.innerHeight
-                );
-            }
-
             function enforceCanvasSize() {
                 const canvases = Array.from(document.querySelectorAll("canvas"));
                 if (canvases.length === 0) return;
@@ -143,54 +47,16 @@
                 });
             }
 
-            document.addEventListener("DOMContentLoaded", function () {
-                document.body.appendChild(overlay);
-                append("dom ready");
-                append(canvasState());
-            });
-
-            window.addEventListener("load", function () {
-                append("window load");
-                append(canvasState());
-            });
-
-            window.addEventListener("error", function (ev) {
-                append(
-                    "error: " +
-                        (ev.message || "unknown") +
-                        (ev.filename ? " @ " + ev.filename + ":" + ev.lineno : "")
-                );
-            });
-
-            window.addEventListener("unhandledrejection", function (ev) {
-                let reason = "unknown";
-                try {
-                    if (typeof ev.reason === "string") {
-                        reason = ev.reason;
-                    } else if (ev.reason && ev.reason.message) {
-                        reason = ev.reason.message;
-                    } else {
-                        reason = JSON.stringify(ev.reason);
-                    }
-                } catch (_e) {}
-                append("unhandledrejection: " + reason);
-            });
-
             window.addEventListener("TrunkApplicationStarted", function () {
-                append("TrunkApplicationStarted");
                 enforceCanvasSize();
-                append(canvasState());
             });
 
             setInterval(function () {
                 enforceCanvasSize();
-                append(canvasState());
             }, 2000);
 
             window.addEventListener("resize", function () {
                 enforceCanvasSize();
-                append("resize");
-                append(canvasState());
             });
         })();
     </script>
