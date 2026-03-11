@@ -1,6 +1,7 @@
 name: Deploy WASM Demo
 
 on:
+  workflow_dispatch:
   push:
     branches: [ "master" ]
     paths:
@@ -13,7 +14,7 @@ permissions:
   contents: write
 
 env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
 
 jobs:
@@ -41,9 +42,19 @@ jobs:
           trunk build egui.html --release -d dist/egui --public-url /shadcn-rs/egui/
           # Copy main switcher index.html to dist/
           cp index.html dist/index.html
+          # Disable Jekyll processing on GitHub Pages
+          touch dist/.nojekyll
+
+      - name: Verify generated dist layout
+        run: |
+          ls -la crates/wasm-demo/dist
+          ls -la crates/wasm-demo/dist/iced
+          ls -la crates/wasm-demo/dist/egui
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: crates/wasm-demo/dist
           branch: gh-pages
+          clean: true
+          single-commit: true
