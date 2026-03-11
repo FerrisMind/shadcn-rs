@@ -2,6 +2,7 @@
 /target
 /target-codex-check
 **/*.rs.bk
+**/dist
 
 # Cargo
 /Cargo.lock

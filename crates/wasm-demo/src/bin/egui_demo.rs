@@ -37,15 +37,18 @@ fn ensure_lucide_font(ctx: &egui::Context) {
     );
     fonts
         .families
-        .entry(FontFamily::Proportional)
+        .entry(FontFamily::Name("lucide".into()))
         .or_default()
-        .insert(0, "lucide".into());
+        .push("lucide".into());
     ctx.set_fonts(fonts);
     ctx.data_mut(|d| d.insert_temp(font_loaded_id, true));
 }
 
 fn lucide_icon(icon: Icon, size: f32) -> RichText {
-    RichText::new(icon.unicode().to_string()).font(FontId::new(size, FontFamily::Proportional))
+    RichText::new(icon.unicode().to_string()).font(FontId::new(
+        size,
+        FontFamily::Name("lucide".into()),
+    ))
 }
 
 fn icon_with_text(icon: Icon, icon_size: f32, text: &str) -> egui::WidgetText {
@@ -54,7 +57,7 @@ fn icon_with_text(icon: Icon, icon_size: f32, text: &str) -> egui::WidgetText {
         &icon.unicode().to_string(),
         0.0,
         TextFormat {
-            font_id: FontId::new(icon_size, FontFamily::Proportional),
+            font_id: FontId::new(icon_size, FontFamily::Name("lucide".into())),
             ..Default::default()
         },
     );
