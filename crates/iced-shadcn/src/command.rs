@@ -8,13 +8,13 @@ use iced::{Alignment, Background, Element, Length, Shadow};
 use crate::button::{ButtonProps, ButtonSize, ButtonVariant, button_content};
 use crate::dialog::{DialogProps, dialog};
 use crate::input::{InputProps, InputSize, InputVariant, input};
+use crate::kbd::{KbdProps, KbdSize, kbd, kbd_shortcut};
 use crate::scroll_area::{
     ScrollAreaProps, ScrollAreaScrollbarVisibility, ScrollAreaScrollbars, scroll_area,
 };
 use crate::separator::{SeparatorProps, SeparatorSize, separator};
 use crate::spinner::{Spinner, SpinnerSize, spinner};
 use crate::theme::Theme;
-use crate::tokens::mix;
 
 /// Filter callback used by the command palette when `should_filter` is enabled.
 pub type CommandFilter = fn(value: &str, search: &str, keywords: &[String]) -> f32;
@@ -62,7 +62,7 @@ impl<'a, Message> CommandProps<'a, Message> {
             min_width: None,
             show_border: true,
             show_shadow: true,
-            show_item_border: true,
+            show_item_border: false,
             should_filter: true,
             filter: default_command_filter,
         }
@@ -370,7 +370,7 @@ impl<'a> CommandEmptyProps<'a> {
 
 pub fn command<'a, Message: Clone + 'a>(
     props: CommandProps<'a, Message>,
-    theme: &Theme,
+    theme: &'a Theme,
 ) -> Element<'a, Message> {
     let CommandProps {
         id_source,
@@ -391,7 +391,7 @@ pub fn command<'a, Message: Clone + 'a>(
     let min_width = min_width.unwrap_or(theme.styles.command.min_width);
     let radius_md = theme.radius.md;
     let menu_shadow = theme.styles.menu.shadow;
-    let container_border_color = mix(theme.palette.border, theme.palette.foreground, 0.2);
+    let container_border_color = theme.palette.border;
 
     let input = command_input(query, on_query_change, input, tokens, theme);
 
@@ -427,31 +427,60 @@ pub fn command<'a, Message: Clone + 'a>(
     }
     let _ = id_source;
 
-    container(body)
+    let content_radius = (radius_md - if show_border { 1.0 } else { 0.0 }).max(0.0);
+    let content = container(body)
         .width(Length::Fixed(min_width))
         .style(move |_t| iced::widget::container::Style {
             background: Some(Background::Color(tokens.bg)),
             text_color: Some(tokens.text),
             border: Border {
-                radius: radius_md.into(),
-                width: if show_border { 1.0 } else { 0.0 },
-                color: container_border_color,
-            },
-            shadow: if show_shadow {
-                Shadow {
-                    color: iced::Color {
-                        a: menu_shadow.opacity,
-                        ..iced::Color::BLACK
-                    },
-                    offset: iced::Vector::new(0.0, menu_shadow.offset_y),
-                    blur_radius: menu_shadow.blur_radius,
-                }
-            } else {
-                Shadow::default()
+                radius: content_radius.into(),
+                width: 0.0,
+                color: iced::Color::TRANSPARENT,
             },
             ..Default::default()
-        })
-        .into()
+        });
+
+    let shell_shadow = if show_shadow {
+        Shadow {
+            color: iced::Color {
+                a: menu_shadow.opacity,
+                ..iced::Color::BLACK
+            },
+            offset: iced::Vector::new(0.0, menu_shadow.offset_y),
+            blur_radius: menu_shadow.blur_radius,
+        }
+    } else {
+        Shadow::default()
+    };
+
+    if show_border {
+        container(content)
+            .padding(1.0)
+            .style(move |_t| iced::widget::container::Style {
+                background: Some(Background::Color(container_border_color)),
+                border: Border {
+                    radius: radius_md.into(),
+                    width: 0.0,
+                    color: iced::Color::TRANSPARENT,
+                },
+                shadow: shell_shadow,
+                ..Default::default()
+            })
+            .into()
+    } else {
+        container(content)
+            .style(move |_t| iced::widget::container::Style {
+                border: Border {
+                    radius: radius_md.into(),
+                    width: 0.0,
+                    color: iced::Color::TRANSPARENT,
+                },
+                shadow: shell_shadow,
+                ..Default::default()
+            })
+            .into()
+    }
 }
 
 fn command_input<'a, Message: Clone + 'a>(
@@ -515,7 +544,7 @@ fn render_entries<'a, Message: Clone + 'a>(
     show_item_border: bool,
     filter: CommandFilter,
     tokens: CommandTokens,
-    theme: &Theme,
+    theme: &'a Theme,
 ) -> RenderedEntries<'a, Message> {
     let mut elements = Vec::new();
     let mut visible_items = 0usize;
@@ -623,7 +652,7 @@ fn command_item<'a, Message: Clone + 'a>(
     props: CommandItemRenderProps<'a, Message>,
     show_item_border: bool,
     _tokens: CommandTokens,
-    theme: &Theme,
+    theme: &'a Theme,
 ) -> Element<'a, Message> {
     let mut content = row!().align_y(Alignment::Center).spacing(8);
     if let Some(icon) = props.icon {
@@ -634,7 +663,7 @@ fn command_item<'a, Message: Clone + 'a>(
         .push(iced::widget::space().width(Length::Fill));
 
     if let Some(shortcut) = props.shortcut {
-        content = content.push(command_shortcut(shortcut));
+        content = content.push(command_shortcut(shortcut, theme));
     }
 
     let item = button_content(
@@ -688,7 +717,7 @@ fn command_link_item<'a, Message: Clone + 'a>(
     props: LinkRenderProps<'a, Message>,
     show_item_border: bool,
     tokens: CommandTokens,
-    theme: &Theme,
+    theme: &'a Theme,
 ) -> Element<'a, Message> {
     let mut content = row!().align_y(Alignment::Center).spacing(8);
     if let Some(icon) = props.icon {
@@ -706,7 +735,7 @@ fn command_link_item<'a, Message: Clone + 'a>(
         );
 
     if let Some(shortcut) = props.shortcut {
-        content = content.push(command_shortcut(shortcut));
+        content = content.push(command_shortcut(shortcut, theme));
     }
 
     let item = button_content(
@@ -790,8 +819,25 @@ fn command_empty<'a, Message: Clone + 'a>(
     .into()
 }
 
-fn command_shortcut<'a, Message: Clone + 'a>(shortcut: Cow<'a, str>) -> Element<'a, Message> {
-    text(shortcut).size(10).into()
+fn command_shortcut<'a, Message: Clone + 'a>(
+    shortcut: Cow<'a, str>,
+    theme: &'a Theme,
+) -> Element<'a, Message> {
+    let value = shortcut.trim();
+    let props = KbdProps::new().size(KbdSize::Size1).shadow(false);
+
+    if value.contains('+') {
+        let labels: Vec<&str> = value
+            .split('+')
+            .map(str::trim)
+            .filter(|part| !part.is_empty())
+            .collect();
+        if labels.len() > 1 {
+            return kbd_shortcut(labels, props, theme);
+        }
+    }
+
+    kbd(value.to_string(), props, theme)
 }
 
 fn command_matches(query: &str, value: &str, keywords: &[String], filter: CommandFilter) -> f32 {
