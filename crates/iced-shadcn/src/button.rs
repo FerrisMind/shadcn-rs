@@ -10,6 +10,7 @@ use crate::spinner::{Spinner, SpinnerSize, spinner};
 use crate::theme::Theme;
 use crate::tokens::{
     AccentColor, accent_color, accent_foreground, accent_soft, accent_soft_foreground, accent_text,
+    is_dark,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -261,6 +262,11 @@ fn button_radius(theme: &Theme, props: ButtonProps) -> f32 {
 
 use crate::tokens::mix;
 
+fn apply_opacity(mut color: Color, opacity: f32) -> Color {
+    color.a *= opacity;
+    color
+}
+
 fn button_style(
     theme: &Theme,
     props: ButtonProps,
@@ -323,12 +329,21 @@ fn button_style(
                     0.1,
                 ))),
                 ButtonVariant::Soft | ButtonVariant::Surface => {
-                    Some(Background::Color(palette.muted))
+                    if is_dark(&palette) {
+                        Some(Background::Color(palette.muted))
+                    } else {
+                        Some(Background::Color(apply_opacity(palette.foreground, 0.10)))
+                    }
                 }
                 // shadcn-svelte: outline/ghost hover -> accent background + accent foreground.
                 ButtonVariant::Outline | ButtonVariant::Ghost => {
-                    text_color = palette.accent_foreground;
-                    Some(Background::Color(palette.accent))
+                    if is_dark(&palette) {
+                        text_color = palette.accent_foreground;
+                        Some(Background::Color(palette.accent))
+                    } else {
+                        text_color = palette.foreground;
+                        Some(Background::Color(apply_opacity(palette.foreground, 0.10)))
+                    }
                 }
                 ButtonVariant::Link => None,
             };
@@ -351,7 +366,13 @@ fn button_style(
                 ButtonVariant::Soft
                 | ButtonVariant::Surface
                 | ButtonVariant::Outline
-                | ButtonVariant::Ghost => Some(Background::Color(palette.muted)),
+                | ButtonVariant::Ghost => {
+                    if is_dark(&palette) {
+                        Some(Background::Color(palette.muted))
+                    } else {
+                        Some(Background::Color(apply_opacity(palette.foreground, 0.16)))
+                    }
+                }
                 ButtonVariant::Link => None,
             };
         }

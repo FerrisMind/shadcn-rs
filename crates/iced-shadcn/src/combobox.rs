@@ -454,13 +454,20 @@ where
 
 fn combobox_trigger_style(theme: &Theme, variant: InputVariant) -> iced::widget::container::Style {
     let palette = theme.palette;
-    let (background, border_color, text_color) = match variant {
-        InputVariant::Surface => (palette.background, palette.border, palette.foreground),
-        InputVariant::Classic => (palette.background, palette.border, palette.foreground),
+    let (background, border_color, text_color, border_width) = match variant {
+        InputVariant::Surface => (palette.background, palette.border, palette.foreground, 1.0),
+        InputVariant::Classic => (palette.background, palette.border, palette.foreground, 1.0),
         InputVariant::Soft => (
             accent_soft(&palette, crate::tokens::AccentColor::Gray),
             palette.border,
             accent_text(&palette, crate::tokens::AccentColor::Gray),
+            1.0,
+        ),
+        InputVariant::Ghost => (
+            iced::Color::TRANSPARENT,
+            iced::Color::TRANSPARENT,
+            palette.foreground,
+            0.0,
         ),
     };
 
@@ -469,7 +476,7 @@ fn combobox_trigger_style(theme: &Theme, variant: InputVariant) -> iced::widget:
         text_color: Some(text_color),
         border: Border {
             radius: theme.radius.sm.into(),
-            width: 1.0,
+            width: border_width,
             color: border_color,
         },
         ..Default::default()

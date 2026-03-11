@@ -1,6 +1,6 @@
 use iced::border::Border;
 use iced::widget::scrollable::{Direction, Scrollbar, Status, Style};
-use iced::widget::{container, scrollable};
+use iced::widget::{Id, container, scrollable};
 use iced::{Background, Color, Element, Length, Shadow};
 
 use crate::button::ButtonRadius;
@@ -28,8 +28,9 @@ pub enum ScrollAreaScrollbarVisibility {
     Hidden,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct ScrollAreaProps {
+    pub id: Option<Id>,
     pub size: ScrollAreaSize,
     pub radius: Option<ButtonRadius>,
     pub bordered: bool,
@@ -45,6 +46,7 @@ pub struct ScrollAreaProps {
 impl Default for ScrollAreaProps {
     fn default() -> Self {
         Self {
+            id: None,
             size: ScrollAreaSize::Size1,
             radius: None,
             bordered: true,
@@ -62,6 +64,11 @@ impl Default for ScrollAreaProps {
 impl ScrollAreaProps {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn id(mut self, id: Id) -> Self {
+        self.id = Some(id);
+        self
     }
 
     pub fn size(mut self, size: ScrollAreaSize) -> Self {
@@ -114,7 +121,7 @@ impl ScrollAreaProps {
         self
     }
 
-    fn resolved_scrollbar_widths(self, theme: &Theme) -> (f32, f32) {
+    fn resolved_scrollbar_widths(&self, theme: &Theme) -> (f32, f32) {
         let fallback = self
             .scrollbar_width
             .unwrap_or_else(|| self.size.scrollbar_width(theme));
@@ -125,12 +132,12 @@ impl ScrollAreaProps {
         (rail_width, thumb_width)
     }
 
-    fn resolved_scrollbar_margin(self, theme: &Theme) -> f32 {
+    fn resolved_scrollbar_margin(&self, theme: &Theme) -> f32 {
         self.scrollbar_margin
             .unwrap_or(theme.styles.scroll_area.default_scrollbar_margin)
     }
 
-    fn resolved_scrollbar_spacing(self) -> Option<f32> {
+    fn resolved_scrollbar_spacing(&self) -> Option<f32> {
         self.scrollbar_spacing
     }
 }
@@ -142,7 +149,7 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
     }
 }
 
-fn scroll_area_radius(theme: &Theme, props: ScrollAreaProps) -> f32 {
+fn scroll_area_radius(theme: &Theme, props: &ScrollAreaProps) -> f32 {
     match props.radius {
         Some(ButtonRadius::None) => 0.0,
         Some(ButtonRadius::Small) => theme.radius.sm,
@@ -163,7 +170,7 @@ impl ScrollAreaSize {
     }
 }
 
-fn scroll_area_style(theme: &Theme, props: ScrollAreaProps, status: Status) -> Style {
+fn scroll_area_style(theme: &Theme, props: &ScrollAreaProps, status: Status) -> Style {
     let palette = theme.palette;
     let radius = scroll_area_radius(theme, props);
 
@@ -302,9 +309,16 @@ pub fn scroll_area<'a, Message: 'a>(
     };
 
     let theme = theme.clone();
-    scrollable(content)
+    let style_props = props.clone();
+    let id = props.id.clone();
+    let mut widget = scrollable(content)
         .width(Length::Fill)
         .height(Length::Fill)
         .direction(direction)
-        .style(move |_iced_theme, status| scroll_area_style(&theme, props, status))
+        .style(move |_iced_theme, status| scroll_area_style(&theme, &style_props, status));
+
+    if let Some(id) = id {
+        widget = widget.id(id);
+    }
+    widget
 }

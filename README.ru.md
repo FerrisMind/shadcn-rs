@@ -8,7 +8,7 @@
   </picture>
 </p>
 
-> Минималистичный набор компонентов egui в эстетике shadcn/ui.
+> Набор компонентов egui и iced в эстетике shadcn/ui.
 
 > Переводы: [![EN](https://img.shields.io/badge/EN-README-black)](README.md) [![PT-BR](https://img.shields.io/badge/PT--BR-README-green)](README.pt-BR.md)
 

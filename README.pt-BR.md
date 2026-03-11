@@ -8,7 +8,7 @@
   </picture>
 </p>
 
-> Conjunto minimalista de componentes egui com estética shadcn/ui.
+> Conjunto de componentes egui e iced com estética shadcn/ui.
 
 > Traduções: [![EN](https://img.shields.io/badge/EN-README-black)](README.md) [![RU](https://img.shields.io/badge/RU-README-blue)](README.ru.md)
 

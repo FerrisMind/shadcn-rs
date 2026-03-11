@@ -24,6 +24,7 @@ pub enum CardSize {
 pub struct CardProps {
     pub variant: CardVariant,
     pub size: CardSize,
+    pub show_shadow: bool,
 }
 
 impl Default for CardProps {
@@ -31,6 +32,7 @@ impl Default for CardProps {
         Self {
             variant: CardVariant::Surface,
             size: CardSize::Size1,
+            show_shadow: true,
         }
     }
 }
@@ -47,6 +49,11 @@ impl CardProps {
 
     pub fn size(mut self, size: CardSize) -> Self {
         self.size = size;
+        self
+    }
+
+    pub fn show_shadow(mut self, show_shadow: bool) -> Self {
+        self.show_shadow = show_shadow;
         self
     }
 }
@@ -71,22 +78,15 @@ impl CardSize {
     }
 }
 
-fn apply_opacity(color: Color, opacity: f32) -> Color {
-    Color {
-        a: color.a * opacity,
-        ..color
-    }
-}
-
 fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {
     let palette = theme.palette;
     let radius = props.size.radius(theme);
+    let border_color = palette.border;
+    let border_width = 1.0;
 
-    let (background, border_color, border_width, shadow) = match props.variant {
+    let (background, default_shadow) = match props.variant {
         CardVariant::Surface => (
             Some(Background::Color(palette.card)),
-            palette.border,
-            1.0,
             Shadow {
                 color: apply_opacity(Color::BLACK, 0.08),
                 offset: iced::Vector::new(0.0, 2.0),
@@ -95,15 +95,18 @@ fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {
         ),
         CardVariant::Classic => (
             Some(Background::Color(palette.card)),
-            palette.border,
-            1.0,
             Shadow {
                 color: apply_opacity(Color::BLACK, 0.12),
                 offset: iced::Vector::new(0.0, 4.0),
                 blur_radius: 14.0,
             },
         ),
-        CardVariant::Ghost => (None, Color::TRANSPARENT, 0.0, Shadow::default()),
+        CardVariant::Ghost => (None, Shadow::default()),
+    };
+    let shadow = if props.show_shadow {
+        default_shadow
+    } else {
+        Shadow::default()
     };
 
     container_widget::Style {
@@ -117,6 +120,11 @@ fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {
         shadow,
         snap: true,
     }
+}
+
+fn apply_opacity(mut color: Color, opacity: f32) -> Color {
+    color.a *= opacity;
+    color
 }
 
 pub fn card<'a, Message: 'a>(

@@ -1,5 +1,5 @@
 # shadcn-rs
-> Minimalist egui component set with shadcn/ui aesthetics.
+> egui and iced component set with shadcn/ui aesthetics.
 
 <p align="center">
   <picture>

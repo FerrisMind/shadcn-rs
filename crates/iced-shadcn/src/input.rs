@@ -18,6 +18,7 @@ pub enum InputVariant {
     Classic,
     Surface,
     Soft,
+    Ghost,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -161,23 +162,35 @@ fn input_style(theme: &Theme, props: InputProps, status: text_input::Status) -> 
     let mut background = match props.variant {
         InputVariant::Classic | InputVariant::Surface => Background::Color(palette.background),
         InputVariant::Soft => Background::Color(soft_bg),
+        InputVariant::Ghost => Background::Color(iced::Color::TRANSPARENT),
     };
     let mut value = match props.variant {
         InputVariant::Soft => text_color,
+        InputVariant::Ghost => palette.foreground,
         _ => palette.foreground,
     };
     let mut placeholder = match props.variant {
         InputVariant::Soft => text_color,
+        InputVariant::Ghost => palette.muted_foreground,
         _ => palette.muted_foreground,
     };
 
+    if matches!(props.variant, InputVariant::Ghost) {
+        border.width = 0.0;
+        border.color = iced::Color::TRANSPARENT;
+    }
+
     match status {
         text_input::Status::Hovered => {
-            border.color = palette.ring;
+            if !matches!(props.variant, InputVariant::Ghost) {
+                border.color = palette.ring;
+            }
         }
         text_input::Status::Focused { .. } => {
-            border.color = palette.ring;
-            border.width = theme.styles.input.focused_border_width;
+            if !matches!(props.variant, InputVariant::Ghost) {
+                border.color = palette.ring;
+                border.width = theme.styles.input.focused_border_width;
+            }
         }
         text_input::Status::Disabled => {
             background = Background::Color(palette.muted);

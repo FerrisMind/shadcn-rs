@@ -62,6 +62,11 @@ impl DropdownMenuProps {
         self
     }
 
+    pub fn show_shadow(mut self, show_shadow: bool) -> Self {
+        self.content.show_shadow = show_shadow;
+        self
+    }
+
     pub fn width(mut self, width: u32) -> Self {
         self.width = Some(width.max(1));
         self
