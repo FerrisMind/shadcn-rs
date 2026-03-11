@@ -36,10 +36,11 @@ jobs:
       - name: Build WASM Demo
         run: |
           cd crates/wasm-demo
+          rm -rf dist
           # Build Iced version into dist/iced
-          trunk build iced.html --release -d dist/iced --public-url /shadcn-rs/iced/
+          trunk build iced.html --release -d dist/iced --public-url /shadcn-rs/iced/ --filehash false
           # Build Egui version into dist/egui
-          trunk build egui.html --release -d dist/egui --public-url /shadcn-rs/egui/
+          trunk build egui.html --release -d dist/egui --public-url /shadcn-rs/egui/ --filehash false
           # Copy main switcher index.html to dist/
           cp index.html dist/index.html
           # Disable Jekyll processing on GitHub Pages
