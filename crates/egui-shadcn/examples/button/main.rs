@@ -3,11 +3,6 @@
     windows_subsystem = "windows"
 )]
 
-#[path = "../_shared/icon.rs"]
-mod icon;
-#[path = "../_shared/screenshot.rs"]
-mod screenshot;
-
 use eframe::{App, Frame, egui};
 use egui::{
     FontData, FontDefinitions, FontFamily, FontId, RichText, text::LayoutJob, text::TextFormat,
@@ -17,6 +12,8 @@ use egui_shadcn::{
     SeparatorProps, Theme, button, separator,
 };
 use lucide_icons::{Icon, LUCIDE_FONT_BYTES};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsCast;
 
 struct ButtonDemo {
     theme: Theme,
@@ -44,15 +41,16 @@ fn ensure_lucide_font(ctx: &egui::Context) {
     );
     fonts
         .families
-        .entry(FontFamily::Proportional)
+        .entry(FontFamily::Name("lucide".into()))
         .or_default()
-        .insert(0, "lucide".into());
+        .push("lucide".into());
     ctx.set_fonts(fonts);
     ctx.data_mut(|d| d.insert_temp(font_loaded_id, true));
 }
 
 fn lucide_icon(icon: Icon, size: f32) -> RichText {
-    RichText::new(icon.unicode().to_string()).font(FontId::new(size, FontFamily::Proportional))
+    RichText::new(icon.unicode().to_string())
+        .font(FontId::new(size, FontFamily::Name("lucide".into())))
 }
 
 fn icon_with_text(icon: Icon, icon_size: f32, text: &str) -> egui::WidgetText {
@@ -61,7 +59,7 @@ fn icon_with_text(icon: Icon, icon_size: f32, text: &str) -> egui::WidgetText {
         &icon.unicode().to_string(),
         0.0,
         TextFormat {
-            font_id: FontId::new(icon_size, FontFamily::Proportional),
+            font_id: FontId::new(icon_size, FontFamily::Name("lucide".into())),
             ..Default::default()
         },
     );
@@ -284,7 +282,6 @@ fn render_demo(ui: &mut egui::Ui, theme: &Theme, kind: DemoKind) {
 
 impl App for ButtonDemo {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut Frame) {
-        screenshot::apply_screenshot_scale(ctx);
         ensure_lucide_font(ctx);
         egui::CentralPanel::default().show(ctx, |ui| {
             let panel_rect = ui.max_rect();
@@ -369,12 +366,40 @@ impl App for ButtonDemo {
     }
 }
 
-fn main() -> eframe::Result<()> {
+#[cfg(not(target_arch = "wasm32"))]
+pub fn main() -> eframe::Result<()> {
     env_logger::init();
-    let options = icon::native_options();
+    let options = eframe::NativeOptions::default();
     eframe::run_native(
         "Button example",
         options,
         Box::new(|_cc| Ok(Box::new(ButtonDemo::new()))),
     )
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn main() {
+    let web_options = eframe::WebOptions::default();
+
+    wasm_bindgen_futures::spawn_local(async move {
+        let window = web_sys::window().expect("window is not available");
+        let document = window.document().expect("document is not available");
+        let canvas = document
+            .get_element_by_id("egui-canvas")
+            .expect("egui-canvas element was not found")
+            .dyn_into::<web_sys::HtmlCanvasElement>()
+            .expect("egui-canvas is not an HtmlCanvasElement");
+
+        eframe::WebRunner::new()
+            .start(
+                canvas,
+                web_options,
+                Box::new(|cc| {
+                    ensure_lucide_font(&cc.egui_ctx);
+                    Ok(Box::new(ButtonDemo::new()))
+                }),
+            )
+            .await
+            .expect("failed to start eframe web runner");
+    });
 }

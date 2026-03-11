@@ -62,8 +62,8 @@ impl Example {
         let progress = self.progress;
 
         // Variants section
-        let variants = column![
-            tile(
+        let variants = row![
+            grid_tile(
                 theme,
                 "Primary (default)",
                 button(
@@ -75,7 +75,7 @@ impl Example {
                     theme,
                 ),
             ),
-            tile(
+            grid_tile(
                 theme,
                 "Secondary",
                 button(
@@ -87,7 +87,7 @@ impl Example {
                     theme,
                 ),
             ),
-            tile(
+            grid_tile(
                 theme,
                 "Outline",
                 button(
@@ -99,7 +99,7 @@ impl Example {
                     theme,
                 ),
             ),
-            tile(
+            grid_tile(
                 theme,
                 "Ghost",
                 button(
@@ -111,7 +111,7 @@ impl Example {
                     theme,
                 ),
             ),
-            tile(
+            grid_tile(
                 theme,
                 "Destructive",
                 button(
@@ -124,7 +124,7 @@ impl Example {
                     theme,
                 ),
             ),
-            tile(theme, "Link", {
+            grid_tile(theme, "Link", {
                 let link_label = Rich::<(), Message>::with_spans(vec![
                     Span::new("Link").underline(self.link_hovered),
                 ])
@@ -143,11 +143,12 @@ impl Example {
                     .interaction(mouse::Interaction::Pointer)
             }),
         ]
-        .spacing(12);
+        .spacing(16)
+        .align_y(Alignment::Start);
 
         // Icons section
-        let icons = column![
-            tile(
+        let icons = row![
+            grid_tile(
                 theme,
                 "Icon only",
                 icon_button(
@@ -159,7 +160,7 @@ impl Example {
                     theme,
                 ),
             ),
-            tile(
+            grid_tile(
                 theme,
                 "With leading icon",
                 button_content(
@@ -173,7 +174,7 @@ impl Example {
                     theme,
                 ),
             ),
-            tile(
+            grid_tile(
                 theme,
                 "Rounded full",
                 icon_button(
@@ -187,85 +188,90 @@ impl Example {
                 ),
             ),
         ]
-        .spacing(12);
+        .spacing(16)
+        .align_y(Alignment::Start);
 
         // Sizes section
-        let sizes = column![
-            tile(
+        let sizes = row![
+            grid_tile(
                 theme,
-                "Small",
-                row![
-                    button(
-                        "Small",
-                        Some(Message::Pressed),
-                        ButtonProps::new()
-                            .variant(ButtonVariant::Outline)
-                            .size(ButtonSize::Size1),
-                        theme,
-                    ),
-                    icon_button(
-                        icon_arrow_up_right().size(12),
-                        Some(Message::Pressed),
-                        ButtonProps::new()
-                            .variant(ButtonVariant::Outline)
-                            .size(ButtonSize::Size1),
-                        theme,
-                    ),
-                ]
-                .spacing(8),
+                "Size Small (text)",
+                button(
+                    "Small",
+                    Some(Message::Pressed),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Size1),
+                    theme,
+                ),
             ),
-            tile(
+            grid_tile(
                 theme,
-                "Default",
-                row![
-                    button(
-                        "Default",
-                        Some(Message::Pressed),
-                        ButtonProps::new()
-                            .variant(ButtonVariant::Outline)
-                            .size(ButtonSize::Size2),
-                        theme,
-                    ),
-                    icon_button(
-                        icon_arrow_up_right().size(14),
-                        Some(Message::Pressed),
-                        ButtonProps::new()
-                            .variant(ButtonVariant::Outline)
-                            .size(ButtonSize::Size2),
-                        theme,
-                    ),
-                ]
-                .spacing(8),
+                "Size Small (icon)",
+                icon_button(
+                    icon_arrow_up_right().size(12),
+                    Some(Message::Pressed),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Size1),
+                    theme,
+                ),
             ),
-            tile(
+            grid_tile(
                 theme,
-                "Large",
-                row![
-                    button(
-                        "Large",
-                        Some(Message::Pressed),
-                        ButtonProps::new()
-                            .variant(ButtonVariant::Outline)
-                            .size(ButtonSize::Size3),
-                        theme,
-                    ),
-                    icon_button(
-                        icon_arrow_up_right().size(16),
-                        Some(Message::Pressed),
-                        ButtonProps::new()
-                            .variant(ButtonVariant::Outline)
-                            .size(ButtonSize::Size3),
-                        theme,
-                    ),
-                ]
-                .spacing(8),
+                "Size Default (text)",
+                button(
+                    "Default",
+                    Some(Message::Pressed),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Size2),
+                    theme,
+                ),
+            ),
+            grid_tile(
+                theme,
+                "Size Default (icon)",
+                icon_button(
+                    icon_arrow_up_right().size(14),
+                    Some(Message::Pressed),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Size2),
+                    theme,
+                ),
+            ),
+            grid_tile(
+                theme,
+                "Size Large (text)",
+                button(
+                    "Large",
+                    Some(Message::Pressed),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Size3),
+                    theme,
+                ),
+            ),
+            grid_tile(
+                theme,
+                "Size Large (icon)",
+                icon_button(
+                    icon_arrow_up_right().size(16),
+                    Some(Message::Pressed),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Size3),
+                    theme,
+                ),
             ),
         ]
-        .spacing(12);
+        .spacing(16)
+        .align_y(Alignment::Start);
 
         // States section
-        let states = column![
-            tile(
+        let states = row![
+            grid_tile(
                 theme,
                 "Loading (disabled)",
                 button_content(
@@ -291,7 +297,7 @@ impl Example {
                     theme,
                 ),
             ),
-            tile(
+            grid_tile(
                 theme,
                 "Solid default",
                 button(
@@ -304,7 +310,8 @@ impl Example {
                 ),
             ),
         ]
-        .spacing(12);
+        .spacing(16)
+        .align_y(Alignment::Start);
 
         let content = column![
             section(theme, "Variants", variants),
@@ -387,4 +394,14 @@ fn tile<'a, Message: 'a>(
             },
             ..iced::widget::container::Style::default()
         })
+}
+
+fn grid_tile<'a, Message: 'a>(
+    theme: &Theme,
+    label: &'a str,
+    content: impl Into<Element<'a, Message>>,
+) -> iced::widget::Container<'a, Message> {
+    tile(theme, label, content)
+        .width(Length::Fixed(220.0))
+        .height(Length::Fixed(96.0))
 }
