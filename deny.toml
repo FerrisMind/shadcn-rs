@@ -6,7 +6,11 @@ yanked = "deny"
 
 unmaintained = "all" 
 
-ignore = []
+ignore = [
+    # paste is archived (RUSTSEC-2024-0436) and currently comes transitively via wgpu/image stack.
+    # No safe direct upgrade path is available at the moment.
+    "RUSTSEC-2024-0436",
+]
 
 [licenses]
 allow = [
