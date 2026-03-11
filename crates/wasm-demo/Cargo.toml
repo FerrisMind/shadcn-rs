@@ -17,7 +17,7 @@ web-sys = { version = "0.3.82", features = ["Window", "Document", "HtmlCanvasEle
 lucide-icons = "0.575.0"
 
 # Iced WASM specific
-iced = { version = "0.14", features = ["canvas", "webgl", "fira-sans"] }
+iced = { version = "0.14", features = ["wgpu", "canvas", "webgl", "fira-sans"] }
 
 # Egui WASM specific
 eframe = { version = "0.33", default-features = false, features = ["web_screen_reader", "wgpu"] }
