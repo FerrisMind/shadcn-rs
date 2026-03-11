@@ -4,6 +4,10 @@
   <img src="https://raw.githubusercontent.com/FerrisMind/shadcn-rs/master/crates/egui-shadcn/assets/icons/shadcn-egui/icon.svg" width="200" alt="shadcn-egui logo" />
 </p>
 
+<p align="center">
+  <a href="https://crates.io/crates/egui-shadcn"><img alt="egui-shadcn version" src="https://img.shields.io/crates/v/egui-shadcn?label=egui-shadcn"></a>
+</p>
+
 > [!WARNING]
 > AVISO: a API do `egui-shadcn` é atualmente instável e pode mudar entre versões, incluindo breaking changes.
 > Fixe versões exatas das dependências e revise as release notes antes de atualizar.

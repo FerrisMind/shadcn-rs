@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  <a href="https://crates.io/crates/iced-shadcn"><img alt="iced-shadcn version" src="https://img.shields.io/crates/v/iced-shadcn?label=iced-shadcn"></a>
+</p>
+
+<p align="center">
   <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a>
 </p>
 

@@ -4,6 +4,10 @@
   <img src="https://raw.githubusercontent.com/FerrisMind/shadcn-rs/master/crates/iced-shadcn/assets/icons/shadcn-iced/icon.svg" width="200" alt="shadcn-iced logo" />
 </p>
 
+<p align="center">
+  <a href="https://crates.io/crates/iced-shadcn"><img alt="iced-shadcn version" src="https://img.shields.io/crates/v/iced-shadcn?label=iced-shadcn"></a>
+</p>
+
 > [!WARNING]
 > AVISO: a API do `iced-shadcn` é atualmente instável e pode mudar entre versões, incluindo breaking changes.
 > Fixe versões exatas das dependências e revise as release notes antes de atualizar.

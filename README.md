@@ -12,6 +12,8 @@
 > Translations: [![RU](https://img.shields.io/badge/RU-README-blue)](README.ru.md) [![PT-BR](https://img.shields.io/badge/PT--BR-README-green)](README.pt-BR.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![egui-shadcn](https://img.shields.io/crates/v/egui-shadcn?label=egui-shadcn)](https://crates.io/crates/egui-shadcn)
+[![iced-shadcn](https://img.shields.io/crates/v/iced-shadcn?label=iced-shadcn)](https://crates.io/crates/iced-shadcn)
 
 > [!WARNING]
 > API STABILITY NOTICE: `shadcn-rs` API is currently unstable and may change between versions, including breaking changes.
