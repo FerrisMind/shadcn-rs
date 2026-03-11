@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  <a href="https://crates.io/crates/egui-shadcn"><img alt="egui-shadcn version" src="https://img.shields.io/crates/v/egui-shadcn?label=egui-shadcn"></a>
+</p>
+
+<p align="center">
   <a href="README.ru.md">Русский</a> · <a href="README.pt-BR.md">Português (Brasil)</a>
 </p>
 

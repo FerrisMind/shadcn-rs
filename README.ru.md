@@ -13,6 +13,8 @@
 > Переводы: [![EN](https://img.shields.io/badge/EN-README-black)](README.md) [![PT-BR](https://img.shields.io/badge/PT--BR-README-green)](README.pt-BR.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![egui-shadcn](https://img.shields.io/crates/v/egui-shadcn?label=egui-shadcn)](https://crates.io/crates/egui-shadcn)
+[![iced-shadcn](https://img.shields.io/crates/v/iced-shadcn?label=iced-shadcn)](https://crates.io/crates/iced-shadcn)
 
 > [!WARNING]
 > ВНИМАНИЕ: API `shadcn-rs` сейчас нестабилен и может меняться от версии к версии, включая breaking changes.
@@ -34,5 +36,4 @@ MIT (см. workspace `Cargo.toml`).
 - Lucide Icons — набор иконок, используемый через `lucide-icons`.
 - Radix UI — паттерны взаимодействия и доступности.
 - shadcn/ui — дизайн-язык и вдохновение для компонентов.
-
 
