@@ -7,8 +7,8 @@ CLI-утилита для установки компонентов `shadcn-rs`.
 ## Что делает
 
 - Устанавливает исходники компонентов из:
-  - `crates/egui-shadcn/src`
-  - `crates/iced-shadcn/src`
+  - `egui-shadcn/src` и `iced-shadcn/src`, найденных по зависимостям проекта
+  - порядок резолва: `path` dependency -> `cargo metadata` -> fallback на локальный workspace `shadcn-rs`
 - Генерирует локальную структуру модулей в проекте:
   - `src/shadcn/<backend>/<component>.rs`
   - `src/shadcn/mod.rs`
@@ -63,6 +63,8 @@ shadcn-rs add button --project . --backend egui
 ```powershell
 shadcn-rs add button --project . --backend egui --write-cargo
 ```
+
+С `--write-cargo` CLI при необходимости также автоматически выполняет `cargo fetch`, поэтому на новом проекте компонент можно поставить одной командой.
 
 Принудительная перезапись файла компонента:
 

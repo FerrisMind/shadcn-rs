@@ -5,6 +5,7 @@ use std::collections::BTreeSet;
 use std::fmt::{Display, Formatter};
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use toml_edit::{DocumentMut, Item, Table, value};
 
 const CONFIG_FILE: &str = "shadcn-rs.toml";
@@ -100,13 +101,6 @@ impl Backend {
             Self::Iced => "iced",
         }
     }
-
-    fn src_root(self, workspace_root: &Path) -> PathBuf {
-        workspace_root
-            .join("crates")
-            .join(self.as_crate_dependency())
-            .join("src")
-    }
 }
 
 impl Display for Backend {
@@ -164,20 +158,21 @@ fn cmd_init(args: InitArgs) -> Result<()> {
 }
 
 fn cmd_list(args: ListArgs) -> Result<()> {
-    let workspace_root = shadcn_workspace_root()?;
+    let project_root = try_find_project_root(&args.project)?;
     match args.backend {
         Some(backend) => {
-            let components = collect_components(&workspace_root, backend)?;
+            let src_root = resolve_backend_src_root(project_root.as_deref(), backend)?;
+            let components = collect_components(&src_root)?;
             print_component_list(backend, &components);
         }
         None => {
             for backend in [Backend::Egui, Backend::Iced] {
-                let components = collect_components(&workspace_root, backend)?;
+                let src_root = resolve_backend_src_root(project_root.as_deref(), backend)?;
+                let components = collect_components(&src_root)?;
                 print_component_list(backend, &components);
             }
         }
     }
-    let _ = args.project;
     Ok(())
 }
 
@@ -201,8 +196,37 @@ fn cmd_add(args: AddArgs) -> Result<()> {
         &cargo_toml_path,
     )?;
 
-    let workspace_root = shadcn_workspace_root()?;
-    let components = collect_components(&workspace_root, backend)?;
+    let dependency = backend.as_crate_dependency();
+    let mut added_dependency = false;
+    if !has_dependency(&cargo_toml_raw, dependency)? {
+        if args.write_cargo {
+            add_dependency_to_manifest(&cargo_toml_path, dependency, "0.5.0")?;
+            println!("Added dependency '{dependency} = \"0.5.0\"' to Cargo.toml");
+            added_dependency = true;
+        } else {
+            bail!(
+                "dependency '{dependency}' is missing in Cargo.toml. Re-run with --write-cargo to add it automatically"
+            );
+        }
+    }
+
+    if added_dependency {
+        run_cargo_fetch(&cargo_toml_path)?;
+    }
+
+    let src_root = match resolve_backend_src_root(Some(&project_root), backend) {
+        Ok(src_root) => src_root,
+        Err(initial_err) => {
+            run_cargo_fetch(&cargo_toml_path)?;
+            resolve_backend_src_root(Some(&project_root), backend).map_err(|final_err| {
+                anyhow!(
+                    "failed to locate '{}' sources after cargo fetch: {final_err:#}. initial error: {initial_err:#}",
+                    backend.as_crate_dependency()
+                )
+            })?
+        }
+    };
+    let components = collect_components(&src_root)?;
     let slug = sanitize_slug(&args.component);
     let entry = components
         .iter()
@@ -232,22 +256,32 @@ fn cmd_add(args: AddArgs) -> Result<()> {
 
     write_mod_files(&project_root.join(&config.target_dir), backend)?;
 
-    let dependency = backend.as_crate_dependency();
-    if has_dependency(&cargo_toml_raw, dependency)? {
+    if !added_dependency {
         println!("Dependency '{dependency}' already exists in Cargo.toml");
-    } else if args.write_cargo {
-        add_dependency_to_manifest(&cargo_toml_path, dependency, "0.5.0")?;
-        println!("Added dependency '{dependency} = \"0.5.0\"' to Cargo.toml");
-    } else {
-        println!(
-            "Dependency '{dependency}' is missing in Cargo.toml. Re-run with --write-cargo to add it automatically."
-        );
     }
 
     println!(
         "Installed component '{slug}' to {}",
         target_file.to_string_lossy()
     );
+    Ok(())
+}
+
+fn run_cargo_fetch(manifest_path: &Path) -> Result<()> {
+    let output = Command::new("cargo")
+        .arg("fetch")
+        .arg("--manifest-path")
+        .arg(manifest_path)
+        .output()
+        .with_context(|| format!("failed to run cargo fetch for {}", manifest_path.display()))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        bail!(
+            "cargo fetch failed for {}: {}",
+            manifest_path.display(),
+            stderr.trim()
+        );
+    }
     Ok(())
 }
 
@@ -312,6 +346,19 @@ fn find_project_root(candidate: &Path) -> Result<PathBuf> {
     Ok(root)
 }
 
+fn try_find_project_root(candidate: &Path) -> Result<Option<PathBuf>> {
+    match candidate.canonicalize() {
+        Ok(root) => {
+            if root.join(CARGO_FILE).is_file() {
+                Ok(Some(root))
+            } else {
+                Ok(None)
+            }
+        }
+        Err(_) => Ok(None),
+    }
+}
+
 fn shadcn_workspace_root() -> Result<PathBuf> {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let workspace_root = manifest_dir
@@ -329,8 +376,50 @@ fn shadcn_workspace_root() -> Result<PathBuf> {
     Ok(workspace_root)
 }
 
-fn collect_components(workspace_root: &Path, backend: Backend) -> Result<Vec<ComponentEntry>> {
-    let src_root = backend.src_root(workspace_root);
+fn resolve_backend_src_root(project_root: Option<&Path>, backend: Backend) -> Result<PathBuf> {
+    if let Some(project_root) = project_root {
+        let manifest_path = project_root.join(CARGO_FILE);
+        let cargo_toml_raw = fs::read_to_string(&manifest_path)
+            .with_context(|| format!("failed to read {}", manifest_path.display()))?;
+
+        if let Some(path_dep) =
+            extract_dependency_path_from_manifest(&cargo_toml_raw, backend.as_crate_dependency())?
+        {
+            let dependency_root = project_root.join(path_dep);
+            let canonical_root = dependency_root.canonicalize().with_context(|| {
+                format!(
+                    "failed to resolve path dependency '{}' for {}",
+                    dependency_root.display(),
+                    backend.as_crate_dependency()
+                )
+            })?;
+            let src_root = canonical_root.join("src");
+            if src_root.is_dir() {
+                return Ok(src_root);
+            }
+        }
+
+        if let Some(src_root) = resolve_from_cargo_metadata(project_root, backend)? {
+            return Ok(src_root);
+        }
+    }
+
+    let workspace_root = shadcn_workspace_root()?;
+    let fallback_src = workspace_root
+        .join("crates")
+        .join(backend.as_crate_dependency())
+        .join("src");
+    if fallback_src.is_dir() {
+        return Ok(fallback_src);
+    }
+
+    bail!(
+        "failed to locate '{}' source files. Add dependency to target project (or use --write-cargo and run `cargo check`) and try again",
+        backend.as_crate_dependency()
+    );
+}
+
+fn collect_components(src_root: &Path) -> Result<Vec<ComponentEntry>> {
     let lib_path = src_root.join("lib.rs");
     let lib_source = fs::read_to_string(&lib_path)
         .with_context(|| format!("failed to read {}", lib_path.display()))?;
@@ -351,6 +440,88 @@ fn collect_components(workspace_root: &Path, backend: Backend) -> Result<Vec<Com
     entries.sort_by(|left, right| left.slug.cmp(&right.slug));
     entries.dedup_by(|left, right| left.slug == right.slug);
     Ok(entries)
+}
+
+fn extract_dependency_path_from_manifest(
+    cargo_toml: &str,
+    dependency_name: &str,
+) -> Result<Option<PathBuf>> {
+    let doc = cargo_toml
+        .parse::<DocumentMut>()
+        .context("failed to parse Cargo.toml")?;
+    let Some(dependencies) = doc
+        .as_table()
+        .get("dependencies")
+        .and_then(Item::as_table_like)
+    else {
+        return Ok(None);
+    };
+
+    let Some(item) = dependencies.get(dependency_name) else {
+        return Ok(None);
+    };
+
+    if let Some(inline_table) = item.as_inline_table()
+        && let Some(path_item) = inline_table.get("path")
+        && let Some(path) = path_item.as_str()
+    {
+        return Ok(Some(PathBuf::from(path)));
+    }
+
+    if let Some(table) = item.as_table()
+        && let Some(path_item) = table.get("path").and_then(Item::as_value)
+        && let Some(path) = path_item.as_str()
+    {
+        return Ok(Some(PathBuf::from(path)));
+    }
+
+    Ok(None)
+}
+
+#[derive(Debug, Deserialize)]
+struct CargoMetadata {
+    packages: Vec<CargoMetadataPackage>,
+}
+
+#[derive(Debug, Deserialize)]
+struct CargoMetadataPackage {
+    name: String,
+    manifest_path: String,
+}
+
+fn resolve_from_cargo_metadata(project_root: &Path, backend: Backend) -> Result<Option<PathBuf>> {
+    let output = Command::new("cargo")
+        .arg("metadata")
+        .arg("--format-version")
+        .arg("1")
+        .arg("--all-features")
+        .current_dir(project_root)
+        .output()
+        .with_context(|| format!("failed to run cargo metadata in {}", project_root.display()))?;
+
+    if !output.status.success() {
+        return Ok(None);
+    }
+
+    let metadata: CargoMetadata =
+        serde_json::from_slice(&output.stdout).context("failed to parse cargo metadata output")?;
+    let Some(package) = metadata
+        .packages
+        .iter()
+        .find(|package| package.name == backend.as_crate_dependency())
+    else {
+        return Ok(None);
+    };
+
+    let manifest_path = PathBuf::from(&package.manifest_path);
+    let Some(package_root) = manifest_path.parent() else {
+        return Ok(None);
+    };
+    let src_root = package_root.join("src");
+    if src_root.is_dir() {
+        return Ok(Some(src_root));
+    }
+    Ok(None)
 }
 
 fn parse_pub_mods(content: &str) -> Vec<String> {
