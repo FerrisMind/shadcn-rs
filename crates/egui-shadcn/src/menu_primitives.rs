@@ -500,7 +500,7 @@ pub fn menu_label(ui: &mut Ui, theme: &Theme, props: MenuLabelProps<'_>) -> Resp
 pub fn menu_separator(ui: &mut Ui, theme: &Theme) -> Response {
     let tokens = menu_tokens(theme);
     ui.add_space(4.0);
-    let width = menu_current_width(ui, tokens.min_width).min(320.0).max(1.0);
+    let width = menu_current_width(ui, tokens.min_width).clamp(1.0, 320.0);
     let (rect, response) = ui.allocate_exact_size(Vec2::new(width, 1.0), Sense::hover());
     if ui.is_rect_visible(rect) {
         ui.painter().line_segment(

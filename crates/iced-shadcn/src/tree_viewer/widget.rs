@@ -6,7 +6,7 @@ use iced::advanced::widget::{self, Widget};
 use iced::advanced::{Clipboard, Shell};
 use iced::event::Event;
 use iced::mouse::{self, Cursor};
-use iced::{Border, Element, Font, Length, Point, Rectangle, Size};
+use iced::{Border, Color, Element, Font, Length, Point, Rectangle, Size};
 use lucide_icons::Icon as LucideIcon;
 
 pub struct TreeViewer<'a, Message> {
@@ -100,6 +100,27 @@ fn max_chars_for_width(width: f32, text_size: f32) -> usize {
     let avg_glyph_width = text_size * 0.56;
     let estimated = (width / avg_glyph_width).floor() as usize;
     estimated.max(1)
+}
+
+fn apply_opacity(color: Color, opacity: f32) -> Color {
+    Color {
+        a: color.a * opacity,
+        ..color
+    }
+}
+
+fn is_light_theme(theme: &Theme) -> bool {
+    let bg = theme.palette.background;
+    let luminance = 0.2126 * bg.r + 0.7152 * bg.g + 0.0722 * bg.b;
+    luminance > 0.6
+}
+
+fn inactive_tab_hover_bg(theme: &Theme) -> Color {
+    if is_light_theme(theme) {
+        apply_opacity(theme.palette.foreground, 0.10)
+    } else {
+        theme.palette.muted
+    }
 }
 
 impl<'a, Message> TreeViewer<'a, Message> {
@@ -240,8 +261,10 @@ where
             let is_hovered = !has_context && cursor.position_over(clickable_bounds).is_some();
 
             // Background
-            let bg_color = if is_selected || is_hovered {
+            let bg_color = if is_selected {
                 Some(self.theme.palette.accent)
+            } else if is_hovered {
+                Some(inactive_tab_hover_bg(self.theme))
             } else {
                 None
             };

@@ -36,6 +36,17 @@ pub fn render_topbar(app: &mut EguiPreviewApp, ui: &mut Ui) {
             egui::vec2(36.0, 36.0),
             egui::Image::new(brand_icon).fit_to_exact_size(egui::vec2(36.0, 36.0)),
         );
+        if matches!(app.screen, Screen::Component(_))
+            && Button::new(icon_text(Icon::ArrowLeft, 16.0))
+                .variant(ButtonVariant::Ghost)
+                .size(ButtonSize::Icon)
+                .show(row, &app.theme)
+                .clicked()
+        {
+            app.screen = Screen::Home;
+            app.tab = ComponentTab::Demo;
+            app.install_tab = InstallTab::Automatic;
+        }
         row.with_layout(egui::Layout::right_to_left(egui::Align::Center), |right| {
             right.add_space(16.0);
             let theme_icon = match app.theme_mode {

@@ -226,15 +226,15 @@ where
 
     ui.memory_mut(|m| m.data.insert_persisted(open_id, open_state));
 
-    if let Some(new_date) = calendar_result {
-        if new_date != *props.value {
-            *props.value = new_date;
-            if let Some(ref mut cb) = props.on_value_change {
-                cb(new_date);
-            }
-            if props.close_on_select {
-                ui.memory_mut(|m| m.data.insert_persisted(open_id, false));
-            }
+    if let Some(new_date) = calendar_result
+        && new_date != *props.value
+    {
+        *props.value = new_date;
+        if let Some(ref mut cb) = props.on_value_change {
+            cb(new_date);
+        }
+        if props.close_on_select {
+            ui.memory_mut(|m| m.data.insert_persisted(open_id, false));
         }
     }
 

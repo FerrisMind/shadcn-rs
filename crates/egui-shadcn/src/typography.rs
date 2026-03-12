@@ -2,8 +2,14 @@ use crate::theme::Theme;
 use crate::tokens::mix;
 use egui::{
     Align, Color32, CornerRadius, FontFamily, FontId, Frame, Response, RichText, Sense, Stroke, Ui,
-    WidgetText, pos2, vec2,
+    WidgetText, pos2,
+    text::{LayoutJob, TextFormat},
+    vec2,
 };
+#[cfg(not(target_arch = "wasm32"))]
+use tree_sitter_highlight::{HighlightConfiguration, HighlightEvent, Highlighter};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::prelude::wasm_bindgen;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TextAs {
@@ -792,7 +798,8 @@ pub fn code(ui: &mut Ui, theme: &Theme, props: CodeProps) -> Response {
         CodeVariant::Ghost => (Color32::TRANSPARENT, Stroke::NONE),
     };
 
-    let rich = RichText::new(widget_text_to_plain(props.text))
+    let code_text = widget_text_to_plain(props.text.clone());
+    let rich = RichText::new(code_text.clone())
         .font(FontId::new(resolved.size, FontFamily::Monospace))
         .color(match props.variant {
             CodeVariant::Solid => theme.palette.primary_foreground,
@@ -807,14 +814,250 @@ pub fn code(ui: &mut Ui, theme: &Theme, props: CodeProps) -> Response {
         .corner_radius(rounding)
         .inner_margin(inner_margin);
 
+    let highlighted_job = rust_highlight_layout_job(theme, &code_text, resolved.size)
+        .filter(|job| !job.sections.is_empty());
+    #[cfg(target_arch = "wasm32")]
+    if highlighted_job.is_none() && !code_text.is_empty() {
+        ui.ctx()
+            .request_repaint_after(std::time::Duration::from_millis(120));
+    }
     let response = frame
-        .show(ui, |ui| ui.add(egui::Label::new(rich).wrap()))
+        .show(ui, |ui| {
+            if let Some(job) = highlighted_job {
+                ui.add(egui::Label::new(job).wrap())
+            } else {
+                ui.add(egui::Label::new(rich).wrap())
+            }
+        })
         .inner;
 
     let _ = props.truncate;
     let _ = props.wrap;
 
     response
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+const RUST_HIGHLIGHT_NAMES: &[&str] = &[
+    "attribute",
+    "comment",
+    "constant",
+    "constant.builtin",
+    "constructor",
+    "function",
+    "function.macro",
+    "keyword",
+    "label",
+    "operator",
+    "property",
+    "punctuation",
+    "punctuation.bracket",
+    "punctuation.delimiter",
+    "string",
+    "string.escape",
+    "tag",
+    "type",
+    "type.builtin",
+    "variable",
+    "variable.builtin",
+    "variable.parameter",
+];
+
+#[cfg(not(target_arch = "wasm32"))]
+fn rust_highlight_layout_job(theme: &Theme, source: &str, font_size: f32) -> Option<LayoutJob> {
+    let mut config = HighlightConfiguration::new(
+        tree_sitter_rust::LANGUAGE.into(),
+        "rust",
+        tree_sitter_rust::HIGHLIGHTS_QUERY,
+        tree_sitter_rust::INJECTIONS_QUERY,
+        "",
+    )
+    .ok()?;
+    config.configure(RUST_HIGHLIGHT_NAMES);
+
+    let mut highlighter = Highlighter::new();
+    let events = highlighter
+        .highlight(&config, source.as_bytes(), None, |_| None)
+        .ok()?;
+
+    let base_format = TextFormat {
+        font_id: FontId::new(font_size, FontFamily::Monospace),
+        color: theme.palette.foreground,
+        ..Default::default()
+    };
+    let mut stack = vec![base_format.clone()];
+    let mut job = LayoutJob::default();
+
+    for event in events {
+        match event.ok()? {
+            HighlightEvent::Source { start, end } => {
+                let text = source.get(start..end)?;
+                let format = stack.last().cloned().unwrap_or_else(|| base_format.clone());
+                job.append(text, 0.0, format);
+            }
+            HighlightEvent::HighlightStart(index) => {
+                let format = TextFormat {
+                    font_id: FontId::new(font_size, FontFamily::Monospace),
+                    color: highlight_color(theme, index.0),
+                    ..Default::default()
+                };
+                stack.push(format);
+            }
+            HighlightEvent::HighlightEnd => {
+                if stack.len() > 1 {
+                    let _ = stack.pop();
+                }
+            }
+        }
+    }
+
+    Some(job)
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn highlight_color(theme: &Theme, highlight_index: usize) -> Color32 {
+    let name = RUST_HIGHLIGHT_NAMES
+        .get(highlight_index)
+        .copied()
+        .unwrap_or("");
+    match name {
+        "comment" => theme.palette.muted_foreground,
+        "keyword" | "operator" => theme.palette.primary,
+        "string" | "string.escape" => Color32::from_rgb(0x9E, 0xD0, 0x9E),
+        "type" | "type.builtin" | "constructor" => Color32::from_rgb(0x8A, 0xB8, 0xFF),
+        "function" | "function.macro" => Color32::from_rgb(0xE7, 0xC5, 0x8A),
+        "attribute" | "label" => Color32::from_rgb(0xD8, 0x9B, 0xFF),
+        "constant" | "constant.builtin" | "variable.builtin" => Color32::from_rgb(0xF0, 0x9D, 0x9D),
+        _ => theme.palette.foreground,
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+#[wasm_bindgen(inline_js = r#"
+let parser = null;
+let ready = false;
+let bootPromise = null;
+
+function classify(nodeType) {
+  if (nodeType.includes('comment')) return 'comment';
+  if (nodeType.includes('string') || nodeType === 'char_literal') return 'string';
+  if (nodeType.includes('type') || nodeType === 'primitive_type') return 'type';
+  if (nodeType.includes('attribute')) return 'attribute';
+  if (nodeType.includes('float') || nodeType.includes('integer')) return 'number';
+  if (
+    nodeType === 'fn' || nodeType === 'let' || nodeType === 'pub' || nodeType === 'impl' ||
+    nodeType === 'match' || nodeType === 'if' || nodeType === 'else' || nodeType === 'for' ||
+    nodeType === 'while' || nodeType === 'loop' || nodeType === 'return' || nodeType === 'mod' ||
+    nodeType === 'use' || nodeType === 'struct' || nodeType === 'enum' || nodeType === 'trait' ||
+    nodeType === 'const' || nodeType === 'static'
+  ) return 'keyword';
+  if (nodeType === 'identifier' || nodeType === 'field_identifier') return 'function';
+  return null;
+}
+
+async function boot() {
+  if (ready) return;
+  if (bootPromise) return bootPromise;
+  bootPromise = (async () => {
+    const ts = await import('https://cdn.jsdelivr.net/npm/web-tree-sitter@0.25.10/+esm');
+    await ts.Parser.init({
+      locateFile() {
+        return 'https://cdn.jsdelivr.net/npm/web-tree-sitter@0.25.10/tree-sitter.wasm';
+      },
+    });
+    const lang = await ts.Language.load('https://unpkg.com/tree-sitter-rust@0.24.0/tree-sitter-rust.wasm');
+    parser = new ts.Parser();
+    parser.setLanguage(lang);
+    ready = true;
+  })();
+  return bootPromise;
+}
+
+export function ts_highlight_rust_ranges(source) {
+  if (!ready || !parser || typeof source !== 'string' || source.length === 0) {
+    boot();
+    return '';
+  }
+  const tree = parser.parse(source);
+  const out = [];
+  const stack = [tree.rootNode];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    const kind = classify(node.type);
+    if (kind) out.push(`${node.startIndex}:${node.endIndex}:${kind}`);
+    for (let i = node.namedChildCount - 1; i >= 0; i -= 1) {
+      const child = node.namedChild(i);
+      if (child) stack.push(child);
+    }
+  }
+  return out.join(';');
+}
+"#)]
+extern "C" {
+    fn ts_highlight_rust_ranges(source: &str) -> String;
+}
+
+#[cfg(target_arch = "wasm32")]
+fn rust_highlight_layout_job(theme: &Theme, source: &str, font_size: f32) -> Option<LayoutJob> {
+    let encoded = ts_highlight_rust_ranges(source);
+    if encoded.is_empty() || source.is_empty() {
+        return None;
+    }
+
+    let mut color_buf: Vec<Option<(Color32, u8)>> = vec![None; source.len()];
+    for token in encoded.split(';') {
+        let mut parts = token.split(':');
+        let start = parts.next()?.parse::<usize>().ok()?;
+        let end = parts.next()?.parse::<usize>().ok()?;
+        let kind = parts.next()?;
+        if start >= end || end > source.len() {
+            continue;
+        }
+        let (color, priority) = match kind {
+            "comment" => (theme.palette.muted_foreground, 1),
+            "keyword" => (theme.palette.primary, 3),
+            "string" => (Color32::from_rgb(0x9E, 0xD0, 0x9E), 2),
+            "type" => (Color32::from_rgb(0x8A, 0xB8, 0xFF), 2),
+            "function" => (Color32::from_rgb(0xE7, 0xC5, 0x8A), 2),
+            "number" => (Color32::from_rgb(0xF0, 0x9D, 0x9D), 2),
+            "attribute" => (Color32::from_rgb(0xD8, 0x9B, 0xFF), 2),
+            _ => (theme.palette.foreground, 0),
+        };
+        for cell in color_buf.iter_mut().take(end).skip(start) {
+            match cell {
+                Some((_, p)) if *p > priority => {}
+                _ => *cell = Some((color, priority)),
+            }
+        }
+    }
+
+    let mut job = LayoutJob::default();
+    let base = theme.palette.foreground;
+    let mut i = 0usize;
+    while i < source.len() {
+        let (color, _) = color_buf[i].unwrap_or((base, 0));
+        let mut j = i + 1;
+        while j < source.len() {
+            let (next_color, _) = color_buf[j].unwrap_or((base, 0));
+            if next_color != color {
+                break;
+            }
+            j += 1;
+        }
+        let text = source.get(i..j)?;
+        job.append(
+            text,
+            0.0,
+            TextFormat {
+                font_id: FontId::new(font_size, FontFamily::Monospace),
+                color,
+                ..Default::default()
+            },
+        );
+        i = j;
+    }
+
+    Some(job)
 }
 
 pub fn blockquote(ui: &mut Ui, theme: &Theme, props: BlockquoteProps) -> Response {

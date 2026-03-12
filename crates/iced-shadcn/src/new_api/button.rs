@@ -168,7 +168,8 @@ where
     /// # Examples
     /// ```rust,no_run
     /// # use iced_shadcn::new_api::Button;
-    /// let _ = Button::new("Click").outline();
+    /// # #[derive(Clone)] enum Message { Click }
+    /// let _: Button<'_, Message> = Button::new("Click").outline();
     /// ```
     #[must_use]
     pub fn variant(mut self, variant: ButtonVariant) -> Self {
