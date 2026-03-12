@@ -27,6 +27,14 @@ chrono = "0.4"
 regex = "1.11"
 egui_plot = { version = "0.34", optional = true }
 
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tree-sitter = "0.25"
+tree-sitter-highlight = "0.25"
+tree-sitter-rust = "0.24"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+
 [dev-dependencies]
 env_logger = { workspace = true }
 eframe = "0.33"

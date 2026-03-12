@@ -24,7 +24,7 @@ pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
         row.add_space(((row.available_width() - max.x) * 0.5).max(0.0));
         row.vertical(|content| {
             content.set_width(max.x);
-            let _ = scroll_area(content, &app.theme, props, |ui| {
+            scroll_area(content, &app.theme, props, |ui| {
                 ui.spacing_mut().item_spacing.y = 6.0;
                 for item in [
                     "Account settings",
