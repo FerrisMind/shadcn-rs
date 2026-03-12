@@ -2,11 +2,11 @@
 //!
 //! Provides reusable menu item rendering and tokens.
 
-use crate::separator::{SeparatorOrientation, SeparatorProps, separator};
 use crate::theme::Theme;
 use egui::{
     Color32, CornerRadius, CursorIcon, Frame, Margin, Order, Response, Sense, Stroke, Ui, Vec2,
 };
+use lucide_icons::Icon;
 
 // ============================================================================
 // Types
@@ -208,11 +208,42 @@ pub fn menu_tokens(theme: &Theme) -> MenuTokens {
         hover_bg_destructive: palette.destructive.gamma_multiply(0.1),
         disabled_opacity: 0.5,
         rounding: CornerRadius::same(theme.radius.r2.round() as u8),
-        item_rounding: CornerRadius::same(2),
+        item_rounding: CornerRadius::same(theme.radius.r1.round() as u8),
         padding: Margin::same(4),
         item_padding: Margin::symmetric(8, 6),
-        min_width: 128.0,
+        min_width: 112.0,
     }
+}
+
+fn measure_text_width(ui: &Ui, text: &str, font: egui::FontId) -> f32 {
+    ui.painter()
+        .layout_no_wrap(text.to_owned(), font, Color32::WHITE)
+        .size()
+        .x
+}
+
+fn menu_width_state_id(ui: &Ui) -> egui::Id {
+    ui.id().with("menu_content_width")
+}
+
+pub fn menu_set_base_width(ui: &mut Ui, width: f32) {
+    let id = menu_width_state_id(ui);
+    let base = width.max(1.0);
+    let current = ui.data(|d| d.get_temp::<f32>(id)).unwrap_or(base);
+    ui.data_mut(|d| d.insert_temp(id, current.max(base)));
+}
+
+fn menu_register_required_width(ui: &mut Ui, min_width: f32, required_width: f32) -> f32 {
+    let id = menu_width_state_id(ui);
+    let current = ui.data(|d| d.get_temp::<f32>(id)).unwrap_or(min_width);
+    let next = current.max(required_width).max(min_width);
+    ui.data_mut(|d| d.insert_temp(id, next));
+    next
+}
+
+fn menu_current_width(ui: &Ui, min_width: f32) -> f32 {
+    let id = menu_width_state_id(ui);
+    ui.data(|d| d.get_temp::<f32>(id)).unwrap_or(min_width)
 }
 
 // ============================================================================
@@ -222,14 +253,31 @@ pub fn menu_tokens(theme: &Theme) -> MenuTokens {
 pub fn menu_item(ui: &mut Ui, theme: &Theme, props: MenuItemProps<'_>) -> Response {
     let tokens = menu_tokens(theme);
     let inset_padding = if props.inset { 24.0 } else { 0.0 };
+    let icon_padding = if props.icon.is_some() { 22.0 } else { 0.0 };
+    let label_width = measure_text_width(ui, props.label, egui::FontId::proportional(14.0));
+    let shortcut_width = props
+        .shortcut
+        .map(|s| measure_text_width(ui, s, egui::FontId::proportional(12.0)))
+        .unwrap_or(0.0);
+    let required_width = (tokens.item_padding.left as f32)
+        + inset_padding
+        + icon_padding
+        + label_width
+        + if shortcut_width > 0.0 {
+            16.0 + shortcut_width
+        } else {
+            0.0
+        }
+        + (tokens.item_padding.right as f32)
+        + 4.0;
+    let item_width = menu_register_required_width(ui, tokens.min_width, required_width.ceil());
 
     let (text_color, hover_bg) = match props.variant {
         MenuItemVariant::Default => (tokens.text, tokens.hover_bg),
         MenuItemVariant::Destructive => (tokens.text_destructive, tokens.hover_bg_destructive),
     };
 
-    let available_width = ui.available_width();
-    let desired_size = Vec2::new(available_width, 28.0);
+    let desired_size = Vec2::new(item_width, 28.0);
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
     let is_hot = response.hovered() || response.has_focus();
@@ -246,7 +294,8 @@ pub fn menu_item(ui: &mut Ui, theme: &Theme, props: MenuItemProps<'_>) -> Respon
             1.0
         };
 
-        let text_start_x = rect.left() + tokens.item_padding.left as f32 + inset_padding;
+        let text_start_x =
+            rect.left() + tokens.item_padding.left as f32 + inset_padding + icon_padding;
 
         if let Some(icon) = props.icon {
             let icon_rect = egui::Rect::from_min_size(
@@ -257,7 +306,7 @@ pub fn menu_item(ui: &mut Ui, theme: &Theme, props: MenuItemProps<'_>) -> Respon
                 icon_rect.center(),
                 egui::Align2::CENTER_CENTER,
                 icon,
-                egui::FontId::proportional(14.0),
+                egui::FontId::new(14.0, egui::FontFamily::Name("lucide".into())),
                 tokens.text_muted.gamma_multiply(opacity),
             );
         }
@@ -303,9 +352,11 @@ pub fn menu_checkbox_item(
     props: MenuCheckboxItemProps<'_>,
 ) -> Response {
     let tokens = menu_tokens(theme);
+    let label_width = measure_text_width(ui, props.label, egui::FontId::proportional(14.0));
+    let required_width = 32.0 + label_width + tokens.item_padding.right as f32 + 4.0;
+    let item_width = menu_register_required_width(ui, tokens.min_width, required_width.ceil());
 
-    let available_width = ui.available_width();
-    let desired_size = Vec2::new(available_width, 28.0);
+    let desired_size = Vec2::new(item_width, 28.0);
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
     let is_hot = response.hovered() || response.has_focus();
@@ -328,11 +379,12 @@ pub fn menu_checkbox_item(
         );
 
         if props.checked {
+            let check_icon = Icon::Check.unicode().to_string();
             ui.painter().text(
                 check_rect.center(),
                 egui::Align2::CENTER_CENTER,
-                "✓",
-                egui::FontId::proportional(12.0),
+                check_icon,
+                egui::FontId::new(12.0, egui::FontFamily::Name("lucide".into())),
                 tokens.text.gamma_multiply(opacity),
             );
         }
@@ -361,9 +413,11 @@ pub fn menu_checkbox_item(
 pub fn menu_radio_item(ui: &mut Ui, theme: &Theme, props: MenuRadioItemProps<'_>) -> Response {
     let tokens = menu_tokens(theme);
     let is_selected = props.value == props.selected_value;
+    let label_width = measure_text_width(ui, props.label, egui::FontId::proportional(14.0));
+    let required_width = 32.0 + label_width + tokens.item_padding.right as f32 + 4.0;
+    let item_width = menu_register_required_width(ui, tokens.min_width, required_width.ceil());
 
-    let available_width = ui.available_width();
-    let desired_size = Vec2::new(available_width, 28.0);
+    let desired_size = Vec2::new(item_width, 28.0);
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click());
 
     let is_hot = response.hovered() || response.has_focus();
@@ -411,9 +465,15 @@ pub fn menu_radio_item(ui: &mut Ui, theme: &Theme, props: MenuRadioItemProps<'_>
 pub fn menu_label(ui: &mut Ui, theme: &Theme, props: MenuLabelProps<'_>) -> Response {
     let tokens = menu_tokens(theme);
     let inset_padding = if props.inset { 24.0 } else { 0.0 };
+    let label_width = measure_text_width(ui, props.label, egui::FontId::proportional(14.0));
+    let required_width = tokens.item_padding.left as f32
+        + inset_padding
+        + label_width
+        + tokens.item_padding.right as f32
+        + 4.0;
+    let item_width = menu_register_required_width(ui, tokens.min_width, required_width.ceil());
 
-    let available_width = ui.available_width();
-    let desired_size = Vec2::new(available_width, 24.0);
+    let desired_size = Vec2::new(item_width, 24.0);
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
     if ui.is_rect_visible(rect) {
@@ -438,14 +498,16 @@ pub fn menu_label(ui: &mut Ui, theme: &Theme, props: MenuLabelProps<'_>) -> Resp
 // ============================================================================
 
 pub fn menu_separator(ui: &mut Ui, theme: &Theme) -> Response {
+    let tokens = menu_tokens(theme);
     ui.add_space(4.0);
-    let response = separator(
-        ui,
-        theme,
-        SeparatorProps::default()
-            .orientation(SeparatorOrientation::Horizontal)
-            .gap(0.0),
-    );
+    let width = menu_current_width(ui, tokens.min_width).min(320.0).max(1.0);
+    let (rect, response) = ui.allocate_exact_size(Vec2::new(width, 1.0), Sense::hover());
+    if ui.is_rect_visible(rect) {
+        ui.painter().line_segment(
+            [rect.left_center(), rect.right_center()],
+            Stroke::new(1.0, theme.palette.border),
+        );
+    }
     ui.add_space(4.0);
     response
 }
@@ -483,9 +545,16 @@ pub fn menu_sub<R>(
 ) -> Option<R> {
     let tokens = menu_tokens(theme);
     let inset_padding = if props.inset { 24.0 } else { 0.0 };
+    let label_width = measure_text_width(ui, props.label, egui::FontId::proportional(14.0));
+    let required_width = tokens.item_padding.left as f32
+        + inset_padding
+        + label_width
+        + 16.0
+        + tokens.item_padding.right as f32
+        + 4.0;
+    let item_width = menu_register_required_width(ui, tokens.min_width, required_width.ceil());
 
-    let available_width = ui.available_width();
-    let desired_size = Vec2::new(available_width, 28.0);
+    let desired_size = Vec2::new(item_width, 28.0);
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::hover());
 
     let is_hot = response.hovered() || response.has_focus();
@@ -539,7 +608,7 @@ pub fn menu_sub<R>(
                     .corner_radius(tokens.rounding)
                     .inner_margin(tokens.padding)
                     .show(ui, |ui| {
-                        ui.set_min_width(160.0);
+                        ui.set_min_width(tokens.min_width);
                         ui.visuals_mut().override_text_color = Some(tokens.text);
                         add_contents(ui)
                     })

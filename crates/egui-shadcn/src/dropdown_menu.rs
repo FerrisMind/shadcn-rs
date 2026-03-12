@@ -9,7 +9,8 @@ pub use crate::menu_primitives::{
     MenuRadioItemProps as DropdownMenuRadioItemProps, MenuSubProps as DropdownMenuSubProps,
     MenuTokens as DropdownMenuTokens, menu_label as dropdown_menu_label,
     menu_radio_group as dropdown_menu_radio_group, menu_separator as dropdown_menu_separator,
-    menu_shortcut as dropdown_menu_shortcut, menu_tokens as dropdown_menu_tokens,
+    menu_set_base_width, menu_shortcut as dropdown_menu_shortcut,
+    menu_tokens as dropdown_menu_tokens,
 };
 use crate::menu_primitives::{
     menu_checkbox_item as base_menu_checkbox_item, menu_item as base_menu_item,
@@ -190,7 +191,7 @@ pub fn dropdown_menu<R>(
         .ctx()
         .data(|d| d.get_temp::<bool>(state_id))
         .unwrap_or(false);
-    let menu_width = props.width.unwrap_or(tokens.min_width);
+    let menu_width = props.width;
 
     let inner = Popup::menu(props.trigger)
         .frame(
@@ -204,11 +205,25 @@ pub fn dropdown_menu<R>(
             let _guard = DropdownMenuScopeGuard::new(menu_ui.ctx(), popup_id);
             menu_ui.visuals_mut().override_text_color = Some(tokens.text);
             menu_ui.spacing_mut().item_spacing = Vec2::new(0.0, 2.0);
-            menu_ui.set_min_width(menu_width);
+            if let Some(width) = menu_width {
+                menu_set_base_width(menu_ui, width);
+                menu_ui.set_min_width(width);
+                menu_ui.set_max_width(width);
+                menu_ui.set_width(width);
+            } else {
+                menu_set_base_width(menu_ui, tokens.min_width);
+                menu_ui.set_min_width(tokens.min_width);
+            }
             add_contents(menu_ui)
         });
 
     let is_open = inner.is_some();
+    if is_open {
+        ui.ctx().input_mut(|input| {
+            input.raw_scroll_delta = Vec2::ZERO;
+            input.smooth_scroll_delta = Vec2::ZERO;
+        });
+    }
     if is_open
         && !was_open
         && let Some(first_id) = first_focusable_id(ui.ctx(), popup_id)

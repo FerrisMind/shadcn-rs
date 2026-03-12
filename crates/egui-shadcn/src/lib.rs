@@ -71,7 +71,7 @@ pub use accordion::{
 pub use alert::{AlertProps, AlertVariant, alert};
 pub use alert_dialog::{AlertDialogProps, AlertDialogResult, alert_dialog};
 pub use aspect_ratio::{AspectRatioProps, aspect_ratio};
-pub use avatar::{AvatarProps, AvatarSize, AvatarVariant, avatar};
+pub use avatar::{AvatarProps, AvatarShape, AvatarSize, AvatarVariant, avatar};
 pub use badge::{BadgeProps, BadgeSize, BadgeVariant, badge};
 pub use breadcrumb::{
     BreadcrumbContext, BreadcrumbMetrics, BreadcrumbProps, BreadcrumbTokens, breadcrumb,

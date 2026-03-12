@@ -2,13 +2,6 @@ name: Deploy WASM Demo
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "master" ]
-    paths:
-      - 'crates/wasm-demo/**'
-      - 'crates/iced-shadcn/**'
-      - 'crates/egui-shadcn/**'
-      - '.github/workflows/deploy-wasm.yml'
 
 permissions:
   contents: write
