@@ -6,14 +6,14 @@ publish = false
 
 [dependencies]
 iced-shadcn = { path = "../iced-shadcn" }
-egui-shadcn = { path = "../egui-shadcn" }
+egui-shadcn = { path = "../egui-shadcn", features = ["plot"] }
 
 # Common
 log = "0.4"
 env_logger = "0.11"
 wasm-bindgen = "0.2.114"
 wasm-bindgen-futures = "0.4.64"
-web-sys = { version = "0.3.82", features = ["Window", "Document", "HtmlCanvasElement"] }
+web-sys = { version = "0.3.91", features = ["Window", "Document", "History", "Location", "HtmlCanvasElement"] }
 lucide-icons = "0.575.0"
 
 # Iced WASM specific
@@ -21,6 +21,8 @@ iced = { version = "0.14", features = ["wgpu", "canvas", "webgl", "fira-sans"] }
 
 # Egui WASM specific
 eframe = { version = "0.33", default-features = false, features = ["web_screen_reader", "wgpu"] }
+egui_extras = { version = "0.33", features = ["all_loaders"] }
+chrono = "0.4"
 
 [[bin]]
 name = "iced_demo"

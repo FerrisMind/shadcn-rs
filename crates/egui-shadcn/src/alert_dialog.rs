@@ -92,7 +92,13 @@ pub fn alert_dialog(ui: &mut Ui, theme: &Theme, props: AlertDialogProps<'_>) -> 
         ui,
         theme,
         DialogProps::new("alert-dialog".into(), props.open)
+            .width(420.0)
+            .max_width(460.0)
+            .height(132.0)
+            .min_height(132.0)
+            .max_height(132.0)
             .dialog_size(DialogSize::Size1)
+            .scrollable(false)
             .close_on_background(false),
         |ui| {
             ui.vertical(|ui| {
@@ -130,7 +136,7 @@ pub fn alert_dialog(ui: &mut Ui, theme: &Theme, props: AlertDialogProps<'_>) -> 
 
                         // Cancel button
                         if Button::new(cancel_text)
-                            .variant(ButtonVariant::Outline)
+                            .variant(ButtonVariant::Secondary)
                             .show(ui, theme)
                             .clicked()
                         {
