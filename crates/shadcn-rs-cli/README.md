@@ -7,8 +7,8 @@ CLI installer for `shadcn-rs` components.
 ## What It Does
 
 - Installs component source files from:
-  - `crates/egui-shadcn/src`
-  - `crates/iced-shadcn/src`
+  - `egui-shadcn/src` and `iced-shadcn/src` resolved from your project dependencies
+  - resolution order: `path` dependency -> `cargo metadata` package source -> local `shadcn-rs` workspace fallback
 - Generates local module structure in your project:
   - `src/shadcn/<backend>/<component>.rs`
   - `src/shadcn/mod.rs`
@@ -63,6 +63,8 @@ Install and auto-add dependency in `Cargo.toml`:
 ```powershell
 shadcn-rs add button --project . --backend egui --write-cargo
 ```
+
+With `--write-cargo`, the CLI also runs `cargo fetch` automatically when needed, so a fresh project can install a component in one command.
 
 Force overwrite existing component file:
 

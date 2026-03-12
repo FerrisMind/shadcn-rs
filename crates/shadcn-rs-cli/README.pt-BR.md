@@ -7,8 +7,8 @@ CLI para instalar componentes do `shadcn-rs`.
 ## O que faz
 
 - Instala arquivos-fonte de componentes a partir de:
-  - `crates/egui-shadcn/src`
-  - `crates/iced-shadcn/src`
+  - `egui-shadcn/src` e `iced-shadcn/src` resolvidos das dependencias do projeto
+  - ordem de resolucao: dependency com `path` -> `cargo metadata` -> fallback para workspace local `shadcn-rs`
 - Gera estrutura local de modulos no projeto:
   - `src/shadcn/<backend>/<component>.rs`
   - `src/shadcn/mod.rs`
@@ -63,6 +63,8 @@ Instalar e adicionar dependencia automaticamente no `Cargo.toml`:
 ```powershell
 shadcn-rs add button --project . --backend egui --write-cargo
 ```
+
+Com `--write-cargo`, a CLI tambem executa `cargo fetch` automaticamente quando necessario, permitindo instalar componente em projeto novo com um unico comando.
 
 Forcar sobrescrita de arquivo de componente existente:
 
