@@ -163,7 +163,7 @@ where
     let mut open_state = ui
         .ctx()
         .memory_mut(|m| m.data.get_persisted::<bool>(open_id).unwrap_or(false));
-    let selection_storage = Rc::new(RefCell::new(None));
+    let selection_storage = Rc::new(RefCell::new(*props.value));
 
     let label_widget: egui::WidgetText = if let Some(date) = *props.value {
         format_ppp(date).into()
@@ -206,7 +206,6 @@ where
             button.show(ui, theme)
         },
         |ui| {
-            selection_storage.borrow_mut().take();
             let callback_storage = selection_storage.clone();
             calendar_with_props(
                 ui,
@@ -233,9 +232,9 @@ where
             if let Some(ref mut cb) = props.on_value_change {
                 cb(new_date);
             }
-        }
-        if props.close_on_select {
-            ui.memory_mut(|m| m.data.insert_persisted(open_id, false));
+            if props.close_on_select {
+                ui.memory_mut(|m| m.data.insert_persisted(open_id, false));
+            }
         }
     }
 

@@ -417,6 +417,7 @@ pub struct SidebarMenuButtonProps {
     pub active: bool,
     pub disabled: bool,
     pub show_label_when_collapsed: bool,
+    pub icon: Option<fn(&egui::Painter, egui::Pos2, f32, Color32)>,
 }
 
 impl SidebarMenuButtonProps {
@@ -427,6 +428,7 @@ impl SidebarMenuButtonProps {
             active: false,
             disabled: false,
             show_label_when_collapsed: true,
+            icon: None,
         }
     }
 
@@ -447,6 +449,11 @@ impl SidebarMenuButtonProps {
 
     pub fn show_label_when_collapsed(mut self, show: bool) -> Self {
         self.show_label_when_collapsed = show;
+        self
+    }
+
+    pub fn icon(mut self, icon: fn(&egui::Painter, egui::Pos2, f32, Color32)) -> Self {
+        self.icon = Some(icon);
         self
     }
 }
@@ -487,32 +494,36 @@ pub fn sidebar_menu_button(
         palette.sidebar_foreground
     };
 
-    let label_text = if collapsed && !props.show_label_when_collapsed {
-        let mut short = props.label.text().to_string();
-        short.truncate(1);
-        WidgetText::from(short)
-    } else {
-        props.label
-    };
+    let show_label = !collapsed || props.show_label_when_collapsed;
+    let icon_size = props.size.text_size() + 3.0;
+    let icon_gap = 8.0;
 
-    let align = if collapsed && !props.show_label_when_collapsed {
-        Align2::CENTER_CENTER
-    } else {
-        Align2::LEFT_CENTER
-    };
-    let pos = if collapsed && !props.show_label_when_collapsed {
-        rect.center()
-    } else {
-        pos2(rect.left() + padding.left as f32, rect.center().y)
-    };
+    if let Some(icon_fn) = props.icon {
+        let icon_center = if show_label {
+            pos2(
+                rect.left() + padding.left as f32 + icon_size * 0.5,
+                rect.center().y,
+            )
+        } else {
+            rect.center()
+        };
+        icon_fn(ui.painter(), icon_center, icon_size, text_color);
+    }
 
-    ui.painter().text(
-        pos,
-        align,
-        label_text.text(),
-        FontId::proportional(props.size.text_size()),
-        text_color,
-    );
+    if show_label {
+        let label_x = if props.icon.is_some() {
+            rect.left() + padding.left as f32 + icon_size + icon_gap
+        } else {
+            rect.left() + padding.left as f32
+        };
+        ui.painter().text(
+            pos2(label_x, rect.center().y),
+            Align2::LEFT_CENTER,
+            props.label.text(),
+            FontId::proportional(props.size.text_size()),
+            text_color,
+        );
+    }
 
     if response.has_focus() && !props.disabled {
         let focus_color = palette.sidebar_ring;

@@ -233,32 +233,40 @@ impl ButtonStyle {
             128,
         );
         match variant {
-            ButtonVariant::Default | ButtonVariant::Solid => Self {
-                bg: palette.primary,
-                bg_hover: mix(palette.primary, palette.background, 0.12),
-                bg_active: mix(palette.primary, palette.background, 0.22),
-                text: palette.primary_foreground,
-                text_hover: palette.primary_foreground,
-                text_active: palette.primary_foreground,
-                border: Color32::TRANSPARENT,
-                border_hover: Color32::TRANSPARENT,
-                focus_ring,
-                disabled_opacity: 0.5,
-                rounding: CornerRadius::same(8),
-            },
-            ButtonVariant::Classic => Self {
-                bg: palette.primary,
-                bg_hover: mix(palette.primary, palette.background, 0.08),
-                bg_active: mix(palette.primary, palette.background, 0.15),
-                text: palette.primary_foreground,
-                text_hover: palette.primary_foreground,
-                text_active: palette.primary_foreground,
-                border: mix(palette.primary, palette.background, 0.22),
-                border_hover: mix(palette.primary, palette.background, 0.27),
-                focus_ring,
-                disabled_opacity: 0.5,
-                rounding: CornerRadius::same(8),
-            },
+            ButtonVariant::Default | ButtonVariant::Solid => {
+                let bg = palette.primary;
+                let text = compute_contrast_color(bg, palette);
+                Self {
+                    bg,
+                    bg_hover: mix(bg, palette.background, 0.12),
+                    bg_active: mix(bg, palette.background, 0.22),
+                    text,
+                    text_hover: text,
+                    text_active: text,
+                    border: Color32::TRANSPARENT,
+                    border_hover: Color32::TRANSPARENT,
+                    focus_ring,
+                    disabled_opacity: 0.5,
+                    rounding: CornerRadius::same(8),
+                }
+            }
+            ButtonVariant::Classic => {
+                let bg = palette.primary;
+                let text = compute_contrast_color(bg, palette);
+                Self {
+                    bg,
+                    bg_hover: mix(bg, palette.background, 0.08),
+                    bg_active: mix(bg, palette.background, 0.15),
+                    text,
+                    text_hover: text,
+                    text_active: text,
+                    border: mix(bg, palette.background, 0.22),
+                    border_hover: mix(bg, palette.background, 0.27),
+                    focus_ring,
+                    disabled_opacity: 0.5,
+                    rounding: CornerRadius::same(8),
+                }
+            }
             ButtonVariant::Soft => {
                 let soft_bg = Color32::from_rgba_unmultiplied(
                     palette.primary.r(),
@@ -522,12 +530,51 @@ fn outline_variant_style(
 }
 
 fn compute_contrast_color(bg: Color32, palette: &ColorPalette) -> Color32 {
-    let luminance = 0.299 * bg.r() as f32 + 0.587 * bg.g() as f32 + 0.114 * bg.b() as f32;
-    if luminance > 128.0 {
-        palette.background
-    } else {
-        palette.foreground
+    fn srgb_to_linear(v: u8) -> f32 {
+        let s = v as f32 / 255.0;
+        if s <= 0.04045 {
+            s / 12.92
+        } else {
+            ((s + 0.055) / 1.055).powf(2.4)
+        }
     }
+
+    fn rel_luminance(c: Color32) -> f32 {
+        let r = srgb_to_linear(c.r());
+        let g = srgb_to_linear(c.g());
+        let b = srgb_to_linear(c.b());
+        0.2126 * r + 0.7152 * g + 0.0722 * b
+    }
+
+    fn contrast_ratio(a: Color32, b: Color32) -> f32 {
+        let la = rel_luminance(a);
+        let lb = rel_luminance(b);
+        let (lighter, darker) = if la >= lb { (la, lb) } else { (lb, la) };
+        (lighter + 0.05) / (darker + 0.05)
+    }
+
+    let bg_vs_fg = contrast_ratio(bg, palette.foreground);
+    let bg_vs_bg = contrast_ratio(bg, palette.background);
+    let mut best = if bg_vs_fg >= bg_vs_bg {
+        palette.foreground
+    } else {
+        palette.background
+    };
+    let mut best_ratio = bg_vs_fg.max(bg_vs_bg);
+
+    let white = Color32::WHITE;
+    let black = Color32::BLACK;
+    let bg_vs_white = contrast_ratio(bg, white);
+    if bg_vs_white > best_ratio {
+        best = white;
+        best_ratio = bg_vs_white;
+    }
+    let bg_vs_black = contrast_ratio(bg, black);
+    if bg_vs_black > best_ratio {
+        best = black;
+    }
+
+    best
 }
 
 fn apply_disabled_opacity(color: Color32, disabled_opacity: f32) -> Color32 {
@@ -684,7 +731,7 @@ fn paint_icon_button(
     } else if let Some(icon_fn) = props.icon {
         icon_fn(painter, center, icon_size, text_color);
     } else {
-        let text_galley = props.label.clone().into_galley(
+        let text_galley = props.label.clone().color(text_color).into_galley(
             ui,
             Some(TextWrapMode::Extend),
             f32::INFINITY,
@@ -710,7 +757,7 @@ fn paint_text_button(
     let icon_size = props.size.icon_size();
     let gap = props.size.gap();
 
-    let text_galley = props.label.clone().into_galley(
+    let text_galley = props.label.clone().color(text_color).into_galley(
         ui,
         Some(TextWrapMode::Extend),
         f32::INFINITY,
@@ -780,7 +827,7 @@ fn paint_link_underline(
     text_color: Color32,
     center: Pos2,
 ) {
-    let text_galley = props.label.clone().into_galley(
+    let text_galley = props.label.clone().color(text_color).into_galley(
         ui,
         Some(TextWrapMode::Extend),
         f32::INFINITY,

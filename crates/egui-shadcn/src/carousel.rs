@@ -508,10 +508,10 @@ pub fn carousel_next(ui: &mut Ui, theme: &Theme, context: &mut CarouselContext) 
 
 fn icon_arrow_left(painter: &egui::Painter, center: egui::Pos2, size: f32, color: Color32) {
     let stroke = Stroke::new((size * 0.12).clamp(1.5, 2.5), color);
-    let x = center.x - size * 0.1;
     let y = center.y;
-    let left = x - size * 0.3;
-    painter.line_segment([egui::pos2(left, y), egui::pos2(x + size * 0.2, y)], stroke);
+    let left = center.x - size * 0.25;
+    let right = center.x + size * 0.25;
+    painter.line_segment([egui::pos2(left, y), egui::pos2(right, y)], stroke);
     painter.line_segment(
         [
             egui::pos2(left + size * 0.15, y - size * 0.2),
@@ -530,13 +530,10 @@ fn icon_arrow_left(painter: &egui::Painter, center: egui::Pos2, size: f32, color
 
 fn icon_arrow_right(painter: &egui::Painter, center: egui::Pos2, size: f32, color: Color32) {
     let stroke = Stroke::new((size * 0.12).clamp(1.5, 2.5), color);
-    let x = center.x + size * 0.1;
     let y = center.y;
-    let right = x + size * 0.3;
-    painter.line_segment(
-        [egui::pos2(x - size * 0.2, y), egui::pos2(right, y)],
-        stroke,
-    );
+    let left = center.x - size * 0.25;
+    let right = center.x + size * 0.25;
+    painter.line_segment([egui::pos2(left, y), egui::pos2(right, y)], stroke);
     painter.line_segment(
         [
             egui::pos2(right - size * 0.15, y - size * 0.2),

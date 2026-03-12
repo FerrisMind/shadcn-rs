@@ -172,11 +172,11 @@ impl<'a> ResizableContext<'a> {
         let right_size = self.sizes[right_idx];
 
         // Calculate new sizes
-        let new_left = (left_size + delta_percent).clamp(5.0, 95.0);
+        let new_left = (left_size + delta_percent).clamp(0.0, 100.0);
 
         // Ensure they still sum to the original total
         let total = left_size + right_size;
-        let adjusted_left = new_left.min(total - 5.0);
+        let adjusted_left = new_left.min(total);
         let adjusted_right = total - adjusted_left;
 
         self.sizes[left_idx] = adjusted_left;
@@ -202,12 +202,17 @@ pub fn resizable_panel_group<'a, IdType: Hash, R>(
 ) -> R {
     let id = ui.id().with(&props.id_source);
 
-    // Calculate total available size based on direction
+    // Calculate total available size based on direction.
+    // Panel sizes should be computed from the space left after resize handles,
+    // otherwise panels + handles overflow and the right/bottom edge appears to move.
     let available = ui.available_size();
-    let total_size = match props.direction {
+    let total_size_raw = match props.direction {
         ResizableDirection::Horizontal => available.x,
         ResizableDirection::Vertical => available.y,
     };
+    let handle_count = sizes.len().saturating_sub(1) as f32;
+    let handle_extent = 4.0 * handle_count;
+    let total_size = (total_size_raw - handle_extent).max(1.0);
 
     let mut ctx = ResizableContext {
         id,
@@ -347,7 +352,7 @@ pub fn resizable_handle(
 
     // Handle dragging
     if response.dragged() && !props.disabled {
-        let delta = response.drag_delta();
+        let delta = ui.input(|i| i.pointer.delta());
         let delta_px = match ctx.direction {
             ResizableDirection::Horizontal => delta.x,
             ResizableDirection::Vertical => delta.y,

@@ -20,22 +20,28 @@ pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
         .max_size(max)
         .auto_shrink([false; 2]);
 
-    scroll_area(ui, &app.theme, props, |ui| {
-        ui.spacing_mut().item_spacing.y = 6.0;
-        for item in [
-            "Account settings",
-            "Billing & invoices",
-            "Team members",
-            "Integrations",
-            "Webhooks",
-            "API keys",
-            "Security logs",
-            "Backups",
-            "Notifications",
-            "Support",
-        ] {
-            ui.label(item);
-            separator(ui, &app.theme, SeparatorProps::default());
-        }
+    ui.horizontal(|row| {
+        row.add_space(((row.available_width() - max.x) * 0.5).max(0.0));
+        row.vertical(|content| {
+            content.set_width(max.x);
+            let _ = scroll_area(content, &app.theme, props, |ui| {
+                ui.spacing_mut().item_spacing.y = 6.0;
+                for item in [
+                    "Account settings",
+                    "Billing & invoices",
+                    "Team members",
+                    "Integrations",
+                    "Webhooks",
+                    "API keys",
+                    "Security logs",
+                    "Backups",
+                    "Notifications",
+                    "Support",
+                ] {
+                    ui.label(item);
+                    separator(ui, &app.theme, SeparatorProps::default());
+                }
+            });
+        });
     });
 }
