@@ -4,8 +4,8 @@ use crate::tokens::mix;
 use crate::{SelectProps, select_with_items};
 use chrono::{Datelike, Months};
 use egui::{
-    Color32, CornerRadius, Direction, FontId, Layout, Rect, Response, Sense, Ui, UiBuilder, pos2,
-    vec2,
+    Color32, CornerRadius, Direction, FontId, Layout, Rect, Response, Sense, Stroke, Ui, UiBuilder,
+    pos2, vec2,
 };
 use log::trace;
 use std::fmt::Debug;
@@ -252,17 +252,7 @@ where
         let max_year_option = props.max_date.map(|date| date.year());
 
         let select_height = 28.0;
-        let select_bottom_margin = 2.0;
-        let caption_height = select_height + select_bottom_margin;
-        let caption_rect =
-            if props.caption_layout == CalendarCaptionLayout::Dropdown && months_count == 1 {
-                let (_caption_id, rect) = ui.allocate_space(vec2(total_width, caption_height));
-                Some(rect)
-            } else {
-                None
-            };
-
-        if let Some(caption_rect) = caption_rect {
+        if props.caption_layout == CalendarCaptionLayout::Dropdown && months_count == 1 {
             let month_dropdown_id = id.with("caption_month");
             let year_dropdown_id = id.with("caption_year");
             let mut selected_month = current_month.month();
@@ -270,16 +260,16 @@ where
             let min_date = props.min_date;
             let max_date = props.max_date;
 
-            let caption_left_padding = 32.0;
-            let caption_right_padding = 48.0;
+            let caption_left_padding = 44.0;
+            let caption_right_padding = 44.0;
             let caption_inner_rect = Rect::from_min_max(
                 pos2(
-                    caption_rect.left() + caption_left_padding,
-                    caption_rect.top(),
+                    header_rect.left() + caption_left_padding,
+                    header_rect.center().y - select_height * 0.5,
                 ),
                 pos2(
-                    caption_rect.right() - caption_right_padding,
-                    caption_rect.top() + select_height,
+                    header_rect.right() - caption_right_padding,
+                    header_rect.center().y + select_height * 0.5,
                 ),
             );
 
@@ -607,6 +597,14 @@ where
                                     CornerRadius::same(4),
                                     bg_color,
                                 );
+                                if is_today && !is_selected {
+                                    cell_painter.rect_stroke(
+                                        cell_rect.shrink(0.5),
+                                        CornerRadius::same(4),
+                                        Stroke::new(1.0, theme.palette.primary),
+                                        egui::StrokeKind::Inside,
+                                    );
+                                }
 
                                 let galley = cell_painter.layout_no_wrap(
                                     day.to_string(),

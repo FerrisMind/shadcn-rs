@@ -105,6 +105,10 @@ fn hover_card_content_hover_id(id_source: Id) -> Id {
     id_source.with("hover-card-content-hover")
 }
 
+fn hover_card_last_size_id(id_source: Id) -> Id {
+    id_source.with("hover-card-last-size")
+}
+
 fn update_hover_card_open_state(
     ctx: &egui::Context,
     id_source: Id,
@@ -234,6 +238,11 @@ pub fn hover_card_content<R>(
 
     let width = props.width.unwrap_or(DEFAULT_WIDTH).max(160.0);
     let max_height = props.max_height.unwrap_or(DEFAULT_MAX_HEIGHT);
+    let estimated_height = ctx
+        .data(|d| d.get_temp::<egui::Vec2>(hover_card_last_size_id(props.id_source)))
+        .map(|size| size.y)
+        .unwrap_or(96.0)
+        .clamp(1.0, max_height);
 
     let boundary = ctx.available_rect();
     let (position_rect, computed_side) = compute_popover_rect_with_collision(
@@ -244,7 +253,7 @@ pub fn hover_card_content<R>(
         props.side_offset,
         props.align_offset,
         width,
-        max_height,
+        estimated_height,
         true,
         PopoverCollisionPadding::default(),
         PopoverSticky::default(),
@@ -270,7 +279,7 @@ pub fn hover_card_content<R>(
         .show(ctx, |popup_ui| {
             popup_ui.visuals_mut().override_text_color = Some(palette.popover_foreground);
             popup_ui.set_min_width(width);
-            popup_ui.set_max_height(position_rect.height());
+            popup_ui.set_max_height(max_height);
 
             let frame = Frame::popup(popup_ui.style())
                 .fill(bg)
@@ -282,6 +291,9 @@ pub fn hover_card_content<R>(
                 inner = Some(add_contents(content_ui));
             });
             popup_rect = frame_resp.response.rect;
+            ctx.data_mut(|d| {
+                d.insert_temp(hover_card_last_size_id(props.id_source), popup_rect.size())
+            });
         });
 
     let expanded_rect = popup_rect.expand(4.0);

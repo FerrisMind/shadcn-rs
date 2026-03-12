@@ -7,8 +7,9 @@ use egui_shadcn::{
 };
 
 pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
-    let date_id = ui.make_persistent_id("preview-date-picker-single");
-    let range_id = ui.make_persistent_id("preview-date-picker-range");
+    let scope_id = ui.make_persistent_id("preview-date-picker-scope");
+    let date_id = scope_id.with("single-value");
+    let range_id = scope_id.with("range-value");
 
     let mut date = ui
         .data(|d| d.get_temp::<Option<NaiveDate>>(date_id))
@@ -20,7 +21,7 @@ pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
     let _ = date_picker_with_props(
         ui,
         &app.theme,
-        DatePickerProps::new("preview-date-picker", &mut date)
+        DatePickerProps::new(scope_id.with("single"), &mut date)
             .placeholder("Pick a date")
             .trigger_width(if compact { 220.0 } else { 260.0 })
             .icon_position(DatePickerIconPosition::Leading)
@@ -32,7 +33,7 @@ pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
         let _ = date_range_picker_with_props(
             ui,
             &app.theme,
-            DateRangePickerProps::new("preview-date-range-picker", &mut range)
+            DateRangePickerProps::new(scope_id.with("range"), &mut range)
                 .placeholder("Pick a date range")
                 .trigger_width(320.0)
                 .number_of_months(2),

@@ -21,5 +21,9 @@ pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
             RadioCardVariant::Card
         });
 
-    let _ = radio_group(ui, &app.theme, props);
+    let row_width = if compact { 170.0 } else { 300.0 };
+    ui.horizontal(|row| {
+        row.add_space(((row.available_width() - row_width) * 0.5).max(0.0));
+        let _ = radio_group(row, &app.theme, props);
+    });
 }

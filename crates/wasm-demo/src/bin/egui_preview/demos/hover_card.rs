@@ -6,14 +6,11 @@ use egui_shadcn::{
 };
 
 pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
+    let hover_id = ui.id().with("preview-hover-card");
     let _ = hover_card(
         ui,
         &app.theme,
-        HoverCardProps::new(ui.make_persistent_id("preview-hover-card")).width(if compact {
-            240.0
-        } else {
-            320.0
-        }),
+        HoverCardProps::new(hover_id).width(if compact { 240.0 } else { 320.0 }),
         |trigger_ui| {
             button(
                 trigger_ui,

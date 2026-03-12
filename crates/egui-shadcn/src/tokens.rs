@@ -1525,30 +1525,22 @@ pub fn toggle_button_tokens(palette: &ColorPalette, variant: ToggleVariant) -> T
     let on = match variant {
         ToggleVariant::Default => accent_tokens(palette),
         ToggleVariant::Outline => {
-            // Для Outline в состоянии ON: сохраняем видимую границу, но делаем фон accent
-            let border_visible = Stroke::new(
-                1.0,
-                Color32::from_rgba_unmultiplied(
-                    palette.foreground.r(),
-                    palette.foreground.g(),
-                    palette.foreground.b(),
-                    128,
-                ),
-            );
-            let bg_on = palette.accent;
-            let bg_on_hover = mix(palette.accent, Color32::WHITE, 0.08);
-            let bg_on_active = mix(palette.accent, palette.foreground, 0.12);
+            // Outline ON state needs stronger contrast for single-toggle visibility.
+            let border_visible = Stroke::new(1.0, mix(palette.primary, palette.foreground, 0.15));
+            let bg_on = palette.primary;
+            let bg_on_hover = mix(palette.primary, Color32::WHITE, 0.08);
+            let bg_on_active = mix(palette.primary, palette.foreground, 0.16);
 
             VariantTokens {
-                idle: StateColors::with_border(bg_on, palette.accent_foreground, border_visible),
+                idle: StateColors::with_border(bg_on, palette.primary_foreground, border_visible),
                 hovered: StateColors::with_border(
                     bg_on_hover,
-                    palette.accent_foreground,
+                    palette.primary_foreground,
                     border_visible,
                 ),
                 active: StateColors::with_border(
                     bg_on_active,
-                    palette.accent_foreground,
+                    palette.primary_foreground,
                     border_visible,
                 ),
                 disabled,

@@ -8,7 +8,7 @@ pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
         &app.theme,
         &mut app.switch_enabled,
         if compact { "T" } else { "Toggle" },
-        ToggleVariant::Default,
+        ToggleVariant::Outline,
         if compact {
             ControlSize::Icon
         } else {
