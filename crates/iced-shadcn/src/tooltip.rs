@@ -83,12 +83,35 @@ pub fn tooltip<'a, Message: 'a>(
     props: TooltipProps,
     theme: &Theme,
 ) -> tooltip_widget::Tooltip<'a, Message> {
+    // Prefer adaptive placement when viewport snapping is enabled.
+    // This prevents overlap near viewport edges.
+    let resolved_position = if props.snap_within_viewport {
+        match props.position {
+            TooltipPosition::Top
+            | TooltipPosition::Bottom
+            | TooltipPosition::Left
+            | TooltipPosition::Right => TooltipPosition::FollowCursor,
+            TooltipPosition::FollowCursor => TooltipPosition::FollowCursor,
+        }
+    } else {
+        props.position
+    };
+    let resolved_gap = if matches!(resolved_position, TooltipPosition::FollowCursor) {
+        props.gap.max(10.0)
+    } else {
+        props.gap
+    };
+
     let theme = theme.clone();
     let tooltip_content = container(tip).padding(8).max_width(props.max_width).style(
         move |_iced_theme: &iced::Theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.foreground)),
-            text_color: Some(theme.palette.background),
-            border: Border::default(),
+            background: Some(Background::Color(theme.palette.popover)),
+            text_color: Some(theme.palette.popover_foreground),
+            border: Border {
+                color: theme.palette.border,
+                width: 1.0,
+                radius: theme.radius.sm.into(),
+            },
             shadow: iced::Shadow {
                 color: iced::Color {
                     a: 0.18,
@@ -101,8 +124,8 @@ pub fn tooltip<'a, Message: 'a>(
         },
     );
 
-    tooltip_widget::Tooltip::new(content, tooltip_content, props.position.into())
-        .gap(props.gap)
+    tooltip_widget::Tooltip::new(content, tooltip_content, resolved_position.into())
+        .gap(resolved_gap)
         .padding(0)
         .delay(iced::time::Duration::from_millis(props.delay_ms))
         .snap_within_viewport(props.snap_within_viewport)
