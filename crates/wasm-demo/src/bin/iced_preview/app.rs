@@ -49,6 +49,7 @@ pub struct PreviewApp {
     selected: PreviewPage,
     tab: ComponentTab,
     search: String,
+    spinner_phase: f32,
     progress_values: Vec<f32>,
     email: String,
     username: String,
@@ -68,6 +69,7 @@ pub enum Message {
     ToggleTheme,
     #[cfg(target_arch = "wasm32")]
     HighlightTick,
+    AnimationTick,
     ProgressChanged(Vec<f32>),
     EmailChanged(String),
     UsernameChanged(String),
@@ -87,6 +89,7 @@ impl Default for PreviewApp {
             selected,
             tab,
             search: String::new(),
+            spinner_phase: 0.0,
             progress_values: vec![62.0],
             email: String::new(),
             username: String::new(),
@@ -106,6 +109,9 @@ impl PreviewApp {
             Message::ToggleTheme => self.toggle_theme(),
             #[cfg(target_arch = "wasm32")]
             Message::HighlightTick => {}
+            Message::AnimationTick => {
+                self.spinner_phase = (self.spinner_phase + 0.025).fract();
+            }
             Message::ProgressChanged(values) => {
                 self.progress_values = values;
             }
@@ -121,13 +127,29 @@ impl PreviewApp {
     }
 
     pub fn subscription(&self) -> Subscription<Message> {
+        let needs_animation =
+            self.tab == ComponentTab::Demo && self.selected == PreviewPage::Button;
+
         #[cfg(target_arch = "wasm32")]
         {
+            if needs_animation {
+                return iced::time::every(std::time::Duration::from_millis(16))
+                    .map(|_| Message::AnimationTick);
+            }
             if self.tab == ComponentTab::Code {
                 return iced::time::every(std::time::Duration::from_millis(350))
                     .map(|_| Message::HighlightTick);
             }
         }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        {
+            if needs_animation {
+                return iced::time::every(std::time::Duration::from_millis(16))
+                    .map(|_| Message::AnimationTick);
+            }
+        }
+
         Subscription::none()
     }
 
@@ -144,6 +166,7 @@ impl PreviewApp {
             .padding(16)
             .style(move |_theme| iced::widget::container::Style {
                 background: Some(Background::Color(background)),
+                text_color: Some(theme.palette.foreground),
                 ..iced::widget::container::Style::default()
             })
             .into()
@@ -167,6 +190,10 @@ impl PreviewApp {
 
     pub fn username(&self) -> &str {
         &self.username
+    }
+
+    pub fn spinner_phase(&self) -> f32 {
+        self.spinner_phase
     }
 
     fn filtered_pages(&self) -> Vec<PreviewPage> {
@@ -352,6 +379,7 @@ impl PreviewApp {
             .height(Length::Fill)
             .style(move |_theme| iced::widget::container::Style {
                 background: Some(Background::Color(panel_bg)),
+                text_color: Some(self.theme.palette.card_foreground),
                 border: Border {
                     radius: panel_radius.into(),
                     width: 1.0,
@@ -413,7 +441,7 @@ fn render_highlighted_code<'a>(theme: &'a Theme, source: &'a str) -> Rich<'a, ()
 }
 
 pub fn preview_card<'a>(
-    theme: &Theme,
+    theme: &'a Theme,
     title: &'a str,
     content: impl Into<Element<'a, Message>>,
 ) -> iced::widget::Container<'a, Message> {
@@ -426,6 +454,7 @@ pub fn preview_card<'a>(
         .width(Length::Fixed(360.0))
         .style(move |_theme| iced::widget::container::Style {
             background: Some(Background::Color(background)),
+            text_color: Some(theme.palette.card_foreground),
             border: Border {
                 radius: radius.into(),
                 width: 1.0,
