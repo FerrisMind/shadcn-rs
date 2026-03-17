@@ -24,6 +24,11 @@ eframe = { version = "0.33", default-features = false, features = ["web_screen_r
 egui_extras = { version = "0.33", features = ["all_loaders"] }
 chrono = "0.4"
 
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+tree-sitter = "0.25"
+tree-sitter-highlight = "0.25"
+tree-sitter-rust = "0.24"
+
 [[bin]]
 name = "iced_demo"
 path = "src/bin/iced_demo.rs"
