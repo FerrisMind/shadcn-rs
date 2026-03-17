@@ -1,11 +1,14 @@
 use super::super::app::preview_card;
 use super::super::app::{Message, PreviewApp};
-use iced::widget::{column, row};
+use iced::widget::{column, row, text};
 use iced::{Alignment, Element};
-use iced_shadcn::{ButtonProps, ButtonSize, ButtonVariant, button};
+use iced_shadcn::{
+    ButtonProps, ButtonSize, ButtonVariant, Spinner, button, button_content, spinner,
+};
 
 pub fn render<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
     let theme = app.theme();
+    let spinner_phase = app.spinner_phase();
     row![
         preview_card(
             theme,
@@ -55,8 +58,20 @@ pub fn render<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
                     Some(Message::Noop),
                     ButtonProps::new()
                         .variant(ButtonVariant::Outline)
-                        .size(ButtonSize::Size1)
-                        .loading(true),
+                        .size(ButtonSize::Size1),
+                    theme,
+                ),
+                button_content(
+                    row![
+                        text("Loading"),
+                        spinner(Spinner::new(theme).progress(spinner_phase))
+                    ]
+                    .spacing(8)
+                    .align_y(Alignment::Center),
+                    Some(Message::Noop),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Outline)
+                        .size(ButtonSize::Size1),
                     theme,
                 ),
             ]
