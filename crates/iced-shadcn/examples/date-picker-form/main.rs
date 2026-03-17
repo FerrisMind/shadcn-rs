@@ -1,32 +1,32 @@
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 use chrono::NaiveDate;
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 use iced::border::Border;
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 use iced::widget::{column, container, text as iced_text};
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 use iced::{Background, Element, Length};
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 use iced_shadcn::{CalendarAction, CalendarState, DatePickerProps, Theme, date_picker};
 
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 pub fn main() -> iced::Result {
     iced::application(Example::default, Example::update, Example::view).run()
 }
 
-#[cfg(not(feature = "date-components"))]
+#[cfg(not(feature = "chrono"))]
 pub fn main() -> iced::Result {
     Ok(())
 }
 
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 struct Example {
     theme: Theme,
     selected: Option<NaiveDate>,
     calendar_state: CalendarState,
 }
 
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 impl Default for Example {
     fn default() -> Self {
         let initial = NaiveDate::from_ymd_opt(2024, 7, 1).unwrap();
@@ -38,7 +38,7 @@ impl Default for Example {
     }
 }
 
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 impl Example {
     fn update(&mut self, message: CalendarAction) {
         match message {
@@ -71,7 +71,7 @@ impl Example {
     }
 }
 
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 fn app<'a>(theme: &Theme, content: Element<'a, CalendarAction>) -> Element<'a, CalendarAction> {
     let background = theme.palette.background;
     container(content)
@@ -85,7 +85,7 @@ fn app<'a>(theme: &Theme, content: Element<'a, CalendarAction>) -> Element<'a, C
         .into()
 }
 
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 fn preview<'a>(
     theme: &Theme,
     content: impl Into<Element<'a, CalendarAction>>,

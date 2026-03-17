@@ -4,11 +4,11 @@ mod state;
 mod types;
 mod view;
 
-#[cfg(feature = "image-cropper-picker")]
+#[cfg(feature = "rfd")]
 mod picker;
 
 pub use geometry::{centered_square, clamp_rect, export_crop, move_rect};
-#[cfg(feature = "image-cropper-picker")]
+#[cfg(feature = "rfd")]
 pub use picker::image_cropper_pick_file_task;
 pub use state::ImageCropperState;
 pub use types::{
