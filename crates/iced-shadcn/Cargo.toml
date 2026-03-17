@@ -26,12 +26,14 @@ regex = "1.10"
 chrono = { version = "0.4", optional = true, default-features = false, features = ["std"] }
 image = { version = "0.25", default-features = false, features = ["avif", "bmp", "dds", "gif", "ico", "jpeg", "png", "pnm", "qoi", "tga", "webp"] }
 rfd = { version = "0.16", optional = true }
+wry = { version = "0.54.4", optional = true }
 
 [dev-dependencies]
 rfd = "0.16"
 
 [features]
 default = []
-date-components = ["dep:chrono"]
+chrono = ["dep:chrono"]
 charts = []
-image-cropper-picker = ["dep:rfd"]
+rfd = ["dep:rfd"]
+wry = ["dep:wry"]

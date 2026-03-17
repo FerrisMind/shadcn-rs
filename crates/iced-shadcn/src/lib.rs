@@ -7,7 +7,7 @@ pub mod badge;
 pub mod breadcrumb;
 pub mod button;
 pub mod button_group;
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 pub mod calendar;
 pub mod card;
 pub mod carousel;
@@ -19,7 +19,7 @@ pub mod combobox;
 pub mod command;
 pub mod context_menu;
 pub mod data_table;
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 pub mod date_picker;
 pub mod dialog;
 pub mod drawer;
@@ -67,6 +67,7 @@ pub mod tooltip;
 pub mod tree_view;
 pub mod tree_viewer;
 pub mod typography;
+pub mod web_preview;
 
 pub use accordion::{AccordionItemProps, AccordionProps, AccordionState, AccordionType, accordion};
 pub use alert::{AlertProps, AlertVariant, alert};
@@ -83,7 +84,7 @@ pub use button::{
     ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, button, button_content, icon_button,
 };
 pub use button_group::{ButtonGroup, ButtonGroupItem, ButtonGroupOrientation, button_group};
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 pub use calendar::{
     CalendarAction, CalendarCaptionLayout, CalendarMode, CalendarProps, CalendarState,
     CalendarView, calendar,
@@ -118,7 +119,7 @@ pub use data_table::{
     DataTableAction, DataTableAlign, DataTableColumn, DataTableProps, DataTableResponse,
     DataTableState, SortDirection, SortValue, data_table,
 };
-#[cfg(feature = "date-components")]
+#[cfg(feature = "chrono")]
 pub use date_picker::{
     DatePickerIconPosition, DatePickerProps, DateRange, DateRangePickerProps, date_picker,
     date_range_picker,
@@ -141,7 +142,7 @@ pub use form::{
     min_length, none, required,
 };
 pub use hover_card::{HoverCardProps, HoverCardSize, hover_card};
-#[cfg(feature = "image-cropper-picker")]
+#[cfg(feature = "rfd")]
 pub use image_cropper::image_cropper_pick_file_task;
 pub use image_cropper::{
     ImageCropRect, ImageCropResult, ImageCropShape, ImageCropStatus, ImageCropperAction,
@@ -255,4 +256,11 @@ pub use tree_viewer::{
 pub use typography::{
     HeadingAs, HeadingProps, LeadingTrim, TextAlign, TextAs, TextProps, TextSize, TextWeight,
     TextWrap, heading, text,
+};
+#[cfg(feature = "wry")]
+pub use web_preview::wry_backend;
+pub use web_preview::{
+    WebPreviewAction, WebPreviewBackendEvent, WebPreviewBounds, WebPreviewConsoleEntry,
+    WebPreviewConsoleLevel, WebPreviewContext, WebPreviewEffect, WebPreviewProps, WebPreviewState,
+    web_preview_body, web_preview_console, web_preview_navigation, web_preview_root,
 };

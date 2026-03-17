@@ -1,7 +1,7 @@
 use iced::widget::{column, container, row, scrollable, text};
 use iced::{Alignment, Background, Element, Length, Task};
 
-#[cfg(feature = "image-cropper-picker")]
+#[cfg(feature = "rfd")]
 use iced_shadcn::image_cropper_pick_file_task;
 use iced_shadcn::{
     CardProps, CardSize, CardVariant, ImageCropResult, ImageCropShape, ImageCropperAction,
@@ -28,7 +28,7 @@ enum Message {
     Rect(ImageCropperAction),
     Empty(ImageCropperAction),
     Custom(ImageCropperAction),
-    #[cfg(feature = "image-cropper-picker")]
+    #[cfg(feature = "rfd")]
     EmptyPicked(Option<ImageCropperSource>),
 }
 
@@ -71,12 +71,12 @@ impl Example {
                 apply_action(&mut self.custom, action, ImageCropShape::Round)
             }
             Message::Empty(action) => {
-                #[cfg(feature = "image-cropper-picker")]
+                #[cfg(feature = "rfd")]
                 if matches!(action, ImageCropperAction::PickerRequested) {
                     return image_cropper_pick_file_task(Message::EmptyPicked);
                 }
 
-                #[cfg(not(feature = "image-cropper-picker"))]
+                #[cfg(not(feature = "rfd"))]
                 if matches!(action, ImageCropperAction::PickerRequested) {
                     self.empty.apply(
                         ImageCropperAction::FileAccepted(seed_source()),
@@ -87,7 +87,7 @@ impl Example {
 
                 apply_action(&mut self.empty, action, ImageCropShape::Round)
             }
-            #[cfg(feature = "image-cropper-picker")]
+            #[cfg(feature = "rfd")]
             Message::EmptyPicked(source) => {
                 if let Some(source) = source {
                     self.empty.apply(
@@ -210,7 +210,7 @@ fn header<'a>(theme: &'a Theme) -> Element<'a, Message> {
     ]
     .spacing(8);
 
-    #[cfg(not(feature = "image-cropper-picker"))]
+    #[cfg(not(feature = "rfd"))]
     let content = content.push(
         text("Picker feature is off; the empty-state demo injects a sample image instead.")
             .size(12)
