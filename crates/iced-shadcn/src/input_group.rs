@@ -1,7 +1,16 @@
+use iced::advanced::Renderer as _;
+use iced::advanced::layout;
+use iced::advanced::renderer;
 use iced::advanced::text::Wrapping;
+use iced::advanced::widget::Operation;
+use iced::advanced::widget::Tree;
+use iced::advanced::widget::operation::focusable;
+use iced::advanced::widget::operation::{Outcome, black_box};
+use iced::advanced::{Clipboard, Layout, Shell, Widget};
+use iced::alignment::Vertical;
 use iced::border::Border;
 use iced::widget::{column, container, row, text, text_editor, text_input};
-use iced::{Background, Color, Element, Length};
+use iced::{Alignment, Background, Color, Element, Event, Length, Rectangle, Shadow, Vector};
 
 use crate::button::{
     ButtonProps, ButtonRadius, ButtonSize, ButtonVariant, button_content, icon_button,
@@ -20,13 +29,14 @@ pub enum InputGroupAddonAlign {
     BlockEnd,
 }
 
-impl InputGroupAddonAlign {
-    fn is_block(self) -> bool {
-        matches!(
-            self,
-            InputGroupAddonAlign::BlockStart | InputGroupAddonAlign::BlockEnd
-        )
-    }
+#[cfg(test)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum InputGroupZone {
+    BlockStart,
+    InlineStart,
+    Control,
+    InlineEnd,
+    BlockEnd,
 }
 
 #[derive(Clone, Copy, Debug, Default)]
@@ -112,32 +122,290 @@ pub fn input_group<'a, Message: Clone + 'a>(
     props: InputGroupProps,
     theme: &Theme,
 ) -> Element<'a, Message> {
-    let has_block = items.iter().any(|item| match item {
-        InputGroupItem::Addon(addon) => addon.props.align.is_block(),
-        _ => false,
-    });
+    let layout = input_group_layout(items, props.disabled, theme);
+    let content = render_input_group_layout(layout);
+    Element::new(InputGroupWidget::new(content, props, theme))
+}
 
-    let mut children: Vec<Element<'a, Message>> = Vec::with_capacity(items.len());
+struct InputGroupLayout<'a, Message> {
+    block_start: Vec<Element<'a, Message>>,
+    inline_start: Vec<Element<'a, Message>>,
+    controls: Vec<Element<'a, Message>>,
+    inline_end: Vec<Element<'a, Message>>,
+    block_end: Vec<Element<'a, Message>>,
+}
+
+fn input_group_layout<'a, Message: Clone + 'a>(
+    items: Vec<InputGroupItem<'a, Message>>,
+    disabled: bool,
+    theme: &Theme,
+) -> InputGroupLayout<'a, Message> {
+    let mut layout = InputGroupLayout {
+        block_start: Vec::new(),
+        inline_start: Vec::new(),
+        controls: Vec::new(),
+        inline_end: Vec::new(),
+        block_end: Vec::new(),
+    };
+
     for item in items {
         match item {
-            InputGroupItem::Control(content) => children.push(content),
+            InputGroupItem::Control(content) => layout.controls.push(content),
             InputGroupItem::Addon(addon) => {
-                children.push(render_addon(addon, props.disabled, theme))
+                let align = addon.props.align;
+                let element = render_addon(addon, disabled, theme);
+                match align {
+                    InputGroupAddonAlign::InlineStart => layout.inline_start.push(element),
+                    InputGroupAddonAlign::InlineEnd => layout.inline_end.push(element),
+                    InputGroupAddonAlign::BlockStart => layout.block_start.push(element),
+                    InputGroupAddonAlign::BlockEnd => layout.block_end.push(element),
+                }
             }
         }
     }
 
-    let content: Element<'a, Message> = if has_block {
-        column(children).spacing(0).into()
-    } else {
-        row(children).spacing(0).into()
-    };
+    layout
+}
 
-    let theme = theme.clone();
-    container(content)
-        .width(Length::Fill)
-        .style(move |_t| input_group_style(&theme, props))
-        .into()
+fn render_input_group_layout<'a, Message: Clone + 'a>(
+    layout: InputGroupLayout<'a, Message>,
+) -> Element<'a, Message> {
+    let mut outer_children: Vec<Element<'a, Message>> = Vec::new();
+
+    if !layout.block_start.is_empty() {
+        outer_children.push(
+            column(layout.block_start)
+                .spacing(0)
+                .width(Length::Fill)
+                .into(),
+        );
+    }
+
+    let mut middle_children: Vec<Element<'a, Message>> = Vec::new();
+    middle_children.extend(layout.inline_start);
+    middle_children.extend(layout.controls);
+    middle_children.extend(layout.inline_end);
+
+    if !middle_children.is_empty() {
+        outer_children.push(
+            row(middle_children)
+                .spacing(0)
+                .width(Length::Fill)
+                .align_y(Alignment::Center)
+                .into(),
+        );
+    }
+
+    if !layout.block_end.is_empty() {
+        outer_children.push(
+            column(layout.block_end)
+                .spacing(0)
+                .width(Length::Fill)
+                .into(),
+        );
+    }
+
+    if outer_children.len() == 1 {
+        outer_children.remove(0)
+    } else {
+        column(outer_children).spacing(0).width(Length::Fill).into()
+    }
+}
+
+#[derive(Debug, Default)]
+struct InputGroupState {
+    is_focused: bool,
+}
+
+struct InputGroupWidget<'a, Message> {
+    content: Element<'a, Message>,
+    props: InputGroupProps,
+    theme: Theme,
+}
+
+impl<'a, Message> InputGroupWidget<'a, Message> {
+    fn new(content: Element<'a, Message>, props: InputGroupProps, theme: &Theme) -> Self {
+        Self {
+            content,
+            props,
+            theme: theme.clone(),
+        }
+    }
+}
+
+impl<Message> Widget<Message, iced::Theme, iced::Renderer> for InputGroupWidget<'_, Message>
+where
+    Message: Clone,
+{
+    fn tag(&self) -> iced::advanced::widget::tree::Tag {
+        iced::advanced::widget::tree::Tag::of::<InputGroupState>()
+    }
+
+    fn state(&self) -> iced::advanced::widget::tree::State {
+        iced::advanced::widget::tree::State::new(InputGroupState::default())
+    }
+
+    fn size(&self) -> iced::Size<Length> {
+        iced::Size::new(Length::Fill, Length::Shrink)
+    }
+
+    fn children(&self) -> Vec<Tree> {
+        vec![Tree::new(&self.content)]
+    }
+
+    fn diff(&self, tree: &mut Tree) {
+        tree.diff_children(&[self.content.as_widget()]);
+    }
+
+    fn layout(
+        &mut self,
+        tree: &mut Tree,
+        renderer: &iced::Renderer,
+        limits: &layout::Limits,
+    ) -> layout::Node {
+        let content = self
+            .content
+            .as_widget_mut()
+            .layout(&mut tree.children[0], renderer, limits);
+
+        layout::Node::with_children(content.size(), vec![content])
+    }
+
+    fn operate(
+        &mut self,
+        tree: &mut Tree,
+        layout: Layout<'_>,
+        renderer: &iced::Renderer,
+        operation: &mut dyn Operation,
+    ) {
+        if let Some(child_layout) = layout.children().next() {
+            self.content.as_widget_mut().operate(
+                &mut tree.children[0],
+                child_layout,
+                renderer,
+                operation,
+            );
+        }
+    }
+
+    fn update(
+        &mut self,
+        tree: &mut Tree,
+        event: &Event,
+        layout: Layout<'_>,
+        cursor: iced::mouse::Cursor,
+        renderer: &iced::Renderer,
+        clipboard: &mut dyn Clipboard,
+        shell: &mut Shell<'_, Message>,
+        viewport: &Rectangle,
+    ) {
+        let Some(child_layout) = layout.children().next() else {
+            return;
+        };
+
+        self.content.as_widget_mut().update(
+            &mut tree.children[0],
+            event,
+            child_layout,
+            cursor,
+            renderer,
+            clipboard,
+            shell,
+            viewport,
+        );
+
+        let mut count = focusable::count();
+        self.content.as_widget_mut().operate(
+            &mut tree.children[0],
+            child_layout,
+            renderer,
+            &mut black_box(&mut count),
+        );
+
+        let is_focused = matches!(
+            count.finish(),
+            Outcome::Some(result) if result.focused.is_some()
+        );
+
+        let state = tree.state.downcast_mut::<InputGroupState>();
+        if state.is_focused != is_focused {
+            state.is_focused = is_focused;
+            shell.request_redraw();
+        }
+    }
+
+    fn mouse_interaction(
+        &self,
+        tree: &Tree,
+        layout: Layout<'_>,
+        cursor: iced::mouse::Cursor,
+        viewport: &Rectangle,
+        renderer: &iced::Renderer,
+    ) -> iced::mouse::Interaction {
+        let Some(child_layout) = layout.children().next() else {
+            return iced::mouse::Interaction::default();
+        };
+
+        self.content.as_widget().mouse_interaction(
+            &tree.children[0],
+            child_layout,
+            cursor,
+            viewport,
+            renderer,
+        )
+    }
+
+    fn draw(
+        &self,
+        tree: &Tree,
+        renderer: &mut iced::Renderer,
+        _theme: &iced::Theme,
+        _style: &renderer::Style,
+        layout: Layout<'_>,
+        cursor: iced::mouse::Cursor,
+        viewport: &Rectangle,
+    ) {
+        let bounds = layout.bounds();
+        if !bounds.intersects(viewport) {
+            return;
+        }
+
+        let state = tree.state.downcast_ref::<InputGroupState>();
+        let style = input_group_style(&self.theme, self.props, state.is_focused);
+
+        renderer.fill_quad(
+            renderer::Quad {
+                bounds,
+                border: style.border,
+                shadow: style.shadow,
+                ..renderer::Quad::default()
+            },
+            style
+                .background
+                .unwrap_or(Background::Color(Color::TRANSPARENT)),
+        );
+
+        if let Some(child_layout) = layout.children().next() {
+            self.content.as_widget().draw(
+                &tree.children[0],
+                renderer,
+                _theme,
+                _style,
+                child_layout,
+                cursor,
+                viewport,
+            );
+        }
+    }
+}
+
+impl<'a, Message> From<InputGroupWidget<'a, Message>> for Element<'a, Message>
+where
+    Message: Clone + 'a,
+{
+    fn from(widget: InputGroupWidget<'a, Message>) -> Element<'a, Message> {
+        Element::new(widget)
+    }
 }
 
 fn render_addon<'a, Message: Clone + 'a>(
@@ -147,18 +415,18 @@ fn render_addon<'a, Message: Clone + 'a>(
 ) -> Element<'a, Message> {
     let padding = match addon.props.align {
         InputGroupAddonAlign::InlineStart | InputGroupAddonAlign::InlineEnd => [6.0, 12.0],
-        InputGroupAddonAlign::BlockStart | InputGroupAddonAlign::BlockEnd => [8.0, 12.0],
+        InputGroupAddonAlign::BlockStart | InputGroupAddonAlign::BlockEnd => [12.0, 12.0],
     };
 
     let muted = theme.palette.muted_foreground;
-    let disabled_color = apply_opacity(muted, 0.6);
-    let mut wrapper =
-        container(addon.content)
-            .padding(padding)
-            .style(move |_t| iced::widget::container::Style {
-                text_color: Some(if disabled { disabled_color } else { muted }),
-                ..Default::default()
-            });
+    let disabled_color = apply_opacity(muted, 0.5);
+    let mut wrapper = container(addon.content)
+        .padding(padding)
+        .align_y(Vertical::Center)
+        .style(move |_t| iced::widget::container::Style {
+            text_color: Some(if disabled { disabled_color } else { muted }),
+            ..Default::default()
+        });
 
     if matches!(
         addon.props.align,
@@ -182,8 +450,8 @@ pub enum InputGroupButtonSize {
 impl InputGroupButtonSize {
     fn button_size(self) -> ButtonSize {
         match self {
-            InputGroupButtonSize::Xs | InputGroupButtonSize::IconXs => ButtonSize::Size1,
-            InputGroupButtonSize::Sm | InputGroupButtonSize::IconSm => ButtonSize::Size2,
+            InputGroupButtonSize::Xs | InputGroupButtonSize::IconXs => ButtonSize::Size0,
+            InputGroupButtonSize::Sm | InputGroupButtonSize::IconSm => ButtonSize::Size1,
         }
     }
 
@@ -199,6 +467,7 @@ impl InputGroupButtonSize {
 pub struct InputGroupButtonProps {
     pub variant: ButtonVariant,
     pub size: InputGroupButtonSize,
+    pub radius: Option<ButtonRadius>,
     pub disabled: bool,
 }
 
@@ -207,6 +476,7 @@ impl Default for InputGroupButtonProps {
         Self {
             variant: ButtonVariant::Ghost,
             size: InputGroupButtonSize::Xs,
+            radius: None,
             disabled: false,
         }
     }
@@ -227,6 +497,11 @@ impl InputGroupButtonProps {
         self
     }
 
+    pub fn radius(mut self, radius: ButtonRadius) -> Self {
+        self.radius = Some(radius);
+        self
+    }
+
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
         self
@@ -239,10 +514,14 @@ pub fn input_group_button<'a, Message: Clone + 'a>(
     props: InputGroupButtonProps,
     theme: &Theme,
 ) -> Element<'a, Message> {
-    let button_props = ButtonProps::new()
+    let mut button_props = ButtonProps::new()
         .variant(props.variant)
         .size(props.size.button_size())
         .disabled(props.disabled);
+
+    if let Some(radius) = props.radius {
+        button_props = button_props.radius(radius);
+    }
 
     if props.size.is_icon() {
         icon_button(content, on_press, button_props, theme).into()
@@ -315,10 +594,11 @@ where
     let mut widget = text_input::TextInput::new(placeholder, value)
         .padding(input_padding(props.size))
         .size(input_text_size(props.size))
+        .width(Length::Fill)
         .style(move |_t, status| input_group_input_style(&theme, props, status));
 
     if let Some(on_input) = on_input {
-        if props.disabled {
+        if props.disabled || props.read_only {
             widget = widget.on_input_maybe(None::<fn(String) -> Message>);
         } else {
             widget = widget.on_input(on_input);
@@ -334,6 +614,7 @@ where
 pub struct InputGroupTextareaProps {
     pub size: TextareaSize,
     pub disabled: bool,
+    pub padding: Option<[f32; 2]>,
     pub text_color: Option<iced::Color>,
     pub placeholder_color: Option<iced::Color>,
     pub read_only: bool,
@@ -348,6 +629,7 @@ impl Default for InputGroupTextareaProps {
         Self {
             size: TextareaSize::Size2,
             disabled: false,
+            padding: None,
             text_color: None,
             placeholder_color: None,
             read_only: false,
@@ -371,6 +653,11 @@ impl InputGroupTextareaProps {
 
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    pub fn padding(mut self, padding: [f32; 2]) -> Self {
+        self.padding = Some(padding);
         self
     }
 
@@ -421,7 +708,9 @@ where
     F: Fn(text_editor::Action) -> Message + 'a,
 {
     let theme = theme.clone();
-    let padding = textarea_padding(props.size);
+    let padding = props
+        .padding
+        .unwrap_or_else(|| textarea_padding(props.size));
     let text_size = textarea_text_size(props.size);
     let min_height = textarea_min_height(props);
     let mut widget = text_editor::TextEditor::new(content)
@@ -498,7 +787,9 @@ fn textarea_min_height(props: InputGroupTextareaProps) -> f32 {
         let rows = rows.max(1) as f32;
         let text_size = textarea_text_size(props.size) as f32;
         let line_height = text_size * 1.4;
-        let padding = textarea_padding(props.size);
+        let padding = props
+            .padding
+            .unwrap_or_else(|| textarea_padding(props.size));
         return line_height * rows + padding[0] * 2.0;
     }
 
@@ -520,7 +811,11 @@ fn input_group_radius(theme: &Theme, props: InputGroupProps) -> f32 {
     }
 }
 
-fn input_group_style(theme: &Theme, props: InputGroupProps) -> iced::widget::container::Style {
+fn input_group_style(
+    theme: &Theme,
+    props: InputGroupProps,
+    is_focused: bool,
+) -> iced::widget::container::Style {
     let palette = theme.palette;
     let radius = input_group_radius(theme, props);
 
@@ -534,6 +829,8 @@ fn input_group_style(theme: &Theme, props: InputGroupProps) -> iced::widget::con
 
     let border_color = if props.invalid {
         palette.destructive
+    } else if is_focused {
+        palette.ring
     } else {
         palette.border
     };
@@ -549,9 +846,10 @@ fn input_group_style(theme: &Theme, props: InputGroupProps) -> iced::widget::con
         text_color: Some(text_color),
         border: Border {
             radius: radius.into(),
-            width: 1.0,
+            width: if is_focused { 1.5 } else { 1.0 },
             color: border_color,
         },
+        shadow: shadow_xs(props.disabled, is_focused),
         ..Default::default()
     }
 }
@@ -559,7 +857,7 @@ fn input_group_style(theme: &Theme, props: InputGroupProps) -> iced::widget::con
 fn input_group_input_style(
     theme: &Theme,
     props: InputGroupInputProps,
-    status: text_input::Status,
+    _status: text_input::Status,
 ) -> text_input::Style {
     let palette = theme.palette;
     let accent = accent_color(&palette, AccentColor::Gray);
@@ -572,19 +870,9 @@ fn input_group_input_style(
         placeholder = palette.muted_foreground;
     }
 
-    let mut border = Border {
-        radius: 0.0.into(),
-        width: 0.0,
-        color: Color::TRANSPARENT,
-    };
-
-    if matches!(status, text_input::Status::Focused { .. }) {
-        border.color = palette.ring;
-    }
-
     text_input::Style {
         background: Background::Color(Color::TRANSPARENT),
-        border,
+        border: Border::default(),
         icon: palette.muted_foreground,
         placeholder,
         value,
@@ -640,11 +928,7 @@ fn input_group_textarea_style(
 
     text_editor::Style {
         background: Background::Color(Color::TRANSPARENT),
-        border: Border {
-            radius: 0.0.into(),
-            width: 0.0,
-            color: Color::TRANSPARENT,
-        },
+        border: Border::default(),
         placeholder,
         value,
         selection,
@@ -655,5 +939,107 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
     Color {
         a: color.a * opacity,
         ..color
+    }
+}
+
+fn shadow_xs(disabled: bool, is_focused: bool) -> Shadow {
+    let opacity = if disabled {
+        0.03
+    } else if is_focused {
+        0.08
+    } else {
+        0.05
+    };
+    Shadow {
+        color: apply_opacity(Color::BLACK, opacity),
+        offset: Vector::new(0.0, 1.0),
+        blur_radius: 2.0,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::widget::text;
+
+    fn control<'a>() -> InputGroupItem<'a, ()> {
+        InputGroupItem::Control(text("control").into())
+    }
+
+    fn addon<'a>(align: InputGroupAddonAlign, label: &'a str) -> InputGroupItem<'a, ()> {
+        input_group_addon(text(label), InputGroupAddonProps::new().align(align))
+    }
+
+    fn slot_order<'a>(layout: InputGroupLayout<'a, ()>) -> Vec<InputGroupZone> {
+        let mut order = Vec::new();
+
+        if !layout.block_start.is_empty() {
+            order.push(InputGroupZone::BlockStart);
+        }
+        if !layout.inline_start.is_empty() {
+            order.push(InputGroupZone::InlineStart);
+        }
+        if !layout.controls.is_empty() {
+            order.push(InputGroupZone::Control);
+        }
+        if !layout.inline_end.is_empty() {
+            order.push(InputGroupZone::InlineEnd);
+        }
+        if !layout.block_end.is_empty() {
+            order.push(InputGroupZone::BlockEnd);
+        }
+
+        order
+    }
+
+    #[test]
+    fn layout_groups_items_by_alignment_in_render_order() {
+        let theme = Theme::default();
+        let layout = input_group_layout(
+            vec![
+                addon(InputGroupAddonAlign::InlineEnd, "end"),
+                control(),
+                addon(InputGroupAddonAlign::InlineStart, "start"),
+                addon(InputGroupAddonAlign::BlockEnd, "bottom"),
+                addon(InputGroupAddonAlign::BlockStart, "top"),
+            ],
+            false,
+            &theme,
+        );
+
+        assert_eq!(
+            slot_order(layout),
+            vec![
+                InputGroupZone::BlockStart,
+                InputGroupZone::InlineStart,
+                InputGroupZone::Control,
+                InputGroupZone::InlineEnd,
+                InputGroupZone::BlockEnd,
+            ]
+        );
+    }
+
+    #[test]
+    fn layout_keeps_multiple_controls_in_input_order() {
+        let theme = Theme::default();
+        let layout = input_group_layout(vec![control(), control(), control()], false, &theme);
+
+        assert_eq!(layout.controls.len(), 3);
+        assert!(layout.block_start.is_empty());
+        assert!(layout.inline_start.is_empty());
+        assert!(layout.inline_end.is_empty());
+        assert!(layout.block_end.is_empty());
+    }
+
+    #[test]
+    fn layout_detects_block_addons() {
+        let theme = Theme::default();
+        let layout = input_group_layout(
+            vec![addon(InputGroupAddonAlign::BlockStart, "top")],
+            false,
+            &theme,
+        );
+
+        assert_eq!(slot_order(layout), vec![InputGroupZone::BlockStart]);
     }
 }
