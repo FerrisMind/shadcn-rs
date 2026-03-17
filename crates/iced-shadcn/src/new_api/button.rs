@@ -385,6 +385,7 @@ where
         // Handle typed icon or loading spinner
         let icon_element: Option<Element<'a, Message>> = if loading {
             let spinner_size = match size {
+                ButtonSize::Size0 => SpinnerSize::Size1,
                 ButtonSize::Size1 => SpinnerSize::Size1,
                 ButtonSize::Size2 => SpinnerSize::Size2,
                 _ => SpinnerSize::Size3,
@@ -480,6 +481,7 @@ where
 {
     fn size_to_pixels_val(size: ButtonSize) -> u32 {
         match size {
+            ButtonSize::Size0 => 12,
             ButtonSize::Size1 => 14,
             ButtonSize::Size4 => 16,
             _ => 14,
@@ -488,6 +490,7 @@ where
 
     fn size_to_padding_val(size: ButtonSize) -> [f32; 2] {
         match size {
+            ButtonSize::Size0 => [4.0, 8.0],
             ButtonSize::Size1 => [6.0, 12.0],
             ButtonSize::Size2 => [8.0, 16.0],
             ButtonSize::Size3 => [10.0, 24.0],
@@ -497,6 +500,7 @@ where
 
     fn size_to_height_val(size: ButtonSize) -> f32 {
         match size {
+            ButtonSize::Size0 => 24.0,
             ButtonSize::Size1 => 32.0,
             ButtonSize::Size2 => 36.0,
             ButtonSize::Size3 => 40.0,

@@ -32,6 +32,7 @@ pub enum ButtonVariant {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ButtonSize {
+    Size0,
     Size1,
     #[default]
     Size2,
@@ -133,6 +134,7 @@ impl ButtonProps {
 impl ButtonSize {
     fn padding(self) -> [f32; 2] {
         match self {
+            ButtonSize::Size0 => [4.0, 8.0],
             ButtonSize::Size1 => [6.0, 12.0],
             ButtonSize::Size2 => [8.0, 16.0],
             ButtonSize::Size3 => [10.0, 24.0],
@@ -142,6 +144,7 @@ impl ButtonSize {
 
     fn height(self) -> f32 {
         match self {
+            ButtonSize::Size0 => 24.0,
             ButtonSize::Size1 => 32.0,
             ButtonSize::Size2 => 36.0,
             ButtonSize::Size3 => 40.0,
@@ -151,6 +154,7 @@ impl ButtonSize {
 
     fn text_size(self) -> u32 {
         match self {
+            ButtonSize::Size0 => 12,
             ButtonSize::Size1 => 14,
             ButtonSize::Size2 => 14,
             ButtonSize::Size3 => 14,
@@ -232,6 +236,7 @@ fn loading_overlay<'a, Message: Clone + 'a>(
     theme: &Theme,
 ) -> Element<'a, Message> {
     let spinner_size = match props.size {
+        ButtonSize::Size0 => SpinnerSize::Size1,
         ButtonSize::Size1 => SpinnerSize::Size1,
         ButtonSize::Size2 => SpinnerSize::Size2,
         ButtonSize::Size3 | ButtonSize::Size4 => SpinnerSize::Size3,
