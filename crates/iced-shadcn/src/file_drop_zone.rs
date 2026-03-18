@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::rc::Rc;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use iced::advanced::Renderer as _;
 use iced::advanced::layout;
@@ -338,10 +339,18 @@ fn load_files(paths: &[PathBuf]) -> Vec<FileDropZoneFile> {
         .collect()
 }
 
+static NEXT_DROP_ZONE_ID: AtomicU64 = AtomicU64::new(1);
+
+thread_local! {
+    static ACTIVE_DROP_TARGET: std::cell::RefCell<Option<u64>> = const { std::cell::RefCell::new(None) };
+}
+
 #[derive(Debug, Default)]
 struct FileDropZoneWidgetState {
+    instance_id: u64,
     hovering_files: bool,
     drop_batch_count: usize,
+    last_cursor_over: bool,
 }
 
 struct FileDropZoneWidget<'a, Message> {
@@ -459,9 +468,13 @@ where
         let bounds = layout.bounds();
         let is_over = cursor.is_over(bounds);
         let local = tree.state.downcast_mut::<FileDropZoneWidgetState>();
+        if local.instance_id == 0 {
+            local.instance_id = NEXT_DROP_ZONE_ID.fetch_add(1, Ordering::Relaxed);
+        }
 
         match event {
             Event::Mouse(mouse::Event::CursorMoved { .. }) => {
+                local.last_cursor_over = is_over;
                 if is_over != self.state.hovered {
                     shell.publish((self.on_action)(FileDropZoneAction::Hovered(is_over)));
                 }
@@ -473,14 +486,24 @@ where
                 }
             }
             Event::Window(window::Event::FileHovered(_path)) => {
-                if can_upload {
+                let cursor_known = cursor.position().is_some();
+                let prefer_target = if cursor_known {
+                    is_over
+                } else {
+                    local.last_cursor_over
+                };
+                let is_target =
+                    can_upload && claim_or_match_drop_target(local.instance_id, prefer_target);
+
+                if is_target {
                     local.hovering_files = true;
                     shell.publish((self.on_action)(FileDropZoneAction::Hovered(true)));
-                    shell.capture_event();
                 }
             }
             Event::Window(window::Event::FileDropped(path)) => {
-                if can_upload {
+                let is_target =
+                    can_upload && (cursor.is_over(bounds) || is_drop_target(local.instance_id));
+                if is_target {
                     let file_number =
                         self.props.file_count.unwrap_or(0) + local.drop_batch_count + 1;
                     if let Some(reason) = validate_path(path, file_number, &self.props) {
@@ -495,15 +518,18 @@ where
                         ])));
                     }
                     shell.capture_event();
+                    if is_drop_target(local.instance_id) {
+                        clear_drop_target(local.instance_id);
+                    }
                 }
             }
             Event::Window(window::Event::FilesHoveredLeft) => {
                 let was_hovering_files = local.hovering_files;
                 local.hovering_files = false;
                 local.drop_batch_count = 0;
+                local.last_cursor_over = false;
                 if was_hovering_files || self.state.hovered {
                     shell.publish((self.on_action)(FileDropZoneAction::Hovered(false)));
-                    shell.capture_event();
                 }
             }
             _ => {}
@@ -640,6 +666,42 @@ fn mix_color(a: Color, b: Color, t: f32) -> Color {
         b: a.b + (b.b - a.b) * t,
         a: a.a + (b.a - a.a) * t,
     }
+}
+
+fn claim_or_match_drop_target(instance_id: u64, prefer_target: bool) -> bool {
+    ACTIVE_DROP_TARGET.with(|target| {
+        let mut active = target.borrow_mut();
+        match *active {
+            Some(current) if current == instance_id => true,
+            Some(_) if prefer_target => {
+                *active = Some(instance_id);
+                true
+            }
+            Some(_) => false,
+            None if prefer_target => {
+                *active = Some(instance_id);
+                true
+            }
+            None => false,
+        }
+    })
+}
+
+fn is_drop_target(instance_id: u64) -> bool {
+    ACTIVE_DROP_TARGET.with(|target| {
+        target
+            .borrow()
+            .is_some_and(|current| current == instance_id)
+    })
+}
+
+fn clear_drop_target(instance_id: u64) {
+    ACTIVE_DROP_TARGET.with(|target| {
+        let mut active = target.borrow_mut();
+        if active.is_some_and(|current| current == instance_id) {
+            *active = None;
+        }
+    });
 }
 
 fn validate_path(
