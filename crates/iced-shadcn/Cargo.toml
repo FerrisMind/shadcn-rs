@@ -19,7 +19,7 @@ include = [
 ]
 
 [dependencies]
-iced = { version = "0.14", features = ["advanced", "canvas", "image", "tokio", "tiny-skia", "lazy"] }
+iced = { version = "0.14", features = ["advanced", "canvas", "highlighter", "image", "tokio", "tiny-skia", "lazy"] }
 lucide-icons = { version = "0.575", features = ["iced"] }
 num-traits = "0.2"
 regex = "1.10"

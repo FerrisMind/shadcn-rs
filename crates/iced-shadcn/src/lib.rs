@@ -15,6 +15,7 @@ pub mod chain_of_thought;
 #[cfg(feature = "charts")]
 pub mod chart;
 pub mod checkbox;
+pub mod code_block;
 pub mod collapsible;
 pub mod combobox;
 pub mod command;
@@ -113,6 +114,12 @@ pub use chart::{
 };
 pub use checkbox::{
     CheckboxCycle, CheckboxProps, CheckboxSize, CheckboxState, CheckboxVariant, checkbox,
+};
+pub use code_block::{
+    CodeBlockCodeProps, CodeBlockCopyAction, CodeBlockCopyButtonProps, CodeBlockCopyState,
+    CodeBlockCopyStatus, CodeBlockCopyUpdate, CodeBlockGroupProps, CodeBlockProps, code_block,
+    code_block_code, code_block_copy_button, code_block_copy_icon, code_block_copy_reduce,
+    code_block_copy_task, code_block_group,
 };
 pub use collapsible::{CollapsibleContentProps, CollapsibleProps, collapsible};
 pub use combobox::{
