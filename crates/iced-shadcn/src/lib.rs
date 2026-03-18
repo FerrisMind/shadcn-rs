@@ -47,6 +47,7 @@ pub mod popover;
 pub mod progress;
 pub mod prompt_input;
 pub mod radio;
+pub mod reasoning;
 pub mod rename;
 pub mod resizable;
 pub mod scroll_area;
@@ -197,6 +198,12 @@ pub use prompt_input::{
     PromptInputFloatingActions, PromptInputFloatingProps, prompt_input_floating,
 };
 pub use radio::{RadioDirection, RadioGroupProps, RadioItem, radio_group};
+pub use reasoning::{
+    ReasoningContentProps, ReasoningEffects, ReasoningProps, ReasoningState, ReasoningTextProps,
+    ReasoningTriggerProps, ReasoningUpdate, ResponseProps, reasoning, reasoning_content,
+    reasoning_reduce, reasoning_response, reasoning_text, reasoning_thinking_label,
+    reasoning_trigger_default,
+};
 pub use rename::{
     RenameAction, RenameActionHandler, RenameBlurBehavior, RenameButtonProps, RenameContext,
     RenameFallbackSelectionBehavior, RenameInputTag, RenameMode, RenameProviderProps,
