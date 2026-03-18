@@ -65,6 +65,7 @@ pub struct ButtonProps {
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
     pub justify: ButtonJustify,
+    pub opaque_outline: bool,
     pub high_contrast: bool,
     pub loading: bool,
     pub disabled: bool,
@@ -78,6 +79,7 @@ impl Default for ButtonProps {
             color: AccentColor::Gray,
             radius: None,
             justify: ButtonJustify::Center,
+            opaque_outline: false,
             high_contrast: false,
             loading: false,
             disabled: false,
@@ -112,6 +114,11 @@ impl ButtonProps {
 
     pub fn justify(mut self, justify: ButtonJustify) -> Self {
         self.justify = justify;
+        self
+    }
+
+    pub fn opaque_outline(mut self, opaque_outline: bool) -> Self {
+        self.opaque_outline = opaque_outline;
         self
     }
 
@@ -307,7 +314,14 @@ pub(crate) fn button_style(
             palette.border,
         ),
         // shadcn-svelte: outline defaults to foreground text on background with input border.
-        ButtonVariant::Outline => (None, palette.foreground, palette.input),
+        ButtonVariant::Outline => {
+            let bg = if props.opaque_outline {
+                Some(Background::Color(palette.background))
+            } else {
+                None
+            };
+            (bg, palette.foreground, palette.input)
+        }
         // shadcn-svelte: ghost defaults to foreground text and transparent background.
         ButtonVariant::Ghost => (None, palette.foreground, Color::TRANSPARENT),
         ButtonVariant::Link => (None, accent, Color::TRANSPARENT),
@@ -352,7 +366,23 @@ pub(crate) fn button_style(
                     }
                 }
                 // shadcn-svelte: outline/ghost hover -> accent background + accent foreground.
-                ButtonVariant::Outline | ButtonVariant::Ghost => {
+                ButtonVariant::Outline => {
+                    if props.opaque_outline {
+                        text_color = palette.foreground;
+                        Some(Background::Color(mix(
+                            palette.background,
+                            palette.foreground,
+                            0.08,
+                        )))
+                    } else if is_dark(&palette) {
+                        text_color = palette.accent_foreground;
+                        Some(Background::Color(palette.accent))
+                    } else {
+                        text_color = palette.foreground;
+                        Some(Background::Color(apply_opacity(palette.foreground, 0.10)))
+                    }
+                }
+                ButtonVariant::Ghost => {
                     if is_dark(&palette) {
                         text_color = palette.accent_foreground;
                         Some(Background::Color(palette.accent))
@@ -393,11 +423,21 @@ pub(crate) fn button_style(
                     palette.background,
                     0.3,
                 ))),
-                ButtonVariant::Soft
-                | ButtonVariant::Surface
-                | ButtonVariant::Outline
-                | ButtonVariant::Ghost => {
+                ButtonVariant::Soft | ButtonVariant::Surface | ButtonVariant::Ghost => {
                     if is_dark(&palette) {
+                        Some(Background::Color(palette.muted))
+                    } else {
+                        Some(Background::Color(apply_opacity(palette.foreground, 0.16)))
+                    }
+                }
+                ButtonVariant::Outline => {
+                    if props.opaque_outline {
+                        Some(Background::Color(mix(
+                            palette.background,
+                            palette.foreground,
+                            0.12,
+                        )))
+                    } else if is_dark(&palette) {
                         Some(Background::Color(palette.muted))
                     } else {
                         Some(Background::Color(apply_opacity(palette.foreground, 0.16)))

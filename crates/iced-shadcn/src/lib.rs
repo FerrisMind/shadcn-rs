@@ -18,6 +18,7 @@ pub mod collapsible;
 pub mod combobox;
 pub mod command;
 pub mod context_menu;
+pub mod conversation;
 pub mod data_table;
 #[cfg(feature = "chrono")]
 pub mod date_picker;
@@ -115,6 +116,13 @@ pub use context_menu::{
     ContextMenuContentVariant, ContextMenuEntry, ContextMenuItem, ContextMenuItemProps,
     ContextMenuProps, ContextMenuRadioItem, ContextMenuSubMenu, context_menu,
 };
+pub use conversation::{
+    ConversationBubbleProps, ConversationBubbleRole, ConversationContentProps,
+    ConversationEmptyStateProps, ConversationProps, ConversationScrollAnimation,
+    ConversationScrollAnimator, ConversationScrollButtonProps, conversation, conversation_bubble,
+    conversation_content, conversation_empty_state, conversation_is_at_bottom,
+    conversation_overlay_scroll_button, conversation_scroll_button, conversation_scroll_to_bottom,
+};
 pub use data_table::{
     DataTableAction, DataTableAlign, DataTableColumn, DataTableProps, DataTableResponse,
     DataTableState, SortDirection, SortValue, data_table,
@@ -196,8 +204,9 @@ pub use resizable::{
     ResizablePanelProps, resizable_handle, resizable_panel, resizable_panel_group,
 };
 pub use scroll_area::{
-    ScrollAreaProps, ScrollAreaScrollbarVisibility, ScrollAreaScrollbars, ScrollAreaSize,
-    scroll_area,
+    ScrollAreaProps, ScrollAreaScrollAnimation, ScrollAreaScrollAnimator,
+    ScrollAreaScrollbarVisibility, ScrollAreaScrollbars, ScrollAreaSize, scroll_area,
+    scroll_area_is_at_bottom, scroll_area_scroll_to_bottom,
 };
 pub use select::{
     ContentVariant, SelectEntry, SelectGroup, SelectItem, SelectProps, SelectSize, TriggerVariant,

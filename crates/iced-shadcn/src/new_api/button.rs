@@ -464,6 +464,7 @@ where
             color,
             radius,
             justify,
+            opaque_outline: false,
             high_contrast,
             loading,
             disabled,
