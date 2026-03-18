@@ -25,6 +25,9 @@ pub struct CardProps {
     pub variant: CardVariant,
     pub size: CardSize,
     pub show_shadow: bool,
+    pub background: Option<Color>,
+    pub text_color: Option<Color>,
+    pub border_color: Option<Color>,
 }
 
 impl Default for CardProps {
@@ -33,6 +36,9 @@ impl Default for CardProps {
             variant: CardVariant::Surface,
             size: CardSize::Size1,
             show_shadow: true,
+            background: None,
+            text_color: None,
+            border_color: None,
         }
     }
 }
@@ -54,6 +60,21 @@ impl CardProps {
 
     pub fn show_shadow(mut self, show_shadow: bool) -> Self {
         self.show_shadow = show_shadow;
+        self
+    }
+
+    pub fn background(mut self, background: Color) -> Self {
+        self.background = Some(background);
+        self
+    }
+
+    pub fn text_color(mut self, text_color: Color) -> Self {
+        self.text_color = Some(text_color);
+        self
+    }
+
+    pub fn border_color(mut self, border_color: Color) -> Self {
+        self.border_color = Some(border_color);
         self
     }
 }
@@ -81,10 +102,11 @@ impl CardSize {
 fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {
     let palette = theme.palette;
     let radius = props.size.radius(theme);
-    let border_color = palette.border;
+    let mut border_color = palette.border;
+    let mut text_color = palette.card_foreground;
     let border_width = 1.0;
 
-    let (background, default_shadow) = match props.variant {
+    let (mut background, default_shadow) = match props.variant {
         CardVariant::Surface => (
             Some(Background::Color(palette.card)),
             Shadow {
@@ -103,6 +125,17 @@ fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {
         ),
         CardVariant::Ghost => (None, Shadow::default()),
     };
+
+    if let Some(custom_background) = props.background {
+        background = Some(Background::Color(custom_background));
+    }
+    if let Some(custom_text_color) = props.text_color {
+        text_color = custom_text_color;
+    }
+    if let Some(custom_border_color) = props.border_color {
+        border_color = custom_border_color;
+    }
+
     let shadow = if props.show_shadow {
         default_shadow
     } else {
@@ -111,7 +144,7 @@ fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {
 
     container_widget::Style {
         background,
-        text_color: Some(palette.card_foreground),
+        text_color: Some(text_color),
         border: Border {
             color: border_color,
             width: border_width,
