@@ -11,6 +11,7 @@ pub mod button_group;
 pub mod calendar;
 pub mod card;
 pub mod carousel;
+pub mod chain_of_thought;
 #[cfg(feature = "charts")]
 pub mod chart;
 pub mod checkbox;
@@ -96,6 +97,15 @@ pub use card::{CardProps, CardSize, CardVariant, card};
 pub use carousel::{
     CarouselContentProps, CarouselOptions, CarouselOrientation, CarouselState, carousel_content,
     carousel_next, carousel_previous,
+};
+pub use chain_of_thought::{
+    ChainOfThoughtContentProps, ChainOfThoughtEffects, ChainOfThoughtHeaderProps,
+    ChainOfThoughtImageProps, ChainOfThoughtProps, ChainOfThoughtSearchResultProps,
+    ChainOfThoughtSearchResultsProps, ChainOfThoughtState, ChainOfThoughtStepProps,
+    ChainOfThoughtStepStatus, ChainOfThoughtUpdate, chain_of_thought, chain_of_thought_content,
+    chain_of_thought_header_default, chain_of_thought_image, chain_of_thought_reduce,
+    chain_of_thought_search_result, chain_of_thought_search_results, chain_of_thought_step,
+    chain_of_thought_step_is_visible,
 };
 #[cfg(feature = "charts")]
 pub use chart::{
