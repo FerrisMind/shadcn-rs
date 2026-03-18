@@ -4,9 +4,9 @@ use lucide_icons::LUCIDE_FONT_BYTES;
 
 use iced_shadcn::{
     BadgeProps, BadgeSize, BadgeVariant, CodeBlockCodeProps, CodeBlockCopyAction,
-    CodeBlockCopyButtonProps, CodeBlockCopyState, CodeBlockGroupProps,
-    CodeBlockProps, Theme, badge, code_block, code_block_code, code_block_copy_button,
-    code_block_copy_reduce, code_block_copy_task, code_block_group,
+    CodeBlockCopyButtonProps, CodeBlockCopyState, CodeBlockGroupProps, CodeBlockProps, Theme,
+    badge, code_block, code_block_code, code_block_copy_button, code_block_copy_reduce,
+    code_block_copy_task, code_block_group,
 };
 
 pub fn main() -> iced::Result {

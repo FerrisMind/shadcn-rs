@@ -29,6 +29,7 @@ pub mod drawer;
 pub mod dropdown_menu;
 pub mod empty;
 pub mod field;
+pub mod file_drop_zone;
 pub mod form;
 pub mod hover_card;
 pub mod image_cropper;
@@ -164,6 +165,16 @@ pub use empty::{
     empty_header, empty_media, empty_root, empty_title,
 };
 pub use field::{FieldProps, field};
+#[cfg(feature = "rfd")]
+pub use file_drop_zone::file_drop_zone_pick_files_task;
+pub use file_drop_zone::{
+    ACCEPT_AUDIO, ACCEPT_IMAGE, ACCEPT_VIDEO, BYTE, FileDropZoneAction, FileDropZoneContext,
+    FileDropZoneFile, FileDropZoneProps, FileDropZoneRejectedReason, FileDropZoneSize,
+    FileDropZoneState, FileDropZoneVariant, GIGABYTE, KILOBYTE, MEGABYTE, display_size,
+    file_drop_zone_load_files_task, file_drop_zone_partition_paths, file_drop_zone_root,
+    file_drop_zone_surface, file_drop_zone_textarea, file_drop_zone_trigger,
+    file_drop_zone_trigger_default,
+};
 pub use form::{
     FieldValue, FormState, ValidationMode, compose, form_description, form_item, form_message,
     min_length, none, required,
