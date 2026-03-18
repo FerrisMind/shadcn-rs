@@ -45,6 +45,7 @@ mod overlay;
 pub mod pagination;
 pub mod popover;
 pub mod progress;
+pub mod prompt_input;
 pub mod radio;
 pub mod rename;
 pub mod resizable;
@@ -192,6 +193,9 @@ pub use pagination::{
 };
 pub use popover::{PopoverProps, PopoverSize, popover};
 pub use progress::{ProgressProps, ProgressSize, ProgressVariant, progress};
+pub use prompt_input::{
+    PromptInputFloatingActions, PromptInputFloatingProps, prompt_input_floating,
+};
 pub use radio::{RadioDirection, RadioGroupProps, RadioItem, radio_group};
 pub use rename::{
     RenameAction, RenameActionHandler, RenameBlurBehavior, RenameButtonProps, RenameContext,

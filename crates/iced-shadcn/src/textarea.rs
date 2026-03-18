@@ -37,6 +37,7 @@ pub struct TextareaProps {
     pub variant: TextareaVariant,
     pub resize: TextareaResize,
     pub wrapping: Wrapping,
+    pub padding: Option<[f32; 2]>,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
     pub text_color: Option<iced::Color>,
@@ -44,8 +45,10 @@ pub struct TextareaProps {
     pub read_only: bool,
     pub max_len: Option<usize>,
     pub rows: Option<usize>,
+    pub max_rows: Option<usize>,
     pub invalid: bool,
     pub disabled: bool,
+    pub borderless: bool,
 }
 
 impl Default for TextareaProps {
@@ -55,6 +58,7 @@ impl Default for TextareaProps {
             variant: TextareaVariant::Surface,
             resize: TextareaResize::None,
             wrapping: Wrapping::WordOrGlyph,
+            padding: None,
             color: AccentColor::Gray,
             radius: None,
             text_color: None,
@@ -62,8 +66,10 @@ impl Default for TextareaProps {
             read_only: false,
             max_len: None,
             rows: None,
+            max_rows: None,
             invalid: false,
             disabled: false,
+            borderless: false,
         }
     }
 }
@@ -90,6 +96,11 @@ impl TextareaProps {
 
     pub fn wrapping(mut self, wrapping: Wrapping) -> Self {
         self.wrapping = wrapping;
+        self
+    }
+
+    pub fn padding(mut self, padding: [f32; 2]) -> Self {
+        self.padding = Some(padding);
         self
     }
 
@@ -128,6 +139,11 @@ impl TextareaProps {
         self
     }
 
+    pub fn max_rows(mut self, max_rows: usize) -> Self {
+        self.max_rows = Some(max_rows.max(1));
+        self
+    }
+
     pub fn invalid(mut self, invalid: bool) -> Self {
         self.invalid = invalid;
         self
@@ -135,6 +151,11 @@ impl TextareaProps {
 
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    pub fn borderless(mut self, borderless: bool) -> Self {
+        self.borderless = borderless;
         self
     }
 }
@@ -187,9 +208,10 @@ where
     F: Fn(text_editor::Action) -> Message + 'a,
 {
     let theme = theme.clone();
-    let padding = props.size.padding();
+    let padding = props.padding.unwrap_or_else(|| props.size.padding());
     let text_size = props.size.text_size();
     let min_height = textarea_min_height(props, text_size, padding);
+    let max_height = textarea_max_height(props, text_size, padding);
     let mut widget = text_editor::TextEditor::new(content)
         .placeholder(placeholder)
         .padding(padding)
@@ -197,6 +219,10 @@ where
         .min_height(min_height)
         .wrapping(props.wrapping)
         .style(move |_iced_theme, status| textarea_style(&theme, props, status));
+
+    if let Some(max_height) = max_height {
+        widget = widget.max_height(max_height);
+    }
 
     if props.resize == TextareaResize::None {
         widget = widget.height(iced::Length::Fixed(min_height));
@@ -291,6 +317,14 @@ fn textarea_style(
         border.color = palette.destructive;
     }
 
+    if props.borderless {
+        border.width = 0.0;
+        border.color = iced::Color::TRANSPARENT;
+        if !matches!(status, text_editor::Status::Disabled) {
+            background = Background::Color(iced::Color::TRANSPARENT);
+        }
+    }
+
     let is_disabled = matches!(status, text_editor::Status::Disabled) || props.read_only;
     if !is_disabled {
         if !value_overridden {
@@ -343,6 +377,13 @@ fn textarea_min_height(props: TextareaProps, text_size: u32, padding: [f32; 2]) 
     }
 
     props.size.min_height()
+}
+
+fn textarea_max_height(props: TextareaProps, text_size: u32, padding: [f32; 2]) -> Option<f32> {
+    let max_rows = props.max_rows?;
+    let line_height = text_size as f32 * 1.4;
+    let rows = max_rows.max(1) as f32;
+    Some(line_height * rows + padding[0] * 2.0)
 }
 
 fn can_apply_edit(

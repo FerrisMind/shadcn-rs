@@ -231,7 +231,13 @@ pub fn icon_button<'a, Message: Clone + 'a>(
     theme: &Theme,
 ) -> button_widget::Button<'a, Message> {
     let size = props.size.height();
-    button_content_aligned(content, on_press, props, theme, true)
+    let centered_content = container(content)
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .center_x(Length::Fill)
+        .center_y(Length::Fill);
+
+    button_content_aligned(centered_content, on_press, props, theme, true)
         .padding(0)
         .width(Length::Fixed(size))
         .height(Length::Fixed(size))

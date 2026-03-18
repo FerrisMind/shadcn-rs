@@ -28,6 +28,8 @@ pub struct CardProps {
     pub background: Option<Color>,
     pub text_color: Option<Color>,
     pub border_color: Option<Color>,
+    pub padding: Option<f32>,
+    pub radius: Option<f32>,
 }
 
 impl Default for CardProps {
@@ -39,6 +41,8 @@ impl Default for CardProps {
             background: None,
             text_color: None,
             border_color: None,
+            padding: None,
+            radius: None,
         }
     }
 }
@@ -77,6 +81,16 @@ impl CardProps {
         self.border_color = Some(border_color);
         self
     }
+
+    pub fn padding(mut self, padding: f32) -> Self {
+        self.padding = Some(padding.max(0.0));
+        self
+    }
+
+    pub fn radius(mut self, radius: f32) -> Self {
+        self.radius = Some(radius.max(0.0));
+        self
+    }
 }
 
 impl CardSize {
@@ -101,7 +115,7 @@ impl CardSize {
 
 fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {
     let palette = theme.palette;
-    let radius = props.size.radius(theme);
+    let radius = props.radius.unwrap_or_else(|| props.size.radius(theme));
     let mut border_color = palette.border;
     let mut text_color = palette.card_foreground;
     let border_width = 1.0;
@@ -165,7 +179,7 @@ pub fn card<'a, Message: 'a>(
     props: CardProps,
     theme: &Theme,
 ) -> container::Container<'a, Message> {
-    let padding = props.size.padding();
+    let padding = props.padding.unwrap_or_else(|| props.size.padding());
     let theme = theme.clone();
 
     container(content)
