@@ -373,7 +373,7 @@ mod tests {
         assert!(props.max_width >= 768.0);
         assert!(!props.can_submit);
         assert!(!props.is_loading);
-        assert_eq!(props.textarea.rows, Some(1));
+        assert_eq!(props.textarea.rows, Some(2));
         assert_eq!(props.root_radius, 24.0);
     }
 
