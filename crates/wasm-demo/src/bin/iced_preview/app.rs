@@ -51,6 +51,7 @@ pub struct PreviewApp {
     search: String,
     spinner_phase: f32,
     progress_values: Vec<f32>,
+    stepper_step: usize,
     email: String,
     username: String,
 }
@@ -67,6 +68,9 @@ pub enum Message {
     SelectPage(PreviewPage),
     SelectTab(ComponentTab),
     ToggleTheme,
+    StepperStepChanged(usize),
+    StepperNext,
+    StepperPrevious,
     #[cfg(target_arch = "wasm32")]
     HighlightTick,
     AnimationTick,
@@ -91,6 +95,7 @@ impl Default for PreviewApp {
             search: String::new(),
             spinner_phase: 0.0,
             progress_values: vec![62.0],
+            stepper_step: 1,
             email: String::new(),
             username: String::new(),
         }
@@ -107,6 +112,17 @@ impl PreviewApp {
             Message::SelectPage(page) => self.selected = page,
             Message::SelectTab(tab) => self.tab = tab,
             Message::ToggleTheme => self.toggle_theme(),
+            Message::StepperStepChanged(step) => self.stepper_step = step,
+            Message::StepperNext => {
+                if self.stepper_step < 4 {
+                    self.stepper_step += 1;
+                }
+            }
+            Message::StepperPrevious => {
+                if self.stepper_step > 1 {
+                    self.stepper_step -= 1;
+                }
+            }
             #[cfg(target_arch = "wasm32")]
             Message::HighlightTick => {}
             Message::AnimationTick => {
@@ -194,6 +210,10 @@ impl PreviewApp {
 
     pub fn spinner_phase(&self) -> f32 {
         self.spinner_phase
+    }
+
+    pub fn stepper_step(&self) -> usize {
+        self.stepper_step
     }
 
     fn filtered_pages(&self) -> Vec<PreviewPage> {

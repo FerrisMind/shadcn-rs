@@ -13,6 +13,8 @@ use crate::tokens::{
     is_dark,
 };
 
+pub type ShadcnButton<'a, Message> = button_widget::Button<'a, Message>;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum ButtonVariant {
     #[default]
@@ -175,7 +177,7 @@ pub fn button<'a, Message: Clone + 'a>(
     on_press: Option<Message>,
     props: ButtonProps,
     theme: &Theme,
-) -> button_widget::Button<'a, Message> {
+) -> ShadcnButton<'a, Message> {
     let content = iced_text(label).size(props.size.text_size());
     button_content(content, on_press, props, theme)
 }
@@ -185,7 +187,7 @@ pub fn button_content<'a, Message: Clone + 'a>(
     on_press: Option<Message>,
     props: ButtonProps,
     theme: &Theme,
-) -> button_widget::Button<'a, Message> {
+) -> ShadcnButton<'a, Message> {
     button_content_aligned(content, on_press, props, theme, false)
 }
 
@@ -195,7 +197,7 @@ fn button_content_aligned<'a, Message: Clone + 'a>(
     props: ButtonProps,
     theme: &Theme,
     center_x: bool,
-) -> button_widget::Button<'a, Message> {
+) -> ShadcnButton<'a, Message> {
     let content: Element<'a, Message> = if props.loading {
         loading_overlay(content.into(), props, theme)
     } else {
@@ -229,7 +231,7 @@ pub fn icon_button<'a, Message: Clone + 'a>(
     on_press: Option<Message>,
     props: ButtonProps,
     theme: &Theme,
-) -> button_widget::Button<'a, Message> {
+) -> ShadcnButton<'a, Message> {
     let size = props.size.height();
     let centered_content = container(content)
         .width(Length::Fill)
