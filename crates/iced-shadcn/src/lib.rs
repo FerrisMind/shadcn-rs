@@ -61,6 +61,7 @@ pub mod sidebar;
 pub mod skeleton;
 pub mod slider;
 pub mod spinner;
+pub mod stepper;
 pub mod switch;
 pub mod table;
 pub mod tabs;
@@ -221,7 +222,7 @@ pub use pagination::{
     pagination_ellipsis, pagination_item, pagination_link, pagination_next, pagination_previous,
 };
 pub use popover::{PopoverProps, PopoverSize, popover};
-pub use progress::{ProgressProps, ProgressSize, ProgressVariant, progress};
+pub use progress::{ProgressOrientation, ProgressProps, ProgressSize, ProgressVariant, progress};
 pub use prompt_input::{
     PromptInputFloatingActions, PromptInputFloatingProps, prompt_input_floating,
 };
@@ -267,6 +268,11 @@ pub use slider::{
     SliderOrientation, SliderProps, SliderSize, SliderVariant, slider, vertical_slider,
 };
 pub use spinner::{Spinner, SpinnerSize, spinner};
+pub use stepper::{
+    StepperItem, StepperItemState, StepperOrientation, StepperProps, StepperTrigger, stepper,
+    stepper_description, stepper_indicator, stepper_item, stepper_nav, stepper_next,
+    stepper_previous, stepper_title, stepper_trigger,
+};
 pub use switch::{SwitchProps, SwitchSize, SwitchVariant, switch};
 pub use table::{
     TableCellProps, TableContext, TableProps, TableRowProps, TableSize, TableVariant, table,

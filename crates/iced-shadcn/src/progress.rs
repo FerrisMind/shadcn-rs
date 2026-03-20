@@ -26,10 +26,18 @@ pub enum ProgressVariant {
     Soft,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub enum ProgressOrientation {
+    #[default]
+    Horizontal,
+    Vertical,
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct ProgressProps {
     pub size: ProgressSize,
     pub variant: ProgressVariant,
+    pub orientation: ProgressOrientation,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
     pub high_contrast: bool,
@@ -43,6 +51,7 @@ impl Default for ProgressProps {
         Self {
             size: ProgressSize::Size2,
             variant: ProgressVariant::Surface,
+            orientation: ProgressOrientation::Horizontal,
             color: AccentColor::Gray,
             radius: None,
             high_contrast: false,
@@ -65,6 +74,11 @@ impl ProgressProps {
 
     pub fn variant(mut self, variant: ProgressVariant) -> Self {
         self.variant = variant;
+        self
+    }
+
+    pub fn orientation(mut self, orientation: ProgressOrientation) -> Self {
+        self.orientation = orientation;
         self
     }
 
@@ -170,7 +184,14 @@ where
     }
 
     fn size(&self) -> Size<Length> {
-        Size::new(Length::Fill, Length::Fixed(self.props.size.height()))
+        match self.props.orientation {
+            ProgressOrientation::Horizontal => {
+                Size::new(Length::Fill, Length::Fixed(self.props.size.height()))
+            }
+            ProgressOrientation::Vertical => {
+                Size::new(Length::Fixed(self.props.size.height()), Length::Fill)
+            }
+        }
     }
 
     fn layout(
@@ -179,11 +200,18 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        layout::atomic(
-            limits,
-            Length::Fill,
-            Length::Fixed(self.props.size.height()),
-        )
+        match self.props.orientation {
+            ProgressOrientation::Horizontal => layout::atomic(
+                limits,
+                Length::Fill,
+                Length::Fixed(self.props.size.height()),
+            ),
+            ProgressOrientation::Vertical => layout::atomic(
+                limits,
+                Length::Fixed(self.props.size.height()),
+                Length::Fill,
+            ),
+        }
     }
 
     fn update(
@@ -292,32 +320,66 @@ where
             accent_color(&palette, self.props.color)
         };
 
-        let (indicator_x, indicator_width) = if let Some(value) = self.props.value {
-            let ratio = if self.props.max <= 0.0 {
-                0.0
-            } else {
-                (value / self.props.max).clamp(0.0, 1.0)
-            };
-            (bounds.x, bounds.width * ratio)
-        } else {
-            // Smooth back-and-forth using sin (like egui)
-            let state = tree.state.downcast_ref::<ProgressState>();
-            let bar_width = (bounds.width * 0.35).max(12.0);
-            let travel = bounds.width - bar_width;
-            let t = (state.phase * std::f32::consts::PI * 2.0).sin() * 0.5 + 0.5;
-            let x = bounds.x + travel * t;
-            (x, bar_width)
-        };
+        let indicator_bounds = match self.props.orientation {
+            ProgressOrientation::Horizontal => {
+                let (indicator_x, indicator_width) = if let Some(value) = self.props.value {
+                    let ratio = if self.props.max <= 0.0 {
+                        0.0
+                    } else {
+                        (value / self.props.max).clamp(0.0, 1.0)
+                    };
+                    (bounds.x, bounds.width * ratio)
+                } else {
+                    // Smooth back-and-forth using sin (like egui)
+                    let state = tree.state.downcast_ref::<ProgressState>();
+                    let bar_width = (bounds.width * 0.35).max(12.0);
+                    let travel = bounds.width - bar_width;
+                    let t = (state.phase * std::f32::consts::PI * 2.0).sin() * 0.5 + 0.5;
+                    let x = bounds.x + travel * t;
+                    (x, bar_width)
+                };
 
-        if indicator_width <= 0.0 {
-            return;
-        }
+                if indicator_width <= 0.0 {
+                    return;
+                }
 
-        let indicator_bounds = Rectangle {
-            x: indicator_x,
-            y: bounds.y,
-            width: indicator_width,
-            height: bounds.height,
+                Rectangle {
+                    x: indicator_x,
+                    y: bounds.y,
+                    width: indicator_width,
+                    height: bounds.height,
+                }
+            }
+            ProgressOrientation::Vertical => {
+                let (indicator_y, indicator_height) = if let Some(value) = self.props.value {
+                    let ratio = if self.props.max <= 0.0 {
+                        0.0
+                    } else {
+                        (value / self.props.max).clamp(0.0, 1.0)
+                    };
+                    let h = bounds.height * ratio;
+                    (bounds.y + (bounds.height - h), h)
+                } else {
+                    // Smooth back-and-forth using sin (like egui)
+                    let state = tree.state.downcast_ref::<ProgressState>();
+                    let bar_height = (bounds.height * 0.35).max(12.0);
+                    let travel = bounds.height - bar_height;
+                    let t = (state.phase * std::f32::consts::PI * 2.0).sin() * 0.5 + 0.5;
+                    let y = bounds.y + travel * t;
+                    (y, bar_height)
+                };
+
+                if indicator_height <= 0.0 {
+                    return;
+                }
+
+                Rectangle {
+                    x: bounds.x,
+                    y: indicator_y,
+                    width: bounds.width,
+                    height: indicator_height,
+                }
+            }
         };
 
         renderer.fill_quad(
