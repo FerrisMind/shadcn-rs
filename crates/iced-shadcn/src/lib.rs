@@ -264,7 +264,10 @@ pub use sidebar::{
     sidebar_header, sidebar_menu, sidebar_menu_button, sidebar_menu_item, sidebar_provider,
     sidebar_trigger,
 };
-pub use skeleton::{SkeletonProps, skeleton, skeleton_text};
+pub use skeleton::{
+    SkeletonAnimation, SkeletonProps, skeleton, skeleton_shimmer_label, skeleton_shimmer_text,
+    skeleton_text,
+};
 pub use slider::{
     SliderOrientation, SliderProps, SliderSize, SliderVariant, slider, vertical_slider,
 };
