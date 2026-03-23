@@ -40,6 +40,7 @@ pub mod item;
 pub mod kbd;
 pub mod label;
 pub mod light_switch;
+pub mod loader;
 mod menu_primitives;
 pub mod menubar;
 pub mod navigation_menu;
@@ -206,6 +207,10 @@ pub use item::{ItemProps, item};
 pub use kbd::{KbdGroupProps, KbdProps, KbdSize, kbd, kbd_group, kbd_shortcut};
 pub use label::{LabelProps, LabelVariant, label, label_with_props};
 pub use light_switch::{LightSwitchProps, light_switch};
+pub use loader::{
+    LoaderIconProps, LoaderProps, PromptLoaderProps, PromptLoaderSize, PromptLoaderVariant, loader,
+    loader_icon, prompt_loader,
+};
 pub use menubar::{MenubarItem, MenubarProps, menubar};
 pub use navigation_menu::{
     NavigationMenuAlign, NavigationMenuContent, NavigationMenuContentProps,
