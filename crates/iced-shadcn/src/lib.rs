@@ -72,6 +72,7 @@ pub mod theme;
 pub mod toast;
 pub mod toggle_group;
 pub mod tokens;
+pub mod tool;
 pub mod tooltip;
 pub mod tree_view;
 pub mod tree_viewer;
@@ -313,6 +314,12 @@ pub use toggle_group::{
     toggle_group_item_last,
 };
 pub use tokens::{AccentColor, ControlSize, ControlVariant, Palette, Radius, Spacing};
+pub use tool::{
+    ToolContentProps, ToolEffects, ToolHeaderProps, ToolInputProps, ToolOutputProps,
+    ToolOutputValue, ToolProps, ToolState, ToolUIPartState, ToolUpdate, tool, tool_content,
+    tool_header_default, tool_input, tool_output, tool_reduce, tool_should_render_output,
+    tool_status_icon, tool_status_icon_color, tool_status_label,
+};
 pub use tooltip::{TooltipPosition, TooltipProps, tooltip};
 pub use tree_view::{
     TreeNode, TreeScrollbarVisibility, TreeViewAction, TreeViewProps, TreeViewState, tree_view,
