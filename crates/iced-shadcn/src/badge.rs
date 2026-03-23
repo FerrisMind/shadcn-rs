@@ -137,15 +137,12 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
     }
 }
 
-pub fn badge<'a, Message: Clone + 'a>(
-    label: impl Into<String>,
-    props: BadgeProps<'a, Message>,
+fn resolve_badge_colors<Message>(
+    props: &BadgeProps<'_, Message>,
     theme: &Theme,
-) -> Element<'a, Message> {
+) -> (Color, Color, Color) {
     let palette = theme.palette;
-    let radius = badge_radius(theme, &props);
-
-    let (background_color, text_color, border_color) = match props.variant {
+    match props.variant {
         BadgeVariant::Default => {
             let color = match props.color {
                 Some(c) => crate::tokens::accent_color(&palette, c),
@@ -168,7 +165,16 @@ pub fn badge<'a, Message: Clone + 'a>(
             (color, palette.destructive_foreground, color)
         }
         BadgeVariant::Outline => (Color::TRANSPARENT, palette.foreground, palette.border),
-    };
+    }
+}
+
+pub fn badge_content<'a, Message: Clone + 'a>(
+    content: impl Into<Element<'a, Message>>,
+    props: BadgeProps<'a, Message>,
+    theme: &Theme,
+) -> Element<'a, Message> {
+    let radius = badge_radius(theme, &props);
+    let (background_color, text_color, border_color) = resolve_badge_colors(&props, theme);
 
     let shadow = if matches!(props.variant, BadgeVariant::Default) && props.high_contrast {
         Shadow {
@@ -193,6 +199,50 @@ pub fn badge<'a, Message: Clone + 'a>(
     };
 
     let is_interactive = props.on_press.is_some() || props.href.is_some();
+    let content = content.into();
+
+    if is_interactive {
+        let mut b = button(content).padding(props.size.padding());
+
+        if let Some(msg) = props.on_press {
+            b = b.on_press(msg);
+        }
+
+        b.style(move |_theme, status| {
+            let base = style(&iced::Theme::Light);
+            let mut bg = base.background;
+
+            if matches!(status, iced::widget::button::Status::Hovered) {
+                bg = Some(Background::Color(crate::tokens::mix(
+                    background_color,
+                    Color::WHITE,
+                    0.1,
+                )));
+            }
+
+            iced::widget::button::Style {
+                background: bg,
+                text_color: base.text_color.unwrap_or(text_color),
+                border: base.border,
+                shadow: base.shadow,
+                snap: true,
+            }
+        })
+        .into()
+    } else {
+        container(content)
+            .padding(props.size.padding())
+            .style(style)
+            .into()
+    }
+}
+
+pub fn badge<'a, Message: Clone + 'a>(
+    label: impl Into<String>,
+    props: BadgeProps<'a, Message>,
+    theme: &Theme,
+) -> Element<'a, Message> {
+    let (_, text_color, _) = resolve_badge_colors(&props, theme);
     let text_size = props.size.text_size();
 
     let mut content = row![].spacing(4).align_y(Alignment::Center);
@@ -225,40 +275,5 @@ pub fn badge<'a, Message: Clone + 'a>(
         );
     }
 
-    if is_interactive {
-        let mut b = button(content).padding(props.size.padding());
-
-        if let Some(msg) = props.on_press {
-            b = b.on_press(msg);
-        }
-
-        b.style(move |_theme, status| {
-            // Since our style closure ignores the theme and uses captured colors,
-            // we can pass a dummy theme reference.
-            let base = style(&iced::Theme::Light);
-            let mut bg = base.background;
-
-            if matches!(status, iced::widget::button::Status::Hovered) {
-                bg = Some(Background::Color(crate::tokens::mix(
-                    background_color,
-                    Color::WHITE,
-                    0.1,
-                )));
-            }
-
-            iced::widget::button::Style {
-                background: bg,
-                text_color: base.text_color.unwrap_or(text_color),
-                border: base.border,
-                shadow: base.shadow,
-                snap: true,
-            }
-        })
-        .into()
-    } else {
-        container(content)
-            .padding(props.size.padding())
-            .style(style)
-            .into()
-    }
+    badge_content(content, props, theme)
 }
