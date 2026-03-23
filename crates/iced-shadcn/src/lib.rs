@@ -65,6 +65,7 @@ pub mod stepper;
 pub mod switch;
 pub mod table;
 pub mod tabs;
+pub mod tags_input;
 pub mod textarea;
 pub mod theme;
 pub mod toast;
@@ -81,7 +82,7 @@ pub use alert::{AlertProps, AlertVariant, alert};
 pub use alert_dialog::{AlertDialogProps, alert_dialog};
 pub use aspect_ratio::{AspectRatioProps, aspect_ratio};
 pub use avatar::{AvatarProps, AvatarSize, AvatarVariant, avatar};
-pub use badge::{BadgeProps, BadgeSize, BadgeVariant, badge};
+pub use badge::{BadgeProps, BadgeSize, BadgeVariant, badge, badge_content};
 pub use breadcrumb::{
     BreadcrumbContext, BreadcrumbMetrics, BreadcrumbProps, BreadcrumbTokens, breadcrumb,
     breadcrumb_ellipsis, breadcrumb_item, breadcrumb_link, breadcrumb_list, breadcrumb_page,
@@ -283,6 +284,11 @@ pub use tabs::{
     TabsListLoop, TabsListProps, TabsListVariant, TabsOrientation, TabsProps, TabsRootProps,
     TabsSize, TabsTriggerContent, TabsTriggerItem, TabsVariant, TabsWrap, tabs, tabs_content,
     tabs_contents, tabs_list, tabs_root, tabs_trigger, tabs_trigger_with,
+};
+pub use tags_input::{
+    TagsInputAction, TagsInputActionHandler, TagsInputEffects, TagsInputFilter, TagsInputProps,
+    TagsInputState, TagsInputValidate, default_filter_suggestions, default_validate,
+    filtered_suggestions, tags_input, tags_input_reduce, tags_input_update_task,
 };
 pub use textarea::{
     TextareaProps, TextareaResize, TextareaSize, TextareaVariant, textarea, textarea_apply_action,

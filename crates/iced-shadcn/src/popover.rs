@@ -26,6 +26,7 @@ pub struct PopoverProps {
     pub max_width: u32,
     pub offset: f32,
     pub disabled: bool,
+    pub open: Option<bool>,
 }
 
 impl Default for PopoverProps {
@@ -35,6 +36,7 @@ impl Default for PopoverProps {
             max_width: 480,
             offset: 8.0,
             disabled: false,
+            open: None,
         }
     }
 }
@@ -63,6 +65,11 @@ impl PopoverProps {
         self.disabled = disabled;
         self
     }
+
+    pub fn open(mut self, open: Option<bool>) -> Self {
+        self.open = open;
+        self
+    }
 }
 
 fn padding_px(theme: &ShadcnTheme, size: PopoverSize) -> u16 {
@@ -87,6 +94,19 @@ struct PopoverState {
     is_open: bool,
     overlay_bounds: Option<Rectangle>,
     keyboard_modifiers: keyboard::Modifiers,
+}
+
+fn effective_open(props: &PopoverProps, state: &PopoverState) -> bool {
+    props.open.unwrap_or(state.is_open)
+}
+
+fn set_open(state: &mut PopoverState, props: &PopoverProps, open: bool) -> bool {
+    if props.open.is_some() || state.is_open == open {
+        return false;
+    }
+
+    state.is_open = open;
+    true
 }
 
 pub fn popover<'a, Message: Clone + 'a>(
@@ -167,6 +187,8 @@ where
             state.is_open = false;
         }
 
+        let is_open = effective_open(&self.props, state);
+
         self.trigger.as_widget_mut().update(
             &mut tree.children[0],
             event,
@@ -179,6 +201,7 @@ where
         );
 
         if self.props.disabled {
+            state.overlay_bounds = None;
             return;
         }
 
@@ -191,13 +214,11 @@ where
                     .map(|b| cursor.is_over(b))
                     .unwrap_or(false);
 
-                if state.is_open {
-                    if over_trigger || !over_overlay {
-                        state.is_open = false;
+                if is_open {
+                    if (over_trigger || !over_overlay) && set_open(state, &self.props, false) {
                         shell.capture_event();
                     }
-                } else if over_trigger {
-                    state.is_open = true;
+                } else if over_trigger && set_open(state, &self.props, true) {
                     shell.capture_event();
                 }
             }
@@ -207,8 +228,7 @@ where
                     Some(overlay_keyboard::OverlayCommand::Close)
                 ) =>
             {
-                if state.is_open {
-                    state.is_open = false;
+                if is_open && set_open(state, &self.props, false) {
                     shell.capture_event();
                 }
             }
@@ -218,7 +238,7 @@ where
             _ => {}
         }
 
-        if !state.is_open {
+        if !effective_open(&self.props, state) {
             state.overlay_bounds = None;
         }
     }
@@ -232,7 +252,10 @@ where
         translation: Vector,
     ) -> Option<iced::overlay::Element<'b, Message, iced::Theme, iced::Renderer>> {
         let state = tree.state.downcast_mut::<PopoverState>();
-        if !state.is_open {
+        if self.props.disabled {
+            return None;
+        }
+        if !effective_open(&self.props, state) {
             return None;
         }
 
@@ -420,5 +443,78 @@ where
 impl<'a, Message: Clone + 'a> From<Popover<'a, Message>> for Element<'a, Message> {
     fn from(widget: Popover<'a, Message>) -> Element<'a, Message> {
         Element::new(widget)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn props_default_to_uncontrolled() {
+        let props = PopoverProps::default();
+
+        assert_eq!(props.open, None);
+        assert!(!props.disabled);
+    }
+
+    #[test]
+    fn props_builder_sets_controlled_open() {
+        let props = PopoverProps::new().open(Some(true));
+
+        assert_eq!(props.open, Some(true));
+    }
+
+    #[test]
+    fn effective_open_uses_internal_state_when_uncontrolled() {
+        let props = PopoverProps::default();
+        let mut state = PopoverState::default();
+
+        assert!(!effective_open(&props, &state));
+
+        state.is_open = true;
+
+        assert!(effective_open(&props, &state));
+    }
+
+    #[test]
+    fn effective_open_prefers_controlled_value() {
+        let state = PopoverState {
+            is_open: false,
+            overlay_bounds: None,
+            keyboard_modifiers: keyboard::Modifiers::default(),
+        };
+
+        let props_open = PopoverProps::default().open(Some(true));
+        let props_closed = PopoverProps::default().open(Some(false));
+
+        assert!(effective_open(&props_open, &state));
+        assert!(!effective_open(&props_closed, &state));
+    }
+
+    #[test]
+    fn controlled_open_does_not_mutate_internal_state() {
+        let props = PopoverProps::default().open(Some(true));
+        let mut state = PopoverState {
+            is_open: false,
+            overlay_bounds: None,
+            keyboard_modifiers: keyboard::Modifiers::default(),
+        };
+
+        assert!(!set_open(&mut state, &props, false));
+        assert!(!set_open(&mut state, &props, true));
+        assert!(!state.is_open);
+    }
+
+    #[test]
+    fn uncontrolled_open_mutates_internal_state() {
+        let props = PopoverProps::default();
+        let mut state = PopoverState::default();
+
+        assert!(set_open(&mut state, &props, true));
+        assert!(state.is_open);
+
+        assert!(set_open(&mut state, &props, false));
+        assert!(!state.is_open);
     }
 }
