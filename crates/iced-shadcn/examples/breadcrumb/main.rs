@@ -1,6 +1,7 @@
 use iced::border::Border;
 use iced::widget::{column, container, scrollable, text as iced_text};
 use iced::{Background, Element, Length};
+use lucide_icons::LUCIDE_FONT_BYTES;
 
 use iced_shadcn::{
     BreadcrumbProps, Theme, breadcrumb, breadcrumb_ellipsis, breadcrumb_item, breadcrumb_link,
@@ -8,7 +9,9 @@ use iced_shadcn::{
 };
 
 pub fn main() -> iced::Result {
-    iced::application(Example::default, Example::update, Example::view).run()
+    iced::application(Example::default, Example::update, Example::view)
+        .font(LUCIDE_FONT_BYTES)
+        .run()
 }
 
 #[derive(Debug, Clone)]

@@ -15,8 +15,7 @@ pub fn main() -> iced::Result {
 struct Example {
     theme: Theme,
     demo_value: String,
-    pattern_letters: String,
-    pattern_digits: String,
+    pattern_value: String,
     separator_value: String,
     controlled_value: String,
     form_value: String,
@@ -26,8 +25,7 @@ struct Example {
 #[derive(Debug, Clone)]
 enum Message {
     DemoChanged(String),
-    PatternLetters(String),
-    PatternDigits(String),
+    PatternChanged(String),
     SeparatorChanged(String),
     ControlledChanged(String),
     ControlledClear,
@@ -45,19 +43,19 @@ impl Example {
                     .take(6)
                     .collect();
             }
-            Message::PatternLetters(value) => {
-                self.pattern_letters = value
+            Message::PatternChanged(value) => {
+                self.pattern_value = value
                     .chars()
-                    .filter(|c| c.is_ascii_alphabetic())
-                    .take(3)
-                    .map(|c| c.to_ascii_uppercase())
-                    .collect();
-            }
-            Message::PatternDigits(value) => {
-                self.pattern_digits = value
-                    .chars()
-                    .filter(|c| c.is_ascii_digit())
-                    .take(3)
+                    .filter(|c| c.is_ascii_alphanumeric())
+                    .take(6)
+                    .enumerate()
+                    .filter_map(|(index, ch)| {
+                        if index < 3 {
+                            ch.is_ascii_alphabetic().then_some(ch.to_ascii_uppercase())
+                        } else {
+                            ch.is_ascii_digit().then_some(ch)
+                        }
+                    })
                     .collect();
             }
             Message::SeparatorChanged(value) => {
@@ -112,82 +110,26 @@ impl Example {
         // Pattern (3 letters + 3 digits)
         let pattern_section = column![
             muted_text("Pattern: 3 letters + 3 digits (e.g., ABC123)", theme),
-            row![
-                input_otp_unified(&self.pattern_letters, 3, Message::PatternLetters, theme),
-                input_otp_separator(theme),
-                input_otp_unified(&self.pattern_digits, 3, Message::PatternDigits, theme),
-            ]
-            .spacing(8)
-            .align_y(Alignment::Center),
-            muted_text(
-                format!("Value: '{}{}'", self.pattern_letters, self.pattern_digits),
-                theme,
-            ),
+            input_otp_unified(&self.pattern_value, 6, Message::PatternChanged, theme),
+            muted_text(format!("Formatted: '{}'", format_grouped(&self.pattern_value)), theme),
         ]
         .spacing(8)
         .align_x(Alignment::Start);
 
         // Separator (2-2-2 groups)
-        let sep_first = &self.separator_value[..self.separator_value.len().min(2)];
-        let sep_second = if self.separator_value.len() > 2 {
-            &self.separator_value[2..self.separator_value.len().min(4)]
-        } else {
-            ""
-        };
-        let sep_third = if self.separator_value.len() > 4 {
-            &self.separator_value[4..self.separator_value.len().min(6)]
-        } else {
-            ""
-        };
-
-        let sep_value = self.separator_value.clone();
-        let sep_value2 = self.separator_value.clone();
-        let sep_value3 = self.separator_value.clone();
         let separator_section = column![
             muted_text("Multiple groups with separators (2-2-2).", theme),
+            input_otp_unified(&self.separator_value, 6, Message::SeparatorChanged, theme),
             row![
-                input_otp_unified(
-                    sep_first,
-                    2,
-                    move |v| {
-                        let rest = if sep_value.len() > 2 {
-                            &sep_value[2..]
-                        } else {
-                            ""
-                        };
-                        Message::SeparatorChanged(format!("{}{}", v, rest))
-                    },
-                    theme,
-                ),
+                iced_text(group_slice(&self.separator_value, 0, 2)).size(13),
                 input_otp_separator(theme),
-                input_otp_unified(
-                    sep_second,
-                    2,
-                    move |v| {
-                        let first = &sep_value2[..sep_value2.len().min(2)];
-                        let third = if sep_value2.len() > 4 {
-                            &sep_value2[4..]
-                        } else {
-                            ""
-                        };
-                        Message::SeparatorChanged(format!("{}{}{}", first, v, third))
-                    },
-                    theme,
-                ),
+                iced_text(group_slice(&self.separator_value, 2, 4)).size(13),
                 input_otp_separator(theme),
-                input_otp_unified(
-                    sep_third,
-                    2,
-                    move |v| {
-                        let first_two = &sep_value3[..sep_value3.len().min(4)];
-                        Message::SeparatorChanged(format!("{}{}", first_two, v))
-                    },
-                    theme,
-                ),
+                iced_text(group_slice(&self.separator_value, 4, 6)).size(13),
             ]
-            .spacing(8)
+            .spacing(6)
             .align_y(Alignment::Center),
-            muted_text(format!("Value: '{}'", self.separator_value), theme),
+            muted_text(format!("Value: '{}'", format_grouped(&self.separator_value)), theme),
         ]
         .spacing(8)
         .align_x(Alignment::Start);
@@ -295,4 +237,27 @@ fn muted_text<'a>(
     iced_text(content)
         .size(13)
         .style(move |_theme| iced::widget::text::Style { color: Some(color) })
+}
+
+fn group_slice(value: &str, start: usize, end: usize) -> String {
+    value.chars().skip(start).take(end.saturating_sub(start)).collect()
+}
+
+fn format_grouped(value: &str) -> String {
+    let mut parts = Vec::new();
+    let first = group_slice(value, 0, 2);
+    let second = group_slice(value, 2, 4);
+    let third = group_slice(value, 4, 6);
+
+    if !first.is_empty() {
+        parts.push(first);
+    }
+    if !second.is_empty() {
+        parts.push(second);
+    }
+    if !third.is_empty() {
+        parts.push(third);
+    }
+
+    parts.join("-")
 }

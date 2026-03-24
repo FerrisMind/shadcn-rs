@@ -94,19 +94,18 @@ fn entries(example: &Example) -> Vec<ContextMenuEntry<'static, Message>> {
     vec![
         ContextMenuEntry::Item(
             ContextMenuItem::new("Back", Some(Message::Selected))
-                .props(ContextMenuItemProps::new().inset(true).shortcut("⌘[")),
+                .props(ContextMenuItemProps::new().shortcut("Ctrl+[")),
         ),
         ContextMenuEntry::Item(
             ContextMenuItem::new("Forward", Some(Message::Selected)).props(
                 ContextMenuItemProps::new()
-                    .inset(true)
-                    .shortcut("⌘]")
+                    .shortcut("Ctrl+]")
                     .disabled(true),
             ),
         ),
         ContextMenuEntry::Item(
             ContextMenuItem::new("Reload", Some(Message::Selected))
-                .props(ContextMenuItemProps::new().inset(true).shortcut("⌘R")),
+                .props(ContextMenuItemProps::new().shortcut("Ctrl+R")),
         ),
         ContextMenuEntry::SubMenu(
             ContextMenuSubMenu::new(
@@ -136,7 +135,7 @@ fn entries(example: &Example) -> Vec<ContextMenuEntry<'static, Message>> {
                     ),
                 ],
             )
-            .props(ContextMenuItemProps::new().inset(true)),
+            .props(ContextMenuItemProps::new()),
         ),
         ContextMenuEntry::Separator,
         ContextMenuEntry::CheckboxItem(ContextMenuCheckboxItem::new(

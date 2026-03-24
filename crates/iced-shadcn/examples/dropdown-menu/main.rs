@@ -9,9 +9,12 @@ use iced_shadcn::{
     DropdownMenuEntry, DropdownMenuItem, DropdownMenuItemProps, DropdownMenuProps,
     DropdownMenuSubMenu, Theme, button, dropdown_menu,
 };
+use lucide_icons::LUCIDE_FONT_BYTES;
 
 pub fn main() -> iced::Result {
-    iced::application(Example::default, Example::update, Example::view).run()
+    iced::application(Example::default, Example::update, Example::view)
+        .font(LUCIDE_FONT_BYTES)
+        .run()
 }
 
 #[derive(Debug, Clone)]
@@ -82,11 +85,11 @@ fn dropdown_entries() -> Vec<DropdownMenuEntry<'static, Message>> {
         DropdownMenuEntry::Label(Cow::Borrowed("Actions")),
         DropdownMenuEntry::Item(
             DropdownMenuItem::new("New", Some(Message::Selected("New")))
-                .props(DropdownMenuItemProps::new().shortcut("⌘N")),
+                .props(DropdownMenuItemProps::new().shortcut("Ctrl+N")),
         ),
         DropdownMenuEntry::Item(
             DropdownMenuItem::new("Share", Some(Message::Selected("Share")))
-                .props(DropdownMenuItemProps::new().shortcut("⌘S")),
+                .props(DropdownMenuItemProps::new().shortcut("Ctrl+S")),
         ),
         DropdownMenuEntry::Separator,
         DropdownMenuEntry::SubMenu(DropdownMenuSubMenu::new(

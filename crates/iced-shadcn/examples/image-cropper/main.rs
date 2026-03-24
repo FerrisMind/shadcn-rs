@@ -252,9 +252,9 @@ fn result_line<'a>(result: Option<&'a ImageCropResult>) -> Element<'a, Message> 
 }
 
 fn seed_source() -> ImageCropperSource {
-    ImageCropperSource::new(ICON_PNG.to_vec())
-        .name("icon.png")
+    ImageCropperSource::new(SEED_PNG.to_vec())
+        .name("seed.png")
         .mime("image/png")
 }
 
-const ICON_PNG: &[u8] = include_bytes!("../../assets/icons/shadcn-iced/icon.png");
+const SEED_PNG: &[u8] = include_bytes!("../../assets/icons/shadcn-iced/256x256.png");

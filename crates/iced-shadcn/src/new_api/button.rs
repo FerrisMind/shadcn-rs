@@ -133,7 +133,10 @@ where
         }
     }
 
-    /// Shorthand constructor for creating a link button.
+    /// Shorthand constructor for creating a button styled as a link.
+    ///
+    /// `href` is metadata only. To handle navigation, provide `on_press(...)`
+    /// and perform routing/opening in your update logic.
     pub fn link<L, H>(label: L, href: H) -> Self
     where
         L: Into<Cow<'static, str>>,
@@ -263,7 +266,9 @@ where
         self
     }
 
-    /// Turns the button into a link.
+    /// Attaches link metadata to the button.
+    ///
+    /// This does not add click behavior by itself.
     #[must_use]
     pub fn href<S: Into<Cow<'static, str>>>(mut self, href: S) -> Self {
         self.href = Some(href.into());
@@ -371,7 +376,7 @@ where
             disabled,
             loading,
             progress,
-            href,
+            href: _href,
             icon,
             icon_position,
             class: _,
@@ -448,7 +453,7 @@ where
             widget = widget.padding(Self::size_to_padding_val(size));
         }
 
-        let is_disabled = disabled || loading || (on_press.is_none() && href.is_none());
+        let is_disabled = disabled || loading || on_press.is_none();
 
         if let Some(msg) = on_press
             && !is_disabled
@@ -467,7 +472,7 @@ where
             opaque_outline: false,
             high_contrast,
             loading,
-            disabled,
+            disabled: is_disabled,
         };
 
         widget
