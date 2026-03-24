@@ -3,6 +3,8 @@ use iced::time::{Duration, Instant};
 use iced::advanced::Renderer as _;
 use iced::advanced::layout;
 use iced::advanced::renderer;
+use iced::advanced::text as advanced_text;
+use iced::advanced::text::Renderer as _;
 use iced::advanced::widget::Tree;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
 use iced::border::Border;
@@ -11,7 +13,10 @@ use iced::keyboard::key::{self, Key};
 use iced::mouse;
 use iced::touch;
 use iced::widget::{button as button_widget, button as iced_button, column, container, text};
-use iced::{Background, Color, Element, Event, Length, Point, Rectangle, Shadow, Size, Vector};
+use iced::{
+    Background, Color, Element, Event, Font, Length, Point, Rectangle, Shadow, Size, Vector,
+};
+use lucide_icons::Icon as LucideIcon;
 
 use crate::theme::Theme;
 use crate::tokens::{
@@ -408,6 +413,7 @@ pub struct TabsTriggerItem<'a, Message> {
     pub value: String,
     pub content: TabsTriggerContent<'a, Message>,
     pub disabled: bool,
+    pub close_message: Option<Message>,
 }
 
 impl<'a, Message> TabsTriggerItem<'a, Message> {
@@ -416,6 +422,7 @@ impl<'a, Message> TabsTriggerItem<'a, Message> {
             value: value.into(),
             content: TabsTriggerContent::Text(label.into()),
             disabled: false,
+            close_message: None,
         }
     }
 
@@ -427,11 +434,17 @@ impl<'a, Message> TabsTriggerItem<'a, Message> {
             value: value.into(),
             content: TabsTriggerContent::Element(content.into()),
             disabled: false,
+            close_message: None,
         }
     }
 
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    pub fn on_close(mut self, message: Message) -> Self {
+        self.close_message = Some(message);
         self
     }
 }
@@ -724,9 +737,10 @@ fn trigger_style(
 }
 
 #[derive(Clone, Debug)]
-struct TabsTriggerMeta {
+struct TabsTriggerMeta<Message> {
     value: String,
     disabled: bool,
+    close_message: Option<Message>,
 }
 
 #[derive(Debug, Default)]
@@ -744,7 +758,7 @@ struct TabsListState {
 
 struct TabsListWidget<'a, Message> {
     triggers: Vec<Element<'a, Message>>,
-    items: Vec<TabsTriggerMeta>,
+    items: Vec<TabsTriggerMeta<Message>>,
     active: String,
     on_value_change: Option<Box<dyn Fn(String) -> Message + 'a>>,
     root_props: TabsRootProps,
@@ -961,6 +975,44 @@ where
         viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_mut::<TabsListState>();
+
+        if let Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+        | Event::Touch(touch::Event::FingerPressed { .. }) = event
+            && let Some(cursor_position) = cursor.position()
+        {
+            let list_bounds = layout.bounds();
+
+            for (index, item) in self.items.iter().enumerate() {
+                let Some(close_message) = item.close_message.clone() else {
+                    continue;
+                };
+
+                let Some(trigger_bounds) = state.trigger_bounds.get(index).copied() else {
+                    continue;
+                };
+
+                let trigger_rect = Rectangle {
+                    x: list_bounds.x + trigger_bounds.x,
+                    y: list_bounds.y + trigger_bounds.y,
+                    width: trigger_bounds.width,
+                    height: trigger_bounds.height,
+                };
+                let is_active = item.value == self.active;
+                let is_hovered = trigger_rect.contains(cursor_position);
+
+                if let Some(close_rect) = trigger_close_rect(
+                    trigger_rect,
+                    &self.theme,
+                    self.list_props,
+                    is_active,
+                    is_hovered,
+                ) && close_rect.contains(cursor_position)
+                {
+                    shell.publish(close_message);
+                    return;
+                }
+            }
+        }
 
         for (index, child) in self.triggers.iter_mut().enumerate() {
             if let Some(child_layout) = layout.children().nth(index) {
@@ -1198,6 +1250,80 @@ where
 
         let state = tree.state.downcast_ref::<TabsListState>();
 
+        let cursor_position = cursor.position();
+        for (index, item) in self.items.iter().enumerate() {
+            if item.close_message.is_none() {
+                continue;
+            }
+
+            let Some(trigger_bounds) = state.trigger_bounds.get(index).copied() else {
+                continue;
+            };
+
+            let trigger_rect = Rectangle {
+                x: bounds.x + trigger_bounds.x,
+                y: bounds.y + trigger_bounds.y,
+                width: trigger_bounds.width,
+                height: trigger_bounds.height,
+            };
+            let is_active = item.value == self.active;
+            let is_hovered =
+                cursor_position.is_some_and(|position| trigger_rect.contains(position));
+
+            let Some(close_rect) = trigger_close_rect(
+                trigger_rect,
+                &self.theme,
+                self.list_props,
+                is_active,
+                is_hovered,
+            ) else {
+                continue;
+            };
+
+            let is_close_hovered =
+                cursor_position.is_some_and(|position| close_rect.contains(position));
+
+            if is_close_hovered {
+                renderer.fill_quad(
+                    renderer::Quad {
+                        bounds: close_rect,
+                        border: Border {
+                            color: Color::TRANSPARENT,
+                            width: 0.0,
+                            radius: (close_rect.height / 2.0).into(),
+                        },
+                        ..renderer::Quad::default()
+                    },
+                    trigger_close_hover_background(&self.theme),
+                );
+            }
+
+            let icon_size = trigger_close_icon_size(self.list_props);
+            let center = close_rect.center();
+            let icon_offset = icon_size * 0.03;
+
+            renderer.fill_text(
+                advanced_text::Text {
+                    content: char::from(LucideIcon::X).to_string(),
+                    bounds: Size::new(close_rect.width, close_rect.height),
+                    size: iced::Pixels(icon_size),
+                    line_height: advanced_text::LineHeight::Absolute(icon_size.into()),
+                    font: Font::with_name("lucide"),
+                    align_x: advanced_text::Alignment::Center,
+                    align_y: iced::alignment::Vertical::Center,
+                    shaping: advanced_text::Shaping::Basic,
+                    wrapping: advanced_text::Wrapping::default(),
+                },
+                Point::new(center.x, center.y + icon_offset),
+                if is_active {
+                    self.theme.palette.foreground
+                } else {
+                    self.theme.palette.muted_foreground
+                },
+                *viewport,
+            );
+        }
+
         if matches!(self.list_props.variant, TabsListVariant::Line) && state.active_index.is_some()
         {
             let indicator_color = if self.list_props.high_contrast {
@@ -1266,23 +1392,26 @@ struct Line {
     height: f32,
 }
 
-fn resolve_active_index(items: &[TabsTriggerMeta], active: &str) -> Option<usize> {
+fn resolve_active_index<Message>(
+    items: &[TabsTriggerMeta<Message>],
+    active: &str,
+) -> Option<usize> {
     items
         .iter()
         .position(|item| item.value == active && !item.disabled)
         .or_else(|| items.iter().position(|item| !item.disabled))
 }
 
-fn first_enabled_index(items: &[TabsTriggerMeta]) -> Option<usize> {
+fn first_enabled_index<Message>(items: &[TabsTriggerMeta<Message>]) -> Option<usize> {
     items.iter().position(|item| !item.disabled)
 }
 
-fn last_enabled_index(items: &[TabsTriggerMeta]) -> Option<usize> {
+fn last_enabled_index<Message>(items: &[TabsTriggerMeta<Message>]) -> Option<usize> {
     items.iter().rposition(|item| !item.disabled)
 }
 
-fn next_enabled_index(
-    items: &[TabsTriggerMeta],
+fn next_enabled_index<Message>(
+    items: &[TabsTriggerMeta<Message>],
     start: usize,
     direction: i32,
     loop_enabled: bool,
@@ -1313,6 +1442,53 @@ fn next_enabled_index(
     }
 
     None
+}
+
+fn trigger_close_icon_size(props: TabsListProps) -> f32 {
+    match props.size {
+        TabsSize::Size1 => 12.0,
+        TabsSize::Size2 => 13.0,
+    }
+}
+
+fn trigger_close_hover_background(theme: &Theme) -> Background {
+    let palette = theme.palette;
+    let muted = if is_dark(&palette) {
+        apply_opacity(accent_low(&palette, AccentColor::Gray), 0.75)
+    } else {
+        apply_opacity(accent_low(&palette, AccentColor::Gray), 0.55)
+    };
+
+    Background::Color(muted)
+}
+
+fn trigger_close_hit_size(props: TabsListProps) -> f32 {
+    match props.size {
+        TabsSize::Size1 => 16.0,
+        TabsSize::Size2 => 18.0,
+    }
+}
+
+fn trigger_close_rect(
+    trigger_rect: Rectangle,
+    theme: &Theme,
+    props: TabsListProps,
+    is_active: bool,
+    is_hovered: bool,
+) -> Option<Rectangle> {
+    if !is_active && !is_hovered {
+        return None;
+    }
+
+    let hit_size = trigger_close_hit_size(props);
+    let inset = props.size.padding(theme)[1];
+
+    Some(Rectangle {
+        x: trigger_rect.x + trigger_rect.width - inset - hit_size,
+        y: trigger_rect.y + (trigger_rect.height - hit_size) / 2.0,
+        width: hit_size,
+        height: hit_size,
+    })
 }
 
 fn indicator_rect(
@@ -1418,6 +1594,7 @@ where
         meta.push(TabsTriggerMeta {
             value: item.value,
             disabled: is_disabled,
+            close_message: item.close_message,
         });
     }
 
@@ -1477,14 +1654,16 @@ mod tests {
 
     #[test]
     fn resolve_active_prefers_enabled_match() {
-        let items = vec![
+        let items: Vec<TabsTriggerMeta<()>> = vec![
             TabsTriggerMeta {
                 value: "Size1".to_string(),
                 disabled: true,
+                close_message: None,
             },
             TabsTriggerMeta {
                 value: "Size2".to_string(),
                 disabled: false,
+                close_message: None,
             },
         ];
 
@@ -1494,18 +1673,21 @@ mod tests {
 
     #[test]
     fn next_enabled_respects_loop() {
-        let items = vec![
+        let items: Vec<TabsTriggerMeta<()>> = vec![
             TabsTriggerMeta {
                 value: "Size1".to_string(),
                 disabled: false,
+                close_message: None,
             },
             TabsTriggerMeta {
                 value: "Size2".to_string(),
                 disabled: true,
+                close_message: None,
             },
             TabsTriggerMeta {
                 value: "Size3".to_string(),
                 disabled: false,
+                close_message: None,
             },
         ];
 
@@ -1516,14 +1698,16 @@ mod tests {
 
     #[test]
     fn next_enabled_moves_backward() {
-        let items = vec![
+        let items: Vec<TabsTriggerMeta<()>> = vec![
             TabsTriggerMeta {
                 value: "Size1".to_string(),
                 disabled: false,
+                close_message: None,
             },
             TabsTriggerMeta {
                 value: "Size2".to_string(),
                 disabled: false,
+                close_message: None,
             },
         ];
 
