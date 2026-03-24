@@ -37,3 +37,8 @@ chrono = ["dep:chrono"]
 charts = []
 rfd = ["dep:rfd"]
 wry = ["dep:wry"]
+
+[[example]]
+name = "web-preview-demo"
+path = "examples/web-preview-demo/main.rs"
+required-features = ["wry"]
