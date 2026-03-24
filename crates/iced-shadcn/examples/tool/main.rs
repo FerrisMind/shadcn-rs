@@ -1,5 +1,5 @@
 use iced::widget::{column, container, scrollable, text};
-use iced::{Alignment, Background, Element, Length, Task};
+use iced::{Alignment, Background, Element, Length, Padding, Task};
 use lucide_icons::LUCIDE_FONT_BYTES;
 
 use iced_shadcn::{
@@ -320,9 +320,26 @@ impl Example {
         let open = self.open[id.index()];
         let header = tool_header_default(open, ToolHeaderProps::new(tool_type, state), theme);
 
-        let mut parts: Vec<Element<'a, Message>> =
-            vec![tool_input(ToolInputProps::new(input), theme)];
+        let has_output = output.is_some();
+        let input_props = if has_output {
+            ToolInputProps::new(input).padding(Padding {
+                top: 16.0,
+                right: 16.0,
+                bottom: 8.0,
+                left: 16.0,
+            })
+        } else {
+            ToolInputProps::new(input)
+        };
+
+        let mut parts: Vec<Element<'a, Message>> = vec![tool_input(input_props, theme)];
         if let Some(output_props) = output {
+            let output_props = output_props.padding(Padding {
+                top: 8.0,
+                right: 16.0,
+                bottom: 16.0,
+                left: 16.0,
+            });
             parts.push(tool_output(output_props, theme));
         }
 

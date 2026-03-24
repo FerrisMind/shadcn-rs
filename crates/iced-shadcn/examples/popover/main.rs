@@ -13,17 +13,27 @@ pub fn main() -> iced::Result {
 #[derive(Default)]
 struct Example {
     theme: Theme,
+    is_open: bool,
+}
+
+#[derive(Debug, Clone)]
+enum Message {
+    Toggle,
 }
 
 impl Example {
-    fn update(&mut self, _message: ()) {}
+    fn update(&mut self, message: Message) {
+        if matches!(message, Message::Toggle) {
+            self.is_open = !self.is_open;
+        }
+    }
 
-    fn view(&self) -> Element<'_, ()> {
+    fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
 
         let trigger = button(
             "Popover",
-            None,
+            Some(Message::Toggle),
             ButtonProps::new().variant(ButtonVariant::Solid),
             theme,
         );
@@ -46,7 +56,10 @@ impl Example {
         let content = popover(
             trigger,
             content,
-            PopoverProps::new().size(PopoverSize::Size2).max_width(200),
+            PopoverProps::new()
+                .size(PopoverSize::Size2)
+                .max_width(240)
+                .open(Some(self.is_open)),
             theme,
         );
 

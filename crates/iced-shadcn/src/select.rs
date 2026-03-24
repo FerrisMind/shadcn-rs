@@ -9,6 +9,7 @@ use iced::border::Border;
 use iced::keyboard;
 use iced::mouse;
 use iced::touch;
+use iced::time::Instant;
 use iced::window;
 use iced::{
     Background, Color, Element, Event, Font, Length, Padding, Pixels, Point, Rectangle, Shadow,
@@ -1135,6 +1136,22 @@ where
                 }
             }
             Event::Mouse(mouse::Event::CursorMoved { .. }) => {
+                let mut direction = 0;
+                if let Some(top_bounds) = layout_info.top_button_bounds
+                    && cursor.is_over(top_bounds)
+                {
+                    direction = -1;
+                } else if let Some(bottom_bounds) = layout_info.bottom_button_bounds
+                    && cursor.is_over(bottom_bounds)
+                {
+                    direction = 1;
+                }
+                if state.auto_scroll_direction != direction {
+                    state.auto_scroll_direction = direction;
+                    state.last_auto_scroll = None;
+                    shell.request_redraw();
+                }
+
                 if let Some(cursor_position) = cursor.position_in(layout_info.list_bounds) {
                     let y = cursor_position.y + state.scroll_offset;
                     if let Some(index) = row_at(&rows, y) {
@@ -1165,6 +1182,45 @@ where
                         shell.request_redraw();
                     }
                 }
+            }
+            Event::Window(window::Event::RedrawRequested(now)) => {
+                let mut direction = state.auto_scroll_direction;
+                if direction == 0 {
+                    if let Some(top_bounds) = layout_info.top_button_bounds
+                        && cursor.is_over(top_bounds)
+                    {
+                        direction = -1;
+                    } else if let Some(bottom_bounds) = layout_info.bottom_button_bounds
+                        && cursor.is_over(bottom_bounds)
+                    {
+                        direction = 1;
+                    }
+                }
+
+                if direction != 0 && layout_info.max_scroll > 0.0 {
+                    let previous = state.scroll_offset;
+                    let now = *now;
+                    let elapsed = state
+                        .last_auto_scroll
+                        .map(|last| now.saturating_duration_since(last).as_secs_f32())
+                        .unwrap_or(0.0);
+                    let base_step = self.metrics.item_height * 0.3;
+                    let speed = self.metrics.item_height * 6.0;
+                    let step = (elapsed * speed).max(base_step);
+                    let delta = if direction < 0 { -step } else { step };
+
+                    state.scroll_offset =
+                        (state.scroll_offset + delta).clamp(0.0, layout_info.max_scroll);
+                    state.last_auto_scroll = Some(now);
+
+                    if (state.scroll_offset - previous).abs() > f32::EPSILON {
+                        shell.request_redraw();
+                    }
+                } else {
+                    state.last_auto_scroll = None;
+                }
+
+                state.is_hovered = Some(cursor.is_over(bounds));
             }
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerPressed { .. }) => {
@@ -1214,9 +1270,8 @@ where
             _ => {}
         }
 
-        if let Event::Window(window::Event::RedrawRequested(_now)) = event {
-            state.is_hovered = Some(cursor.is_over(bounds));
-        } else if state
+        if !matches!(event, Event::Window(window::Event::RedrawRequested(_)))
+            && state
             .is_hovered
             .is_some_and(|is_hovered| is_hovered != cursor.is_over(bounds))
         {
@@ -1438,6 +1493,27 @@ where
             let up_enabled = scroll_offset > 0.0;
             let down_enabled = scroll_offset < layout_info.max_scroll;
             if let Some(bounds) = layout_info.top_button_bounds {
+                renderer.fill_quad(
+                    renderer::Quad {
+                        bounds,
+                        border: Border::default(),
+                        ..renderer::Quad::default()
+                    },
+                    menu_style.background,
+                );
+                renderer.fill_quad(
+                    renderer::Quad {
+                        bounds: Rectangle {
+                            x: bounds.x,
+                            y: bounds.y + bounds.height - 1.0,
+                            width: bounds.width,
+                            height: 1.0,
+                        },
+                        border: Border::default(),
+                        ..renderer::Quad::default()
+                    },
+                    Background::Color(menu_style.separator_color),
+                );
                 let color = if up_enabled {
                     menu_style.muted_text_color
                 } else {
@@ -1462,6 +1538,27 @@ where
             }
 
             if let Some(bounds) = layout_info.bottom_button_bounds {
+                renderer.fill_quad(
+                    renderer::Quad {
+                        bounds,
+                        border: Border::default(),
+                        ..renderer::Quad::default()
+                    },
+                    menu_style.background,
+                );
+                renderer.fill_quad(
+                    renderer::Quad {
+                        bounds: Rectangle {
+                            x: bounds.x,
+                            y: bounds.y,
+                            width: bounds.width,
+                            height: 1.0,
+                        },
+                        border: Border::default(),
+                        ..renderer::Quad::default()
+                    },
+                    Background::Color(menu_style.separator_color),
+                );
                 let color = if down_enabled {
                     menu_style.muted_text_color
                 } else {
@@ -1492,6 +1589,8 @@ where
 struct SelectListState {
     scroll_offset: f32,
     is_hovered: Option<bool>,
+    auto_scroll_direction: i8,
+    last_auto_scroll: Option<Instant>,
 }
 
 struct Row<T> {
@@ -1780,20 +1879,27 @@ fn select_trigger_style(
     let accent_text_color = accent_text(&palette, props.color);
     let soft_bg = accent_soft(&palette, props.color);
     let dark_mode = is_dark(&palette);
-    let base_bg = if dark_mode {
+    let surface_bg = if dark_mode {
         Background::Color(apply_opacity(palette.input, 0.3))
     } else {
         Background::Color(Color::TRANSPARENT)
+    };
+    let classic_bg = if dark_mode {
+        Background::Color(apply_opacity(palette.background, 0.94))
+    } else {
+        Background::Color(palette.background)
     };
 
     let mut background = match props.variant {
         TriggerVariant::Soft => Background::Color(soft_bg),
         TriggerVariant::Ghost => Background::Color(Color::TRANSPARENT),
-        TriggerVariant::Classic | TriggerVariant::Surface => base_bg,
+        TriggerVariant::Classic => classic_bg,
+        TriggerVariant::Surface => surface_bg,
     };
     let mut border_color = match props.variant {
         TriggerVariant::Soft | TriggerVariant::Ghost => Color::TRANSPARENT,
-        TriggerVariant::Classic | TriggerVariant::Surface => palette.input,
+        TriggerVariant::Classic => palette.border,
+        TriggerVariant::Surface => palette.input,
     };
     let mut text_color = match props.variant {
         TriggerVariant::Soft | TriggerVariant::Ghost => accent_text_color,
@@ -1808,8 +1914,10 @@ fn select_trigger_style(
         _ => apply_opacity(palette.muted_foreground, 0.5),
     };
     let mut shadow = match props.variant {
+        TriggerVariant::Classic => shadow_xs(1.0),
+        TriggerVariant::Surface => shadow_xs(0.6),
         TriggerVariant::Ghost => Shadow::default(),
-        _ => shadow_xs(1.0),
+        TriggerVariant::Soft => shadow_xs(1.0),
     };
 
     match status {
@@ -1840,6 +1948,16 @@ fn select_trigger_style(
             };
         }
         SelectStatus::Active => {}
+    }
+
+    if props.high_contrast {
+        let contrast = accent_high(&palette, props.color);
+        border_color = contrast;
+        handle_color = contrast;
+        if matches!(props.variant, TriggerVariant::Soft | TriggerVariant::Ghost) {
+            text_color = contrast;
+            placeholder_color = apply_opacity(contrast, 0.75);
+        }
     }
 
     TriggerStyle {

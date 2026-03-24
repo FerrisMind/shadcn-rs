@@ -39,6 +39,6 @@ rfd = ["dep:rfd"]
 wry = ["dep:wry"]
 
 [[example]]
-name = "web-preview-demo"
-path = "examples/web-preview-demo/main.rs"
+name = "web-preview"
+path = "examples/web-preview/main.rs"
 required-features = ["wry"]

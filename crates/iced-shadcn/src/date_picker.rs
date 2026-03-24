@@ -33,7 +33,6 @@ pub struct DatePickerProps<'a, Id> {
     pub caption_layout: CalendarCaptionLayout,
     pub min_date: Option<NaiveDate>,
     pub max_date: Option<NaiveDate>,
-    pub close_on_select: bool,
 }
 
 impl<'a, Id: Hash> DatePickerProps<'a, Id> {
@@ -51,7 +50,6 @@ impl<'a, Id: Hash> DatePickerProps<'a, Id> {
             caption_layout: CalendarCaptionLayout::Label,
             min_date: None,
             max_date: None,
-            close_on_select: false,
         }
     }
 
@@ -102,11 +100,6 @@ impl<'a, Id: Hash> DatePickerProps<'a, Id> {
 
     pub fn max_date(mut self, max_date: Option<NaiveDate>) -> Self {
         self.max_date = max_date;
-        self
-    }
-
-    pub fn close_on_select(mut self, close_on_select: bool) -> Self {
-        self.close_on_select = close_on_select;
         self
     }
 }

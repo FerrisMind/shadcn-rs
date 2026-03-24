@@ -1,6 +1,7 @@
 use iced::border::Border;
 use iced::widget::{column, container, row, scrollable, text as iced_text};
 use iced::{Alignment, Background, Color, Element, Length};
+use lucide_icons::LUCIDE_FONT_BYTES;
 
 use iced_shadcn::tokens::accent_color;
 use iced_shadcn::{
@@ -9,7 +10,9 @@ use iced_shadcn::{
 };
 
 pub fn main() -> iced::Result {
-    iced::application(Example::default, Example::update, Example::view).run()
+    iced::application(Example::default, Example::update, Example::view)
+        .font(LUCIDE_FONT_BYTES)
+        .run()
 }
 
 struct Example {

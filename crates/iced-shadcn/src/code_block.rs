@@ -336,11 +336,15 @@ pub fn code_block_copy_reduce(
     reset_delay_ms: u64,
 ) -> CodeBlockCopyUpdate {
     match action {
-        CodeBlockCopyAction::Pressed { text } => CodeBlockCopyUpdate {
-            status_changed: Some(state.status),
-            write_text: Some(text),
-            schedule_reset_ms: None,
-        },
+        CodeBlockCopyAction::Pressed { text } => {
+            state.status = CodeBlockCopyStatus::Success;
+
+            CodeBlockCopyUpdate {
+                status_changed: Some(state.status),
+                write_text: Some(text),
+                schedule_reset_ms: Some(reset_delay_ms.max(1)),
+            }
+        }
         CodeBlockCopyAction::WriteFinished(result) => {
             state.status = if result.is_ok() {
                 CodeBlockCopyStatus::Success
@@ -368,26 +372,27 @@ pub fn code_block_copy_reduce(
 
 pub fn code_block_copy_task<Message: Clone + Send + 'static>(
     update: CodeBlockCopyUpdate,
-    on_write_finished: impl Fn(Result<(), String>) -> Message + Copy + Send + 'static,
+    _on_write_finished: impl Fn(Result<(), String>) -> Message + Copy + Send + 'static,
     on_reset_due: impl Fn() -> Message + Copy + Send + 'static,
 ) -> Task<Message> {
     let mut tasks: Vec<Task<Message>> = Vec::new();
 
     if let Some(text) = update.write_text {
         tasks.push(iced::clipboard::write(text));
-        tasks.push(Task::perform(
-            async { Ok::<(), String>(()) },
-            on_write_finished,
-        ));
     }
 
     if let Some(delay_ms) = update.schedule_reset_ms {
-        tasks.push(Task::perform(
-            async move {
+        tasks.push(Task::future(async move {
+            let (tx, rx) = iced::futures::channel::oneshot::channel();
+
+            std::thread::spawn(move || {
                 std::thread::sleep(Duration::from_millis(delay_ms));
-            },
-            move |_| on_reset_due(),
-        ));
+                let _ = tx.send(());
+            });
+
+            let _ = rx.await;
+            on_reset_due()
+        }));
     }
 
     Task::batch(tasks)
@@ -560,11 +565,8 @@ mod tests {
             800,
         );
         assert!(pressed.write_text.is_some());
-
-        let success =
-            code_block_copy_reduce(&mut state, CodeBlockCopyAction::WriteFinished(Ok(())), 800);
         assert_eq!(state.status, CodeBlockCopyStatus::Success);
-        assert_eq!(success.schedule_reset_ms, Some(800));
+        assert_eq!(pressed.schedule_reset_ms, Some(800));
 
         let reset = code_block_copy_reduce(&mut state, CodeBlockCopyAction::ResetDue, 800);
         assert_eq!(state.status, CodeBlockCopyStatus::Idle);

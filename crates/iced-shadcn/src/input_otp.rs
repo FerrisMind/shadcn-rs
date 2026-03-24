@@ -2,7 +2,7 @@ use std::cell::Cell;
 use std::fmt::{self, Debug};
 
 use iced::border::{Border, Radius};
-use iced::widget::{container, mouse_area, row, text, text_input};
+use iced::widget::{container, row, stack, text, text_input};
 use iced::{Alignment, Background, Color, Element, Length, Padding};
 use regex::Regex;
 
@@ -81,8 +81,12 @@ pub fn input_otp_unified<'a, Message: Clone + 'a, F>(
 where
     F: Fn(String) -> Message + Clone + 'a,
 {
+    if max_length == 0 {
+        return row(Vec::<Element<'a, Message>>::new()).into();
+    }
+
     let (chars, _) = normalized_chars(value, max_length, None);
-    let cursor_pos = chars.len().min(max_length - 1);
+    let cursor_pos = chars.len().min(max_length.saturating_sub(1));
 
     // Build visual slots
     let mut slots = Vec::with_capacity(max_length);
@@ -111,8 +115,7 @@ where
             text("").size(14).into()
         };
 
-        // Styled slot container with mouse_area for click handling
-        let slot = mouse_area(
+        let slot = container(
             container(
                 container(slot_content)
                     .width(Length::Fixed(36.0))
@@ -147,17 +150,19 @@ where
                 },
                 ..Default::default()
             }),
-        )
-        .on_press(on_input.clone()(value.to_string()));
+        );
 
         slots.push(slot.into());
     }
 
-    // Hidden text input that captures keyboard input
+    let slots_row = row(slots).spacing(0).align_y(Alignment::Center);
+    let total_width = (max_length as f32 * 36.0).max(1.0);
+
+    // Transparent input layer captures keyboard focus on click.
     let hidden_input = text_input::TextInput::new("", value)
         .on_input(on_input)
         .padding(Padding::new(0.0))
-        .width(Length::Fixed(1.0))
+        .width(Length::Fixed(total_width))
         .style(|_, _| iced::widget::text_input::Style {
             background: Background::Color(Color::TRANSPARENT),
             border: Border::default(),
@@ -167,13 +172,18 @@ where
             selection: Color::TRANSPARENT,
         });
 
-    // Stack: slots row + hidden input
-    row![
-        row(slots).spacing(0).align_y(Alignment::Center),
-        hidden_input
-    ]
-    .spacing(0)
-    .align_y(Alignment::Center)
+    container(stack(vec![
+        container(slots_row)
+            .width(Length::Fixed(total_width))
+            .height(Length::Fixed(40.0))
+            .into(),
+        container(hidden_input)
+            .width(Length::Fixed(total_width))
+            .height(Length::Fixed(40.0))
+            .into(),
+    ]))
+    .width(Length::Fixed(total_width))
+    .height(Length::Fixed(40.0))
     .into()
 }
 
@@ -409,6 +419,10 @@ pub fn create_otp_slots<'a, Message: Clone + 'a, F>(
 where
     F: Fn(String) -> Message + Clone + 'a,
 {
+    if max_length == 0 {
+        return Vec::new();
+    }
+
     let (chars, _) = normalized_chars(value, max_length, None);
     let mut slots = Vec::with_capacity(max_length);
 

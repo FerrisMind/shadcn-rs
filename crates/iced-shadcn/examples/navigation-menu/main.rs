@@ -2,6 +2,7 @@ use iced::widget::{column, container, row, text};
 use iced::{Alignment, Background, Element, Font, Length};
 
 use iced_shadcn::{
+    AccentColor,
     NavigationMenuContentProps, NavigationMenuLinkProps, NavigationMenuListProps,
     NavigationMenuProps, NavigationMenuWrap, Theme, navigation_menu_content, navigation_menu_item,
     navigation_menu_link, navigation_menu_link_item, navigation_menu_list, navigation_menu_root,
@@ -30,7 +31,7 @@ enum Message {
 impl Default for Example {
     fn default() -> Self {
         Self {
-            theme: Theme::dark(),
+            theme: Theme::default(),
             open_value: String::new(),
             last_action: None,
         }
@@ -97,7 +98,10 @@ impl Example {
             open,
             Some(Message::OpenChanged),
             NavigationMenuProps::new().viewport_component(navigation_menu_viewport()),
-            NavigationMenuListProps::new().wrap(NavigationMenuWrap::Wrap),
+            NavigationMenuListProps::new()
+                .wrap(NavigationMenuWrap::Wrap)
+                .color(AccentColor::Blue)
+                .high_contrast(true),
             theme,
         );
 

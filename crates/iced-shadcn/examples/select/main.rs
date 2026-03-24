@@ -118,21 +118,21 @@ impl Default for Example {
         Self {
             theme: Theme::default(),
             group_entries: build_entries(),
-            selected_demo: None,
-            selected_fruit: None,
-            selected_timezone: None,
-            selected_email: None,
-            selected_group: None,
+            selected_demo: Some(FRUITS[1]),
+            selected_fruit: Some(Fruit::Banana),
+            selected_timezone: Some(TIMEZONES[0]),
+            selected_email: Some(EMAILS[0]),
+            selected_group: Some("orange"),
             selected_disabled: None,
-            selected_variant: None,
-            selected_size: None,
-            selected_color: None,
-            selected_high_contrast: None,
-            selected_radius: None,
-            selected_content_variant: None,
-            selected_status: None,
-            selected_button_group: None,
-            selected_content_color: None,
+            selected_variant: Some(VARIANT_OPTIONS[0]),
+            selected_size: Some(SIZE_OPTIONS[1]),
+            selected_color: Some(COLOR_OPTIONS[1]),
+            selected_high_contrast: Some(HIGH_CONTRAST_OPTIONS[1]),
+            selected_radius: Some(RADIUS_OPTIONS[0]),
+            selected_content_variant: Some(CONTENT_OPTIONS[1]),
+            selected_status: Some(STATUS_OPTIONS[1]),
+            selected_button_group: Some(STATUS_OPTIONS[1]),
+            selected_content_color: Some(COLOR_OPTIONS[2]),
         }
     }
 }
@@ -384,7 +384,9 @@ impl Example {
                     self.selected_color,
                     "Gray",
                     Message::SelectedColor,
-                    SelectProps::new().color(AccentColor::Gray),
+                    SelectProps::new()
+                        .variant(TriggerVariant::Soft)
+                        .color(AccentColor::Gray),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -393,7 +395,9 @@ impl Example {
                     self.selected_color,
                     "Blue",
                     Message::SelectedColor,
-                    SelectProps::new().color(AccentColor::Blue),
+                    SelectProps::new()
+                        .variant(TriggerVariant::Soft)
+                        .color(AccentColor::Blue),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -402,7 +406,9 @@ impl Example {
                     self.selected_color,
                     "Green",
                     Message::SelectedColor,
-                    SelectProps::new().color(AccentColor::Green),
+                    SelectProps::new()
+                        .variant(TriggerVariant::Soft)
+                        .color(AccentColor::Green),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -411,7 +417,9 @@ impl Example {
                     self.selected_color,
                     "Orange",
                     Message::SelectedColor,
-                    SelectProps::new().color(AccentColor::Orange),
+                    SelectProps::new()
+                        .variant(TriggerVariant::Soft)
+                        .color(AccentColor::Orange),
                     theme,
                 )
                 .width(Length::Fixed(220.0)),
@@ -430,6 +438,7 @@ impl Example {
                 "Select a plan",
                 Message::SelectedHighContrast,
                 SelectProps::new()
+                    .variant(TriggerVariant::Soft)
                     .color(AccentColor::Indigo)
                     .high_contrast(true),
                 theme,
@@ -521,6 +530,7 @@ impl Example {
                 "Trigger: Blue / Content: Orange",
                 Message::SelectedContentColor,
                 SelectProps::new()
+                    .variant(TriggerVariant::Soft)
                     .color(AccentColor::Blue)
                     .content_color(AccentColor::Orange),
                 theme,

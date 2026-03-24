@@ -78,11 +78,7 @@ fn view<'a, Message: Clone + 'a>(theme: &Theme, active: &'a str) -> iced::Elemen
 ```
 
 Examples:
-- `crates/iced-shadcn/examples/tabs-demo`
-- `crates/iced-shadcn/examples/tabs-line`
-- `crates/iced-shadcn/examples/tabs-size`
-- `crates/iced-shadcn/examples/tabs-color`
-- `crates/iced-shadcn/examples/tabs-disabled`
+- `crates/iced-shadcn/examples/tabs`
 
 ## Navigation Menu
 
@@ -122,7 +118,7 @@ fn view<'a, Message: Clone + 'a>(
 ```
 
 Example:
-- `crates/iced-shadcn/examples/navigation-menu-demo`
+- `crates/iced-shadcn/examples/navigation-menu`
 
 ## Breadcrumb
 
@@ -205,11 +201,11 @@ use iced_shadcn::{
     Theme, resizable_handle, resizable_panel, resizable_panel_group,
 };
 
-// See crates/iced-shadcn/examples/resizable-demo/main.rs for a complete example.
+// See crates/iced-shadcn/examples/resizable/main.rs for a complete example.
 ```
 
 Example:
-- `crates/iced-shadcn/examples/resizable-demo`
+- `crates/iced-shadcn/examples/resizable`
 
 ## Image Cropper
 
@@ -222,11 +218,11 @@ use iced_shadcn::{
     image_cropper_dialog, image_cropper_preview, image_cropper_root, image_cropper_upload_trigger,
 };
 
-// See crates/iced-shadcn/examples/image-cropper-demo/main.rs for a complete example.
+// See crates/iced-shadcn/examples/image-cropper/main.rs for a complete example.
 ```
 
 Example:
-- `crates/iced-shadcn/examples/image-cropper-demo`
+- `crates/iced-shadcn/examples/image-cropper`
 
 ## License
 

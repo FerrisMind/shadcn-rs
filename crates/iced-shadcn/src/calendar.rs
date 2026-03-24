@@ -1,6 +1,6 @@
 use chrono::{Datelike, Duration, Months, NaiveDate};
 use iced::widget::{column, container, row, text};
-use iced::{Alignment, Element, Length};
+use iced::{Alignment, Element, Length, alignment};
 
 use crate::button::{ButtonProps, ButtonSize, ButtonVariant, button_content};
 use crate::theme::Theme;
@@ -151,7 +151,7 @@ where
     let min_month = props.min_date.map(normalize_month);
     let max_month = props.max_date.map(normalize_month);
 
-    let mut base_month = normalize_month(state.current_month);
+    let mut base_month = normalize_month(props.default_month.unwrap_or(state.current_month));
     if let Some(min) = min_month
         && base_month < min
     {
@@ -230,12 +230,18 @@ where
     let weekday_row = row(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         .iter()
         .map(|label| {
-            text(*label)
-                .size(11)
-                .style(move |_t| iced::widget::text::Style {
-                    color: Some(theme.palette.muted_foreground),
-                })
-                .into()
+            container(
+                text(*label)
+                    .size(11)
+                    .style(move |_t| iced::widget::text::Style {
+                        color: Some(theme.palette.muted_foreground),
+                    }),
+            )
+            .width(Length::Fixed(32.0))
+            .height(Length::Fixed(16.0))
+            .align_x(alignment::Horizontal::Center)
+            .align_y(alignment::Vertical::Center)
+            .into()
         })
         .collect::<Vec<Element<'a, Message>>>())
     .spacing(4)
@@ -280,7 +286,7 @@ where
 {
     let disabled = is_date_disabled(date, props.min_date, props.max_date, &props.disabled_dates);
 
-    let (variant, on_press) = match props.mode {
+    let (variant, on_press, is_selected_surface) = match props.mode {
         CalendarMode::Single => {
             let is_selected = props.selected == Some(date);
             let next_selected = if is_selected { None } else { Some(date) };
@@ -292,7 +298,7 @@ where
             let on_press = on_action
                 .map(|f| f(CalendarAction::Selected(next_selected)))
                 .filter(|_| !disabled);
-            (variant, on_press)
+            (variant, on_press, is_selected)
         }
         CalendarMode::Range => {
             let (start, end) = next_range(props.range_start, props.range_end, date);
@@ -309,16 +315,28 @@ where
             let on_press = on_action
                 .map(|f| f(CalendarAction::RangeSelected(start, end)))
                 .filter(|_| !disabled);
-            (variant, on_press)
+            (variant, on_press, is_start || is_end)
         }
     };
 
+    let day_text_color = if disabled {
+        theme.palette.muted_foreground
+    } else if is_selected_surface {
+        theme.palette.primary_foreground
+    } else {
+        theme.palette.foreground
+    };
+
     let button = button_content(
-        text(date.day().to_string()).size(12),
+        text(date.day().to_string())
+            .size(12)
+            .style(move |_t| iced::widget::text::Style {
+                color: Some(day_text_color),
+            }),
         on_press,
         ButtonProps::new()
             .variant(variant)
-            .size(ButtonSize::Size1)
+            .size(ButtonSize::Size0)
             .disabled(disabled || on_action.is_none()),
         theme,
     );
