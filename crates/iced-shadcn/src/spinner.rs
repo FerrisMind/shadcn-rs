@@ -218,23 +218,19 @@ impl<Message> canvas::Program<Message> for Spinner {
 
                     match self.variant {
                         SpinnerVariant::LegacyLucide => {
-                            let icon = char::from(Icon::Loader);
-                            frame.fill_text(Text {
-                                content: icon.to_string(),
-                                position: Point::new(center.x, center.y),
-                                color: self.color,
-                                size: size.into(),
-                                font: Font::with_name("lucide"),
-                                align_x: iced::widget::text::Alignment::Center,
-                                align_y: Vertical::Center,
-                                ..Text::default()
-                            });
+                            draw_lucide_spinner_icon(frame, center, size, self.color, Icon::Loader);
                         }
                         SpinnerVariant::AiLoaderIcon => {
                             draw_ai_loader_icon(frame, center, size, self.color);
                         }
                         SpinnerVariant::PromptCircular => {
-                            draw_prompt_circular(frame, center, size, self.color);
+                            draw_lucide_spinner_icon(
+                                frame,
+                                center,
+                                size,
+                                self.color,
+                                Icon::LoaderCircle,
+                            );
                         }
                         _ => {}
                     }
@@ -297,33 +293,23 @@ impl<Message> canvas::Program<Message> for Spinner {
     }
 }
 
-fn draw_prompt_circular(
+fn draw_lucide_spinner_icon(
     frame: &mut canvas::Frame<Renderer>,
     center: Point,
     size: f32,
     color: Color,
+    icon: Icon,
 ) {
-    let radius = (size / 2.0 - 1.5).max(1.0);
-    let stroke = (size * 0.12).clamp(1.0, 3.0);
-    let ring = Path::circle(center, radius);
-    frame.stroke(
-        &ring,
-        Stroke::default()
-            .with_width(stroke)
-            .with_color(apply_opacity(color, 0.28)),
-    );
-
-    // Accent arc imitation: short highlighted cap at top.
-    let cap_half = stroke * 0.65;
-    let from = Point::new(center.x - cap_half, center.y - radius);
-    let to = Point::new(center.x + cap_half, center.y - radius);
-    frame.stroke(
-        &Path::line(from, to),
-        Stroke::default()
-            .with_width(stroke)
-            .with_line_join(LineJoin::Round)
-            .with_color(color),
-    );
+    frame.fill_text(Text {
+        content: char::from(icon).to_string(),
+        position: Point::new(center.x, center.y),
+        color,
+        size: size.into(),
+        font: Font::with_name("lucide"),
+        align_x: iced::widget::text::Alignment::Center,
+        align_y: Vertical::Center,
+        ..Text::default()
+    });
 }
 
 fn draw_prompt_classic(

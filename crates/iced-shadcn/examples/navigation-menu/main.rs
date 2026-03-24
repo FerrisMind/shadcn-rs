@@ -2,8 +2,7 @@ use iced::widget::{column, container, row, text};
 use iced::{Alignment, Background, Element, Font, Length};
 
 use iced_shadcn::{
-    AccentColor,
-    NavigationMenuContentProps, NavigationMenuLinkProps, NavigationMenuListProps,
+    AccentColor, NavigationMenuContentProps, NavigationMenuLinkProps, NavigationMenuListProps,
     NavigationMenuProps, NavigationMenuWrap, Theme, navigation_menu_content, navigation_menu_item,
     navigation_menu_link, navigation_menu_link_item, navigation_menu_list, navigation_menu_root,
     navigation_menu_trigger, navigation_menu_viewport,

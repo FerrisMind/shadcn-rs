@@ -8,8 +8,8 @@ use iced::alignment;
 use iced::border::Border;
 use iced::keyboard;
 use iced::mouse;
-use iced::touch;
 use iced::time::Instant;
+use iced::touch;
 use iced::window;
 use iced::{
     Background, Color, Element, Event, Font, Length, Padding, Pixels, Point, Rectangle, Shadow,
@@ -1272,8 +1272,8 @@ where
 
         if !matches!(event, Event::Window(window::Event::RedrawRequested(_)))
             && state
-            .is_hovered
-            .is_some_and(|is_hovered| is_hovered != cursor.is_over(bounds))
+                .is_hovered
+                .is_some_and(|is_hovered| is_hovered != cursor.is_over(bounds))
         {
             shell.request_redraw();
         }

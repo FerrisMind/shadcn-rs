@@ -111,7 +111,10 @@ impl Example {
         let pattern_section = column![
             muted_text("Pattern: 3 letters + 3 digits (e.g., ABC123)", theme),
             input_otp_unified(&self.pattern_value, 6, Message::PatternChanged, theme),
-            muted_text(format!("Formatted: '{}'", format_grouped(&self.pattern_value)), theme),
+            muted_text(
+                format!("Formatted: '{}'", format_grouped(&self.pattern_value)),
+                theme
+            ),
         ]
         .spacing(8)
         .align_x(Alignment::Start);
@@ -129,7 +132,10 @@ impl Example {
             ]
             .spacing(6)
             .align_y(Alignment::Center),
-            muted_text(format!("Value: '{}'", format_grouped(&self.separator_value)), theme),
+            muted_text(
+                format!("Value: '{}'", format_grouped(&self.separator_value)),
+                theme
+            ),
         ]
         .spacing(8)
         .align_x(Alignment::Start);
@@ -240,7 +246,11 @@ fn muted_text<'a>(
 }
 
 fn group_slice(value: &str, start: usize, end: usize) -> String {
-    value.chars().skip(start).take(end.saturating_sub(start)).collect()
+    value
+        .chars()
+        .skip(start)
+        .take(end.saturating_sub(start))
+        .collect()
 }
 
 fn format_grouped(value: &str) -> String {
