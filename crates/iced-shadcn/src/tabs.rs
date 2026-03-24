@@ -129,6 +129,8 @@ pub struct TabsProps {
     pub transparent_container: bool,
     pub hover: TabsHover,
     pub hover_intensity: Option<f32>,
+    pub show_active_pill_shadow: bool,
+    pub active_pill_as_outline: bool,
 }
 
 impl Default for TabsProps {
@@ -147,6 +149,8 @@ impl Default for TabsProps {
             transparent_container: false,
             hover: TabsHover::Soft,
             hover_intensity: None,
+            show_active_pill_shadow: true,
+            active_pill_as_outline: false,
         }
     }
 }
@@ -221,6 +225,16 @@ impl TabsProps {
         self
     }
 
+    pub fn show_active_pill_shadow(mut self, show: bool) -> Self {
+        self.show_active_pill_shadow = show;
+        self
+    }
+
+    pub fn active_pill_as_outline(mut self, active_as_outline: bool) -> Self {
+        self.active_pill_as_outline = active_as_outline;
+        self
+    }
+
     pub fn split(self) -> (TabsRootProps, TabsListProps) {
         (
             TabsRootProps {
@@ -239,6 +253,8 @@ impl TabsProps {
                 transparent_container: self.transparent_container,
                 hover: self.hover,
                 hover_intensity: self.hover_intensity,
+                show_active_pill_shadow: self.show_active_pill_shadow,
+                active_pill_as_outline: self.active_pill_as_outline,
             },
         )
     }
@@ -294,6 +310,8 @@ pub struct TabsListProps {
     pub transparent_container: bool,
     pub hover: TabsHover,
     pub hover_intensity: Option<f32>,
+    pub show_active_pill_shadow: bool,
+    pub active_pill_as_outline: bool,
 }
 
 impl Default for TabsListProps {
@@ -309,6 +327,8 @@ impl Default for TabsListProps {
             transparent_container: false,
             hover: TabsHover::Soft,
             hover_intensity: None,
+            show_active_pill_shadow: true,
+            active_pill_as_outline: false,
         }
     }
 }
@@ -365,6 +385,16 @@ impl TabsListProps {
 
     pub fn hover_intensity(mut self, intensity: f32) -> Self {
         self.hover_intensity = Some(intensity.clamp(0.0, 1.0));
+        self
+    }
+
+    pub fn show_active_pill_shadow(mut self, show: bool) -> Self {
+        self.show_active_pill_shadow = show;
+        self
+    }
+
+    pub fn active_pill_as_outline(mut self, active_as_outline: bool) -> Self {
+        self.active_pill_as_outline = active_as_outline;
         self
     }
 }
@@ -599,7 +629,11 @@ fn trigger_style(
         }
         TabsListVariant::Pill => {
             let bg = if is_active {
-                Background::Color(palette.background)
+                if props.active_pill_as_outline {
+                    Background::Color(palette.card)
+                } else {
+                    Background::Color(palette.background)
+                }
             } else if is_hovered {
                 hover_pill
             } else {
@@ -609,8 +643,16 @@ fn trigger_style(
             (
                 bg,
                 Border {
-                    color: Color::TRANSPARENT,
-                    width: 0.0,
+                    color: if is_active && props.active_pill_as_outline {
+                        accent
+                    } else {
+                        Color::TRANSPARENT
+                    },
+                    width: if is_active && props.active_pill_as_outline {
+                        1.0
+                    } else {
+                        0.0
+                    },
                     radius: theme.radius.sm.into(),
                 },
             )
@@ -654,7 +696,10 @@ fn trigger_style(
         text_color = apply_opacity(text_color, 0.6);
     }
 
-    let shadow = if is_active && matches!(props.variant, TabsListVariant::Pill) {
+    let shadow = if is_active
+        && matches!(props.variant, TabsListVariant::Pill)
+        && props.show_active_pill_shadow
+    {
         let strength = if is_dark(&palette) {
             (theme.styles.tabs.active_pill_shadow.opacity * 1.95).clamp(0.0, 1.0)
         } else {
