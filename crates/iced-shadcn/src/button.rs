@@ -66,6 +66,7 @@ pub struct ButtonProps {
     pub size: ButtonSize,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
+    pub custom_size: Option<f32>,
     pub justify: ButtonJustify,
     pub opaque_outline: bool,
     pub high_contrast: bool,
@@ -80,6 +81,7 @@ impl Default for ButtonProps {
             size: ButtonSize::Size2,
             color: AccentColor::Gray,
             radius: None,
+            custom_size: None,
             justify: ButtonJustify::Center,
             opaque_outline: false,
             high_contrast: false,
@@ -111,6 +113,11 @@ impl ButtonProps {
 
     pub fn radius(mut self, radius: ButtonRadius) -> Self {
         self.radius = Some(radius);
+        self
+    }
+
+    pub fn custom_size(mut self, size: f32) -> Self {
+        self.custom_size = Some(size.max(0.0));
         self
     }
 
@@ -198,13 +205,14 @@ fn button_content_aligned<'a, Message: Clone + 'a>(
     theme: &Theme,
     center_x: bool,
 ) -> ShadcnButton<'a, Message> {
+    let control_size = props.custom_size.unwrap_or_else(|| props.size.height());
     let content: Element<'a, Message> = if props.loading {
         loading_overlay(content.into(), props, theme)
     } else {
         content.into()
     };
     let mut wrapper = container(content)
-        .height(Length::Fixed(props.size.height()))
+        .height(Length::Fixed(control_size))
         .align_y(Vertical::Center);
     if center_x {
         wrapper = wrapper.width(Length::Fill).align_x(Horizontal::Center);
@@ -213,7 +221,7 @@ fn button_content_aligned<'a, Message: Clone + 'a>(
 
     let mut widget = iced_button(content)
         .padding(props.size.padding())
-        .height(Length::Fixed(props.size.height()));
+        .height(Length::Fixed(control_size));
 
     let disabled = props.disabled || props.loading || on_press.is_none();
     if let Some(message) = on_press
@@ -232,7 +240,7 @@ pub fn icon_button<'a, Message: Clone + 'a>(
     props: ButtonProps,
     theme: &Theme,
 ) -> ShadcnButton<'a, Message> {
-    let size = props.size.height();
+    let size = props.custom_size.unwrap_or_else(|| props.size.height());
     let centered_content = container(content)
         .width(Length::Fill)
         .height(Length::Fill)
@@ -476,5 +484,16 @@ pub(crate) fn button_style(
         },
         shadow: Shadow::default(),
         snap: true,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn button_props_builder_accepts_custom_size() {
+        let props = ButtonProps::new().custom_size(30.0);
+        assert_eq!(props.custom_size, Some(30.0));
     }
 }

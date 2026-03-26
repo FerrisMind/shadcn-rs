@@ -136,6 +136,11 @@ pub struct TabsProps {
     pub hover_intensity: Option<f32>,
     pub show_active_pill_shadow: bool,
     pub active_pill_as_outline: bool,
+    pub active_pill_background: Option<Color>,
+    pub show_separators: bool,
+    pub separator_color: Option<Color>,
+    pub separator_length: Option<f32>,
+    pub separator_thickness: f32,
 }
 
 impl Default for TabsProps {
@@ -156,6 +161,11 @@ impl Default for TabsProps {
             hover_intensity: None,
             show_active_pill_shadow: true,
             active_pill_as_outline: false,
+            active_pill_background: None,
+            show_separators: false,
+            separator_color: None,
+            separator_length: None,
+            separator_thickness: 1.0,
         }
     }
 }
@@ -240,6 +250,31 @@ impl TabsProps {
         self
     }
 
+    pub fn active_pill_background(mut self, background: Color) -> Self {
+        self.active_pill_background = Some(background);
+        self
+    }
+
+    pub fn show_separators(mut self, show: bool) -> Self {
+        self.show_separators = show;
+        self
+    }
+
+    pub fn separator_color(mut self, color: Color) -> Self {
+        self.separator_color = Some(color);
+        self
+    }
+
+    pub fn separator_length(mut self, length: f32) -> Self {
+        self.separator_length = Some(length.max(0.0));
+        self
+    }
+
+    pub fn separator_thickness(mut self, thickness: f32) -> Self {
+        self.separator_thickness = thickness.max(0.0);
+        self
+    }
+
     pub fn split(self) -> (TabsRootProps, TabsListProps) {
         (
             TabsRootProps {
@@ -250,6 +285,7 @@ impl TabsProps {
             TabsListProps {
                 variant: self.variant.into(),
                 size: self.size,
+                trigger_height: None,
                 wrap: self.wrap,
                 justify: self.justify,
                 color: self.color,
@@ -260,6 +296,11 @@ impl TabsProps {
                 hover_intensity: self.hover_intensity,
                 show_active_pill_shadow: self.show_active_pill_shadow,
                 active_pill_as_outline: self.active_pill_as_outline,
+                active_pill_background: self.active_pill_background,
+                show_separators: self.show_separators,
+                separator_color: self.separator_color,
+                separator_length: self.separator_length,
+                separator_thickness: self.separator_thickness,
             },
         )
     }
@@ -307,6 +348,7 @@ impl TabsRootProps {
 pub struct TabsListProps {
     pub variant: TabsListVariant,
     pub size: TabsSize,
+    pub trigger_height: Option<f32>,
     pub wrap: TabsWrap,
     pub justify: TabsJustify,
     pub color: AccentColor,
@@ -317,6 +359,11 @@ pub struct TabsListProps {
     pub hover_intensity: Option<f32>,
     pub show_active_pill_shadow: bool,
     pub active_pill_as_outline: bool,
+    pub active_pill_background: Option<Color>,
+    pub show_separators: bool,
+    pub separator_color: Option<Color>,
+    pub separator_length: Option<f32>,
+    pub separator_thickness: f32,
 }
 
 impl Default for TabsListProps {
@@ -324,6 +371,7 @@ impl Default for TabsListProps {
         Self {
             variant: TabsListVariant::Pill,
             size: TabsSize::Size2,
+            trigger_height: None,
             wrap: TabsWrap::NoWrap,
             justify: TabsJustify::Start,
             color: AccentColor::Gray,
@@ -334,6 +382,11 @@ impl Default for TabsListProps {
             hover_intensity: None,
             show_active_pill_shadow: true,
             active_pill_as_outline: false,
+            active_pill_background: None,
+            show_separators: false,
+            separator_color: None,
+            separator_length: None,
+            separator_thickness: 1.0,
         }
     }
 }
@@ -350,6 +403,11 @@ impl TabsListProps {
 
     pub fn size(mut self, size: TabsSize) -> Self {
         self.size = size;
+        self
+    }
+
+    pub fn trigger_height(mut self, height: f32) -> Self {
+        self.trigger_height = Some(height.max(0.0));
         self
     }
 
@@ -400,6 +458,31 @@ impl TabsListProps {
 
     pub fn active_pill_as_outline(mut self, active_as_outline: bool) -> Self {
         self.active_pill_as_outline = active_as_outline;
+        self
+    }
+
+    pub fn active_pill_background(mut self, background: Color) -> Self {
+        self.active_pill_background = Some(background);
+        self
+    }
+
+    pub fn show_separators(mut self, show: bool) -> Self {
+        self.show_separators = show;
+        self
+    }
+
+    pub fn separator_color(mut self, color: Color) -> Self {
+        self.separator_color = Some(color);
+        self
+    }
+
+    pub fn separator_length(mut self, length: f32) -> Self {
+        self.separator_length = Some(length.max(0.0));
+        self
+    }
+
+    pub fn separator_thickness(mut self, thickness: f32) -> Self {
+        self.separator_thickness = thickness.max(0.0);
         self
     }
 }
@@ -642,11 +725,13 @@ fn trigger_style(
         }
         TabsListVariant::Pill => {
             let bg = if is_active {
-                if props.active_pill_as_outline {
-                    Background::Color(palette.card)
-                } else {
-                    Background::Color(palette.background)
-                }
+                Background::Color(props.active_pill_background.unwrap_or({
+                    if props.active_pill_as_outline {
+                        palette.card
+                    } else {
+                        palette.background
+                    }
+                }))
             } else if is_hovered {
                 hover_pill
             } else {
@@ -782,6 +867,28 @@ where
 
     fn diff(&self, tree: &mut Tree) {
         tree.diff_children(&self.triggers);
+    }
+
+    fn operate(
+        &mut self,
+        tree: &mut Tree,
+        layout: Layout<'_>,
+        renderer: &iced::Renderer,
+        operation: &mut dyn iced::advanced::widget::Operation,
+    ) {
+        operation.container(None, layout.bounds());
+        operation.traverse(&mut |operation| {
+            for (index, child) in self.triggers.iter_mut().enumerate() {
+                if let Some(child_layout) = layout.children().nth(index) {
+                    child.as_widget_mut().operate(
+                        &mut tree.children[index],
+                        child_layout,
+                        renderer,
+                        operation,
+                    );
+                }
+            }
+        });
     }
 
     fn tag(&self) -> iced::advanced::widget::tree::Tag {
@@ -1178,6 +1285,42 @@ where
         }
     }
 
+    fn overlay<'b>(
+        &'b mut self,
+        tree: &'b mut Tree,
+        layout: Layout<'b>,
+        renderer: &iced::Renderer,
+        viewport: &Rectangle,
+        translation: Vector,
+    ) -> Option<iced::overlay::Element<'b, Message, iced::Theme, iced::Renderer>> {
+        let mut layouts = layout.children();
+        let mut triggers = self.triggers.as_mut_slice();
+        let mut child_trees = tree.children.as_mut_slice();
+
+        while let (Some((trigger, rest_triggers)), Some((child_tree, rest_child_trees))) =
+            (triggers.split_first_mut(), child_trees.split_first_mut())
+        {
+            let Some(child_layout) = layouts.next() else {
+                break;
+            };
+
+            if let Some(overlay) = trigger.as_widget_mut().overlay(
+                child_tree,
+                child_layout,
+                renderer,
+                viewport,
+                translation,
+            ) {
+                return Some(overlay);
+            }
+
+            triggers = rest_triggers;
+            child_trees = rest_child_trees;
+        }
+
+        None
+    }
+
     fn draw(
         &self,
         tree: &Tree,
@@ -1195,6 +1338,8 @@ where
 
         let metrics = tabs_metrics(self.list_props, &self.theme);
         let (background, border, shadow) = list_style(&self.theme, self.list_props);
+        let state = tree.state.downcast_ref::<TabsListState>();
+        let cursor_position = cursor.position();
 
         if let Some(background) = background {
             renderer.fill_quad(
@@ -1234,6 +1379,136 @@ where
             );
         }
 
+        if self.list_props.show_separators && state.trigger_bounds.len() > 1 {
+            let color = self
+                .list_props
+                .separator_color
+                .unwrap_or(self.theme.palette.border);
+            let thickness = self.list_props.separator_thickness.max(1.0);
+
+            for (index, pair) in state.trigger_bounds.windows(2).enumerate() {
+                let [left, right] = pair else {
+                    continue;
+                };
+
+                let Some(left_item) = self.items.get(index) else {
+                    continue;
+                };
+                let Some(right_item) = self.items.get(index + 1) else {
+                    continue;
+                };
+
+                let left_rect = Rectangle {
+                    x: bounds.x + left.x,
+                    y: bounds.y + left.y,
+                    width: left.width,
+                    height: left.height,
+                };
+                let right_rect = Rectangle {
+                    x: bounds.x + right.x,
+                    y: bounds.y + right.y,
+                    width: right.width,
+                    height: right.height,
+                };
+
+                let left_hovered =
+                    cursor_position.is_some_and(|position| left_rect.contains(position));
+                let right_hovered =
+                    cursor_position.is_some_and(|position| right_rect.contains(position));
+
+                if left_item.value == self.active
+                    || right_item.value == self.active
+                    || left_hovered
+                    || right_hovered
+                {
+                    continue;
+                }
+
+                if (left.y - right.y).abs() > 1.0 {
+                    continue;
+                }
+
+                let available_gap = (right.x - (left.x + left.width)).max(0.0);
+                if available_gap <= 0.0 {
+                    continue;
+                }
+
+                let length = self
+                    .list_props
+                    .separator_length
+                    .unwrap_or(left.height.min(right.height))
+                    .min(left.height.min(right.height))
+                    .max(0.0);
+
+                let x = bounds.x + left.x + left.width + (available_gap - thickness) / 2.0;
+                let y = bounds.y + left.y + (left.height - length) / 2.0;
+
+                renderer.fill_quad(
+                    renderer::Quad {
+                        bounds: Rectangle {
+                            x,
+                            y,
+                            width: thickness,
+                            height: length,
+                        },
+                        border: Border {
+                            color: Color::TRANSPARENT,
+                            width: 0.0,
+                            radius: (thickness / 2.0).into(),
+                        },
+                        ..renderer::Quad::default()
+                    },
+                    Background::Color(color),
+                );
+            }
+
+            if let (Some(last_bounds), Some(last_item)) =
+                (state.trigger_bounds.last().copied(), self.items.last())
+            {
+                let last_rect = Rectangle {
+                    x: bounds.x + last_bounds.x,
+                    y: bounds.y + last_bounds.y,
+                    width: last_bounds.width,
+                    height: last_bounds.height,
+                };
+                let last_hovered =
+                    cursor_position.is_some_and(|position| last_rect.contains(position));
+
+                if last_item.value != self.active && !last_hovered {
+                    let length = self
+                        .list_props
+                        .separator_length
+                        .unwrap_or(last_bounds.height)
+                        .min(last_bounds.height)
+                        .max(0.0);
+
+                    let x = bounds.x
+                        + last_bounds.x
+                        + last_bounds.width
+                        + (metrics.gap - thickness) / 2.0;
+                    let y = bounds.y + last_bounds.y + (last_bounds.height - length) / 2.0;
+
+                    renderer.fill_quad(
+                        renderer::Quad {
+                            bounds: Rectangle {
+                                x,
+                                y,
+                                width: thickness,
+                                height: length,
+                            },
+                            border: Border {
+                                color: Color::TRANSPARENT,
+                                width: 0.0,
+                                radius: (thickness / 2.0).into(),
+                            },
+                            ..renderer::Quad::default()
+                        },
+                        Background::Color(color),
+                    );
+                }
+            }
+        }
+
         for (index, child) in self.triggers.iter().enumerate() {
             if let Some(child_layout) = layout.children().nth(index) {
                 child.as_widget().draw(
@@ -1248,9 +1523,6 @@ where
             }
         }
 
-        let state = tree.state.downcast_ref::<TabsListState>();
-
-        let cursor_position = cursor.position();
         for (index, item) in self.items.iter().enumerate() {
             if item.close_message.is_none() {
                 continue;
@@ -1585,6 +1857,10 @@ where
             move |_iced_theme, status| trigger_style(&theme, list_props, is_active, status)
         });
 
+        if let Some(trigger_height) = list_props.trigger_height {
+            trigger = trigger.height(Length::Fixed(trigger_height));
+        }
+
         if !is_disabled && let Some(on_change) = on_value_change.as_ref() {
             trigger = trigger.on_press((on_change)(item.value.clone()));
         }
@@ -1713,5 +1989,33 @@ mod tests {
 
         assert_eq!(next_enabled_index(&items, 1, -1, true), Some(0));
         assert_eq!(next_enabled_index(&items, 0, -1, true), Some(1));
+    }
+
+    #[test]
+    fn tabs_list_props_builder_accepts_trigger_height() {
+        let props = TabsListProps::new().trigger_height(32.0);
+        assert_eq!(props.trigger_height, Some(32.0));
+    }
+
+    #[test]
+    fn tabs_list_props_builder_accepts_active_pill_background() {
+        let color = Color::from_rgb8(1, 2, 3);
+        let props = TabsListProps::new().active_pill_background(color);
+        assert_eq!(props.active_pill_background, Some(color));
+    }
+
+    #[test]
+    fn tabs_list_props_builder_accepts_separator_settings() {
+        let color = Color::from_rgb8(1, 2, 3);
+        let props = TabsListProps::new()
+            .show_separators(true)
+            .separator_color(color)
+            .separator_length(16.0)
+            .separator_thickness(1.0);
+
+        assert!(props.show_separators);
+        assert_eq!(props.separator_color, Some(color));
+        assert_eq!(props.separator_length, Some(16.0));
+        assert_eq!(props.separator_thickness, 1.0);
     }
 }
