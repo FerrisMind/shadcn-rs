@@ -468,6 +468,7 @@ where
             size,
             color,
             radius,
+            custom_size: None,
             justify,
             opaque_outline: false,
             high_contrast,

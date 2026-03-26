@@ -27,6 +27,8 @@ pub struct InputProps {
     pub variant: InputVariant,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
+    pub custom_height: Option<f32>,
+    pub focus_only_border: bool,
     pub disabled: bool,
     pub read_only: bool,
 }
@@ -38,6 +40,8 @@ impl Default for InputProps {
             variant: InputVariant::Surface,
             color: AccentColor::Gray,
             radius: None,
+            custom_height: None,
+            focus_only_border: false,
             disabled: false,
             read_only: false,
         }
@@ -66,6 +70,16 @@ impl InputProps {
 
     pub fn radius(mut self, radius: ButtonRadius) -> Self {
         self.radius = Some(radius);
+        self
+    }
+
+    pub fn custom_height(mut self, height: f32) -> Self {
+        self.custom_height = Some(height.max(0.0));
+        self
+    }
+
+    pub fn focus_only_border(mut self, focus_only_border: bool) -> Self {
+        self.focus_only_border = focus_only_border;
         self
     }
 
@@ -107,6 +121,19 @@ impl InputSize {
     }
 }
 
+fn input_padding(theme: &Theme, props: InputProps) -> [f32; 2] {
+    let [padding_y, padding_x] = props.size.padding(theme);
+    let Some(custom_height) = props.custom_height else {
+        return [padding_y, padding_x];
+    };
+
+    let border = theme.styles.input.border_width * 2.0;
+    let text_height = props.size.text_size() as f32;
+    let adjusted_y = ((custom_height - text_height - border) / 2.0).max(0.0);
+
+    [adjusted_y, padding_x]
+}
+
 pub fn input<'a, Message: Clone + 'a, F>(
     value: &'a str,
     placeholder: &'a str,
@@ -119,7 +146,7 @@ where
 {
     let theme = theme.clone();
     let mut widget = text_input::TextInput::new(placeholder, value)
-        .padding(props.size.padding(&theme))
+        .padding(input_padding(&theme, props))
         .size(props.size.text_size())
         .style(move |_iced_theme, status| input_style(&theme, props, status));
 
@@ -157,7 +184,11 @@ fn input_style(theme: &Theme, props: InputProps, status: text_input::Status) -> 
     let mut border = Border {
         radius: radius.into(),
         width: theme.styles.input.border_width,
-        color: palette.border,
+        color: if props.focus_only_border {
+            iced::Color::TRANSPARENT
+        } else {
+            palette.border
+        },
     };
     let mut background = match props.variant {
         InputVariant::Classic | InputVariant::Surface => Background::Color(palette.background),
@@ -182,7 +213,7 @@ fn input_style(theme: &Theme, props: InputProps, status: text_input::Status) -> 
 
     match status {
         text_input::Status::Hovered => {
-            if !matches!(props.variant, InputVariant::Ghost) {
+            if !matches!(props.variant, InputVariant::Ghost) && !props.focus_only_border {
                 border.color = palette.ring;
             }
         }
@@ -207,5 +238,22 @@ fn input_style(theme: &Theme, props: InputProps, status: text_input::Status) -> 
         placeholder,
         value,
         selection: accent,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn input_props_builder_accepts_custom_height() {
+        let props = InputProps::new().custom_height(32.0);
+        assert_eq!(props.custom_height, Some(32.0));
+    }
+
+    #[test]
+    fn input_props_builder_accepts_focus_only_border() {
+        let props = InputProps::new().focus_only_border(true);
+        assert!(props.focus_only_border);
     }
 }

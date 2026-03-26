@@ -24,6 +24,7 @@ pub struct SeparatorProps {
     pub orientation: SeparatorOrientation,
     pub size: SeparatorSize,
     pub color: Option<AccentColor>,
+    pub custom_color: Option<iced::Color>,
     pub thickness: f32,
     pub gap: f32,
     pub length: Option<f32>,
@@ -38,6 +39,7 @@ impl Default for SeparatorProps {
             orientation: SeparatorOrientation::Horizontal,
             size: SeparatorSize::default(),
             color: None,
+            custom_color: None,
             thickness: 1.0,
             gap: 0.0,
             length: None,
@@ -65,6 +67,11 @@ impl SeparatorProps {
 
     pub fn color(mut self, color: AccentColor) -> Self {
         self.color = Some(color);
+        self
+    }
+
+    pub fn custom_color(mut self, color: iced::Color) -> Self {
+        self.custom_color = Some(color);
         self
     }
 
@@ -115,7 +122,9 @@ pub fn separator<'a, Message: 'a>(
     let palette = theme.palette;
     let radius = theme.radius.sm;
 
-    let base_color = if let Some(c) = props.color {
+    let base_color = if let Some(color) = props.custom_color {
+        color
+    } else if let Some(c) = props.color {
         accent_color(&palette, c)
     } else if props.high_contrast {
         mix(palette.border, palette.foreground, 0.2)
