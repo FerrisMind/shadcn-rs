@@ -120,21 +120,31 @@ fn card_style(theme: &Theme, props: CardProps) -> container_widget::Style {
     let mut text_color = palette.card_foreground;
     let border_width = 1.0;
 
+    let is_dark_theme = crate::tokens::is_dark(&palette);
+
     let (mut background, default_shadow) = match props.variant {
         CardVariant::Surface => (
             Some(Background::Color(palette.card)),
-            Shadow {
-                color: apply_opacity(Color::BLACK, 0.08),
-                offset: iced::Vector::new(0.0, 2.0),
-                blur_radius: 10.0,
+            if is_dark_theme {
+                Shadow::default()
+            } else {
+                Shadow {
+                    color: apply_opacity(Color::BLACK, 0.08),
+                    offset: iced::Vector::new(0.0, 2.0),
+                    blur_radius: 10.0,
+                }
             },
         ),
         CardVariant::Classic => (
             Some(Background::Color(palette.card)),
-            Shadow {
-                color: apply_opacity(Color::BLACK, 0.12),
-                offset: iced::Vector::new(0.0, 4.0),
-                blur_radius: 14.0,
+            if is_dark_theme {
+                Shadow::default()
+            } else {
+                Shadow {
+                    color: apply_opacity(Color::BLACK, 0.12),
+                    offset: iced::Vector::new(0.0, 4.0),
+                    blur_radius: 14.0,
+                }
             },
         ),
         CardVariant::Ghost => (None, Shadow::default()),

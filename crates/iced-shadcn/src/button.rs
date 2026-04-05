@@ -265,7 +265,12 @@ fn loading_overlay<'a, Message: Clone + 'a>(
         ButtonSize::Size3 | ButtonSize::Size4 => SpinnerSize::Size3,
     };
     let spinner_color = accent_text(&theme.palette, props.color);
-    let spinner = spinner(Spinner::new(theme).size(spinner_size).color(spinner_color));
+    let spinner = spinner(
+        Spinner::new(theme)
+            .size(spinner_size)
+            .color(spinner_color)
+            .animated(true),
+    );
     let spinner_layer = container(spinner)
         .width(Length::Fill)
         .height(Length::Fill)

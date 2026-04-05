@@ -141,6 +141,7 @@ pub struct TabsProps {
     pub separator_color: Option<Color>,
     pub separator_length: Option<f32>,
     pub separator_thickness: f32,
+    pub radius: Option<f32>,
 }
 
 impl Default for TabsProps {
@@ -166,6 +167,7 @@ impl Default for TabsProps {
             separator_color: None,
             separator_length: None,
             separator_thickness: 1.0,
+            radius: None,
         }
     }
 }
@@ -275,6 +277,11 @@ impl TabsProps {
         self
     }
 
+    pub fn radius(mut self, radius: f32) -> Self {
+        self.radius = Some(radius.max(0.0));
+        self
+    }
+
     pub fn split(self) -> (TabsRootProps, TabsListProps) {
         (
             TabsRootProps {
@@ -301,6 +308,7 @@ impl TabsProps {
                 separator_color: self.separator_color,
                 separator_length: self.separator_length,
                 separator_thickness: self.separator_thickness,
+                radius: self.radius,
             },
         )
     }
@@ -364,6 +372,7 @@ pub struct TabsListProps {
     pub separator_color: Option<Color>,
     pub separator_length: Option<f32>,
     pub separator_thickness: f32,
+    pub radius: Option<f32>,
 }
 
 impl Default for TabsListProps {
@@ -387,6 +396,7 @@ impl Default for TabsListProps {
             separator_color: None,
             separator_length: None,
             separator_thickness: 1.0,
+            radius: None,
         }
     }
 }
@@ -483,6 +493,11 @@ impl TabsListProps {
 
     pub fn separator_thickness(mut self, thickness: f32) -> Self {
         self.separator_thickness = thickness.max(0.0);
+        self
+    }
+
+    pub fn radius(mut self, radius: f32) -> Self {
+        self.radius = Some(radius.max(0.0));
         self
     }
 }
@@ -617,7 +632,7 @@ fn tabs_metrics(props: TabsListProps, theme: &Theme) -> TabsMetrics {
         gap: theme.styles.tabs.gap,
         line_gap: theme.styles.tabs.line_gap,
         indicator_height: theme.styles.tabs.indicator_height,
-        radius: theme.radius.sm,
+        radius: props.radius.unwrap_or(theme.radius.sm),
     }
 }
 
@@ -646,7 +661,7 @@ fn list_style(theme: &Theme, props: TabsListProps) -> (Option<Background>, Borde
                 Border {
                     color: Color::TRANSPARENT,
                     width: 0.0,
-                    radius: theme.radius.sm.into(),
+                    radius: props.radius.unwrap_or(theme.radius.sm).into(),
                 },
                 Shadow::default(),
             )
@@ -656,7 +671,7 @@ fn list_style(theme: &Theme, props: TabsListProps) -> (Option<Background>, Borde
             Border {
                 color: Color::TRANSPARENT,
                 width: 0.0,
-                radius: theme.radius.sm.into(),
+                radius: props.radius.unwrap_or(theme.radius.sm).into(),
             },
             Shadow::default(),
         ),
@@ -665,7 +680,7 @@ fn list_style(theme: &Theme, props: TabsListProps) -> (Option<Background>, Borde
             Border {
                 color: palette.border,
                 width: 1.0,
-                radius: theme.radius.sm.into(),
+                radius: props.radius.unwrap_or(theme.radius.sm).into(),
             },
             Shadow::default(),
         ),
@@ -719,7 +734,7 @@ fn trigger_style(
                 Border {
                     color: Color::TRANSPARENT,
                     width: 0.0,
-                    radius: theme.radius.sm.into(),
+                    radius: props.radius.unwrap_or(theme.radius.sm).into(),
                 },
             )
         }
@@ -743,15 +758,17 @@ fn trigger_style(
                 Border {
                     color: if is_active && props.active_pill_as_outline {
                         accent
+                    } else if is_active && is_dark(&palette) {
+                        palette.border
                     } else {
                         Color::TRANSPARENT
                     },
-                    width: if is_active && props.active_pill_as_outline {
+                    width: if is_active && (props.active_pill_as_outline || is_dark(&palette)) {
                         1.0
                     } else {
                         0.0
                     },
-                    radius: theme.radius.sm.into(),
+                    radius: props.radius.unwrap_or(theme.radius.sm).into(),
                 },
             )
         }
@@ -774,7 +791,7 @@ fn trigger_style(
                 Border {
                     color: border_color,
                     width: 1.0,
-                    radius: theme.radius.sm.into(),
+                    radius: props.radius.unwrap_or(theme.radius.sm).into(),
                 },
             )
         }
@@ -797,14 +814,11 @@ fn trigger_style(
     let shadow = if is_active
         && matches!(props.variant, TabsListVariant::Pill)
         && props.show_active_pill_shadow
+        && !is_dark(&palette)
     {
-        let strength = if is_dark(&palette) {
-            (theme.styles.tabs.active_pill_shadow.opacity * 1.95).clamp(0.0, 1.0)
-        } else {
-            theme.styles.tabs.active_pill_shadow.opacity
-        };
+        let strength = theme.styles.tabs.active_pill_shadow.opacity;
         Shadow {
-            color: apply_opacity(palette.foreground, strength),
+            color: apply_opacity(Color::BLACK, strength),
             offset: Vector::new(0.0, theme.styles.tabs.active_pill_shadow.offset_y),
             blur_radius: theme.styles.tabs.active_pill_shadow.blur_radius,
         }

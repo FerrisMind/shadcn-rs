@@ -1,6 +1,7 @@
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::text;
+use iced::advanced::text::Paragraph;
 use iced::advanced::text::paragraph;
 use iced::advanced::widget::Tree;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
@@ -682,26 +683,26 @@ where
                 (bounds.width - padding.left - padding.right).max(0.0),
                 self.text_line_height.to_absolute(text_size).into(),
             );
+            let text_color = if self.selected.is_some() {
+                trigger_style.text_color
+            } else {
+                trigger_style.placeholder_color
+            };
 
-            renderer.fill_text(
-                text::Text {
-                    content: label,
-                    size: text_size,
+            draw_select_label(
+                renderer,
+                DrawSelectLabel {
+                    label: &label,
+                    font: Some(font),
+                    text_size,
                     line_height: self.text_line_height,
-                    font,
                     bounds: text_bounds,
-                    align_x: text::Alignment::Default,
-                    align_y: alignment::Vertical::Center,
+                    position: Point::new(bounds.x + padding.left, bounds.center_y()),
+                    primary_color: text_color,
+                    secondary_color: apply_opacity(text_color, 0.7),
                     shaping: self.text_shaping,
-                    wrapping: text::Wrapping::default(),
+                    viewport: *viewport,
                 },
-                Point::new(bounds.x + padding.left, bounds.center_y()),
-                if self.selected.is_some() {
-                    trigger_style.text_color
-                } else {
-                    trigger_style.placeholder_color
-                },
-                *viewport,
             );
         }
     }
@@ -1379,19 +1380,22 @@ where
                     let text_color = if *disabled {
                         disabled_text_color
                     } else if is_hovered {
+                        menu_style.hover_text_color
+                    } else if *selected {
                         menu_style.selected_text_color
                     } else {
                         menu_style.text_color
                     };
 
-                    renderer.fill_text(
-                        text::Text {
-                            content: label.clone(),
-                            size: self.metrics.text_size.into(),
+                    draw_select_label(
+                        renderer,
+                        DrawSelectLabel {
+                            label,
+                            font: Some(self.font),
+                            text_size: self.metrics.text_size.into(),
                             line_height: text::LineHeight::Absolute(
                                 (self.metrics.text_size as f32 + 6.0).into(),
                             ),
-                            font: self.font,
                             bounds: Size::new(
                                 (row_bounds.width
                                     - self.metrics.item_padding_left
@@ -1399,23 +1403,27 @@ where
                                     .max(0.0),
                                 row_bounds.height,
                             ),
-                            align_x: text::Alignment::Default,
-                            align_y: alignment::Vertical::Center,
+                            position: Point::new(
+                                row_bounds.x + self.metrics.item_padding_left,
+                                row_bounds.center_y(),
+                            ),
+                            primary_color: text_color,
+                            secondary_color: if *disabled {
+                                apply_opacity(disabled_text_color, 0.85)
+                            } else {
+                                menu_style.muted_text_color
+                            },
                             shaping: self.text_shaping,
-                            wrapping: text::Wrapping::default(),
+                            viewport: *viewport,
                         },
-                        Point::new(
-                            row_bounds.x + self.metrics.item_padding_left,
-                            row_bounds.center_y(),
-                        ),
-                        text_color,
-                        *viewport,
                     );
 
                     if *selected {
                         let icon_color = if *disabled {
                             disabled_text_color
                         } else if is_hovered {
+                            menu_style.hover_text_color
+                        } else if *selected {
                             menu_style.selected_text_color
                         } else {
                             menu_style.text_color
@@ -1795,6 +1803,99 @@ fn row_at<T>(rows: &[Row<T>], y: f32) -> Option<usize> {
     None
 }
 
+struct DrawSelectLabel<'a> {
+    label: &'a str,
+    font: Option<Font>,
+    text_size: Pixels,
+    line_height: text::LineHeight,
+    bounds: Size,
+    position: Point,
+    primary_color: Color,
+    secondary_color: Color,
+    shaping: text::Shaping,
+    viewport: Rectangle,
+}
+
+fn draw_select_label<Renderer>(renderer: &mut Renderer, params: DrawSelectLabel<'_>)
+where
+    Renderer: text::Renderer<Font = Font>,
+{
+    if let Some((primary, secondary)) = split_select_label(params.label) {
+        let secondary_size = Pixels(f32::from(params.text_size) - 2.0);
+        let font = params.font.unwrap_or_default();
+        let primary_text = text::Text {
+            content: primary.to_string(),
+            bounds: params.bounds,
+            size: params.text_size,
+            line_height: params.line_height,
+            font,
+            align_x: text::Alignment::Default,
+            align_y: alignment::Vertical::Center,
+            shaping: params.shaping,
+            wrapping: text::Wrapping::default(),
+        };
+        let primary_width = Renderer::Paragraph::with_text(primary_text.as_ref()).min_width();
+
+        renderer.fill_text(
+            primary_text,
+            params.position,
+            params.primary_color,
+            params.viewport,
+        );
+
+        renderer.fill_text(
+            text::Text {
+                content: secondary.to_string(),
+                bounds: Size::new(
+                    (params.bounds.width - primary_width - 8.0).max(0.0),
+                    params.bounds.height,
+                ),
+                size: secondary_size,
+                line_height: text::LineHeight::Absolute(
+                    params.line_height.to_absolute(secondary_size),
+                ),
+                font,
+                align_x: text::Alignment::Default,
+                align_y: alignment::Vertical::Center,
+                shaping: params.shaping,
+                wrapping: text::Wrapping::default(),
+            },
+            Point::new(params.position.x + primary_width + 8.0, params.position.y),
+            params.secondary_color,
+            params.viewport,
+        );
+    } else {
+        renderer.fill_text(
+            text::Text {
+                content: params.label.to_string(),
+                size: params.text_size,
+                line_height: params.line_height,
+                font: params.font.unwrap_or_default(),
+                bounds: params.bounds,
+                align_x: text::Alignment::Default,
+                align_y: alignment::Vertical::Center,
+                shaping: params.shaping,
+                wrapping: text::Wrapping::default(),
+            },
+            params.position,
+            params.primary_color,
+            params.viewport,
+        );
+    }
+}
+
+fn split_select_label(label: &str) -> Option<(&str, &str)> {
+    let (primary, secondary) = label.split_once("  ")?;
+    let primary = primary.trim_end();
+    let secondary = secondary.trim_start();
+
+    if primary.is_empty() || secondary.is_empty() {
+        None
+    } else {
+        Some((primary, secondary))
+    }
+}
+
 fn list_layout<T>(bounds: Rectangle, rows: &[Row<T>], metrics: SelectMetrics) -> ListLayout {
     let content_height = rows.iter().map(|row| row.height).sum::<f32>();
     let padding = metrics.content_padding;
@@ -1864,6 +1965,7 @@ struct MenuStyle {
     selected_text_color: Color,
     selected_background: Background,
     hover_background: Background,
+    hover_text_color: Color,
     separator_color: Color,
     shadow: Shadow,
 }
@@ -2030,6 +2132,17 @@ fn select_menu_style(theme: &ShadcnTheme, props: SelectProps) -> MenuStyle {
         ContentVariant::Solid => Background::Color(palette.accent),
     };
 
+    let hover_text_color = match props.content_variant {
+        ContentVariant::Soft => {
+            if is_gray {
+                palette.foreground
+            } else {
+                accent_strong
+            }
+        }
+        ContentVariant::Solid => palette.accent_foreground,
+    };
+
     MenuStyle {
         background,
         border: Border {
@@ -2042,6 +2155,7 @@ fn select_menu_style(theme: &ShadcnTheme, props: SelectProps) -> MenuStyle {
         selected_text_color,
         selected_background,
         hover_background,
+        hover_text_color,
         separator_color: palette.border,
         shadow,
     }
