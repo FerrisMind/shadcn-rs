@@ -367,6 +367,27 @@ where
             );
         }
     }
+
+    fn overlay<'b>(
+        &'b mut self,
+        tree: &'b mut Tree,
+        layout: Layout<'b>,
+        renderer: &iced::Renderer,
+        viewport: &Rectangle,
+        translation: iced::Vector,
+    ) -> Option<iced::overlay::Element<'b, Message, iced::Theme, iced::Renderer>> {
+        if let Some(content_layout) = layout.children().next() {
+            self.content.as_widget_mut().overlay(
+                &mut tree.children[0],
+                content_layout,
+                renderer,
+                viewport,
+                translation,
+            )
+        } else {
+            None
+        }
+    }
 }
 
 impl<'a, Message: Clone + 'a> From<DialogOverlay<'a, Message>> for Element<'a, Message> {

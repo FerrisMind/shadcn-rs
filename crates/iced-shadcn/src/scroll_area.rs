@@ -42,6 +42,7 @@ pub struct ScrollAreaProps {
     pub scrollbar_thumb_width: Option<f32>,
     pub scrollbar_margin: Option<f32>,
     pub scrollbar_spacing: Option<f32>,
+    pub background: Option<Color>,
 }
 
 impl Default for ScrollAreaProps {
@@ -58,6 +59,7 @@ impl Default for ScrollAreaProps {
             scrollbar_thumb_width: None,
             scrollbar_margin: None,
             scrollbar_spacing: None,
+            background: None,
         }
     }
 }
@@ -119,6 +121,11 @@ impl ScrollAreaProps {
 
     pub fn scrollbar_spacing(mut self, scrollbar_spacing: f32) -> Self {
         self.scrollbar_spacing = Some(scrollbar_spacing.clamp(0.0, 64.0));
+        self
+    }
+
+    pub fn background(mut self, color: Color) -> Self {
+        self.background = Some(color);
         self
     }
 
@@ -255,7 +262,7 @@ fn scroll_area_style(theme: &Theme, props: &ScrollAreaProps, status: Status) -> 
 
     Style {
         container: container::Style {
-            background: Some(Background::Color(palette.card)),
+            background: Some(Background::Color(props.background.unwrap_or(palette.card))),
             text_color: Some(palette.card_foreground),
             border: Border {
                 color: border_color,

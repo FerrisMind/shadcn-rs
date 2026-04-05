@@ -40,6 +40,8 @@ pub struct TooltipProps {
     pub delay_ms: u64,
     pub snap_within_viewport: bool,
     pub max_width: u32,
+    pub show_shadow: bool,
+    pub show_border: bool,
 }
 
 impl Default for TooltipProps {
@@ -50,6 +52,8 @@ impl Default for TooltipProps {
             delay_ms: 0,
             snap_within_viewport: true,
             max_width: 360,
+            show_shadow: true,
+            show_border: true,
         }
     }
 }
@@ -83,6 +87,16 @@ impl TooltipProps {
         self.max_width = max_width.max(1);
         self
     }
+
+    pub fn show_shadow(mut self, show: bool) -> Self {
+        self.show_shadow = show;
+        self
+    }
+
+    pub fn show_border(mut self, show: bool) -> Self {
+        self.show_border = show;
+        self
+    }
 }
 
 pub fn tooltip<'a, Message: 'a>(
@@ -97,20 +111,38 @@ pub fn tooltip<'a, Message: 'a>(
         .max_width(props.max_width)
         .style(
             move |_iced_theme: &iced::Theme| iced::widget::container::Style {
-                background: Some(Background::Color(theme.palette.popover)),
-                text_color: Some(theme.palette.popover_foreground),
+                background: Some(Background::Color(
+                    if crate::tokens::is_dark(&theme.palette) {
+                        theme.palette.popover
+                    } else {
+                        theme.palette.secondary
+                    },
+                )),
+                text_color: Some(if crate::tokens::is_dark(&theme.palette) {
+                    theme.palette.popover_foreground
+                } else {
+                    theme.palette.secondary_foreground
+                }),
                 border: Border {
-                    color: theme.palette.border,
-                    width: 1.0,
+                    color: if props.show_border {
+                        theme.palette.border
+                    } else {
+                        iced::Color::TRANSPARENT
+                    },
+                    width: if props.show_border { 1.0 } else { 0.0 },
                     radius: theme.radius.sm.into(),
                 },
-                shadow: iced::Shadow {
-                    color: iced::Color {
-                        a: 0.18,
-                        ..iced::Color::BLACK
-                    },
-                    offset: iced::Vector::new(0.0, 6.0),
-                    blur_radius: 18.0,
+                shadow: if props.show_shadow {
+                    iced::Shadow {
+                        color: iced::Color {
+                            a: 0.18,
+                            ..iced::Color::BLACK
+                        },
+                        offset: iced::Vector::new(0.0, 6.0),
+                        blur_radius: 18.0,
+                    }
+                } else {
+                    iced::Shadow::default()
                 },
                 snap: true,
             },
