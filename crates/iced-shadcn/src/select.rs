@@ -1,12 +1,12 @@
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::text;
-use iced::advanced::text::Paragraph;
 use iced::advanced::text::paragraph;
 use iced::advanced::widget::Tree;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
 use iced::alignment;
 use iced::border::Border;
+use iced::border::Radius;
 use iced::keyboard;
 use iced::mouse;
 use iced::time::Instant;
@@ -663,13 +663,16 @@ where
                 size: metrics.chevron_size.into(),
                 line_height: text::LineHeight::Absolute(metrics.chevron_size.into()),
                 font: Font::with_name("lucide"),
-                bounds: Size::new(bounds.width, metrics.trigger_height),
-                align_x: text::Alignment::Right,
+                bounds: Size::new(metrics.chevron_size, metrics.trigger_height),
+                align_x: text::Alignment::Center,
                 align_y: alignment::Vertical::Center,
                 shaping: text::Shaping::Basic,
                 wrapping: text::Wrapping::default(),
             },
-            Point::new(bounds.x + bounds.width - padding.right, bounds.center_y()),
+            Point::new(
+                bounds.x + bounds.width - metrics.trigger_padding_x - metrics.chevron_size / 2.0,
+                bounds.center_y(),
+            ),
             trigger_style.handle_color,
             *viewport,
         );
@@ -683,26 +686,25 @@ where
                 (bounds.width - padding.left - padding.right).max(0.0),
                 self.text_line_height.to_absolute(text_size).into(),
             );
-            let text_color = if self.selected.is_some() {
-                trigger_style.text_color
-            } else {
-                trigger_style.placeholder_color
-            };
-
-            draw_select_label(
-                renderer,
-                DrawSelectLabel {
-                    label: &label,
-                    font: Some(font),
-                    text_size,
+            renderer.fill_text(
+                text::Text {
+                    content: label,
+                    size: text_size,
                     line_height: self.text_line_height,
+                    font,
                     bounds: text_bounds,
-                    position: Point::new(bounds.x + padding.left, bounds.center_y()),
-                    primary_color: text_color,
-                    secondary_color: apply_opacity(text_color, 0.7),
+                    align_x: text::Alignment::Default,
+                    align_y: alignment::Vertical::Center,
                     shaping: self.text_shaping,
-                    viewport: *viewport,
+                    wrapping: text::Wrapping::default(),
                 },
+                Point::new(bounds.x + padding.left, bounds.center_y()),
+                if self.selected.is_some() {
+                    trigger_style.text_color
+                } else {
+                    trigger_style.placeholder_color
+                },
+                *viewport,
             );
         }
     }
@@ -1114,14 +1116,15 @@ where
     ) {
         let bounds = layout.bounds();
         let rows = build_rows(self.entries.clone(), self.selected.as_ref(), self.metrics);
-        let layout_info = list_layout(bounds, &rows, self.metrics);
         let state = tree.state.downcast_mut::<SelectListState>();
+        let mut layout_info = list_layout(bounds, &rows, self.metrics, state.scroll_offset);
 
         if layout_info.max_scroll > 0.0 {
             state.scroll_offset = state.scroll_offset.clamp(0.0, layout_info.max_scroll);
         } else {
             state.scroll_offset = 0.0;
         }
+        layout_info = list_layout(bounds, &rows, self.metrics, state.scroll_offset);
 
         match event {
             Event::Mouse(mouse::Event::WheelScrolled { delta }) if cursor.is_over(bounds) => {
@@ -1312,12 +1315,15 @@ where
         }
 
         let rows = build_rows(self.entries.clone(), self.selected.as_ref(), self.metrics);
-        let layout_info = list_layout(bounds, &rows, self.metrics);
         let state = tree.state.downcast_ref::<SelectListState>();
-        let scroll_offset = state.scroll_offset.clamp(0.0, layout_info.max_scroll);
+        let initial_layout = list_layout(bounds, &rows, self.metrics, state.scroll_offset);
+        let scroll_offset = state.scroll_offset.clamp(0.0, initial_layout.max_scroll);
+        let layout_info = list_layout(bounds, &rows, self.metrics, scroll_offset);
         let menu_style = select_menu_style(&self.theme, self.props);
+        let scroll_overlay_background = select_scroll_overlay_background(&self.theme, self.props);
         let item_radius = item_radius(&self.theme);
         let disabled_text_color = apply_opacity(menu_style.text_color, 0.5);
+        let content_clip_bounds = select_content_clip_bounds(&layout_info);
 
         let mut y = layout_info.list_bounds.y - scroll_offset;
         for (index, row) in rows.iter().enumerate() {
@@ -1329,12 +1335,14 @@ where
             };
             y += row.height;
 
-            if row_bounds.y > layout_info.list_bounds.y + layout_info.list_bounds.height {
+            if row_bounds.y > content_clip_bounds.y + content_clip_bounds.height {
                 break;
             }
-            if row_bounds.y + row_bounds.height < layout_info.list_bounds.y {
+            if row_bounds.y + row_bounds.height < content_clip_bounds.y {
                 continue;
             }
+
+            let row_bounds = intersect_rectangles(row_bounds, content_clip_bounds);
 
             match &row.kind {
                 RowKind::Item {
@@ -1387,15 +1395,14 @@ where
                         menu_style.text_color
                     };
 
-                    draw_select_label(
-                        renderer,
-                        DrawSelectLabel {
-                            label,
-                            font: Some(self.font),
-                            text_size: self.metrics.text_size.into(),
+                    renderer.fill_text(
+                        text::Text {
+                            content: label.clone(),
+                            size: self.metrics.text_size.into(),
                             line_height: text::LineHeight::Absolute(
                                 (self.metrics.text_size as f32 + 6.0).into(),
                             ),
+                            font: self.font,
                             bounds: Size::new(
                                 (row_bounds.width
                                     - self.metrics.item_padding_left
@@ -1403,19 +1410,17 @@ where
                                     .max(0.0),
                                 row_bounds.height,
                             ),
-                            position: Point::new(
-                                row_bounds.x + self.metrics.item_padding_left,
-                                row_bounds.center_y(),
-                            ),
-                            primary_color: text_color,
-                            secondary_color: if *disabled {
-                                apply_opacity(disabled_text_color, 0.85)
-                            } else {
-                                menu_style.muted_text_color
-                            },
+                            align_x: text::Alignment::Default,
+                            align_y: alignment::Vertical::Center,
                             shaping: self.text_shaping,
-                            viewport: *viewport,
+                            wrapping: text::Wrapping::default(),
                         },
+                        Point::new(
+                            row_bounds.x + self.metrics.item_padding_left,
+                            row_bounds.center_y(),
+                        ),
+                        text_color,
+                        content_clip_bounds,
                     );
 
                     if *selected {
@@ -1451,7 +1456,7 @@ where
                             },
                             icon_center,
                             icon_color,
-                            *viewport,
+                            content_clip_bounds,
                         );
                     }
                 }
@@ -1475,14 +1480,14 @@ where
                             row_bounds.center_y(),
                         ),
                         menu_style.muted_text_color,
-                        *viewport,
+                        content_clip_bounds,
                     );
                 }
                 RowKind::Separator => {
                     let line_bounds = Rectangle {
-                        x: bounds.x,
+                        x: layout_info.list_bounds.x,
                         y: row_bounds.center_y() - self.metrics.separator_height / 2.0,
-                        width: bounds.width,
+                        width: layout_info.list_bounds.width,
                         height: self.metrics.separator_height,
                     };
                     renderer.fill_quad(
@@ -1500,95 +1505,97 @@ where
         if layout_info.show_buttons {
             let up_enabled = scroll_offset > 0.0;
             let down_enabled = scroll_offset < layout_info.max_scroll;
-            if let Some(bounds) = layout_info.top_button_bounds {
-                renderer.fill_quad(
-                    renderer::Quad {
-                        bounds,
-                        border: Border::default(),
-                        ..renderer::Quad::default()
-                    },
-                    menu_style.background,
-                );
-                renderer.fill_quad(
-                    renderer::Quad {
-                        bounds: Rectangle {
-                            x: bounds.x,
-                            y: bounds.y + bounds.height - 1.0,
-                            width: bounds.width,
-                            height: 1.0,
-                        },
-                        border: Border::default(),
-                        ..renderer::Quad::default()
-                    },
-                    Background::Color(menu_style.separator_color),
-                );
-                let color = if up_enabled {
-                    menu_style.muted_text_color
-                } else {
-                    apply_opacity(menu_style.muted_text_color, 0.4)
-                };
-                renderer.fill_text(
-                    text::Text {
-                        content: char::from(LucideIcon::ChevronUp).to_string(),
-                        size: self.metrics.chevron_size.into(),
-                        line_height: text::LineHeight::Absolute(self.metrics.chevron_size.into()),
-                        font: Font::with_name("lucide"),
-                        bounds: Size::new(bounds.width, bounds.height),
-                        align_x: text::Alignment::Center,
-                        align_y: alignment::Vertical::Center,
-                        shaping: text::Shaping::Basic,
-                        wrapping: text::Wrapping::default(),
-                    },
-                    Point::new(bounds.center_x(), bounds.center_y()),
-                    color,
-                    *viewport,
-                );
-            }
+            let overlay_clip_bounds = intersect_rectangles(*viewport, layout_info.list_bounds);
 
-            if let Some(bounds) = layout_info.bottom_button_bounds {
-                renderer.fill_quad(
-                    renderer::Quad {
-                        bounds,
-                        border: Border::default(),
-                        ..renderer::Quad::default()
-                    },
-                    menu_style.background,
-                );
-                renderer.fill_quad(
-                    renderer::Quad {
-                        bounds: Rectangle {
-                            x: bounds.x,
-                            y: bounds.y,
-                            width: bounds.width,
-                            height: 1.0,
+            renderer.with_layer(layout_info.list_bounds, |renderer| {
+                if let Some(bounds) = layout_info.top_button_bounds {
+                    renderer.fill_quad(
+                        renderer::Quad {
+                            bounds,
+                            border: Border {
+                                color: Color::TRANSPARENT,
+                                width: 0.0,
+                                radius: Radius {
+                                    top_left: menu_style.border.radius.top_left,
+                                    top_right: menu_style.border.radius.top_right,
+                                    ..Radius::default()
+                                },
+                            },
+                            shadow: Shadow::default(),
+                            ..renderer::Quad::default()
                         },
-                        border: Border::default(),
-                        ..renderer::Quad::default()
-                    },
-                    Background::Color(menu_style.separator_color),
-                );
-                let color = if down_enabled {
-                    menu_style.muted_text_color
-                } else {
-                    apply_opacity(menu_style.muted_text_color, 0.4)
-                };
-                renderer.fill_text(
-                    text::Text {
-                        content: char::from(LucideIcon::ChevronDown).to_string(),
-                        size: self.metrics.chevron_size.into(),
-                        line_height: text::LineHeight::Absolute(self.metrics.chevron_size.into()),
-                        font: Font::with_name("lucide"),
-                        bounds: Size::new(bounds.width, bounds.height),
-                        align_x: text::Alignment::Center,
-                        align_y: alignment::Vertical::Center,
-                        shaping: text::Shaping::Basic,
-                        wrapping: text::Wrapping::default(),
-                    },
-                    Point::new(bounds.center_x(), bounds.center_y()),
-                    color,
-                    *viewport,
-                );
-            }
+                        scroll_overlay_background,
+                    );
+
+                    let color = if up_enabled {
+                        menu_style.muted_text_color
+                    } else {
+                        apply_opacity(menu_style.muted_text_color, 0.4)
+                    };
+                    renderer.fill_text(
+                        text::Text {
+                            content: char::from(LucideIcon::ChevronUp).to_string(),
+                            size: self.metrics.chevron_size.into(),
+                            line_height: text::LineHeight::Absolute(
+                                self.metrics.chevron_size.into(),
+                            ),
+                            font: Font::with_name("lucide"),
+                            bounds: Size::new(bounds.width, bounds.height),
+                            align_x: text::Alignment::Center,
+                            align_y: alignment::Vertical::Center,
+                            shaping: text::Shaping::Basic,
+                            wrapping: text::Wrapping::default(),
+                        },
+                        Point::new(bounds.center_x(), bounds.center_y()),
+                        color,
+                        overlay_clip_bounds,
+                    );
+                }
+
+                if let Some(bounds) = layout_info.bottom_button_bounds {
+                    renderer.fill_quad(
+                        renderer::Quad {
+                            bounds,
+                            border: Border {
+                                color: Color::TRANSPARENT,
+                                width: 0.0,
+                                radius: Radius {
+                                    bottom_right: menu_style.border.radius.bottom_right,
+                                    bottom_left: menu_style.border.radius.bottom_left,
+                                    ..Radius::default()
+                                },
+                            },
+                            shadow: Shadow::default(),
+                            ..renderer::Quad::default()
+                        },
+                        scroll_overlay_background,
+                    );
+
+                    let color = if down_enabled {
+                        menu_style.muted_text_color
+                    } else {
+                        apply_opacity(menu_style.muted_text_color, 0.4)
+                    };
+                    renderer.fill_text(
+                        text::Text {
+                            content: char::from(LucideIcon::ChevronDown).to_string(),
+                            size: self.metrics.chevron_size.into(),
+                            line_height: text::LineHeight::Absolute(
+                                self.metrics.chevron_size.into(),
+                            ),
+                            font: Font::with_name("lucide"),
+                            bounds: Size::new(bounds.width, bounds.height),
+                            align_x: text::Alignment::Center,
+                            align_y: alignment::Vertical::Center,
+                            shaping: text::Shaping::Basic,
+                            wrapping: text::Wrapping::default(),
+                        },
+                        Point::new(bounds.center_x(), bounds.center_y()),
+                        color,
+                        overlay_clip_bounds,
+                    );
+                }
+            });
         }
     }
 }
@@ -1803,142 +1810,56 @@ fn row_at<T>(rows: &[Row<T>], y: f32) -> Option<usize> {
     None
 }
 
-struct DrawSelectLabel<'a> {
-    label: &'a str,
-    font: Option<Font>,
-    text_size: Pixels,
-    line_height: text::LineHeight,
-    bounds: Size,
-    position: Point,
-    primary_color: Color,
-    secondary_color: Color,
-    shaping: text::Shaping,
-    viewport: Rectangle,
-}
-
-fn draw_select_label<Renderer>(renderer: &mut Renderer, params: DrawSelectLabel<'_>)
-where
-    Renderer: text::Renderer<Font = Font>,
-{
-    if let Some((primary, secondary)) = split_select_label(params.label) {
-        let secondary_size = Pixels(f32::from(params.text_size) - 2.0);
-        let font = params.font.unwrap_or_default();
-        let primary_text = text::Text {
-            content: primary.to_string(),
-            bounds: params.bounds,
-            size: params.text_size,
-            line_height: params.line_height,
-            font,
-            align_x: text::Alignment::Default,
-            align_y: alignment::Vertical::Center,
-            shaping: params.shaping,
-            wrapping: text::Wrapping::default(),
-        };
-        let primary_width = Renderer::Paragraph::with_text(primary_text.as_ref()).min_width();
-
-        renderer.fill_text(
-            primary_text,
-            params.position,
-            params.primary_color,
-            params.viewport,
-        );
-
-        renderer.fill_text(
-            text::Text {
-                content: secondary.to_string(),
-                bounds: Size::new(
-                    (params.bounds.width - primary_width - 8.0).max(0.0),
-                    params.bounds.height,
-                ),
-                size: secondary_size,
-                line_height: text::LineHeight::Absolute(
-                    params.line_height.to_absolute(secondary_size),
-                ),
-                font,
-                align_x: text::Alignment::Default,
-                align_y: alignment::Vertical::Center,
-                shaping: params.shaping,
-                wrapping: text::Wrapping::default(),
-            },
-            Point::new(params.position.x + primary_width + 8.0, params.position.y),
-            params.secondary_color,
-            params.viewport,
-        );
-    } else {
-        renderer.fill_text(
-            text::Text {
-                content: params.label.to_string(),
-                size: params.text_size,
-                line_height: params.line_height,
-                font: params.font.unwrap_or_default(),
-                bounds: params.bounds,
-                align_x: text::Alignment::Default,
-                align_y: alignment::Vertical::Center,
-                shaping: params.shaping,
-                wrapping: text::Wrapping::default(),
-            },
-            params.position,
-            params.primary_color,
-            params.viewport,
-        );
-    }
-}
-
-fn split_select_label(label: &str) -> Option<(&str, &str)> {
-    let (primary, secondary) = label.split_once("  ")?;
-    let primary = primary.trim_end();
-    let secondary = secondary.trim_start();
-
-    if primary.is_empty() || secondary.is_empty() {
-        None
-    } else {
-        Some((primary, secondary))
-    }
-}
-
-fn list_layout<T>(bounds: Rectangle, rows: &[Row<T>], metrics: SelectMetrics) -> ListLayout {
+fn list_layout<T>(
+    bounds: Rectangle,
+    rows: &[Row<T>],
+    metrics: SelectMetrics,
+    scroll_offset: f32,
+) -> ListLayout {
     let content_height = rows.iter().map(|row| row.height).sum::<f32>();
     let padding = metrics.content_padding;
     let available_height = (bounds.height - padding * 2.0).max(0.0);
-    let mut show_buttons = false;
-    let mut list_height = available_height;
+    let can_scroll = content_height > available_height;
+    let requested_offset = scroll_offset.max(0.0);
 
-    if content_height > available_height {
-        show_buttons = true;
-        list_height = (available_height - metrics.scroll_button_height * 2.0).max(0.0);
+    let mut show_top_button = false;
+    let mut show_bottom_button = false;
+    let list_height = available_height;
+    let mut max_scroll = 0.0;
+
+    if can_scroll {
+        show_top_button = requested_offset > 0.0;
+        show_bottom_button = true;
+
+        for _ in 0..2 {
+            max_scroll = (content_height - list_height).max(0.0);
+            show_bottom_button = requested_offset < max_scroll;
+        }
     }
 
     let list_bounds = Rectangle {
         x: bounds.x + padding,
-        y: bounds.y
-            + padding
-            + if show_buttons {
-                metrics.scroll_button_height
-            } else {
-                0.0
-            },
+        y: bounds.y + padding,
         width: (bounds.width - padding * 2.0).max(0.0),
         height: list_height,
     };
 
-    let top_button_bounds = show_buttons.then_some(Rectangle {
-        x: bounds.x,
-        y: bounds.y,
-        width: bounds.width,
+    let top_button_bounds = show_top_button.then_some(Rectangle {
+        x: list_bounds.x,
+        y: list_bounds.y,
+        width: list_bounds.width,
         height: metrics.scroll_button_height,
     });
 
-    let bottom_button_bounds = show_buttons.then_some(Rectangle {
-        x: bounds.x,
-        y: bounds.y + bounds.height - metrics.scroll_button_height,
-        width: bounds.width,
+    let bottom_button_bounds = show_bottom_button.then_some(Rectangle {
+        x: list_bounds.x,
+        y: list_bounds.y + list_bounds.height - metrics.scroll_button_height,
+        width: list_bounds.width,
         height: metrics.scroll_button_height,
     });
-
-    let max_scroll = (content_height - list_height).max(0.0);
 
     ListLayout {
-        show_buttons,
+        show_buttons: show_top_button || show_bottom_button,
         list_bounds,
         top_button_bounds,
         bottom_button_bounds,
@@ -2171,6 +2092,52 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
     Color {
         a: (color.a * opacity).clamp(0.0, 1.0),
         ..color
+    }
+}
+
+fn opaque_background(background: Background) -> Background {
+    match background {
+        Background::Color(color) => Background::Color(Color { a: 1.0, ..color }),
+        other => other,
+    }
+}
+
+fn select_content_clip_bounds(layout_info: &ListLayout) -> Rectangle {
+    let top_inset = layout_info
+        .top_button_bounds
+        .map(|bounds| bounds.height)
+        .unwrap_or(0.0);
+    let bottom_inset = layout_info
+        .bottom_button_bounds
+        .map(|bounds| bounds.height)
+        .unwrap_or(0.0);
+
+    Rectangle {
+        x: layout_info.list_bounds.x,
+        y: layout_info.list_bounds.y + top_inset,
+        width: layout_info.list_bounds.width,
+        height: (layout_info.list_bounds.height - top_inset - bottom_inset).max(0.0),
+    }
+}
+
+fn intersect_rectangles(a: Rectangle, b: Rectangle) -> Rectangle {
+    let x = a.x.max(b.x);
+    let y = a.y.max(b.y);
+    let right = (a.x + a.width).min(b.x + b.width);
+    let bottom = (a.y + a.height).min(b.y + b.height);
+
+    Rectangle {
+        x,
+        y,
+        width: (right - x).max(0.0),
+        height: (bottom - y).max(0.0),
+    }
+}
+
+fn select_scroll_overlay_background(theme: &ShadcnTheme, props: SelectProps) -> Background {
+    match select_trigger_style(theme, props, SelectStatus::Active).background {
+        Background::Color(color) if color.a > 0.0 => Background::Color(Color { a: 1.0, ..color }),
+        _ => Background::Color(theme.palette.background),
     }
 }
 
