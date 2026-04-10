@@ -57,6 +57,10 @@ pub struct Spinner {
     animated: bool,
     duration_ms: u32,
     variant: SpinnerVariant,
+    /// Per-bar amplitude values for Wave/Bars variants (0.0–1.0 each).
+    /// When `Some`, overrides the sine-wave animation with real audio levels.
+    /// When `None`, falls back to phase-driven sine animation.
+    amplitudes: Option<[f32; 5]>,
 }
 
 impl Spinner {
@@ -69,6 +73,7 @@ impl Spinner {
             animated: false,
             duration_ms: 1000,
             variant: SpinnerVariant::LegacyLucide,
+            amplitudes: None,
         }
     }
 
@@ -104,6 +109,16 @@ impl Spinner {
 
     pub fn variant(mut self, variant: SpinnerVariant) -> Self {
         self.variant = variant;
+        self
+    }
+
+    /// Set per-bar amplitude values for Wave/Bars variants.
+    ///
+    /// Each value in `[f32; 5]` is clamped to `[0.0, 1.0]` and maps to one bar.
+    /// When set, real audio amplitudes are used instead of the time-driven sine wave.
+    /// For the `PromptBars` variant (3 bars) only the first 3 values are used.
+    pub fn amplitudes(mut self, amps: [f32; 5]) -> Self {
+        self.amplitudes = Some(amps.map(|a| a.clamp(0.0, 1.0)));
         self
     }
 
@@ -251,12 +266,24 @@ impl<Message> canvas::Program<Message> for Spinner {
             SpinnerVariant::PromptTyping => {
                 draw_prompt_dots(&mut frame, center, size, self.color, phase, true)
             }
-            SpinnerVariant::PromptWave => {
-                draw_prompt_wave(&mut frame, center, size, self.color, phase, 5)
-            }
-            SpinnerVariant::PromptBars => {
-                draw_prompt_wave(&mut frame, center, size, self.color, phase, 3)
-            }
+            SpinnerVariant::PromptWave => draw_prompt_wave(
+                &mut frame,
+                center,
+                size,
+                self.color,
+                phase,
+                5,
+                self.amplitudes,
+            ),
+            SpinnerVariant::PromptBars => draw_prompt_wave(
+                &mut frame,
+                center,
+                size,
+                self.color,
+                phase,
+                3,
+                self.amplitudes,
+            ),
             SpinnerVariant::PromptTerminal => {
                 draw_prompt_terminal(&mut frame, bounds, size, self.color, phase)
             }
@@ -407,21 +434,31 @@ fn draw_prompt_wave(
     color: Color,
     phase: f32,
     bars: usize,
+    amplitudes: Option<[f32; 5]>,
 ) {
     let width = if bars == 3 { size * 0.16 } else { size * 0.09 };
     let spacing = if bars == 3 { size * 0.22 } else { size * 0.14 };
-    let base = size * 0.22;
-    let amp = size * 0.34;
 
     for i in 0..bars {
         let x = center.x + (i as f32 - (bars as f32 - 1.0) / 2.0) * spacing;
-        let wave = ((phase * TAU) + i as f32 * 0.7).sin() * 0.5 + 0.5;
-        let h = base + wave * amp;
+
+        let (wave, base, amp) = if let Some(amps) = amplitudes {
+            // ── Real amplitude mode ──────────────────────────────────────────
+            // Each bar = its own audio RMS window (0 = silence, 1 = loud).
+            // Tiny base so bars nearly collapse in silence — maximum visual range.
+            (amps[i.min(4)], size * 0.08, size * 0.44)
+        } else {
+            // ── Sine animation fallback (no mic data) ────────────────────────
+            let s = ((phase * TAU) + i as f32 * 0.7).sin() * 0.5 + 0.5;
+            (s, size * 0.22, size * 0.34)
+        };
+
+        let h = (base + wave * amp).max(1.0);
         let top = center.y - h / 2.0;
         frame.fill_rectangle(
             Point::new(x - width / 2.0, top),
-            Size::new(width.max(1.0), h.max(1.0)),
-            apply_opacity(color, 0.45 + wave * 0.55),
+            Size::new(width.max(1.0), h),
+            apply_opacity(color, 0.4 + wave * 0.6),
         );
     }
 }

@@ -169,7 +169,7 @@ where
     let mut textarea_props = props.textarea;
     textarea_props.max_rows = None;
     let show_scrollbar = content.line_count() > max_rows;
-    let textarea_height = textarea_visible_height(content, textarea_props, max_rows);
+    let textarea_height = textarea_visible_height(content, &textarea_props, max_rows);
     let textarea_widget = container(
         scroll_area(
             prompt_textarea(content, props.placeholder, on_action, textarea_props, theme),
@@ -309,7 +309,7 @@ where
 
 fn textarea_visible_height(
     content: &text_editor::Content,
-    props: TextareaProps,
+    props: &TextareaProps,
     max_rows: usize,
 ) -> f32 {
     let text_size = match props.size {
