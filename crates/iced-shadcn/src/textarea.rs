@@ -31,8 +31,9 @@ pub enum TextareaResize {
     Both,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct TextareaProps {
+    pub id: Option<iced::widget::Id>,
     pub size: TextareaSize,
     pub variant: TextareaVariant,
     pub resize: TextareaResize,
@@ -54,6 +55,7 @@ pub struct TextareaProps {
 impl Default for TextareaProps {
     fn default() -> Self {
         Self {
+            id: None,
             size: TextareaSize::Size2,
             variant: TextareaVariant::Surface,
             resize: TextareaResize::None,
@@ -81,6 +83,11 @@ impl TextareaProps {
 
     pub fn size(mut self, size: TextareaSize) -> Self {
         self.size = size;
+        self
+    }
+
+    pub fn id(mut self, id: impl Into<iced::widget::Id>) -> Self {
+        self.id = Some(id.into());
         self
     }
 
@@ -186,7 +193,7 @@ impl TextareaSize {
     }
 }
 
-fn textarea_radius(theme: &Theme, props: TextareaProps) -> f32 {
+fn textarea_radius(theme: &Theme, props: &TextareaProps) -> f32 {
     match props.radius {
         Some(ButtonRadius::None) => 0.0,
         Some(ButtonRadius::Small) => theme.radius.sm,
@@ -210,15 +217,20 @@ where
     let theme = theme.clone();
     let padding = props.padding.unwrap_or_else(|| props.size.padding());
     let text_size = props.size.text_size();
-    let min_height = textarea_min_height(props, text_size, padding);
-    let max_height = textarea_max_height(props, text_size, padding);
+    let min_height = textarea_min_height(&props, text_size, padding);
+    let max_height = textarea_max_height(&props, text_size, padding);
+    let style_props = props.clone();
     let mut widget = text_editor::TextEditor::new(content)
         .placeholder(placeholder)
         .padding(padding)
         .size(text_size)
         .min_height(min_height)
         .wrapping(props.wrapping)
-        .style(move |_iced_theme, status| textarea_style(&theme, props, status));
+        .style(move |_iced_theme, status| textarea_style(&theme, &style_props, status));
+
+    if let Some(id) = props.id.clone() {
+        widget = widget.id(id);
+    }
 
     if let Some(max_height) = max_height {
         widget = widget.max_height(max_height);
@@ -239,7 +251,7 @@ where
 
 fn textarea_style(
     theme: &Theme,
-    props: TextareaProps,
+    props: &TextareaProps,
     status: text_editor::Status,
 ) -> text_editor::Style {
     let palette = theme.palette;
@@ -369,7 +381,7 @@ pub fn textarea_apply_action(
     true
 }
 
-fn textarea_min_height(props: TextareaProps, text_size: u32, padding: [f32; 2]) -> f32 {
+fn textarea_min_height(props: &TextareaProps, text_size: u32, padding: [f32; 2]) -> f32 {
     if let Some(rows) = props.rows {
         let rows = rows.max(1) as f32;
         let line_height = text_size as f32 * 1.4;
@@ -379,7 +391,7 @@ fn textarea_min_height(props: TextareaProps, text_size: u32, padding: [f32; 2]) 
     props.size.min_height()
 }
 
-fn textarea_max_height(props: TextareaProps, text_size: u32, padding: [f32; 2]) -> Option<f32> {
+fn textarea_max_height(props: &TextareaProps, text_size: u32, padding: [f32; 2]) -> Option<f32> {
     let max_rows = props.max_rows?;
     let line_height = text_size as f32 * 1.4;
     let rows = max_rows.max(1) as f32;

@@ -123,13 +123,27 @@ impl PromptLoaderVariant {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub enum PromptLoaderSize {
     Sm,
+    #[allow(dead_code)]
     #[default]
     Md,
     Lg,
+    /// Explicit pixel size — use when Sm/Md/Lg don't fit your layout.
+    Custom(f32),
 }
+
+impl PartialEq for PromptLoaderSize {
+    fn eq(&self, other: &Self) -> bool {
+        matches!(
+            (self, other),
+            (Self::Sm, Self::Sm) | (Self::Md, Self::Md) | (Self::Lg, Self::Lg)
+        ) || matches!((self, other), (Self::Custom(a), Self::Custom(b)) if (a - b).abs() < f32::EPSILON)
+    }
+}
+
+impl Eq for PromptLoaderSize {}
 
 impl PromptLoaderSize {
     fn pixels(self) -> f32 {
@@ -137,6 +151,7 @@ impl PromptLoaderSize {
             Self::Sm => 16.0,
             Self::Md => 20.0,
             Self::Lg => 24.0,
+            Self::Custom(px) => px.max(1.0),
         }
     }
 }
@@ -147,6 +162,9 @@ pub struct PromptLoaderProps {
     pub size: PromptLoaderSize,
     pub color: Option<Color>,
     pub duration_ms: u32,
+    /// Per-bar amplitude values for Wave/Bars variants (0.0–1.0 each).
+    /// When `Some`, drives the bars from real audio rather than animation.
+    pub amplitudes: Option<[f32; 5]>,
 }
 
 impl Default for PromptLoaderProps {
@@ -156,6 +174,7 @@ impl Default for PromptLoaderProps {
             size: PromptLoaderSize::Md,
             color: None,
             duration_ms: 1200,
+            amplitudes: None,
         }
     }
 }
@@ -175,6 +194,12 @@ impl PromptLoaderProps {
         self
     }
 
+    /// Shorthand for `.size(PromptLoaderSize::Custom(px))`.
+    pub fn custom_size(mut self, px: f32) -> Self {
+        self.size = PromptLoaderSize::Custom(px.max(1.0));
+        self
+    }
+
     pub fn color(mut self, color: Color) -> Self {
         self.color = Some(color);
         self
@@ -182,6 +207,13 @@ impl PromptLoaderProps {
 
     pub fn duration_ms(mut self, duration_ms: u32) -> Self {
         self.duration_ms = duration_ms.max(1);
+        self
+    }
+
+    /// Set per-bar amplitude values for Wave/Bars variants.
+    /// Values are clamped to `[0.0, 1.0]`. Drives bar heights from real audio.
+    pub fn amplitudes(mut self, amps: [f32; 5]) -> Self {
+        self.amplitudes = Some(amps);
         self
     }
 }
@@ -237,6 +269,10 @@ pub fn prompt_loader<'a, Message: 'a>(
         .duration_ms(props.duration_ms);
 
     model = model.color(props.color.unwrap_or(theme.palette.primary));
+
+    if let Some(amps) = props.amplitudes {
+        model = model.amplitudes(amps);
+    }
 
     spinner(model).into()
 }

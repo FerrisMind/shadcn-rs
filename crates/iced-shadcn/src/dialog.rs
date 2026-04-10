@@ -35,6 +35,7 @@ pub struct DialogProps {
     pub close_on_blur: bool,
     pub padding: Option<u16>,
     pub draggable: bool,
+    pub viewport_margin: Option<(f32, f32)>,
 }
 
 impl Default for DialogProps {
@@ -47,6 +48,7 @@ impl Default for DialogProps {
             close_on_blur: true,
             padding: None,
             draggable: false,
+            viewport_margin: None,
         }
     }
 }
@@ -88,6 +90,11 @@ impl DialogProps {
 
     pub fn draggable(mut self, draggable: bool) -> Self {
         self.draggable = draggable;
+        self
+    }
+
+    pub fn viewport_margin(mut self, margin_w_pct: f32, margin_h_pct: f32) -> Self {
+        self.viewport_margin = Some((margin_w_pct.clamp(0.0, 0.5), margin_h_pct.clamp(0.0, 0.5)));
         self
     }
 }
@@ -179,9 +186,18 @@ where
         let max = limits.max();
         let size = Size::new(max.width.max(0.0), max.height.max(0.0));
 
-        let padding_top = (self.theme.spacing.lg + self.theme.spacing.sm).max(0.0);
-        let padding_bottom = padding_top;
-        let padding_x = self.theme.spacing.lg.max(0.0);
+        let (padding_x, padding_top, padding_bottom) =
+            if let Some((mw, mh)) = self.props.viewport_margin {
+                let px = (size.width * mw).max(self.theme.spacing.lg);
+                let py = (size.height * mh).max(self.theme.spacing.lg + self.theme.spacing.sm);
+                (px, py, py)
+            } else {
+                (
+                    self.theme.spacing.lg.max(0.0),
+                    (self.theme.spacing.lg + self.theme.spacing.sm).max(0.0),
+                    (self.theme.spacing.lg + self.theme.spacing.sm).max(0.0),
+                )
+            };
 
         let available_w = (size.width - padding_x * 2.0).max(0.0);
         let available_h = (size.height - padding_top - padding_bottom).max(0.0);
@@ -413,9 +429,16 @@ pub fn dialog<'a, Message: Clone + 'a>(
     let padding = dialog_padding(&theme, props.size, props.padding);
     let radius = dialog_radius(&theme, props.size);
 
+    let (w, h) = if props.viewport_margin.is_some() {
+        (Length::Fill, Length::Fill)
+    } else {
+        (Length::Shrink, Length::Shrink)
+    };
+
     let dialog_content = iced::widget::container(content)
         .padding(padding)
-        .width(Length::Shrink)
+        .width(w)
+        .height(h)
         .max_width(props.max_width)
         .style(move |_t: &iced::Theme| iced::widget::container::Style {
             background: Some(Background::Color(theme.palette.card)),

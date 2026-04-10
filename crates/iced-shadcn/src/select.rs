@@ -1,6 +1,7 @@
 use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::text;
+use iced::advanced::text::Paragraph;
 use iced::advanced::text::paragraph;
 use iced::advanced::widget::Tree;
 use iced::advanced::{Clipboard, Layout, Shell, Widget};
@@ -686,26 +687,86 @@ where
                 (bounds.width - padding.left - padding.right).max(0.0),
                 self.text_line_height.to_absolute(text_size).into(),
             );
-            renderer.fill_text(
-                text::Text {
-                    content: label,
+
+            let current_color = if self.selected.is_some() {
+                trigger_style.text_color
+            } else {
+                trigger_style.placeholder_color
+            };
+
+            if let Some((part1, part2)) = label.split_once("  ") {
+                let temp_paragraph = Renderer::Paragraph::with_text(text::Text {
+                    content: part1,
                     size: text_size,
                     line_height: self.text_line_height,
                     font,
-                    bounds: text_bounds,
+                    bounds: Size::new(f32::INFINITY, text_bounds.height),
                     align_x: text::Alignment::Default,
                     align_y: alignment::Vertical::Center,
                     shaping: self.text_shaping,
                     wrapping: text::Wrapping::default(),
-                },
-                Point::new(bounds.x + padding.left, bounds.center_y()),
-                if self.selected.is_some() {
-                    trigger_style.text_color
-                } else {
-                    trigger_style.placeholder_color
-                },
-                *viewport,
-            );
+                });
+                let font_width = temp_paragraph.min_width();
+
+                let text_color_muted = apply_opacity(current_color, 0.6);
+
+                renderer.fill_text(
+                    text::Text {
+                        content: part1.to_string(),
+                        size: text_size,
+                        line_height: self.text_line_height,
+                        font,
+                        bounds: text_bounds,
+                        align_x: text::Alignment::Default,
+                        align_y: alignment::Vertical::Center,
+                        shaping: self.text_shaping,
+                        wrapping: text::Wrapping::default(),
+                    },
+                    Point::new(bounds.x + padding.left, bounds.center_y()),
+                    current_color,
+                    *viewport,
+                );
+
+                renderer.fill_text(
+                    text::Text {
+                        content: part2.to_string(),
+                        size: (text_size.0 * 0.85).into(),
+                        line_height: self.text_line_height,
+                        font,
+                        bounds: Size::new(
+                            (text_bounds.width - font_width - 8.0).max(0.0),
+                            text_bounds.height,
+                        ),
+                        align_x: text::Alignment::Default,
+                        align_y: alignment::Vertical::Center,
+                        shaping: self.text_shaping,
+                        wrapping: text::Wrapping::default(),
+                    },
+                    Point::new(
+                        bounds.x + padding.left + font_width + 8.0,
+                        bounds.center_y(),
+                    ),
+                    text_color_muted,
+                    *viewport,
+                );
+            } else {
+                renderer.fill_text(
+                    text::Text {
+                        content: label,
+                        size: text_size,
+                        line_height: self.text_line_height,
+                        font,
+                        bounds: text_bounds,
+                        align_x: text::Alignment::Default,
+                        align_y: alignment::Vertical::Center,
+                        shaping: self.text_shaping,
+                        wrapping: text::Wrapping::default(),
+                    },
+                    Point::new(bounds.x + padding.left, bounds.center_y()),
+                    current_color,
+                    *viewport,
+                );
+            }
         }
     }
 
@@ -958,16 +1019,17 @@ where
         let space_above = self.position.y;
         let gap = 4.0;
 
+        let max_available = if space_below > space_above {
+            space_below - gap
+        } else {
+            space_above - gap
+        };
+
+        let max_height = max_available.clamp(0.0, 384.0);
+
         let limits = layout::Limits::new(
             Size::ZERO,
-            Size::new(
-                bounds.width - self.position.x,
-                if space_below > space_above {
-                    space_below
-                } else {
-                    space_above
-                },
-            ),
+            Size::new(bounds.width - self.position.x, max_height),
         )
         .width(self.width);
 
@@ -1395,33 +1457,110 @@ where
                         menu_style.text_color
                     };
 
-                    renderer.fill_text(
-                        text::Text {
-                            content: label.clone(),
+                    if let Some((part1, part2)) = label.split_once("  ") {
+                        let temp_paragraph = Renderer::Paragraph::with_text(text::Text {
+                            content: part1,
                             size: self.metrics.text_size.into(),
                             line_height: text::LineHeight::Absolute(
                                 (self.metrics.text_size as f32 + 6.0).into(),
                             ),
                             font: self.font,
-                            bounds: Size::new(
-                                (row_bounds.width
-                                    - self.metrics.item_padding_left
-                                    - self.metrics.item_padding_right)
-                                    .max(0.0),
-                                row_bounds.height,
-                            ),
+                            bounds: Size::new(f32::INFINITY, row_bounds.height),
                             align_x: text::Alignment::Default,
                             align_y: alignment::Vertical::Center,
                             shaping: self.text_shaping,
                             wrapping: text::Wrapping::default(),
-                        },
-                        Point::new(
-                            row_bounds.x + self.metrics.item_padding_left,
-                            row_bounds.center_y(),
-                        ),
-                        text_color,
-                        content_clip_bounds,
-                    );
+                        });
+                        let font_width = temp_paragraph.min_width();
+                        let text_color_muted =
+                            apply_opacity(text_color, if is_hovered { 0.7 } else { 0.5 });
+
+                        renderer.fill_text(
+                            text::Text {
+                                content: part1.to_string(),
+                                size: self.metrics.text_size.into(),
+                                line_height: text::LineHeight::Absolute(
+                                    (self.metrics.text_size as f32 + 6.0).into(),
+                                ),
+                                font: self.font,
+                                bounds: Size::new(
+                                    (row_bounds.width
+                                        - self.metrics.item_padding_left
+                                        - self.metrics.item_padding_right)
+                                        .max(0.0),
+                                    row_bounds.height,
+                                ),
+                                align_x: text::Alignment::Default,
+                                align_y: alignment::Vertical::Center,
+                                shaping: self.text_shaping,
+                                wrapping: text::Wrapping::default(),
+                            },
+                            Point::new(
+                                row_bounds.x + self.metrics.item_padding_left,
+                                row_bounds.center_y(),
+                            ),
+                            text_color,
+                            content_clip_bounds,
+                        );
+
+                        renderer.fill_text(
+                            text::Text {
+                                content: part2.to_string(),
+                                size: (self.metrics.text_size as f32 * 0.85).into(),
+                                line_height: text::LineHeight::Absolute(
+                                    (self.metrics.text_size as f32 + 6.0).into(),
+                                ),
+                                font: self.font,
+                                bounds: Size::new(
+                                    (row_bounds.width
+                                        - self.metrics.item_padding_left
+                                        - self.metrics.item_padding_right
+                                        - font_width
+                                        - 8.0)
+                                        .max(0.0),
+                                    row_bounds.height,
+                                ),
+                                align_x: text::Alignment::Default,
+                                align_y: alignment::Vertical::Center,
+                                shaping: self.text_shaping,
+                                wrapping: text::Wrapping::default(),
+                            },
+                            Point::new(
+                                row_bounds.x + self.metrics.item_padding_left + font_width + 8.0,
+                                row_bounds.center_y(),
+                            ),
+                            text_color_muted,
+                            content_clip_bounds,
+                        );
+                    } else {
+                        renderer.fill_text(
+                            text::Text {
+                                content: label.clone(),
+                                size: self.metrics.text_size.into(),
+                                line_height: text::LineHeight::Absolute(
+                                    (self.metrics.text_size as f32 + 6.0).into(),
+                                ),
+                                font: self.font,
+                                bounds: Size::new(
+                                    (row_bounds.width
+                                        - self.metrics.item_padding_left
+                                        - self.metrics.item_padding_right)
+                                        .max(0.0),
+                                    row_bounds.height,
+                                ),
+                                align_x: text::Alignment::Default,
+                                align_y: alignment::Vertical::Center,
+                                shaping: self.text_shaping,
+                                wrapping: text::Wrapping::default(),
+                            },
+                            Point::new(
+                                row_bounds.x + self.metrics.item_padding_left,
+                                row_bounds.center_y(),
+                            ),
+                            text_color,
+                            content_clip_bounds,
+                        );
+                    }
 
                     if *selected {
                         let icon_color = if *disabled {
@@ -2095,13 +2234,6 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
     }
 }
 
-fn opaque_background(background: Background) -> Background {
-    match background {
-        Background::Color(color) => Background::Color(Color { a: 1.0, ..color }),
-        other => other,
-    }
-}
-
 fn select_content_clip_bounds(layout_info: &ListLayout) -> Rectangle {
     let top_inset = layout_info
         .top_button_bounds
@@ -2135,9 +2267,9 @@ fn intersect_rectangles(a: Rectangle, b: Rectangle) -> Rectangle {
 }
 
 fn select_scroll_overlay_background(theme: &ShadcnTheme, props: SelectProps) -> Background {
-    match select_trigger_style(theme, props, SelectStatus::Active).background {
+    match select_menu_style(theme, props).background {
         Background::Color(color) if color.a > 0.0 => Background::Color(Color { a: 1.0, ..color }),
-        _ => Background::Color(theme.palette.background),
+        _ => Background::Color(theme.palette.popover),
     }
 }
 
