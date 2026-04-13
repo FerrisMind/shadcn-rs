@@ -23,6 +23,7 @@ iced = { version = "0.14", features = ["advanced", "canvas", "highlighter", "ima
 lucide-icons = { version = "0.575", features = ["iced"] }
 num-traits = "0.2"
 regex = "1.10"
+twill = { path = "../../../twill", features = ["iced"] }
 chrono = { version = "0.4", optional = true, default-features = false, features = ["std"] }
 image = { version = "0.25", default-features = false, features = ["avif", "bmp", "dds", "gif", "ico", "jpeg", "png", "pnm", "qoi", "tga", "webp"] }
 rfd = { version = "0.16", optional = true }
