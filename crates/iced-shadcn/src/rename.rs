@@ -103,6 +103,7 @@ pub struct RenameRootProps {
     pub blur_behavior: RenameBlurBehavior,
     pub fallback_selection_behavior: RenameFallbackSelectionBehavior,
     pub input_props: InputProps,
+    pub custom_height: Option<f32>,
     pub textarea_props: TextareaProps,
     pub disabled: bool,
     pub click_to_edit: bool,
@@ -154,6 +155,12 @@ impl RenameRootProps {
     }
 
     #[must_use]
+    pub fn custom_height(mut self, height: f32) -> Self {
+        self.custom_height = Some(height.max(0.0));
+        self
+    }
+
+    #[must_use]
     pub fn textarea_props(mut self, textarea_props: TextareaProps) -> Self {
         self.textarea_props = textarea_props;
         self
@@ -181,6 +188,7 @@ impl Default for RenameRootProps {
             blur_behavior: RenameBlurBehavior::Exit,
             fallback_selection_behavior: RenameFallbackSelectionBehavior::End,
             input_props: InputProps::default(),
+            custom_height: None,
             textarea_props: TextareaProps::default(),
             disabled: false,
             click_to_edit: true,
@@ -355,6 +363,9 @@ pub fn rename_root<'a, Message: Clone + 'a>(
     theme: &'a Theme,
 ) -> Element<'a, Message> {
     let on_action = if props.disabled { None } else { on_action };
+    let input_props = props.custom_height.map_or(props.input_props, |height| {
+        props.input_props.custom_height(height)
+    });
     let content: Element<'a, Message> = match (state.mode, props.input_tag) {
         (RenameMode::View, _) => container(text(state.value.as_str()))
             .width(Length::Fill)
@@ -367,7 +378,7 @@ pub fn rename_root<'a, Message: Clone + 'a>(
             });
 
             let mut text_input_widget =
-                input(&state.editing_value, "", on_input, props.input_props, theme)
+                input(&state.editing_value, "", on_input, input_props, theme)
                     .id(props.input_id.clone())
                     .width(Length::Fill);
 
@@ -377,6 +388,14 @@ pub fn rename_root<'a, Message: Clone + 'a>(
             }
 
             let input_element: Element<'a, Message> = text_input_widget.into();
+            let input_element: Element<'a, Message> = if let Some(height) = props.custom_height {
+                container(input_element)
+                    .width(Length::Fill)
+                    .height(Length::Fixed(height))
+                    .into()
+            } else {
+                input_element
+            };
             if state.invalid {
                 let invalid = text("Invalid value")
                     .size(12)
@@ -717,6 +736,12 @@ mod tests {
 
     fn non_empty(value: &str) -> bool {
         !value.trim().is_empty()
+    }
+
+    #[test]
+    fn rename_root_props_builder_accepts_custom_height() {
+        let props = RenameRootProps::new().custom_height(28.0);
+        assert_eq!(props.custom_height, Some(28.0));
     }
 
     #[test]
