@@ -109,18 +109,12 @@ fn apply_opacity(color: Color, opacity: f32) -> Color {
     }
 }
 
-fn is_light_theme(theme: &Theme) -> bool {
-    let bg = theme.palette.background;
-    let luminance = 0.2126 * bg.r + 0.7152 * bg.g + 0.0722 * bg.b;
-    luminance > 0.6
+fn active_row_hover_bg(theme: &Theme) -> Color {
+    theme.palette.accent
 }
 
-fn inactive_tab_hover_bg(theme: &Theme) -> Color {
-    if is_light_theme(theme) {
-        apply_opacity(theme.palette.foreground, 0.10)
-    } else {
-        theme.palette.muted
-    }
+fn inactive_row_hover_bg(theme: &Theme) -> Color {
+    apply_opacity(active_row_hover_bg(theme), 0.70)
 }
 
 impl<'a, Message> TreeViewer<'a, Message> {
@@ -261,10 +255,12 @@ where
             let is_hovered = !has_context && cursor.position_over(clickable_bounds).is_some();
 
             // Background
-            let bg_color = if is_selected {
+            let bg_color = if is_selected && is_hovered {
+                Some(active_row_hover_bg(self.theme))
+            } else if is_selected {
                 Some(self.theme.palette.accent)
             } else if is_hovered {
-                Some(inactive_tab_hover_bg(self.theme))
+                Some(inactive_row_hover_bg(self.theme))
             } else {
                 None
             };
@@ -505,5 +501,23 @@ where
 {
     fn from(tree_viewer: TreeViewer<'a, Message>) -> Self {
         Self::new(tree_viewer)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{active_row_hover_bg, inactive_row_hover_bg};
+    use crate::theme::Theme;
+
+    #[test]
+    fn inactive_hover_is_ten_percent_dimmer_than_active_hover() {
+        let theme = Theme::default();
+        let active = active_row_hover_bg(&theme);
+        let inactive = inactive_row_hover_bg(&theme);
+
+        assert_eq!(inactive.r, active.r);
+        assert_eq!(inactive.g, active.g);
+        assert_eq!(inactive.b, active.b);
+        assert!((inactive.a - active.a * 0.50).abs() < f32::EPSILON);
     }
 }
