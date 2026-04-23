@@ -751,83 +751,15 @@ fn color_channel(value: f32) -> u8 {
 }
 
 fn semantic_color(theme: &Theme, token: SemanticColor) -> Color {
-    if let Some(color) = theme.registry.color(token.var_name()) {
-        return color;
-    }
-
-    let vars = twill::prelude::SemanticThemeVars::shadcn_neutral();
-    match theme_variant(theme) {
-        ThemeVariant::Light => vars
-            .resolve_light(token)
-            .map(to_color)
-            .unwrap_or(Color::BLACK),
-        ThemeVariant::Dark => vars
-            .resolve_dark(token)
-            .map(to_color)
-            .unwrap_or(Color::WHITE),
-    }
+    theme.semantic_color(token)
 }
 
 fn semantic_foreground(theme: &Theme, token: SemanticColor) -> Color {
-    match token {
-        SemanticColor::Primary => semantic_color(theme, SemanticColor::PrimaryForeground),
-        SemanticColor::Secondary => semantic_color(theme, SemanticColor::SecondaryForeground),
-        SemanticColor::Accent => semantic_color(theme, SemanticColor::AccentForeground),
-        SemanticColor::Destructive => {
-            let destructive = semantic_color(theme, SemanticColor::Destructive);
-            let luminance = 0.2126 * srgb_to_linear(destructive.r)
-                + 0.7152 * srgb_to_linear(destructive.g)
-                + 0.0722 * srgb_to_linear(destructive.b);
-            if luminance > 0.6 {
-                Color::BLACK
-            } else {
-                Color::WHITE
-            }
-        }
-        SemanticColor::SidebarPrimary => {
-            semantic_color(theme, SemanticColor::SidebarPrimaryForeground)
-        }
-        SemanticColor::SidebarAccent => {
-            semantic_color(theme, SemanticColor::SidebarAccentForeground)
-        }
-        _ => semantic_color(theme, SemanticColor::Foreground),
-    }
+    theme.semantic_foreground(token)
 }
 
 fn theme_variant(theme: &Theme) -> ThemeVariant {
-    if let Some(variant) = theme.registry.string("theme.variant") {
-        return match variant {
-            "dark" => ThemeVariant::Dark,
-            "light" => ThemeVariant::Light,
-            _ => infer_theme_variant_from_background(theme),
-        };
-    }
-
-    infer_theme_variant_from_background(theme)
-}
-
-fn infer_theme_variant_from_background(theme: &Theme) -> ThemeVariant {
-    let background = theme
-        .registry
-        .color(SemanticColor::Background.var_name())
-        .unwrap_or(theme.palette.background);
-    let luminance = 0.2126 * srgb_to_linear(background.r)
-        + 0.7152 * srgb_to_linear(background.g)
-        + 0.0722 * srgb_to_linear(background.b);
-
-    if luminance < 0.5 {
-        ThemeVariant::Dark
-    } else {
-        ThemeVariant::Light
-    }
-}
-
-fn srgb_to_linear(channel: f32) -> f32 {
-    if channel <= 0.04045 {
-        channel / 12.92
-    } else {
-        ((channel + 0.055) / 1.055).powf(2.4)
-    }
+    theme.variant()
 }
 
 fn accent_family(color: AccentColor, scale: Scale) -> TwillColor {

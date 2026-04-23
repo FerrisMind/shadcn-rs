@@ -1,8 +1,8 @@
 use iced::{Background, Color};
 use twill::backends::iced::to_color_value;
 use twill::prelude::{
-    BorderRadius, Color as TwillColor, ColorFamily, ColorValue, ComputeValue, Scale, SemanticColor,
-    SemanticThemeVars, ThemeVariant,
+    BorderRadius, Color as TwillColor, ColorFamily, ColorValue, ComputeValue, DynamicSemanticTheme,
+    Scale, SemanticColor, SemanticThemeVars, ThemeVariant,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -371,54 +371,88 @@ fn palette_from_base(base: ShadcnBaseColor, variant: ThemeVariant) -> Palette {
     }
 }
 
-fn palette_from_semantic_theme(theme: &SemanticThemeVars, variant: ThemeVariant) -> Palette {
+pub(crate) fn palette_from_semantic_theme(
+    theme: &SemanticThemeVars,
+    variant: ThemeVariant,
+) -> Palette {
+    let destructive = semantic_theme_color(theme, SemanticColor::Destructive, variant);
+
+    palette_from_resolver(
+        |token| semantic_theme_color(theme, token, variant),
+        preferred_text_for(destructive),
+    )
+}
+
+pub(crate) fn palette_from_dynamic_semantic_theme(
+    theme: &DynamicSemanticTheme,
+    variant: ThemeVariant,
+) -> Palette {
+    let destructive = dynamic_semantic_color(theme, SemanticColor::Destructive, variant);
+
+    palette_from_resolver(
+        |token| dynamic_semantic_color(theme, token, variant),
+        preferred_text_for(destructive),
+    )
+}
+
+fn palette_from_resolver(
+    mut resolve: impl FnMut(SemanticColor) -> Color,
+    destructive_foreground: Color,
+) -> Palette {
     Palette {
-        background: semantic_color(theme, SemanticColor::Background, variant),
-        foreground: semantic_color(theme, SemanticColor::Foreground, variant),
-        card: semantic_color(theme, SemanticColor::Card, variant),
-        card_foreground: semantic_color(theme, SemanticColor::CardForeground, variant),
-        popover: semantic_color(theme, SemanticColor::Popover, variant),
-        popover_foreground: semantic_color(theme, SemanticColor::PopoverForeground, variant),
-        border: semantic_color(theme, SemanticColor::Border, variant),
-        input: semantic_color(theme, SemanticColor::Input, variant),
-        ring: semantic_color(theme, SemanticColor::Ring, variant),
-        primary: semantic_color(theme, SemanticColor::Primary, variant),
-        primary_foreground: semantic_color(theme, SemanticColor::PrimaryForeground, variant),
-        secondary: semantic_color(theme, SemanticColor::Secondary, variant),
-        secondary_foreground: semantic_color(theme, SemanticColor::SecondaryForeground, variant),
-        accent: semantic_color(theme, SemanticColor::Accent, variant),
-        accent_foreground: semantic_color(theme, SemanticColor::AccentForeground, variant),
-        muted: semantic_color(theme, SemanticColor::Muted, variant),
-        muted_foreground: semantic_color(theme, SemanticColor::MutedForeground, variant),
-        destructive: semantic_color(theme, SemanticColor::Destructive, variant),
-        destructive_foreground: Color::WHITE,
-        chart_1: semantic_color(theme, SemanticColor::Chart1, variant),
-        chart_2: semantic_color(theme, SemanticColor::Chart2, variant),
-        chart_3: semantic_color(theme, SemanticColor::Chart3, variant),
-        chart_4: semantic_color(theme, SemanticColor::Chart4, variant),
-        chart_5: semantic_color(theme, SemanticColor::Chart5, variant),
-        sidebar: semantic_color(theme, SemanticColor::Sidebar, variant),
-        sidebar_foreground: semantic_color(theme, SemanticColor::SidebarForeground, variant),
-        sidebar_primary: semantic_color(theme, SemanticColor::SidebarPrimary, variant),
-        sidebar_primary_foreground: semantic_color(
-            theme,
-            SemanticColor::SidebarPrimaryForeground,
-            variant,
-        ),
-        sidebar_accent: semantic_color(theme, SemanticColor::SidebarAccent, variant),
-        sidebar_accent_foreground: semantic_color(
-            theme,
-            SemanticColor::SidebarAccentForeground,
-            variant,
-        ),
-        sidebar_border: semantic_color(theme, SemanticColor::SidebarBorder, variant),
-        sidebar_ring: semantic_color(theme, SemanticColor::SidebarRing, variant),
+        background: resolve(SemanticColor::Background),
+        foreground: resolve(SemanticColor::Foreground),
+        card: resolve(SemanticColor::Card),
+        card_foreground: resolve(SemanticColor::CardForeground),
+        popover: resolve(SemanticColor::Popover),
+        popover_foreground: resolve(SemanticColor::PopoverForeground),
+        border: resolve(SemanticColor::Border),
+        input: resolve(SemanticColor::Input),
+        ring: resolve(SemanticColor::Ring),
+        primary: resolve(SemanticColor::Primary),
+        primary_foreground: resolve(SemanticColor::PrimaryForeground),
+        secondary: resolve(SemanticColor::Secondary),
+        secondary_foreground: resolve(SemanticColor::SecondaryForeground),
+        accent: resolve(SemanticColor::Accent),
+        accent_foreground: resolve(SemanticColor::AccentForeground),
+        muted: resolve(SemanticColor::Muted),
+        muted_foreground: resolve(SemanticColor::MutedForeground),
+        destructive: resolve(SemanticColor::Destructive),
+        destructive_foreground,
+        chart_1: resolve(SemanticColor::Chart1),
+        chart_2: resolve(SemanticColor::Chart2),
+        chart_3: resolve(SemanticColor::Chart3),
+        chart_4: resolve(SemanticColor::Chart4),
+        chart_5: resolve(SemanticColor::Chart5),
+        sidebar: resolve(SemanticColor::Sidebar),
+        sidebar_foreground: resolve(SemanticColor::SidebarForeground),
+        sidebar_primary: resolve(SemanticColor::SidebarPrimary),
+        sidebar_primary_foreground: resolve(SemanticColor::SidebarPrimaryForeground),
+        sidebar_accent: resolve(SemanticColor::SidebarAccent),
+        sidebar_accent_foreground: resolve(SemanticColor::SidebarAccentForeground),
+        sidebar_border: resolve(SemanticColor::SidebarBorder),
+        sidebar_ring: resolve(SemanticColor::SidebarRing),
     }
 }
 
-fn semantic_color(theme: &SemanticThemeVars, token: SemanticColor, variant: ThemeVariant) -> Color {
+fn semantic_theme_color(
+    theme: &SemanticThemeVars,
+    token: SemanticColor,
+    variant: ThemeVariant,
+) -> Color {
     theme
         .resolve_value(token, variant)
+        .map(to_color_value)
+        .unwrap_or(Color::BLACK)
+}
+
+fn dynamic_semantic_color(
+    theme: &DynamicSemanticTheme,
+    token: SemanticColor,
+    variant: ThemeVariant,
+) -> Color {
+    theme
+        .resolve(token, variant)
         .map(to_color_value)
         .unwrap_or(Color::BLACK)
 }
