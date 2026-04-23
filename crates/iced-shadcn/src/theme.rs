@@ -1,6 +1,44 @@
 use crate::tokens::{Palette, Radius, Spacing};
 use iced::Color;
 use std::collections::BTreeMap;
+use twill::backends::iced::to_color_value;
+use twill::prelude::{DynamicSemanticTheme, SemanticColor, SemanticThemeVars, ThemeVariant};
+
+const THEME_VARIANT_KEY: &str = "theme.variant";
+const DESTRUCTIVE_FOREGROUND_KEY: &str = "destructive-foreground";
+const SEMANTIC_COLORS: [SemanticColor; 31] = [
+    SemanticColor::Background,
+    SemanticColor::Foreground,
+    SemanticColor::Card,
+    SemanticColor::CardForeground,
+    SemanticColor::Popover,
+    SemanticColor::PopoverForeground,
+    SemanticColor::Primary,
+    SemanticColor::PrimaryForeground,
+    SemanticColor::Secondary,
+    SemanticColor::SecondaryForeground,
+    SemanticColor::Muted,
+    SemanticColor::MutedForeground,
+    SemanticColor::Accent,
+    SemanticColor::AccentForeground,
+    SemanticColor::Destructive,
+    SemanticColor::Border,
+    SemanticColor::Input,
+    SemanticColor::Ring,
+    SemanticColor::Chart1,
+    SemanticColor::Chart2,
+    SemanticColor::Chart3,
+    SemanticColor::Chart4,
+    SemanticColor::Chart5,
+    SemanticColor::Sidebar,
+    SemanticColor::SidebarForeground,
+    SemanticColor::SidebarPrimary,
+    SemanticColor::SidebarPrimaryForeground,
+    SemanticColor::SidebarAccent,
+    SemanticColor::SidebarAccentForeground,
+    SemanticColor::SidebarBorder,
+    SemanticColor::SidebarRing,
+];
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ColorToken {
@@ -508,6 +546,62 @@ impl Theme {
         self
     }
 
+    pub fn variant(&self) -> ThemeVariant {
+        registry_variant(self.registry.string(THEME_VARIANT_KEY))
+            .unwrap_or_else(|| infer_theme_variant_from_background(self.palette.background))
+    }
+
+    pub fn semantic_color(&self, token: SemanticColor) -> Color {
+        self.registry
+            .color(token.var_name())
+            .unwrap_or_else(|| palette_color(&self.palette, token))
+    }
+
+    pub fn semantic_foreground(&self, token: SemanticColor) -> Color {
+        if let Some(key) = semantic_foreground_registry_key(token)
+            && let Some(color) = self.registry.color(key)
+        {
+            return color;
+        }
+
+        semantic_foreground_from_palette(&self.palette, token)
+    }
+
+    pub fn from_semantic_theme(theme: &SemanticThemeVars, variant: ThemeVariant) -> Self {
+        let palette = crate::tokens::palette_from_semantic_theme(theme, variant);
+        let registry = semantic_registry_from_resolver(variant, |token| {
+            theme.resolve_value(token, variant).map(to_color_value)
+        })
+        .with_destructive_foreground(palette.destructive_foreground);
+
+        Self::from_parts_with_registry(
+            palette,
+            Radius::default(),
+            Spacing::default(),
+            ThemeStyles::default(),
+            registry,
+        )
+    }
+
+    pub fn from_dynamic_semantic_theme(
+        theme: &DynamicSemanticTheme,
+        variant: ThemeVariant,
+    ) -> Self {
+        let palette = crate::tokens::palette_from_dynamic_semantic_theme(theme, variant);
+        let registry = semantic_registry_from_resolver(variant, |token| {
+            theme.resolve(token, variant).map(to_color_value)
+        })
+        .with_destructive_foreground(palette.destructive_foreground);
+
+        Self::from_parts_with_registry(
+            palette,
+            Radius::default(),
+            Spacing::default(),
+            ThemeStyles::default(),
+            registry,
+        )
+    }
+
     pub fn from_tokens(source: &impl ThemeTokensSource) -> Self {
         let palette = Palette {
             background: source.color(ColorToken::Background),
@@ -564,5 +658,219 @@ impl Theme {
 impl Default for Theme {
     fn default() -> Self {
         Self::light()
+    }
+}
+
+fn registry_variant(value: Option<&str>) -> Option<ThemeVariant> {
+    match value {
+        Some("dark") => Some(ThemeVariant::Dark),
+        Some("light") => Some(ThemeVariant::Light),
+        _ => None,
+    }
+}
+
+fn infer_theme_variant_from_background(background: Color) -> ThemeVariant {
+    let luminance = 0.2126 * srgb_to_linear(background.r)
+        + 0.7152 * srgb_to_linear(background.g)
+        + 0.0722 * srgb_to_linear(background.b);
+
+    if luminance < 0.5 {
+        ThemeVariant::Dark
+    } else {
+        ThemeVariant::Light
+    }
+}
+
+fn palette_color(palette: &Palette, token: SemanticColor) -> Color {
+    match token {
+        SemanticColor::Background => palette.background,
+        SemanticColor::Foreground => palette.foreground,
+        SemanticColor::Card => palette.card,
+        SemanticColor::CardForeground => palette.card_foreground,
+        SemanticColor::Popover => palette.popover,
+        SemanticColor::PopoverForeground => palette.popover_foreground,
+        SemanticColor::Primary => palette.primary,
+        SemanticColor::PrimaryForeground => palette.primary_foreground,
+        SemanticColor::Secondary => palette.secondary,
+        SemanticColor::SecondaryForeground => palette.secondary_foreground,
+        SemanticColor::Muted => palette.muted,
+        SemanticColor::MutedForeground => palette.muted_foreground,
+        SemanticColor::Accent => palette.accent,
+        SemanticColor::AccentForeground => palette.accent_foreground,
+        SemanticColor::Destructive => palette.destructive,
+        SemanticColor::Border => palette.border,
+        SemanticColor::Input => palette.input,
+        SemanticColor::Ring => palette.ring,
+        SemanticColor::Chart1 => palette.chart_1,
+        SemanticColor::Chart2 => palette.chart_2,
+        SemanticColor::Chart3 => palette.chart_3,
+        SemanticColor::Chart4 => palette.chart_4,
+        SemanticColor::Chart5 => palette.chart_5,
+        SemanticColor::Sidebar => palette.sidebar,
+        SemanticColor::SidebarForeground => palette.sidebar_foreground,
+        SemanticColor::SidebarPrimary => palette.sidebar_primary,
+        SemanticColor::SidebarPrimaryForeground => palette.sidebar_primary_foreground,
+        SemanticColor::SidebarAccent => palette.sidebar_accent,
+        SemanticColor::SidebarAccentForeground => palette.sidebar_accent_foreground,
+        SemanticColor::SidebarBorder => palette.sidebar_border,
+        SemanticColor::SidebarRing => palette.sidebar_ring,
+    }
+}
+
+fn semantic_foreground_registry_key(token: SemanticColor) -> Option<&'static str> {
+    match token {
+        SemanticColor::Background => Some(SemanticColor::Foreground.var_name()),
+        SemanticColor::Card => Some(SemanticColor::CardForeground.var_name()),
+        SemanticColor::Popover => Some(SemanticColor::PopoverForeground.var_name()),
+        SemanticColor::Primary => Some(SemanticColor::PrimaryForeground.var_name()),
+        SemanticColor::Secondary => Some(SemanticColor::SecondaryForeground.var_name()),
+        SemanticColor::Muted => Some(SemanticColor::MutedForeground.var_name()),
+        SemanticColor::Accent => Some(SemanticColor::AccentForeground.var_name()),
+        SemanticColor::Destructive => Some(DESTRUCTIVE_FOREGROUND_KEY),
+        SemanticColor::Sidebar => Some(SemanticColor::SidebarForeground.var_name()),
+        SemanticColor::SidebarPrimary => Some(SemanticColor::SidebarPrimaryForeground.var_name()),
+        SemanticColor::SidebarAccent => Some(SemanticColor::SidebarAccentForeground.var_name()),
+        _ => None,
+    }
+}
+
+fn semantic_foreground_from_palette(palette: &Palette, token: SemanticColor) -> Color {
+    match token {
+        SemanticColor::Background => palette.foreground,
+        SemanticColor::Card => palette.card_foreground,
+        SemanticColor::Popover => palette.popover_foreground,
+        SemanticColor::Primary => palette.primary_foreground,
+        SemanticColor::Secondary => palette.secondary_foreground,
+        SemanticColor::Muted => palette.muted_foreground,
+        SemanticColor::Accent => palette.accent_foreground,
+        SemanticColor::Destructive => palette.destructive_foreground,
+        SemanticColor::Sidebar => palette.sidebar_foreground,
+        SemanticColor::SidebarPrimary => palette.sidebar_primary_foreground,
+        SemanticColor::SidebarAccent => palette.sidebar_accent_foreground,
+        _ => palette.foreground,
+    }
+}
+
+fn semantic_registry_from_resolver(
+    variant: ThemeVariant,
+    mut resolve: impl FnMut(SemanticColor) -> Option<Color>,
+) -> ThemeTokenRegistry {
+    let mut registry = ThemeTokenRegistry::default();
+    registry.set_string(
+        THEME_VARIANT_KEY,
+        if variant.is_dark() { "dark" } else { "light" },
+    );
+
+    for token in SEMANTIC_COLORS {
+        if let Some(color) = resolve(token) {
+            registry.set_color(token.var_name(), color);
+        }
+    }
+
+    registry
+}
+
+fn srgb_to_linear(channel: f32) -> f32 {
+    if channel <= 0.04045 {
+        channel / 12.92
+    } else {
+        ((channel + 0.055) / 1.055).powf(2.4)
+    }
+}
+
+impl ThemeTokenRegistry {
+    fn with_destructive_foreground(mut self, color: Color) -> Self {
+        self.set_color(DESTRUCTIVE_FOREGROUND_KEY, color);
+        self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn semantic_theme_constructor_populates_registry_and_palette_consistently() {
+        let theme =
+            Theme::from_semantic_theme(SemanticThemeVars::shadcn_neutral(), ThemeVariant::Dark);
+
+        assert_eq!(theme.variant(), ThemeVariant::Dark);
+        assert_eq!(theme.registry.string(THEME_VARIANT_KEY), Some("dark"));
+
+        for token in SEMANTIC_COLORS {
+            assert_eq!(
+                theme.registry.color(token.var_name()),
+                Some(theme.semantic_color(token))
+            );
+        }
+
+        assert_eq!(
+            theme.semantic_color(SemanticColor::Background),
+            theme.palette.background
+        );
+        assert_eq!(
+            theme.semantic_color(SemanticColor::SidebarBorder),
+            theme.palette.sidebar_border
+        );
+        assert_eq!(
+            theme.semantic_foreground(SemanticColor::Primary),
+            theme.palette.primary_foreground
+        );
+        assert_eq!(
+            theme.semantic_foreground(SemanticColor::Destructive),
+            theme.palette.destructive_foreground
+        );
+        assert_eq!(
+            theme.registry.color(DESTRUCTIVE_FOREGROUND_KEY),
+            Some(theme.palette.destructive_foreground)
+        );
+    }
+
+    #[test]
+    fn dynamic_semantic_theme_constructor_populates_registry_and_palette_consistently() {
+        let dynamic = DynamicSemanticTheme::from_brand_oklch(0.628, 0.258, 29.234);
+        let theme = Theme::from_dynamic_semantic_theme(&dynamic, ThemeVariant::Light);
+
+        assert_eq!(theme.variant(), ThemeVariant::Light);
+        assert_eq!(theme.registry.string(THEME_VARIANT_KEY), Some("light"));
+        assert_eq!(
+            theme.registry.color(SemanticColor::Primary.var_name()),
+            Some(theme.palette.primary)
+        );
+        assert_eq!(
+            theme.registry.color(SemanticColor::Ring.var_name()),
+            Some(theme.palette.ring)
+        );
+        assert_eq!(
+            theme.semantic_foreground(SemanticColor::Primary),
+            theme.palette.primary_foreground
+        );
+        assert_eq!(
+            theme.semantic_foreground(SemanticColor::SidebarAccent),
+            theme.palette.sidebar_accent_foreground
+        );
+    }
+
+    #[test]
+    fn semantic_accessors_prefer_registry_over_palette() {
+        let mut theme = Theme::light();
+        let primary = Color::from_rgb(0.25, 0.5, 0.75);
+        let primary_foreground = Color::from_rgb(0.9, 0.95, 1.0);
+
+        theme
+            .registry
+            .set_color(SemanticColor::Primary.var_name(), primary);
+        theme.registry.set_color(
+            SemanticColor::PrimaryForeground.var_name(),
+            primary_foreground,
+        );
+        theme.registry.set_string(THEME_VARIANT_KEY, "dark");
+
+        assert_eq!(theme.semantic_color(SemanticColor::Primary), primary);
+        assert_eq!(
+            theme.semantic_foreground(SemanticColor::Primary),
+            primary_foreground
+        );
+        assert_eq!(theme.variant(), ThemeVariant::Dark);
     }
 }

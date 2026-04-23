@@ -24,6 +24,7 @@ pub mod conversation;
 pub mod data_table;
 #[cfg(feature = "chrono")]
 pub mod date_picker;
+pub mod decorative_surface;
 pub mod dialog;
 pub mod drawer;
 pub mod dropdown_menu;
@@ -156,6 +157,7 @@ pub use date_picker::{
     DatePickerIconPosition, DatePickerProps, DateRange, DateRangePickerProps, date_picker,
     date_range_picker,
 };
+pub use decorative_surface::{DecorativeSurfaceProps, decorative_surface};
 pub use dialog::{DialogAlign, DialogProps, DialogSize, dialog};
 pub use drawer::{DrawerProps, DrawerSide, drawer};
 pub use dropdown_menu::{
