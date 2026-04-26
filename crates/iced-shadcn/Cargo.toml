@@ -19,7 +19,8 @@ include = [
 ]
 
 [dependencies]
-iced = { version = "0.14", features = ["advanced", "canvas", "highlighter", "image", "tokio", "tiny-skia", "lazy"] }
+iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "highlighter", "image", "tokio", "tiny-skia", "lazy"] }
+iced_wgpu = { version = "0.14", optional = true, default-features = false }
 lucide-icons = { version = "0.575", features = ["iced"] }
 num-traits = "0.2"
 regex = "1.10"
@@ -37,6 +38,7 @@ default = []
 chrono = ["dep:chrono"]
 charts = []
 rfd = ["dep:rfd"]
+web-colors = ["dep:iced_wgpu", "iced/web-colors", "iced_wgpu/web-colors"]
 wry = ["dep:wry"]
 
 [[example]]

@@ -222,9 +222,7 @@ impl<Message> canvas::Program<Message> for Spinner {
         let phase = self.resolved_progress(state).rem_euclid(1.0);
 
         match self.variant {
-            SpinnerVariant::LegacyLucide
-            | SpinnerVariant::AiLoaderIcon
-            | SpinnerVariant::PromptCircular => {
+            SpinnerVariant::LegacyLucide | SpinnerVariant::AiLoaderIcon => {
                 let rotation = phase * TAU;
                 frame.with_save(|frame| {
                     frame.translate(Vector::new(center.x, center.y));
@@ -238,18 +236,12 @@ impl<Message> canvas::Program<Message> for Spinner {
                         SpinnerVariant::AiLoaderIcon => {
                             draw_ai_loader_icon(frame, center, size, self.color);
                         }
-                        SpinnerVariant::PromptCircular => {
-                            draw_lucide_spinner_icon(
-                                frame,
-                                center,
-                                size,
-                                self.color,
-                                Icon::LoaderCircle,
-                            );
-                        }
                         _ => {}
                     }
                 });
+            }
+            SpinnerVariant::PromptCircular => {
+                draw_prompt_circular(&mut frame, center, size, self.color, phase)
             }
             SpinnerVariant::PromptClassic => {
                 draw_prompt_classic(&mut frame, center, size, self.color, phase)
@@ -337,6 +329,24 @@ fn draw_lucide_spinner_icon(
         align_y: Vertical::Center,
         ..Text::default()
     });
+}
+
+fn draw_prompt_circular(
+    frame: &mut canvas::Frame<Renderer>,
+    center: Point,
+    size: f32,
+    color: Color,
+    phase: f32,
+) {
+    let radius = (size * 0.1).clamp(1.5, 2.4);
+    let distance_from_center = size * 0.5 - radius;
+    let (y, x) = (phase * TAU).sin_cos();
+    let position = Point::new(
+        center.x + x * distance_from_center,
+        center.y + y * distance_from_center,
+    );
+
+    frame.fill(&Path::circle(position, radius), color);
 }
 
 fn draw_prompt_classic(
