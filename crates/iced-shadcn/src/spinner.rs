@@ -222,9 +222,7 @@ impl<Message> canvas::Program<Message> for Spinner {
         let phase = self.resolved_progress(state).rem_euclid(1.0);
 
         match self.variant {
-            SpinnerVariant::LegacyLucide
-            | SpinnerVariant::AiLoaderIcon
-            | SpinnerVariant::PromptCircular => {
+            SpinnerVariant::LegacyLucide | SpinnerVariant::AiLoaderIcon => {
                 let rotation = phase * TAU;
                 frame.with_save(|frame| {
                     frame.translate(Vector::new(center.x, center.y));
@@ -238,20 +236,11 @@ impl<Message> canvas::Program<Message> for Spinner {
                         SpinnerVariant::AiLoaderIcon => {
                             draw_ai_loader_icon(frame, center, size, self.color);
                         }
-                        SpinnerVariant::PromptCircular => {
-                            draw_lucide_spinner_icon(
-                                frame,
-                                center,
-                                size,
-                                self.color,
-                                Icon::LoaderCircle,
-                            );
-                        }
                         _ => {}
                     }
                 });
             }
-            SpinnerVariant::PromptClassic => {
+            SpinnerVariant::PromptCircular | SpinnerVariant::PromptClassic => {
                 draw_prompt_classic(&mut frame, center, size, self.color, phase)
             }
             SpinnerVariant::PromptPulse => {
