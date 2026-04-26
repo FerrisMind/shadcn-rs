@@ -78,6 +78,8 @@ pub mod tooltip;
 pub mod tree_view;
 pub mod tree_viewer;
 pub mod typography;
+#[cfg(feature = "web-colors")]
+pub mod web_colors;
 pub mod web_preview;
 
 pub use accordion::{AccordionItemProps, AccordionProps, AccordionState, AccordionType, accordion};
@@ -333,6 +335,11 @@ pub use tree_viewer::{
 pub use typography::{
     HeadingAs, HeadingProps, LeadingTrim, TextAlign, TextAs, TextProps, TextSize, TextWeight,
     TextWrap, heading, text,
+};
+#[cfg(feature = "web-colors")]
+pub use web_colors::{
+    gamma_correction_enabled, select_surface_format_for_gamma_correction,
+    select_surface_format_for_iced_color_mode,
 };
 #[cfg(feature = "wry")]
 pub use web_preview::wry_backend;

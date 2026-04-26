@@ -135,6 +135,7 @@ pub struct TabsProps {
     pub hover: TabsHover,
     pub hover_intensity: Option<f32>,
     pub show_active_pill_shadow: bool,
+    pub show_active_pill_border: bool,
     pub active_pill_as_outline: bool,
     pub active_pill_background: Option<Color>,
     pub show_separators: bool,
@@ -161,6 +162,7 @@ impl Default for TabsProps {
             hover: TabsHover::Soft,
             hover_intensity: None,
             show_active_pill_shadow: true,
+            show_active_pill_border: true,
             active_pill_as_outline: false,
             active_pill_background: None,
             show_separators: false,
@@ -247,6 +249,11 @@ impl TabsProps {
         self
     }
 
+    pub fn show_active_pill_border(mut self, show: bool) -> Self {
+        self.show_active_pill_border = show;
+        self
+    }
+
     pub fn active_pill_as_outline(mut self, active_as_outline: bool) -> Self {
         self.active_pill_as_outline = active_as_outline;
         self
@@ -302,6 +309,7 @@ impl TabsProps {
                 hover: self.hover,
                 hover_intensity: self.hover_intensity,
                 show_active_pill_shadow: self.show_active_pill_shadow,
+                show_active_pill_border: self.show_active_pill_border,
                 active_pill_as_outline: self.active_pill_as_outline,
                 active_pill_background: self.active_pill_background,
                 show_separators: self.show_separators,
@@ -366,6 +374,7 @@ pub struct TabsListProps {
     pub hover: TabsHover,
     pub hover_intensity: Option<f32>,
     pub show_active_pill_shadow: bool,
+    pub show_active_pill_border: bool,
     pub active_pill_as_outline: bool,
     pub active_pill_background: Option<Color>,
     pub show_separators: bool,
@@ -390,6 +399,7 @@ impl Default for TabsListProps {
             hover: TabsHover::Soft,
             hover_intensity: None,
             show_active_pill_shadow: true,
+            show_active_pill_border: true,
             active_pill_as_outline: false,
             active_pill_background: None,
             show_separators: false,
@@ -463,6 +473,11 @@ impl TabsListProps {
 
     pub fn show_active_pill_shadow(mut self, show: bool) -> Self {
         self.show_active_pill_shadow = show;
+        self
+    }
+
+    pub fn show_active_pill_border(mut self, show: bool) -> Self {
+        self.show_active_pill_border = show;
         self
     }
 
@@ -739,6 +754,9 @@ fn trigger_style(
             )
         }
         TabsListVariant::Pill => {
+            let show_active_border = is_active
+                && props.show_active_pill_border
+                && (props.active_pill_as_outline || is_dark(&palette));
             let bg = if is_active {
                 Background::Color(props.active_pill_background.unwrap_or({
                     if props.active_pill_as_outline {
@@ -756,18 +774,14 @@ fn trigger_style(
             (
                 bg,
                 Border {
-                    color: if is_active && props.active_pill_as_outline {
-                        accent
-                    } else if is_active && is_dark(&palette) {
-                        palette.border
-                    } else {
+                    color: if !show_active_border {
                         Color::TRANSPARENT
-                    },
-                    width: if is_active && (props.active_pill_as_outline || is_dark(&palette)) {
-                        1.0
+                    } else if props.active_pill_as_outline {
+                        accent
                     } else {
-                        0.0
+                        palette.border
                     },
+                    width: if show_active_border { 1.0 } else { 0.0 },
                     radius: props.radius.unwrap_or(theme.radius.sm).into(),
                 },
             )
@@ -2016,6 +2030,23 @@ mod tests {
         let color = Color::from_rgb8(1, 2, 3);
         let props = TabsListProps::new().active_pill_background(color);
         assert_eq!(props.active_pill_background, Some(color));
+    }
+
+    #[test]
+    fn active_pill_border_can_be_disabled_through_props() {
+        let theme = Theme::dark();
+        let props = TabsListProps::new().show_active_pill_border(false);
+        let style = trigger_style(&theme, props, true, button_widget::Status::Active);
+
+        assert_eq!(style.border.width, 0.0);
+        assert_eq!(style.border.color, Color::TRANSPARENT);
+    }
+
+    #[test]
+    fn tabs_props_split_preserves_active_pill_border_setting() {
+        let (_, list_props) = TabsProps::new().show_active_pill_border(false).split();
+
+        assert!(!list_props.show_active_pill_border);
     }
 
     #[test]
