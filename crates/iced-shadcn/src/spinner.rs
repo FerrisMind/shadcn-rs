@@ -223,7 +223,6 @@ impl<Message> canvas::Program<Message> for Spinner {
 
         match self.variant {
             SpinnerVariant::LegacyLucide | SpinnerVariant::AiLoaderIcon => {
-            SpinnerVariant::LegacyLucide | SpinnerVariant::AiLoaderIcon => {
                 let rotation = phase * TAU;
                 frame.with_save(|frame| {
                     frame.translate(Vector::new(center.x, center.y));
