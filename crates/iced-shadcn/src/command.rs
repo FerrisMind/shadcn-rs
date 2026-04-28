@@ -47,6 +47,7 @@ pub struct CommandProps<'a, Message> {
     pub show_border: bool,
     pub show_shadow: bool,
     pub show_input_separator: bool,
+    pub input_separator_color: Option<iced::Color>,
     pub show_item_border: bool,
     pub should_filter: bool,
     pub filter: CommandFilter,
@@ -66,6 +67,7 @@ impl<'a, Message> CommandProps<'a, Message> {
             show_border: true,
             show_shadow: true,
             show_input_separator: true,
+            input_separator_color: None,
             show_item_border: false,
             should_filter: true,
             filter: default_command_filter,
@@ -114,6 +116,11 @@ impl<'a, Message> CommandProps<'a, Message> {
 
     pub fn show_input_separator(mut self, show: bool) -> Self {
         self.show_input_separator = show;
+        self
+    }
+
+    pub fn input_separator_color(mut self, color: iced::Color) -> Self {
+        self.input_separator_color = Some(color);
         self
     }
 
@@ -398,6 +405,7 @@ pub fn command<'a, Message: Clone + 'a>(
         show_border,
         show_shadow,
         show_input_separator,
+        input_separator_color,
         show_item_border,
         should_filter,
         filter,
@@ -417,6 +425,7 @@ pub fn command<'a, Message: Clone + 'a>(
         on_query_change,
         input,
         show_input_separator,
+        input_separator_color,
         tokens,
         theme,
     );
@@ -514,6 +523,7 @@ fn command_input<'a, Message: Clone + 'a>(
     on_query_change: Option<Box<dyn Fn(String) -> Message + 'a>>,
     props: CommandInputProps<'a>,
     show_separator: bool,
+    separator_color: Option<iced::Color>,
     tokens: CommandTokens,
     theme: &Theme,
 ) -> Element<'a, Message> {
@@ -548,14 +558,14 @@ fn command_input<'a, Message: Clone + 'a>(
     .width(Length::Fill);
 
     if show_separator {
-        let line = separator(
-            SeparatorProps::new()
-                .size(SeparatorSize::Size4)
-                .thickness(1.0)
-                .gap(0.0),
-            theme,
-        )
-        .width(Length::Fill);
+        let mut props = SeparatorProps::new()
+            .size(SeparatorSize::Size4)
+            .thickness(1.0)
+            .gap(0.0);
+        if let Some(color) = separator_color {
+            props = props.custom_color(color);
+        }
+        let line = separator(props, theme).width(Length::Fill);
         input = input.push(line);
     }
 
@@ -1011,6 +1021,19 @@ mod tests {
 
         let props = props.show_input_separator(false);
         assert!(!props.show_input_separator);
+    }
+
+    #[test]
+    fn command_props_can_override_input_separator_color() {
+        let color = iced::Color::from_rgb(0.2, 0.3, 0.4);
+        let props = CommandProps::<()>::new(
+            iced::widget::Id::new("command"),
+            "",
+            CommandListProps::new(Vec::<CommandListEntry<'_, ()>>::new()),
+        )
+        .input_separator_color(color);
+
+        assert_eq!(props.input_separator_color, Some(color));
     }
 
     #[test]
