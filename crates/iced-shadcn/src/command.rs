@@ -18,6 +18,9 @@ use crate::theme::Theme;
 
 /// Filter callback used by the command palette when `should_filter` is enabled.
 pub type CommandFilter = fn(value: &str, search: &str, keywords: &[String]) -> f32;
+pub const COMMAND_INPUT_PADDING_X: f32 = 4.0;
+pub const COMMAND_INPUT_PADDING_Y: f32 = 4.0;
+pub const COMMAND_INPUT_GAP: f32 = 0.0;
 
 #[derive(Clone, Copy, Debug)]
 struct CommandTokens {
@@ -449,11 +452,15 @@ pub fn command<'a, Message: Clone + 'a>(
         query,
         on_query_change,
         input,
-        input_leading,
-        input_trailing,
-        show_input_separator,
-        input_separator_color,
-        tokens,
+        CommandInputSlots {
+            leading: input_leading,
+            trailing: input_trailing,
+        },
+        CommandInputChrome {
+            show_separator: show_input_separator,
+            separator_color: input_separator_color,
+            tokens,
+        },
         theme,
     );
 
@@ -545,17 +552,26 @@ pub fn command<'a, Message: Clone + 'a>(
     }
 }
 
+struct CommandInputSlots<'a, Message> {
+    leading: Vec<Element<'a, Message>>,
+    trailing: Vec<Element<'a, Message>>,
+}
+
+struct CommandInputChrome {
+    show_separator: bool,
+    separator_color: Option<iced::Color>,
+    tokens: CommandTokens,
+}
+
 fn command_input<'a, Message: Clone + 'a>(
     query: &'a str,
     on_query_change: Option<Box<dyn Fn(String) -> Message + 'a>>,
     props: CommandInputProps<'a>,
-    input_leading: Vec<Element<'a, Message>>,
-    input_trailing: Vec<Element<'a, Message>>,
-    show_separator: bool,
-    separator_color: Option<iced::Color>,
-    tokens: CommandTokens,
+    slots: CommandInputSlots<'a, Message>,
+    chrome: CommandInputChrome,
     theme: &'a Theme,
 ) -> Element<'a, Message> {
+    let tokens = chrome.tokens;
     let search_icon = text(char::from(lucide_icons::Icon::Search).to_string())
         .font(iced::Font::with_name("lucide"))
         .size(13)
@@ -575,30 +591,31 @@ fn command_input<'a, Message: Clone + 'a>(
     .width(Length::Fill);
 
     let mut input_row = row!()
-        .spacing(10)
+        .spacing(COMMAND_INPUT_GAP)
         .align_y(Alignment::Center)
         .width(Length::Fill);
     if props.show_search_icon {
         input_row = input_row.push(search_icon);
     }
-    for slot in input_leading {
+    for slot in slots.leading {
         input_row = input_row.push(slot);
     }
     input_row = input_row.push(field);
-    for slot in input_trailing {
+    for slot in slots.trailing {
         input_row = input_row.push(slot);
     }
 
-    let mut input = column![container(input_row).padding([4.0, 10.0])]
-        .spacing(0)
-        .width(Length::Fill);
+    let mut input =
+        column![container(input_row).padding([COMMAND_INPUT_PADDING_Y, COMMAND_INPUT_PADDING_X])]
+            .spacing(0)
+            .width(Length::Fill);
 
-    if show_separator {
+    if chrome.show_separator {
         let mut props = SeparatorProps::new()
             .size(SeparatorSize::Size4)
             .thickness(1.0)
             .gap(0.0);
-        if let Some(color) = separator_color {
+        if let Some(color) = chrome.separator_color {
             props = props.custom_color(color);
         }
         let line = separator(props, theme).width(Length::Fill);
@@ -1105,5 +1122,12 @@ mod tests {
         let props = CommandInputProps::new("Search").show_search_icon(false);
 
         assert!(!props.show_search_icon);
+    }
+
+    #[test]
+    fn command_input_spacing_tokens_match_browser_chrome_metrics() {
+        assert_eq!(super::COMMAND_INPUT_PADDING_X, 8.0);
+        assert_eq!(super::COMMAND_INPUT_PADDING_Y, 4.0);
+        assert_eq!(super::COMMAND_INPUT_GAP, 10.0);
     }
 }
