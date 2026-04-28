@@ -40,6 +40,8 @@ pub struct CommandProps<'a, Message> {
     pub query: &'a str,
     pub on_query_change: Option<Box<dyn Fn(String) -> Message + 'a>>,
     pub input: CommandInputProps<'a>,
+    pub input_leading: Vec<Element<'a, Message>>,
+    pub input_trailing: Vec<Element<'a, Message>>,
     pub list: CommandListProps<'a, Message>,
     pub empty: Option<CommandEmptyProps<'a>>,
     pub min_width: Option<f32>,
@@ -60,6 +62,8 @@ impl<'a, Message> CommandProps<'a, Message> {
             query,
             on_query_change: None,
             input: CommandInputProps::default(),
+            input_leading: Vec::new(),
+            input_trailing: Vec::new(),
             list,
             empty: None,
             min_width: None,
@@ -81,6 +85,16 @@ impl<'a, Message> CommandProps<'a, Message> {
 
     pub fn input(mut self, input: CommandInputProps<'a>) -> Self {
         self.input = input;
+        self
+    }
+
+    pub fn input_leading(mut self, slot: impl Into<Element<'a, Message>>) -> Self {
+        self.input_leading.push(slot.into());
+        self
+    }
+
+    pub fn input_trailing(mut self, slot: impl Into<Element<'a, Message>>) -> Self {
+        self.input_trailing.push(slot.into());
         self
     }
 
@@ -143,11 +157,20 @@ impl<'a, Message> CommandProps<'a, Message> {
 #[derive(Clone, Debug)]
 pub struct CommandInputProps<'a> {
     pub placeholder: &'a str,
+    pub show_search_icon: bool,
 }
 
 impl<'a> CommandInputProps<'a> {
     pub fn new(placeholder: &'a str) -> Self {
-        Self { placeholder }
+        Self {
+            placeholder,
+            show_search_icon: true,
+        }
+    }
+
+    pub fn show_search_icon(mut self, show: bool) -> Self {
+        self.show_search_icon = show;
+        self
     }
 }
 
@@ -398,6 +421,8 @@ pub fn command<'a, Message: Clone + 'a>(
         query,
         on_query_change,
         input,
+        input_leading,
+        input_trailing,
         list,
         empty,
         min_width,
@@ -424,6 +449,8 @@ pub fn command<'a, Message: Clone + 'a>(
         query,
         on_query_change,
         input,
+        input_leading,
+        input_trailing,
         show_input_separator,
         input_separator_color,
         tokens,
@@ -522,10 +549,12 @@ fn command_input<'a, Message: Clone + 'a>(
     query: &'a str,
     on_query_change: Option<Box<dyn Fn(String) -> Message + 'a>>,
     props: CommandInputProps<'a>,
+    input_leading: Vec<Element<'a, Message>>,
+    input_trailing: Vec<Element<'a, Message>>,
     show_separator: bool,
     separator_color: Option<iced::Color>,
     tokens: CommandTokens,
-    theme: &Theme,
+    theme: &'a Theme,
 ) -> Element<'a, Message> {
     let search_icon = text(char::from(lucide_icons::Icon::Search).to_string())
         .font(iced::Font::with_name("lucide"))
@@ -545,17 +574,24 @@ fn command_input<'a, Message: Clone + 'a>(
     )
     .width(Length::Fill);
 
-    let mut input = column![
-        container(
-            row![search_icon, field]
-                .spacing(10)
-                .align_y(Alignment::Center)
-                .width(Length::Fill),
-        )
-        .padding([4.0, 10.0])
-    ]
-    .spacing(0)
-    .width(Length::Fill);
+    let mut input_row = row!()
+        .spacing(10)
+        .align_y(Alignment::Center)
+        .width(Length::Fill);
+    if props.show_search_icon {
+        input_row = input_row.push(search_icon);
+    }
+    for slot in input_leading {
+        input_row = input_row.push(slot);
+    }
+    input_row = input_row.push(field);
+    for slot in input_trailing {
+        input_row = input_row.push(slot);
+    }
+
+    let mut input = column![container(input_row).padding([4.0, 10.0])]
+        .spacing(0)
+        .width(Length::Fill);
 
     if show_separator {
         let mut props = SeparatorProps::new()
@@ -989,7 +1025,8 @@ pub fn command_dialog<'a, Message: Clone + 'a>(
 #[cfg(test)]
 mod tests {
     use super::{
-        CommandListEntry, CommandListProps, CommandProps, default_command_filter, fuzzy_score,
+        CommandInputProps, CommandListEntry, CommandListProps, CommandProps,
+        default_command_filter, fuzzy_score,
     };
 
     #[test]
@@ -1047,5 +1084,26 @@ mod tests {
         .surface_background(background);
 
         assert_eq!(props.surface_background, Some(background));
+    }
+
+    #[test]
+    fn command_props_accept_input_side_slots() {
+        let props = CommandProps::<()>::new(
+            iced::widget::Id::new("command"),
+            "",
+            CommandListProps::new(Vec::<CommandListEntry<'_, ()>>::new()),
+        )
+        .input_leading(iced::widget::text("leading"))
+        .input_trailing(iced::widget::text("trailing"));
+
+        assert_eq!(props.input_leading.len(), 1);
+        assert_eq!(props.input_trailing.len(), 1);
+    }
+
+    #[test]
+    fn command_input_props_can_hide_default_search_icon() {
+        let props = CommandInputProps::new("Search").show_search_icon(false);
+
+        assert!(!props.show_search_icon);
     }
 }
