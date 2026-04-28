@@ -45,6 +45,7 @@ pub struct CommandProps<'a, Message> {
     pub min_width: Option<f32>,
     pub show_border: bool,
     pub show_shadow: bool,
+    pub show_input_separator: bool,
     pub show_item_border: bool,
     pub should_filter: bool,
     pub filter: CommandFilter,
@@ -62,6 +63,7 @@ impl<'a, Message> CommandProps<'a, Message> {
             min_width: None,
             show_border: true,
             show_shadow: true,
+            show_input_separator: true,
             show_item_border: false,
             should_filter: true,
             filter: default_command_filter,
@@ -100,6 +102,11 @@ impl<'a, Message> CommandProps<'a, Message> {
 
     pub fn show_shadow(mut self, show: bool) -> Self {
         self.show_shadow = show;
+        self
+    }
+
+    pub fn show_input_separator(mut self, show: bool) -> Self {
+        self.show_input_separator = show;
         self
     }
 
@@ -382,6 +389,7 @@ pub fn command<'a, Message: Clone + 'a>(
         min_width,
         show_border,
         show_shadow,
+        show_input_separator,
         show_item_border,
         should_filter,
         filter,
@@ -393,7 +401,14 @@ pub fn command<'a, Message: Clone + 'a>(
     let menu_shadow = theme.styles.menu.shadow;
     let container_border_color = theme.palette.border;
 
-    let input = command_input(query, on_query_change, input, tokens, theme);
+    let input = command_input(
+        query,
+        on_query_change,
+        input,
+        show_input_separator,
+        tokens,
+        theme,
+    );
 
     let rendered = render_entries(
         list.entries,
@@ -487,6 +502,7 @@ fn command_input<'a, Message: Clone + 'a>(
     query: &'a str,
     on_query_change: Option<Box<dyn Fn(String) -> Message + 'a>>,
     props: CommandInputProps<'a>,
+    show_separator: bool,
     tokens: CommandTokens,
     theme: &Theme,
 ) -> Element<'a, Message> {
@@ -508,28 +524,31 @@ fn command_input<'a, Message: Clone + 'a>(
     )
     .width(Length::Fill);
 
-    let line = separator(
-        SeparatorProps::new()
-            .size(SeparatorSize::Size4)
-            .thickness(1.0)
-            .gap(0.0),
-        theme,
-    )
-    .width(Length::Fill);
-
-    column![
+    let mut input = column![
         container(
             row![search_icon, field]
                 .spacing(10)
                 .align_y(Alignment::Center)
                 .width(Length::Fill),
         )
-        .padding([4.0, 10.0]),
-        line
+        .padding([4.0, 10.0])
     ]
     .spacing(0)
-    .width(Length::Fill)
-    .into()
+    .width(Length::Fill);
+
+    if show_separator {
+        let line = separator(
+            SeparatorProps::new()
+                .size(SeparatorSize::Size4)
+                .thickness(1.0)
+                .gap(0.0),
+            theme,
+        )
+        .width(Length::Fill);
+        input = input.push(line);
+    }
+
+    input.into()
 }
 
 struct RenderedEntries<'a, Message> {
@@ -948,7 +967,9 @@ pub fn command_dialog<'a, Message: Clone + 'a>(
 
 #[cfg(test)]
 mod tests {
-    use super::{default_command_filter, fuzzy_score};
+    use super::{
+        CommandListEntry, CommandListProps, CommandProps, default_command_filter, fuzzy_score,
+    };
 
     #[test]
     fn fuzzy_score_matches_subsequence() {
@@ -966,5 +987,18 @@ mod tests {
     fn default_filter_uses_keywords() {
         let score = default_command_filter("Billing", "pay", &["payments".to_string()]);
         assert!(score > 0.0);
+    }
+
+    #[test]
+    fn command_props_can_hide_input_separator() {
+        let props = CommandProps::<()>::new(
+            iced::widget::Id::new("command"),
+            "",
+            CommandListProps::new(Vec::<CommandListEntry<'_, ()>>::new()),
+        );
+        assert!(props.show_input_separator);
+
+        let props = props.show_input_separator(false);
+        assert!(!props.show_input_separator);
     }
 }
