@@ -43,6 +43,7 @@ pub struct CommandProps<'a, Message> {
     pub list: CommandListProps<'a, Message>,
     pub empty: Option<CommandEmptyProps<'a>>,
     pub min_width: Option<f32>,
+    pub surface_background: Option<iced::Color>,
     pub show_border: bool,
     pub show_shadow: bool,
     pub show_input_separator: bool,
@@ -61,6 +62,7 @@ impl<'a, Message> CommandProps<'a, Message> {
             list,
             empty: None,
             min_width: None,
+            surface_background: None,
             show_border: true,
             show_shadow: true,
             show_input_separator: true,
@@ -87,6 +89,11 @@ impl<'a, Message> CommandProps<'a, Message> {
 
     pub fn min_width(mut self, width: f32) -> Self {
         self.min_width = Some(width.max(1.0));
+        self
+    }
+
+    pub fn surface_background(mut self, background: iced::Color) -> Self {
+        self.surface_background = Some(background);
         self
     }
 
@@ -387,6 +394,7 @@ pub fn command<'a, Message: Clone + 'a>(
         list,
         empty,
         min_width,
+        surface_background,
         show_border,
         show_shadow,
         show_input_separator,
@@ -395,7 +403,10 @@ pub fn command<'a, Message: Clone + 'a>(
         filter,
     } = props;
 
-    let tokens = command_tokens(theme);
+    let mut tokens = command_tokens(theme);
+    if let Some(background) = surface_background {
+        tokens.bg = background;
+    }
     let min_width = min_width.unwrap_or(theme.styles.command.min_width);
     let radius_md = theme.radius.md;
     let menu_shadow = theme.styles.menu.shadow;
@@ -1000,5 +1011,18 @@ mod tests {
 
         let props = props.show_input_separator(false);
         assert!(!props.show_input_separator);
+    }
+
+    #[test]
+    fn command_props_can_override_surface_background() {
+        let background = iced::Color::from_rgb(0.1, 0.2, 0.3);
+        let props = CommandProps::<()>::new(
+            iced::widget::Id::new("command"),
+            "",
+            CommandListProps::new(Vec::<CommandListEntry<'_, ()>>::new()),
+        )
+        .surface_background(background);
+
+        assert_eq!(props.surface_background, Some(background));
     }
 }
