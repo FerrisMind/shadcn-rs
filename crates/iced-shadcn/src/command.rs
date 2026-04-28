@@ -18,9 +18,6 @@ use crate::theme::Theme;
 
 /// Filter callback used by the command palette when `should_filter` is enabled.
 pub type CommandFilter = fn(value: &str, search: &str, keywords: &[String]) -> f32;
-pub const COMMAND_INPUT_PADDING_X: f32 = 4.0;
-pub const COMMAND_INPUT_PADDING_Y: f32 = 4.0;
-pub const COMMAND_INPUT_GAP: f32 = 0.0;
 
 #[derive(Clone, Copy, Debug)]
 struct CommandTokens {
@@ -53,6 +50,7 @@ pub struct CommandProps<'a, Message> {
     pub show_shadow: bool,
     pub show_input_separator: bool,
     pub input_separator_color: Option<iced::Color>,
+    pub input_list_gap: f32,
     pub show_item_border: bool,
     pub should_filter: bool,
     pub filter: CommandFilter,
@@ -75,6 +73,7 @@ impl<'a, Message> CommandProps<'a, Message> {
             show_shadow: true,
             show_input_separator: true,
             input_separator_color: None,
+            input_list_gap: 6.0,
             show_item_border: false,
             should_filter: true,
             filter: default_command_filter,
@@ -141,6 +140,11 @@ impl<'a, Message> CommandProps<'a, Message> {
         self
     }
 
+    pub fn input_list_gap(mut self, gap: f32) -> Self {
+        self.input_list_gap = gap.max(0.0);
+        self
+    }
+
     pub fn show_item_border(mut self, show: bool) -> Self {
         self.show_item_border = show;
         self
@@ -161,6 +165,8 @@ impl<'a, Message> CommandProps<'a, Message> {
 pub struct CommandInputProps<'a> {
     pub placeholder: &'a str,
     pub show_search_icon: bool,
+    pub padding_x: Option<f32>,
+    pub gap: Option<f32>,
 }
 
 impl<'a> CommandInputProps<'a> {
@@ -168,11 +174,23 @@ impl<'a> CommandInputProps<'a> {
         Self {
             placeholder,
             show_search_icon: true,
+            padding_x: None,
+            gap: None,
         }
     }
 
     pub fn show_search_icon(mut self, show: bool) -> Self {
         self.show_search_icon = show;
+        self
+    }
+
+    pub fn padding_x(mut self, padding_x: f32) -> Self {
+        self.padding_x = Some(padding_x.max(0.0));
+        self
+    }
+
+    pub fn gap(mut self, gap: f32) -> Self {
+        self.gap = Some(gap.max(0.0));
         self
     }
 }
@@ -434,6 +452,7 @@ pub fn command<'a, Message: Clone + 'a>(
         show_shadow,
         show_input_separator,
         input_separator_color,
+        input_list_gap,
         show_item_border,
         should_filter,
         filter,
@@ -488,7 +507,7 @@ pub fn command<'a, Message: Clone + 'a>(
     .height(Length::Fixed(list.max_height))
     .width(Length::Fill);
 
-    let mut body = column![input, list].spacing(6);
+    let mut body = column![input, list].spacing(input_list_gap);
     if let Some(empty) = empty
         && (empty.force_mount || visible_item_count == 0)
     {
@@ -579,6 +598,11 @@ fn command_input<'a, Message: Clone + 'a>(
             color: Some(tokens.muted),
         });
 
+    let mut input_theme = theme.clone();
+    if let Some(padding_x) = props.padding_x {
+        input_theme.styles.input.size1_padding_x = padding_x;
+    }
+
     let field = input(
         query,
         props.placeholder,
@@ -586,12 +610,12 @@ fn command_input<'a, Message: Clone + 'a>(
         InputProps::new()
             .size(InputSize::Size1)
             .variant(InputVariant::Ghost),
-        theme,
+        &input_theme,
     )
     .width(Length::Fill);
 
     let mut input_row = row!()
-        .spacing(COMMAND_INPUT_GAP)
+        .spacing(props.gap.unwrap_or(10.0))
         .align_y(Alignment::Center)
         .width(Length::Fill);
     if props.show_search_icon {
@@ -605,10 +629,10 @@ fn command_input<'a, Message: Clone + 'a>(
         input_row = input_row.push(slot);
     }
 
-    let mut input =
-        column![container(input_row).padding([COMMAND_INPUT_PADDING_Y, COMMAND_INPUT_PADDING_X])]
-            .spacing(0)
-            .width(Length::Fill);
+    let row_padding_x = props.padding_x.unwrap_or(10.0);
+    let mut input = column![container(input_row).padding([4.0, row_padding_x])]
+        .spacing(0)
+        .width(Length::Fill);
 
     if chrome.show_separator {
         let mut props = SeparatorProps::new()
@@ -1091,6 +1115,18 @@ mod tests {
     }
 
     #[test]
+    fn command_props_can_override_input_list_gap() {
+        let props = CommandProps::<()>::new(
+            iced::widget::Id::new("command"),
+            "",
+            CommandListProps::new(Vec::<CommandListEntry<'_, ()>>::new()),
+        )
+        .input_list_gap(0.0);
+
+        assert_eq!(props.input_list_gap, 0.0);
+    }
+
+    #[test]
     fn command_props_can_override_surface_background() {
         let background = iced::Color::from_rgb(0.1, 0.2, 0.3);
         let props = CommandProps::<()>::new(
@@ -1125,9 +1161,16 @@ mod tests {
     }
 
     #[test]
-    fn command_input_spacing_tokens_match_browser_chrome_metrics() {
-        assert_eq!(super::COMMAND_INPUT_PADDING_X, 8.0);
-        assert_eq!(super::COMMAND_INPUT_PADDING_Y, 4.0);
-        assert_eq!(super::COMMAND_INPUT_GAP, 10.0);
+    fn command_input_props_can_override_horizontal_padding() {
+        let props = CommandInputProps::new("Search").padding_x(8.0);
+
+        assert_eq!(props.padding_x, Some(8.0));
+    }
+
+    #[test]
+    fn command_input_props_can_override_gap() {
+        let props = CommandInputProps::new("Search").gap(0.0);
+
+        assert_eq!(props.gap, Some(0.0));
     }
 }

@@ -28,6 +28,7 @@ pub struct InputProps {
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
     pub custom_height: Option<f32>,
+    pub padding_x: Option<f32>,
     pub focus_only_border: bool,
     pub disabled: bool,
     pub read_only: bool,
@@ -41,6 +42,7 @@ impl Default for InputProps {
             color: AccentColor::Gray,
             radius: None,
             custom_height: None,
+            padding_x: None,
             focus_only_border: false,
             disabled: false,
             read_only: false,
@@ -75,6 +77,11 @@ impl InputProps {
 
     pub fn custom_height(mut self, height: f32) -> Self {
         self.custom_height = Some(height.max(0.0));
+        self
+    }
+
+    pub fn padding_x(mut self, padding_x: f32) -> Self {
+        self.padding_x = Some(padding_x.max(0.0));
         self
     }
 
@@ -122,7 +129,8 @@ impl InputSize {
 }
 
 fn input_padding(theme: &Theme, props: InputProps) -> [f32; 2] {
-    let [padding_y, padding_x] = props.size.padding(theme);
+    let [padding_y, default_padding_x] = props.size.padding(theme);
+    let padding_x = props.padding_x.unwrap_or(default_padding_x);
     let Some(custom_height) = props.custom_height else {
         return [padding_y, padding_x];
     };
@@ -249,6 +257,12 @@ mod tests {
     fn input_props_builder_accepts_custom_height() {
         let props = InputProps::new().custom_height(32.0);
         assert_eq!(props.custom_height, Some(32.0));
+    }
+
+    #[test]
+    fn input_props_builder_accepts_padding_x() {
+        let props = InputProps::new().padding_x(6.0);
+        assert_eq!(props.padding_x, Some(6.0));
     }
 
     #[test]
