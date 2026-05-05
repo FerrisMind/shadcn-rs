@@ -1456,11 +1456,6 @@ where
                     continue;
                 }
 
-                let available_gap = (right.x - (left.x + left.width)).max(0.0);
-                if available_gap <= 0.0 {
-                    continue;
-                }
-
                 let length = self
                     .list_props
                     .separator_length
@@ -1468,7 +1463,8 @@ where
                     .min(left.height.min(right.height))
                     .max(0.0);
 
-                let x = bounds.x + left.x + left.width + (available_gap - thickness) / 2.0;
+                let boundary_x = (left.x + left.width + right.x) / 2.0;
+                let x = bounds.x + boundary_x - (thickness / 2.0);
                 let y = bounds.y + left.y + (left.height - length) / 2.0;
 
                 renderer.fill_quad(
@@ -1484,6 +1480,7 @@ where
                             width: 0.0,
                             radius: (thickness / 2.0).into(),
                         },
+                        snap: true,
                         ..renderer::Quad::default()
                     },
                     Background::Color(color),
@@ -1529,6 +1526,7 @@ where
                                 width: 0.0,
                                 radius: (thickness / 2.0).into(),
                             },
+                            snap: true,
                             ..renderer::Quad::default()
                         },
                         Background::Color(color),
