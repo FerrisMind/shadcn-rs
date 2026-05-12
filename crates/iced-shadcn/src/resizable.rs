@@ -102,10 +102,21 @@ impl ResizablePanelProps {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct ResizableHandleProps {
     pub with_handle: bool,
     pub disabled: bool,
+    pub show_line: bool,
+}
+
+impl Default for ResizableHandleProps {
+    fn default() -> Self {
+        Self {
+            with_handle: false,
+            disabled: false,
+            show_line: true,
+        }
+    }
 }
 
 impl ResizableHandleProps {
@@ -120,6 +131,11 @@ impl ResizableHandleProps {
 
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;
+        self
+    }
+
+    pub fn show_line(mut self, show_line: bool) -> Self {
+        self.show_line = show_line;
         self
     }
 }
@@ -264,11 +280,17 @@ pub fn resizable_handle<'a, Message: Clone + 'a>(
         ),
     };
 
+    let line_color = if props.show_line {
+        theme.palette.border
+    } else {
+        iced::Color::TRANSPARENT
+    };
+
     let line = container(text(""))
         .width(visual_width)
         .height(visual_height)
         .style(move |_t| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.border)),
+            background: Some(Background::Color(line_color)),
             ..Default::default()
         });
 
