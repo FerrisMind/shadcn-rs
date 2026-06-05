@@ -289,6 +289,82 @@ fn shadow_xs(theme: &Theme, opacity: f32) -> Shadow {
     }
 }
 
+pub(crate) fn size1_bounds(theme: &Theme, x: f32, center_y: f32) -> Rectangle {
+    let metrics = SwitchSize::Size1.metrics(theme);
+    Rectangle {
+        x,
+        y: center_y - metrics.height / 2.0,
+        width: metrics.width,
+        height: metrics.height,
+    }
+}
+
+pub(crate) fn size1_width(theme: &Theme) -> f32 {
+    SwitchSize::Size1.metrics(theme).width
+}
+
+pub(crate) fn draw_size1_switch(
+    theme: &Theme,
+    renderer: &mut impl renderer::Renderer,
+    bounds: Rectangle,
+    is_checked: bool,
+    disabled: bool,
+    color: AccentColor,
+) {
+    let props = SwitchProps::new()
+        .size(SwitchSize::Size1)
+        .color(color)
+        .disabled(disabled)
+        .animate(false);
+    let metrics = props.size.metrics(theme);
+    let radius = switch_radius(theme, &props);
+    let thumb_radius = (radius - metrics.thumb_inset_y)
+        .max(0.0)
+        .min(metrics.thumb / 2.0);
+    let dark_mode = is_dark(&theme.palette);
+    let colors_off = switch_colors(theme, &props, false, disabled, dark_mode);
+    let colors_on = switch_colors(theme, &props, true, disabled, dark_mode);
+    let progress = if is_checked { 1.0 } else { 0.0 };
+    let track_color = mix(colors_off.track, colors_on.track, progress);
+    let thumb_color = mix(colors_off.thumb, colors_on.thumb, progress);
+    let available_width = (bounds.width - (metrics.thumb + metrics.thumb_inset_x * 2.0)).max(0.0);
+    let thumb_x = bounds.x + metrics.thumb_inset_x + available_width * progress;
+    let thumb_bounds = Rectangle {
+        x: thumb_x,
+        y: bounds.y + metrics.thumb_inset_y,
+        width: metrics.thumb,
+        height: metrics.thumb,
+    };
+
+    renderer.fill_quad(
+        renderer::Quad {
+            bounds,
+            border: border::Border {
+                radius: radius.into(),
+                width: 1.0,
+                color: iced::Color::TRANSPARENT,
+            },
+            shadow: shadow_xs(theme, if disabled { 0.5 } else { 1.0 }),
+            snap: false,
+        },
+        Background::Color(track_color),
+    );
+
+    renderer.fill_quad(
+        renderer::Quad {
+            bounds: thumb_bounds,
+            border: border::Border {
+                radius: thumb_radius.into(),
+                width: 0.0,
+                color: iced::Color::TRANSPARENT,
+            },
+            shadow: Shadow::default(),
+            snap: false,
+        },
+        Background::Color(thumb_color),
+    );
+}
+
 #[derive(Debug)]
 struct SwitchAnimation {
     last_checked: bool,

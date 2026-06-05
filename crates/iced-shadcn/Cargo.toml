@@ -19,7 +19,7 @@ include = [
 ]
 
 [dependencies]
-iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "highlighter", "image", "tokio", "tiny-skia", "lazy"] }
+iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "highlighter", "image", "svg", "tokio", "tiny-skia", "lazy", "x11", "wayland"] }
 iced_wgpu = { version = "0.14", optional = true, default-features = false }
 lucide-icons = { version = "0.575", features = ["iced"] }
 num-traits = "0.2"

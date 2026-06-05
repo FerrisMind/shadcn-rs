@@ -186,10 +186,11 @@ fn default_surface_shadow(theme: &Theme) -> Shadow {
 
 fn resolved_shadow(props: DecorativeSurfaceProps, theme: &Theme) -> Shadow {
     props.shadow.unwrap_or_else(|| {
-        props
-            .theme_shadow
-            .then(|| default_surface_shadow(theme))
-            .unwrap_or_default()
+        if props.theme_shadow {
+            default_surface_shadow(theme)
+        } else {
+            Default::default()
+        }
     })
 }
 

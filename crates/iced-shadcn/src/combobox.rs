@@ -212,10 +212,8 @@ fn get_selected_label(items: &[SelectItem], value: &Option<String>) -> Option<St
     if let Some(val) = value {
         for item in items {
             match item {
-                SelectItem::Option { value, label, .. } => {
-                    if value == val {
-                        return Some(label.clone());
-                    }
+                SelectItem::Option { value, label, .. } if value == val => {
+                    return Some(label.clone());
                 }
                 SelectItem::Group { items, .. } => {
                     if let Some(label) = get_selected_label(items, value) {

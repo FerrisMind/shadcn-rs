@@ -847,12 +847,12 @@ impl<Message: Clone> Widget<Message, iced::Theme, iced::Renderer>
 
         match event {
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if cursor.is_over(layout.bounds()) {
-                    let state = tree.state.downcast_mut::<NavigationMenuLinkState>();
-                    state.is_pressed = true;
-                    shell.capture_event();
-                }
+            | Event::Touch(touch::Event::FingerPressed { .. })
+                if cursor.is_over(layout.bounds()) =>
+            {
+                let state = tree.state.downcast_mut::<NavigationMenuLinkState>();
+                state.is_pressed = true;
+                shell.capture_event();
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerLifted { .. }) => {
@@ -1048,11 +1048,11 @@ impl<Message: Clone> Widget<Message, iced::Theme, iced::Renderer>
 
         match event {
             Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if cursor.is_over(layout.bounds()) {
-                    let state = tree.state.downcast_mut::<NavigationMenuTriggerState>();
-                    state.is_pressed = true;
-                }
+            | Event::Touch(touch::Event::FingerPressed { .. })
+                if cursor.is_over(layout.bounds()) =>
+            {
+                let state = tree.state.downcast_mut::<NavigationMenuTriggerState>();
+                state.is_pressed = true;
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerLifted { .. }) => {

@@ -479,11 +479,11 @@ where
                     shell.publish((self.on_action)(FileDropZoneAction::Hovered(is_over)));
                 }
             }
-            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) if is_over => {
-                if can_upload {
-                    shell.publish((self.on_action)(FileDropZoneAction::PickerRequested));
-                    shell.capture_event();
-                }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+                if is_over && can_upload =>
+            {
+                shell.publish((self.on_action)(FileDropZoneAction::PickerRequested));
+                shell.capture_event();
             }
             Event::Window(window::Event::FileHovered(_path)) => {
                 let cursor_known = cursor.position().is_some();

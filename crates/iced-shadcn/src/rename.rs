@@ -650,17 +650,17 @@ where
 
         match (self.mode, event) {
             (RenameMode::View, Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)))
-            | (RenameMode::View, Event::Touch(touch::Event::FingerPressed { .. })) => {
-                if self.click_to_edit && cursor.is_over(layout.bounds()) {
-                    shell.publish((on_action)(RenameAction::StartEdit));
-                    shell.capture_event();
-                }
+            | (RenameMode::View, Event::Touch(touch::Event::FingerPressed { .. }))
+                if self.click_to_edit && cursor.is_over(layout.bounds()) =>
+            {
+                shell.publish((on_action)(RenameAction::StartEdit));
+                shell.capture_event();
             }
             (RenameMode::Edit, Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)))
-            | (RenameMode::Edit, Event::Touch(touch::Event::FingerPressed { .. })) => {
-                if !cursor.is_over(layout.bounds()) {
-                    shell.publish((on_action)(RenameAction::BlurDetected));
-                }
+            | (RenameMode::Edit, Event::Touch(touch::Event::FingerPressed { .. }))
+                if !cursor.is_over(layout.bounds()) =>
+            {
+                shell.publish((on_action)(RenameAction::BlurDetected));
             }
             (
                 RenameMode::Edit,

@@ -471,21 +471,21 @@ where
                     shell.capture_event();
                 }
             }
-            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)) => {
-                if has_active_drag(self.group_id, self.handle_index, self.direction) {
-                    clear_active_drag(self.group_id, self.handle_index, self.direction);
-                    trace_resize_event(
-                        self.handle_index,
-                        self.direction,
-                        "button-released",
-                        layout.bounds(),
-                        cursor.position(),
-                        self.sizes,
-                        None,
-                    );
-                    shell.request_redraw();
-                    shell.capture_event();
-                }
+            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
+                if has_active_drag(self.group_id, self.handle_index, self.direction) =>
+            {
+                clear_active_drag(self.group_id, self.handle_index, self.direction);
+                trace_resize_event(
+                    self.handle_index,
+                    self.direction,
+                    "button-released",
+                    layout.bounds(),
+                    cursor.position(),
+                    self.sizes,
+                    None,
+                );
+                shell.request_redraw();
+                shell.capture_event();
             }
             Event::Mouse(mouse::Event::CursorMoved { position }) => {
                 if let Some(active_drag) =

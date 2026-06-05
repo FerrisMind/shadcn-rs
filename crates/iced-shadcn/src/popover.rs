@@ -226,11 +226,9 @@ where
                 if matches!(
                     overlay_keyboard::command(event),
                     Some(overlay_keyboard::OverlayCommand::Close)
-                ) =>
+                ) && set_open(state, &self.props, false) =>
             {
-                if is_open && set_open(state, &self.props, false) {
-                    shell.capture_event();
-                }
+                shell.capture_event();
             }
             Event::Keyboard(keyboard::Event::ModifiersChanged(modifiers)) => {
                 state.keyboard_modifiers = *modifiers;

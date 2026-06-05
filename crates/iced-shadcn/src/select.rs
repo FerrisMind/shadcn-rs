@@ -563,18 +563,16 @@ where
                     }
                 }
                 Event::Keyboard(keyboard::Event::KeyPressed { .. })
-                    if matches!(
-                        overlay_keyboard::command(event),
-                        Some(overlay_keyboard::OverlayCommand::Close)
+                if matches!(
+                    overlay_keyboard::command(event),
+                    Some(overlay_keyboard::OverlayCommand::Close)
                     ) =>
                 {
-                    if state.is_open {
-                        state.is_open = false;
-                        if let Some(on_close) = &self.on_close {
-                            shell.publish(on_close.clone());
-                        }
-                        shell.capture_event();
+                    state.is_open = false;
+                    if let Some(on_close) = &self.on_close {
+                        shell.publish(on_close.clone());
                     }
+                    shell.capture_event();
                 }
                 Event::Keyboard(keyboard::Event::ModifiersChanged(modifiers)) => {
                     state.keyboard_modifiers = *modifiers;
