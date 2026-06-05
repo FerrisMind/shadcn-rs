@@ -46,6 +46,16 @@ pub fn drain_events() -> Vec<WebPreviewBackendEvent> {
     queue.drain(..).collect()
 }
 
+#[cfg(target_os = "linux")]
+pub fn pump_gtk_events() {
+    while gtk::events_pending() {
+        gtk::main_iteration_do(false);
+    }
+}
+
+#[cfg(not(target_os = "linux"))]
+pub fn pump_gtk_events() {}
+
 pub fn run(effect: WebPreviewEffect, window_id: window::Id) -> Task<()> {
     window::run(window_id, move |window| {
         apply_effect(window, window_id, effect)
@@ -226,17 +236,13 @@ fn handle_ipc_message(payload: &str) {
                 });
             }
         }
-        "title" => {
-            if !first.is_empty() {
-                push_event(WebPreviewBackendEvent::TitleChanged {
-                    title: first.to_owned(),
-                });
-            }
+        "title" if !first.is_empty() => {
+            push_event(WebPreviewBackendEvent::TitleChanged {
+                title: first.to_owned(),
+            });
         }
-        "error" => {
-            if !first.is_empty() {
-                push_error(first.to_owned());
-            }
+        "error" if !first.is_empty() => {
+            push_error(first.to_owned());
         }
         _ => {}
     }
