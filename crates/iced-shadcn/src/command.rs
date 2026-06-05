@@ -13,7 +13,7 @@ use crate::scroll_area::{
     ScrollAreaProps, ScrollAreaScrollbarVisibility, ScrollAreaScrollbars, scroll_area,
 };
 use crate::separator::{SeparatorProps, SeparatorSize, separator};
-use crate::spinner::{Spinner, SpinnerSize, spinner};
+use crate::spinner::{Spinner, SpinnerSize, SpinnerVariant, spinner};
 use crate::theme::Theme;
 
 /// Filter callback used by the command palette when `should_filter` is enabled.
@@ -268,6 +268,7 @@ pub struct CommandItemProps<'a, Message> {
     pub keywords: Vec<String>,
     pub icon: Option<Cow<'a, str>>,
     pub shortcut: Option<Cow<'a, str>>,
+    pub loading: bool,
     pub disabled: bool,
     pub force_mount: bool,
     pub on_select: Option<Message>,
@@ -281,6 +282,7 @@ impl<'a, Message> CommandItemProps<'a, Message> {
             keywords: Vec::new(),
             icon: None,
             shortcut: None,
+            loading: false,
             disabled: false,
             force_mount: false,
             on_select: None,
@@ -299,6 +301,11 @@ impl<'a, Message> CommandItemProps<'a, Message> {
 
     pub fn shortcut(mut self, shortcut: impl Into<Cow<'a, str>>) -> Self {
         self.shortcut = Some(shortcut.into());
+        self
+    }
+
+    pub fn loading(mut self, loading: bool) -> Self {
+        self.loading = loading;
         self
     }
 
@@ -493,18 +500,36 @@ pub fn command<'a, Message: Clone + 'a>(
         theme,
     );
     let visible_item_count = rendered.visible_items;
+    let list_inset = theme.spacing.xs;
+    let list_right_inset = list_inset + 8.0;
     let list_column = column(rendered.elements)
         .spacing(theme.styles.command.list_item_gap)
         .width(Length::Fill);
-    let list = scroll_area(
-        container(list_column).width(Length::Fill),
-        ScrollAreaProps::new()
-            .bordered(false)
-            .scrollbars(ScrollAreaScrollbars::Vertical)
-            .scrollbar_visibility(ScrollAreaScrollbarVisibility::Auto),
-        theme,
+    let list = container(
+        scroll_area(
+            container(list_column)
+                .padding(iced::Padding {
+                    top: 0.0,
+                    right: list_right_inset,
+                    bottom: list_inset,
+                    left: list_inset,
+                })
+                .width(Length::Fill),
+            ScrollAreaProps::new()
+                .bordered(false)
+                .scrollbars(ScrollAreaScrollbars::Vertical)
+                .scrollbar_visibility(ScrollAreaScrollbarVisibility::Auto),
+            theme,
+        )
+        .height(Length::Fixed(list.max_height))
+        .width(Length::Fill),
     )
-    .height(Length::Fixed(list.max_height))
+    .padding(iced::Padding {
+        top: 0.0,
+        right: 0.0,
+        bottom: 2.0,
+        left: 0.0,
+    })
     .width(Length::Fill);
 
     let mut body = column![input, list].spacing(input_list_gap);
@@ -643,7 +668,7 @@ fn command_input<'a, Message: Clone + 'a>(
             props = props.custom_color(color);
         }
         let line = separator(props, theme).width(Length::Fill);
-        input = input.push(line);
+        input = input.push(container(line).padding([0.0, 12.0]));
     }
 
     input.into()
@@ -694,6 +719,7 @@ fn render_entries<'a, Message: Clone + 'a>(
                             label: item.label,
                             icon: item.icon,
                             shortcut: item.shortcut,
+                            loading: item.loading,
                             disabled: item.disabled,
                             on_select: item.on_select,
                         },
@@ -754,6 +780,7 @@ fn command_group<'a, Message: Clone + 'a>(
         group = group.push(
             text(heading)
                 .size(11)
+                .wrapping(iced::widget::text::Wrapping::None)
                 .style(move |_t| iced::widget::text::Style {
                     color: Some(tokens.muted),
                 }),
@@ -775,9 +802,27 @@ fn command_item<'a, Message: Clone + 'a>(
     if let Some(icon) = props.icon {
         content = content.push(text(icon).font(iced::Font::with_name("lucide")).size(13));
     }
-    content = content
-        .push(text(props.label).size(13))
-        .push(iced::widget::space().width(Length::Fill));
+    let label = container(
+        text(props.label)
+            .size(13)
+            .wrapping(iced::widget::text::Wrapping::None),
+    )
+    .width(Length::Fill)
+    .clip(true);
+    content = content.push(label);
+
+    if props.loading {
+        content = content.push(
+            spinner(
+                Spinner::new(theme)
+                    .size(SpinnerSize::Size1)
+                    .variant(SpinnerVariant::PromptCircular)
+                    .color(theme.palette.muted_foreground)
+                    .animated(true)
+                    .duration_ms(900),
+            ),
+        );
+    }
 
     if let Some(shortcut) = props.shortcut {
         content = content.push(command_shortcut(shortcut, theme));
@@ -817,6 +862,7 @@ struct CommandItemRenderProps<'a, Message> {
     label: Cow<'a, str>,
     icon: Option<Cow<'a, str>>,
     shortcut: Option<Cow<'a, str>>,
+    loading: bool,
     disabled: bool,
     on_select: Option<Message>,
 }
@@ -840,12 +886,19 @@ fn command_link_item<'a, Message: Clone + 'a>(
     if let Some(icon) = props.icon {
         content = content.push(text(icon).font(iced::Font::with_name("lucide")).size(13));
     }
+    let label = container(
+        text(props.label)
+            .size(13)
+            .wrapping(iced::widget::text::Wrapping::None),
+    )
+    .width(Length::Fill)
+    .clip(true);
     content = content
-        .push(text(props.label).size(13))
-        .push(iced::widget::space().width(Length::Fill))
+        .push(label)
         .push(
             text(props.href)
                 .size(10)
+                .wrapping(iced::widget::text::Wrapping::None)
                 .style(move |_t| iced::widget::text::Style {
                     color: Some(tokens.muted),
                 }),
@@ -910,13 +963,18 @@ fn command_loading<'a, Message: Clone + 'a>(
 }
 
 fn command_separator<'a, Message: Clone + 'a>(theme: &Theme) -> Element<'a, Message> {
-    separator(
-        SeparatorProps::new()
-            .size(SeparatorSize::Size4)
-            .thickness(1.0)
-            .gap(0.0),
-        theme,
+    container(
+        separator(
+            SeparatorProps::new()
+                .size(SeparatorSize::Size4)
+                .thickness(1.0)
+                .gap(0.0),
+            theme,
+        )
+        .width(Length::Fill),
     )
+    .padding([0.0, 8.0])
+    .width(Length::Fill)
     .into()
 }
 

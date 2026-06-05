@@ -473,14 +473,14 @@ where
             }
             Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
             | Event::Touch(touch::Event::FingerLifted { .. })
-            | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if state.is_dragging {
-                    if let Some(on_release) = self.on_release.clone() {
-                        shell.publish(on_release);
-                    }
-                    state.is_dragging = false;
-                    state.active_thumb = None;
+            | Event::Touch(touch::Event::FingerLost { .. })
+                if state.is_dragging =>
+            {
+                if let Some(on_release) = self.on_release.clone() {
+                    shell.publish(on_release);
                 }
+                state.is_dragging = false;
+                state.active_thumb = None;
             }
             Event::Mouse(mouse::Event::CursorMoved { .. })
             | Event::Touch(touch::Event::FingerMoved { .. }) => {
@@ -520,66 +520,62 @@ where
                 }
             }
             Event::Mouse(mouse::Event::WheelScrolled { delta })
-                if state.keyboard_modifiers.control() =>
+                if state.keyboard_modifiers.control() && cursor.is_over(bounds) =>
             {
-                if cursor.is_over(bounds) {
-                    let delta = match delta {
-                        mouse::ScrollDelta::Lines { x: _, y } => y,
-                        mouse::ScrollDelta::Pixels { x: _, y } => y,
+                let delta = match delta {
+                    mouse::ScrollDelta::Lines { x: _, y } => y,
+                    mouse::ScrollDelta::Pixels { x: _, y } => y,
+                };
+                if let Some(index) = state.hovered_thumb.or(state.active_thumb) {
+                    let step = self.step_value(state.keyboard_modifiers);
+                    let min_distance = self.min_distance(step);
+                    let start = (*self.range.start()).into();
+                    let end = (*self.range.end()).into();
+                    let current = self.values[index].into();
+                    let next = if *delta < 0.0 {
+                        current - step
+                    } else {
+                        current + step
                     };
+                    self.apply_value(shell, index, next, start, end, min_distance);
+                }
+                shell.capture_event();
+            }
+            Event::Keyboard(keyboard::Event::KeyPressed { key, .. }) if cursor.is_over(bounds) => {
+                let delta = match key {
+                    Key::Named(key::Named::ArrowLeft)
+                        if self.orientation == SliderOrientation::Horizontal =>
+                    {
+                        Some(-1.0)
+                    }
+                    Key::Named(key::Named::ArrowRight)
+                        if self.orientation == SliderOrientation::Horizontal =>
+                    {
+                        Some(1.0)
+                    }
+                    Key::Named(key::Named::ArrowDown)
+                        if self.orientation == SliderOrientation::Vertical =>
+                    {
+                        Some(-1.0)
+                    }
+                    Key::Named(key::Named::ArrowUp)
+                        if self.orientation == SliderOrientation::Vertical =>
+                    {
+                        Some(1.0)
+                    }
+                    _ => None,
+                };
+                if let Some(delta) = delta {
                     if let Some(index) = state.hovered_thumb.or(state.active_thumb) {
                         let step = self.step_value(state.keyboard_modifiers);
                         let min_distance = self.min_distance(step);
                         let start = (*self.range.start()).into();
                         let end = (*self.range.end()).into();
                         let current = self.values[index].into();
-                        let next = if *delta < 0.0 {
-                            current - step
-                        } else {
-                            current + step
-                        };
+                        let next = current + (step * delta);
                         self.apply_value(shell, index, next, start, end, min_distance);
                     }
                     shell.capture_event();
-                }
-            }
-            Event::Keyboard(keyboard::Event::KeyPressed { key, .. }) => {
-                if cursor.is_over(bounds) {
-                    let delta = match key {
-                        Key::Named(key::Named::ArrowLeft)
-                            if self.orientation == SliderOrientation::Horizontal =>
-                        {
-                            Some(-1.0)
-                        }
-                        Key::Named(key::Named::ArrowRight)
-                            if self.orientation == SliderOrientation::Horizontal =>
-                        {
-                            Some(1.0)
-                        }
-                        Key::Named(key::Named::ArrowDown)
-                            if self.orientation == SliderOrientation::Vertical =>
-                        {
-                            Some(-1.0)
-                        }
-                        Key::Named(key::Named::ArrowUp)
-                            if self.orientation == SliderOrientation::Vertical =>
-                        {
-                            Some(1.0)
-                        }
-                        _ => None,
-                    };
-                    if let Some(delta) = delta {
-                        if let Some(index) = state.hovered_thumb.or(state.active_thumb) {
-                            let step = self.step_value(state.keyboard_modifiers);
-                            let min_distance = self.min_distance(step);
-                            let start = (*self.range.start()).into();
-                            let end = (*self.range.end()).into();
-                            let current = self.values[index].into();
-                            let next = current + (step * delta);
-                            self.apply_value(shell, index, next, start, end, min_distance);
-                        }
-                        shell.capture_event();
-                    }
                 }
             }
             Event::Keyboard(keyboard::Event::ModifiersChanged(modifiers)) => {

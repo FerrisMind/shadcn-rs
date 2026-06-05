@@ -3,6 +3,7 @@ use std::borrow::Cow;
 use iced::advanced::Renderer as _;
 use iced::advanced::layout;
 use iced::advanced::renderer;
+use iced::advanced::svg;
 use iced::advanced::text;
 use iced::advanced::text::Renderer as _;
 use iced::advanced::widget::Tree;
@@ -18,10 +19,15 @@ use iced::{
 use lucide_icons::Icon as LucideIcon;
 
 use crate::overlay::keyboard as overlay_keyboard;
+use crate::switch as shadcn_switch;
 use crate::theme::Theme;
 use crate::tokens::{
     AccentColor, accent_color, accent_foreground, accent_high, accent_soft, accent_soft_foreground,
 };
+
+static NOVA_SHIELD_TERMINAL_SVG: &[u8] = include_bytes!(
+    "/home/mod479711/Downloads/nova/crates/nova-app/assets/icons/shield-terminal.svg"
+);
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MenuContentSize {
@@ -87,12 +93,39 @@ impl MenuContentProps {
     }
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct MenuItemProps<'a> {
     pub disabled: bool,
     pub inset: bool,
     pub color: Option<AccentColor>,
     pub shortcut: Option<Cow<'a, str>>,
+    pub leading_icon: Option<MenuLeadingIcon>,
+    pub leading_icon_color: Option<Color>,
+    pub trailing_check: bool,
+    pub trailing_switch: Option<bool>,
+    pub close_on_select: bool,
+}
+
+impl<'a> Default for MenuItemProps<'a> {
+    fn default() -> Self {
+        Self {
+            disabled: false,
+            inset: false,
+            color: None,
+            shortcut: None,
+            leading_icon: None,
+            leading_icon_color: None,
+            trailing_check: false,
+            trailing_switch: None,
+            close_on_select: true,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+pub enum MenuLeadingIcon {
+    Lucide(LucideIcon),
+    ShieldTerminal,
 }
 
 impl<'a> MenuItemProps<'a> {
@@ -117,6 +150,36 @@ impl<'a> MenuItemProps<'a> {
 
     pub fn shortcut(mut self, shortcut: impl Into<Cow<'a, str>>) -> Self {
         self.shortcut = Some(shortcut.into());
+        self
+    }
+
+    pub fn leading_icon(mut self, icon: LucideIcon) -> Self {
+        self.leading_icon = Some(MenuLeadingIcon::Lucide(icon));
+        self
+    }
+
+    pub fn leading_shield_terminal(mut self) -> Self {
+        self.leading_icon = Some(MenuLeadingIcon::ShieldTerminal);
+        self
+    }
+
+    pub fn leading_icon_color(mut self, color: Color) -> Self {
+        self.leading_icon_color = Some(color);
+        self
+    }
+
+    pub fn trailing_check(mut self, checked: bool) -> Self {
+        self.trailing_check = checked;
+        self
+    }
+
+    pub fn trailing_switch(mut self, checked: bool) -> Self {
+        self.trailing_switch = Some(checked);
+        self
+    }
+
+    pub fn close_on_select(mut self, close_on_select: bool) -> Self {
+        self.close_on_select = close_on_select;
         self
     }
 }
@@ -426,21 +489,21 @@ where
                 }
             }
             Event::Mouse(mouse::Event::ButtonPressed(_))
-            | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                if state.is_open {
-                    let over_menu = state
-                        .overlay_bounds
-                        .map(|b| cursor.is_over(b))
-                        .unwrap_or(false);
-                    let over_submenu = state
-                        .submenu_bounds
-                        .map(|b| cursor.is_over(b))
-                        .unwrap_or(false);
-                    if !over_menu && !over_submenu {
-                        state.is_open = false;
-                        state.open_submenu = None;
-                        shell.capture_event();
-                    }
+            | Event::Touch(touch::Event::FingerPressed { .. })
+                if state.is_open =>
+            {
+                let over_menu = state
+                    .overlay_bounds
+                    .map(|b| cursor.is_over(b))
+                    .unwrap_or(false);
+                let over_submenu = state
+                    .submenu_bounds
+                    .map(|b| cursor.is_over(b))
+                    .unwrap_or(false);
+                if !over_menu && !over_submenu {
+                    state.is_open = false;
+                    state.open_submenu = None;
+                    shell.capture_event();
                 }
             }
             Event::Keyboard(keyboard::Event::KeyPressed { .. })
@@ -449,11 +512,9 @@ where
                     Some(overlay_keyboard::OverlayCommand::Close)
                 ) =>
             {
-                if state.is_open {
-                    state.is_open = false;
-                    state.open_submenu = None;
-                    shell.capture_event();
-                }
+                state.is_open = false;
+                state.open_submenu = None;
+                shell.capture_event();
             }
             Event::Keyboard(keyboard::Event::ModifiersChanged(modifiers)) => {
                 state.keyboard_modifiers = *modifiers;
@@ -927,6 +988,15 @@ fn apply_opacity(mut color: Color, opacity: f32) -> Color {
     color
 }
 
+fn switch_bounds(theme: &Theme, metrics: MenuMetrics, row_bounds: Rectangle) -> Rectangle {
+    let switch_width = shadcn_switch::size1_width(theme);
+    shadcn_switch::size1_bounds(
+        theme,
+        row_bounds.x + row_bounds.width - metrics.base_padding_x - switch_width,
+        row_bounds.center_y(),
+    )
+}
+
 fn menu_style(theme: &Theme, props: MenuContentProps) -> ResolvedMenuStyle {
     let shadow = if props.show_shadow {
         Shadow {
@@ -1026,7 +1096,12 @@ enum MenuRowKind<'a, Message> {
         disabled: bool,
         inset: bool,
         shortcut: Option<Cow<'a, str>>,
+        leading_icon: Option<MenuLeadingIcon>,
+        leading_icon_color: Option<Color>,
         indicator: Option<MenuIndicator>,
+        trailing_check: bool,
+        trailing_switch: Option<bool>,
+        close_on_select: bool,
         submenu: bool,
         on_select: Option<Message>,
         color: Option<AccentColor>,
@@ -1056,7 +1131,12 @@ fn build_rows<'a, Message: Clone>(
                     disabled: item.props.disabled,
                     inset: item.props.inset,
                     shortcut: item.props.shortcut.clone(),
+                    leading_icon: item.props.leading_icon,
+                    leading_icon_color: item.props.leading_icon_color,
                     indicator: None,
+                    trailing_check: item.props.trailing_check,
+                    trailing_switch: item.props.trailing_switch,
+                    close_on_select: item.props.close_on_select,
                     submenu: false,
                     on_select: item.on_select.clone(),
                     color: item.props.color,
@@ -1070,7 +1150,12 @@ fn build_rows<'a, Message: Clone>(
                     disabled: item.props.disabled,
                     inset: item.props.inset,
                     shortcut: item.props.shortcut.clone(),
+                    leading_icon: item.props.leading_icon,
+                    leading_icon_color: item.props.leading_icon_color,
                     indicator: item.checked.then_some(MenuIndicator::Check),
+                    trailing_check: item.props.trailing_check,
+                    trailing_switch: item.props.trailing_switch,
+                    close_on_select: item.props.close_on_select,
                     submenu: false,
                     on_select: item.on_toggle.clone(),
                     color: item.props.color,
@@ -1084,7 +1169,12 @@ fn build_rows<'a, Message: Clone>(
                     disabled: item.props.disabled,
                     inset: item.props.inset,
                     shortcut: item.props.shortcut.clone(),
+                    leading_icon: item.props.leading_icon,
+                    leading_icon_color: item.props.leading_icon_color,
                     indicator: item.selected.then_some(MenuIndicator::Radio),
+                    trailing_check: item.props.trailing_check,
+                    trailing_switch: item.props.trailing_switch,
+                    close_on_select: item.props.close_on_select,
                     submenu: false,
                     on_select: item.on_select.clone(),
                     color: item.props.color,
@@ -1098,7 +1188,12 @@ fn build_rows<'a, Message: Clone>(
                     disabled: item.props.disabled,
                     inset: item.props.inset,
                     shortcut: item.props.shortcut.clone(),
+                    leading_icon: item.props.leading_icon,
+                    leading_icon_color: item.props.leading_icon_color,
                     indicator: None,
+                    trailing_check: item.props.trailing_check,
+                    trailing_switch: item.props.trailing_switch,
+                    close_on_select: item.props.close_on_select,
                     submenu: true,
                     on_select: None,
                     color: item.props.color,
@@ -1207,6 +1302,8 @@ where
                         && let MenuRowKind::Item {
                             entry_index,
                             disabled: false,
+                            close_on_select,
+                            trailing_switch,
                             submenu,
                             on_select,
                             ..
@@ -1221,11 +1318,26 @@ where
                                 }
                             }
                         } else {
-                            if let Some(is_open) = self.is_open.as_deref_mut() {
-                                *is_open = false;
-                            }
-                            if let Some(open_submenu) = self.open_submenu.as_deref_mut() {
-                                *open_submenu = None;
+                            let row_y = rows.iter().take(index).map(|row| row.height).sum::<f32>();
+                            let row_bounds = Rectangle {
+                                x: bounds.x + self.metrics.content_padding,
+                                y: bounds.y + self.metrics.content_padding + row_y,
+                                width: (bounds.width - self.metrics.content_padding * 2.0).max(0.0),
+                                height: rows[index].height,
+                            };
+                            let over_switch = trailing_switch.is_some_and(|_| {
+                                cursor.position().is_some_and(|point| {
+                                    switch_bounds(&self.theme, self.metrics, row_bounds)
+                                        .contains(point)
+                                })
+                            });
+                            if *close_on_select && !over_switch {
+                                if let Some(is_open) = self.is_open.as_deref_mut() {
+                                    *is_open = false;
+                                }
+                                if let Some(open_submenu) = self.open_submenu.as_deref_mut() {
+                                    *open_submenu = None;
+                                }
                             }
                             if let Some(message) = on_select.clone() {
                                 shell.publish(message);
@@ -1294,12 +1406,13 @@ where
             match &row.kind {
                 MenuRowKind::Separator => {
                     let line_y = row_bounds.y + row_bounds.height / 2.0;
+                    let separator_inset = 12.0;
                     renderer.fill_quad(
                         renderer::Quad {
                             bounds: Rectangle {
-                                x: bounds.x,
+                                x: bounds.x + separator_inset,
                                 y: line_y,
-                                width: bounds.width,
+                                width: (bounds.width - separator_inset * 2.0).max(0.0),
                                 height: 1.0,
                             },
                             ..renderer::Quad::default()
@@ -1312,8 +1425,7 @@ where
                         weight: Weight::Medium,
                         ..self.font
                     };
-                    let label_x =
-                        row_bounds.x + self.metrics.base_padding_x + self.metrics.inset_padding_x;
+                    let label_x = row_bounds.x;
                     renderer.fill_text(
                         text::Text {
                             content: label.to_string(),
@@ -1329,7 +1441,7 @@ where
                             wrapping: text::Wrapping::default(),
                         },
                         Point::new(label_x, row_bounds.center_y()),
-                        menu_style.text_color,
+                        menu_style.muted_text_color,
                         *viewport,
                     );
                 }
@@ -1338,7 +1450,11 @@ where
                     disabled,
                     inset,
                     shortcut,
+                    leading_icon,
+                    leading_icon_color,
                     indicator,
+                    trailing_check,
+                    trailing_switch,
                     submenu,
                     color,
                     ..
@@ -1368,14 +1484,23 @@ where
                         text_color = menu_style.disabled_text_color;
                     }
 
-                    let needs_inset = *inset || indicator.is_some();
-                    let label_x = row_bounds.x
+                    let icon_x = row_bounds.x
                         + self.metrics.base_padding_x
-                        + if needs_inset {
-                            self.metrics.inset_padding_x
-                        } else {
-                            0.0
-                        };
+                        + self.metrics.indicator_size / 2.0;
+                    let icon_column_width =
+                        self.metrics.indicator_size + self.metrics.base_padding_x * 2.0;
+                    let needs_inset = *inset || indicator.is_some();
+                    let label_x = if leading_icon.is_some() {
+                        row_bounds.x + icon_column_width
+                    } else {
+                        row_bounds.x
+                            + self.metrics.base_padding_x
+                            + if needs_inset {
+                                self.metrics.inset_padding_x
+                            } else {
+                                0.0
+                            }
+                    };
 
                     if let Some(indicator) = indicator {
                         let (icon, icon_size) = match indicator {
@@ -1399,13 +1524,51 @@ where
                                 shaping: text::Shaping::Basic,
                                 wrapping: text::Wrapping::default(),
                             },
-                            Point::new(
-                                row_bounds.x + self.metrics.base_padding_x,
-                                row_bounds.center_y(),
-                            ),
+                            Point::new(icon_x, row_bounds.center_y()),
                             text_color,
                             *viewport,
                         );
+                    }
+
+                    if let Some(icon) = leading_icon {
+                        let icon_size = self.metrics.indicator_size;
+                        let icon_color = leading_icon_color.unwrap_or(text_color);
+                        match icon {
+                            MenuLeadingIcon::Lucide(icon) => {
+                                renderer.fill_text(
+                                    text::Text {
+                                        content: char::from(*icon).to_string(),
+                                        size: icon_size.into(),
+                                        line_height: text::LineHeight::Absolute(icon_size.into()),
+                                        font: icon_font,
+                                        bounds: Size::new(icon_size, row_bounds.height),
+                                        align_x: text::Alignment::Center,
+                                        align_y: iced::alignment::Vertical::Center,
+                                        shaping: text::Shaping::Basic,
+                                        wrapping: text::Wrapping::default(),
+                                    },
+                                    Point::new(icon_x, row_bounds.center_y()),
+                                    icon_color,
+                                    *viewport,
+                                );
+                            }
+                            MenuLeadingIcon::ShieldTerminal => {
+                                let handle =
+                                    svg::Handle::from_memory(NOVA_SHIELD_TERMINAL_SVG.to_vec());
+                                let bounds = Rectangle {
+                                    x: icon_x - icon_size / 2.0,
+                                    y: row_bounds.center_y() - icon_size / 2.0,
+                                    width: icon_size,
+                                    height: icon_size,
+                                };
+                                svg::Renderer::draw_svg(
+                                    renderer,
+                                    svg::Svg::new(handle).color(icon_color),
+                                    bounds,
+                                    *viewport,
+                                );
+                            }
+                        }
                     }
 
                     renderer.fill_text(
@@ -1456,26 +1619,60 @@ where
                         );
                     }
 
+                    if *trailing_check {
+                        let icon_size = self.metrics.indicator_size;
+                        renderer.fill_text(
+                            text::Text {
+                                content: char::from(LucideIcon::Check).to_string(),
+                                size: icon_size.into(),
+                                line_height: text::LineHeight::Absolute(icon_size.into()),
+                                font: icon_font,
+                                bounds: Size::new(icon_size, row_bounds.height),
+                                align_x: text::Alignment::Center,
+                                align_y: iced::alignment::Vertical::Center,
+                                shaping: text::Shaping::Basic,
+                                wrapping: text::Wrapping::default(),
+                            },
+                            Point::new(
+                                row_bounds.x + row_bounds.width
+                                    - self.metrics.base_padding_x
+                                    - icon_size / 2.0,
+                                row_bounds.center_y(),
+                            ),
+                            text_color,
+                            *viewport,
+                        );
+                    }
+
+                    if let Some(is_checked) = trailing_switch {
+                        shadcn_switch::draw_size1_switch(
+                            &self.theme,
+                            renderer,
+                            switch_bounds(&self.theme, self.metrics, row_bounds),
+                            *is_checked,
+                            *disabled,
+                            color.unwrap_or(self.content.color),
+                        );
+                    }
+
                     if *submenu {
                         let icon_size = self.metrics.indicator_size;
-                        let submenu_bounds = Size::new(
-                            (row_bounds.width - self.metrics.base_padding_x * 2.0).max(0.0),
-                            row_bounds.height,
-                        );
                         renderer.fill_text(
                             text::Text {
                                 content: char::from(LucideIcon::ChevronRight).to_string(),
                                 size: icon_size.into(),
                                 line_height: text::LineHeight::Absolute(icon_size.into()),
                                 font: icon_font,
-                                bounds: submenu_bounds,
-                                align_x: text::Alignment::Right,
+                                bounds: Size::new(icon_size, row_bounds.height),
+                                align_x: text::Alignment::Center,
                                 align_y: iced::alignment::Vertical::Center,
                                 shaping: text::Shaping::Basic,
                                 wrapping: text::Wrapping::default(),
                             },
                             Point::new(
-                                row_bounds.x + self.metrics.base_padding_x,
+                                row_bounds.x + row_bounds.width
+                                    - self.metrics.base_padding_x
+                                    - icon_size / 2.0,
                                 row_bounds.center_y(),
                             ),
                             menu_style.muted_text_color,
