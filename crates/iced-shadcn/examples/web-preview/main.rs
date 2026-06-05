@@ -12,10 +12,124 @@ use iced_shadcn::{
 use lucide_icons::LUCIDE_FONT_BYTES;
 
 pub fn main() -> iced::Result {
+    if let Err(code) = ensure_clean_runtime() {
+        std::process::exit(code);
+    }
+
+    clear_snap_env();
+    init_linux_wry_runtime();
+
     iced::application(Example::default, Example::update, Example::view)
         .subscription(Example::subscription)
         .font(LUCIDE_FONT_BYTES)
         .run()
+}
+
+#[cfg(all(feature = "wry", target_os = "linux"))]
+fn ensure_clean_runtime() -> Result<(), i32> {
+    if std::env::var_os("WEB_PREVIEW_SANITIZED").is_some() {
+        return Ok(());
+    }
+
+    let exe = std::env::current_exe().map_err(|_| 1)?;
+    let args = std::env::args_os().skip(1);
+    let current_env = std::env::vars_os().collect::<Vec<_>>();
+
+    let mut command = Command::new(exe);
+    command.env_clear();
+    command.args(args);
+    command.env("WEB_PREVIEW_SANITIZED", "1");
+    command.env(
+        "LD_LIBRARY_PATH",
+        "/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu",
+    );
+    command.env("NO_AT_BRIDGE", "1");
+
+    for (key, value) in current_env {
+        let key = key.to_string_lossy();
+        if key == "WEB_PREVIEW_SANITIZED"
+            || key == "NO_AT_BRIDGE"
+            || key == "GTK_MODULES"
+            || key.starts_with("SNAP")
+        {
+            continue;
+        }
+
+        let value = value.to_string_lossy();
+        if key == "PATH" || key == "XDG_DATA_DIRS" || key == "XDG_CONFIG_DIRS" {
+            let cleaned = value
+                .split(':')
+                .filter(|segment| !segment.is_empty() && !segment.contains("/snap/"))
+                .collect::<Vec<_>>()
+                .join(":");
+            if !cleaned.is_empty() {
+                command.env(key.as_ref(), cleaned);
+            }
+            continue;
+        }
+
+        if value.contains("/snap/") {
+            continue;
+        }
+
+        command.env(key.as_ref(), value.as_ref());
+    }
+
+    let status = command.spawn().map_err(|_| 1)?.wait().map_err(|_| 1)?;
+    Err(status.code().unwrap_or(1))
+}
+
+#[cfg(not(all(feature = "wry", target_os = "linux")))]
+fn ensure_clean_runtime() -> Result<(), i32> {
+    Ok(())
+}
+
+#[cfg(all(feature = "wry", target_os = "linux"))]
+fn init_linux_wry_runtime() {
+    gtk::init().expect("failed to initialize GTK for web-preview");
+}
+
+#[cfg(not(all(feature = "wry", target_os = "linux")))]
+fn init_linux_wry_runtime() {}
+
+fn clear_snap_env() {
+    // Remove snap-specific environment inherited from the editor shell before GTK/WebKit starts.
+    // This keeps WebKit child processes on the system runtime instead of snap-provided libs.
+    for key in [
+        "SNAP",
+        "SNAP_NAME",
+        "SNAP_INSTANCE_NAME",
+        "SNAP_REVISION",
+        "SNAP_ARCH",
+        "SNAP_DATA",
+        "SNAP_COMMON",
+        "SNAP_USER_DATA",
+        "SNAP_USER_COMMON",
+        "SNAP_LIBRARY_PATH",
+        "LD_AUDIT",
+        "LD_DEBUG",
+        "LD_DEBUG_OUTPUT",
+        "LD_PRELOAD",
+        "LD_ORIGIN_PATH",
+        "NO_AT_BRIDGE",
+        "GTK_MODULES",
+    ] {
+        unsafe {
+            std::env::remove_var(key);
+        }
+    }
+
+    // Force WebKit and its helper processes to resolve libc/libpthread from the host system.
+    // This avoids snap-provided glibc fragments being picked up through inherited launcher state.
+    unsafe {
+        if cfg!(target_os = "linux") {
+            std::env::set_var(
+                "LD_LIBRARY_PATH",
+                "/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu",
+            );
+            std::env::set_var("NO_AT_BRIDGE", "1");
+        }
+    }
 }
 
 const CARD_MAX_WIDTH: f32 = 960.0;
@@ -125,6 +239,9 @@ impl Example {
                 _ => Task::none(),
             },
             Message::Tick => {
+                #[cfg(feature = "wry")]
+                iced_shadcn::wry_backend::pump_gtk_events();
+
                 for event in drain_backend_events() {
                     self.preview
                         .apply(WebPreviewAction::Backend(event), &self.props);
@@ -181,7 +298,7 @@ impl Example {
 
         #[cfg(feature = "wry")]
         {
-            return iced_shadcn::wry_backend::run(effect, window_id).map(|_| Message::Tick);
+            iced_shadcn::wry_backend::run(effect, window_id).map(|_| Message::Tick)
         }
 
         #[cfg(not(feature = "wry"))]
@@ -256,7 +373,7 @@ fn open_in_system_browser(url: String) -> std::io::Result<()> {
 fn drain_backend_events() -> Vec<WebPreviewBackendEvent> {
     #[cfg(feature = "wry")]
     {
-        return iced_shadcn::wry_backend::drain_events();
+        iced_shadcn::wry_backend::drain_events()
     }
 
     #[cfg(not(feature = "wry"))]
