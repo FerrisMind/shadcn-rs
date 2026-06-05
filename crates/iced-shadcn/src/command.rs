@@ -812,16 +812,14 @@ fn command_item<'a, Message: Clone + 'a>(
     content = content.push(label);
 
     if props.loading {
-        content = content.push(
-            spinner(
-                Spinner::new(theme)
-                    .size(SpinnerSize::Size1)
-                    .variant(SpinnerVariant::PromptCircular)
-                    .color(theme.palette.muted_foreground)
-                    .animated(true)
-                    .duration_ms(900),
-            ),
-        );
+        content = content.push(spinner(
+            Spinner::new(theme)
+                .size(SpinnerSize::Size1)
+                .variant(SpinnerVariant::PromptCircular)
+                .color(theme.palette.muted_foreground)
+                .animated(true)
+                .duration_ms(900),
+        ));
     }
 
     if let Some(shortcut) = props.shortcut {
@@ -893,16 +891,14 @@ fn command_link_item<'a, Message: Clone + 'a>(
     )
     .width(Length::Fill)
     .clip(true);
-    content = content
-        .push(label)
-        .push(
-            text(props.href)
-                .size(10)
-                .wrapping(iced::widget::text::Wrapping::None)
-                .style(move |_t| iced::widget::text::Style {
-                    color: Some(tokens.muted),
-                }),
-        );
+    content = content.push(label).push(
+        text(props.href)
+            .size(10)
+            .wrapping(iced::widget::text::Wrapping::None)
+            .style(move |_t| iced::widget::text::Style {
+                color: Some(tokens.muted),
+            }),
+    );
 
     if let Some(shortcut) = props.shortcut {
         content = content.push(command_shortcut(shortcut, theme));

@@ -5,6 +5,8 @@ use iced::{Alignment, Background, Element, Length};
 use iced_shadcn::{SkeletonAnimation, SkeletonProps, Theme, skeleton, skeleton_shimmer_label};
 
 pub fn main() -> iced::Result {
+    iced_shadcn::profiling::init_runtime();
+
     iced::application(Example::default, Example::update, Example::view).run()
 }
 

@@ -21,6 +21,7 @@ use lucide_icons::Icon as LucideIcon;
 
 use crate::button::ButtonRadius;
 use crate::overlay::{keyboard as overlay_keyboard, positioning};
+use crate::profiling::profile_span;
 use crate::theme::Theme as ShadcnTheme;
 use crate::tokens::{
     AccentColor, accent_color, accent_foreground, accent_high, accent_soft, accent_text, is_dark,
@@ -563,9 +564,9 @@ where
                     }
                 }
                 Event::Keyboard(keyboard::Event::KeyPressed { .. })
-                if matches!(
-                    overlay_keyboard::command(event),
-                    Some(overlay_keyboard::OverlayCommand::Close)
+                    if matches!(
+                        overlay_keyboard::command(event),
+                        Some(overlay_keyboard::OverlayCommand::Close)
                     ) =>
                 {
                     state.is_open = false;
@@ -656,9 +657,11 @@ where
         );
 
         let chevron = LucideIcon::ChevronDown;
+        let mut chevron_bytes = [0; 4];
+        let chevron_icon = char::from(chevron).encode_utf8(&mut chevron_bytes);
         renderer.fill_text(
             text::Text {
-                content: char::from(chevron).to_string(),
+                content: chevron_icon.to_string(),
                 size: metrics.chevron_size.into(),
                 line_height: text::LineHeight::Absolute(metrics.chevron_size.into()),
                 font: Font::with_name("lucide"),
@@ -957,6 +960,8 @@ where
     where
         Renderer: renderer::Renderer + text::Renderer<Font = Font>,
     {
+        let _profile = profile_span("select.overlay.new");
+
         let SelectMenu {
             state,
             entries,
@@ -972,11 +977,13 @@ where
         } = menu;
         let width = width.max(128.0);
         let menu_bounds = &mut state.menu_bounds;
+        let rows = build_rows(entries.clone(), selected.as_ref(), metrics);
+        let content_height = rows.iter().map(|row| row.height).sum::<f32>();
 
         let list = SelectList {
-            entries,
+            rows,
+            content_height,
             hovered_row,
-            selected,
             on_selected,
             props,
             metrics,
@@ -1013,6 +1020,8 @@ where
     Renderer: renderer::Renderer + text::Renderer<Font = Font>,
 {
     fn layout(&mut self, renderer: &Renderer, bounds: Size) -> layout::Node {
+        let _profile = profile_span("select.overlay.layout");
+
         let space_below = bounds.height - (self.position.y + self.target_height);
         let space_above = self.position.y;
         let gap = 4.0;
@@ -1061,6 +1070,8 @@ where
         clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
     ) {
+        let _profile = profile_span("select.overlay.update");
+
         let bounds = layout.bounds();
         <SelectList<'_, T, Message> as Widget<Message, AppTheme, Renderer>>::update(
             &mut self.list,
@@ -1099,6 +1110,8 @@ where
         layout: Layout<'_>,
         cursor: mouse::Cursor,
     ) {
+        let _profile = profile_span("select.overlay.draw");
+
         let bounds = layout.bounds();
         let style = select_menu_style(&self.theme, self.props);
 
@@ -1119,9 +1132,9 @@ where
 }
 
 struct SelectList<'a, T, Message> {
-    entries: SelectEntries<'a, T>,
+    rows: Vec<Row<T>>,
+    content_height: f32,
     hovered_row: &'a mut Option<usize>,
-    selected: Option<T>,
     on_selected: Box<dyn FnMut(T) -> Message + 'a>,
     props: SelectProps,
     metrics: SelectMetrics,
@@ -1156,9 +1169,10 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let rows = build_rows(self.entries.clone(), self.selected.as_ref(), self.metrics);
-        let content_height = rows.iter().map(|row| row.height).sum::<f32>();
-        let intrinsic = Size::new(0.0, content_height + self.metrics.content_padding * 2.0);
+        let intrinsic = Size::new(
+            0.0,
+            self.content_height + self.metrics.content_padding * 2.0,
+        );
 
         layout::Node::new(limits.resolve(Length::Fill, self.menu_height, intrinsic))
     }
@@ -1174,17 +1188,30 @@ where
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
+        let _profile = profile_span("select.list.update");
+
         let bounds = layout.bounds();
-        let rows = build_rows(self.entries.clone(), self.selected.as_ref(), self.metrics);
         let state = tree.state.downcast_mut::<SelectListState>();
-        let mut layout_info = list_layout(bounds, &rows, self.metrics, state.scroll_offset);
+        let mut layout_info = list_layout(
+            bounds,
+            &self.rows,
+            self.content_height,
+            self.metrics,
+            state.scroll_offset,
+        );
 
         if layout_info.max_scroll > 0.0 {
             state.scroll_offset = state.scroll_offset.clamp(0.0, layout_info.max_scroll);
         } else {
             state.scroll_offset = 0.0;
         }
-        layout_info = list_layout(bounds, &rows, self.metrics, state.scroll_offset);
+        layout_info = list_layout(
+            bounds,
+            &self.rows,
+            self.content_height,
+            self.metrics,
+            state.scroll_offset,
+        );
 
         match event {
             Event::Mouse(mouse::Event::WheelScrolled { delta }) if cursor.is_over(bounds) => {
@@ -1218,8 +1245,8 @@ where
 
                 if let Some(cursor_position) = cursor.position_in(layout_info.list_bounds) {
                     let y = cursor_position.y + state.scroll_offset;
-                    if let Some(index) = row_at(&rows, y) {
-                        if matches!(&rows[index].kind, RowKind::Item { disabled: true, .. }) {
+                    if let Some(index) = row_at(&self.rows, y) {
+                        if matches!(&self.rows[index].kind, RowKind::Item { disabled: true, .. }) {
                             let old_hovered = *self.hovered_row;
                             *self.hovered_row = None;
                             if old_hovered.is_some() {
@@ -1310,12 +1337,12 @@ where
 
                 if let Some(cursor_position) = cursor.position_in(layout_info.list_bounds) {
                     let y = cursor_position.y + state.scroll_offset;
-                    if let Some(index) = row_at(&rows, y)
+                    if let Some(index) = row_at(&self.rows, y)
                         && let RowKind::Item {
                             value,
                             disabled: false,
                             ..
-                        } = &rows[index].kind
+                        } = &self.rows[index].kind
                     {
                         shell.publish((self.on_selected)(value.clone()));
                         shell.capture_event();
@@ -1325,7 +1352,7 @@ where
                         value,
                         disabled: false,
                         ..
-                    } = &rows[index].kind
+                    } = &self.rows[index].kind
                 {
                     shell.publish((self.on_selected)(value.clone()));
                     shell.capture_event();
@@ -1369,16 +1396,29 @@ where
         _cursor: mouse::Cursor,
         viewport: &Rectangle,
     ) {
+        let _profile = profile_span("select.list.draw");
+
         let bounds = layout.bounds();
         if !bounds.intersects(viewport) {
             return;
         }
 
-        let rows = build_rows(self.entries.clone(), self.selected.as_ref(), self.metrics);
         let state = tree.state.downcast_ref::<SelectListState>();
-        let initial_layout = list_layout(bounds, &rows, self.metrics, state.scroll_offset);
+        let initial_layout = list_layout(
+            bounds,
+            &self.rows,
+            self.content_height,
+            self.metrics,
+            state.scroll_offset,
+        );
         let scroll_offset = state.scroll_offset.clamp(0.0, initial_layout.max_scroll);
-        let layout_info = list_layout(bounds, &rows, self.metrics, scroll_offset);
+        let layout_info = list_layout(
+            bounds,
+            &self.rows,
+            self.content_height,
+            self.metrics,
+            scroll_offset,
+        );
         let menu_style = select_menu_style(&self.theme, self.props);
         let scroll_overlay_background = select_scroll_overlay_background(&self.theme, self.props);
         let item_radius = item_radius(&self.theme);
@@ -1386,7 +1426,7 @@ where
         let content_clip_bounds = select_content_clip_bounds(&layout_info);
 
         let mut y = layout_info.list_bounds.y - scroll_offset;
-        for (index, row) in rows.iter().enumerate() {
+        for (index, row) in self.rows.iter().enumerate() {
             let row_bounds = Rectangle {
                 x: layout_info.list_bounds.x,
                 y,
@@ -1574,9 +1614,11 @@ where
                             row_bounds.x + row_bounds.width - self.metrics.item_padding_right / 2.0,
                             row_bounds.center_y(),
                         );
+                        let mut icon_bytes = [0; 4];
+                        let check_icon = char::from(LucideIcon::Check).encode_utf8(&mut icon_bytes);
                         renderer.fill_text(
                             text::Text {
-                                content: char::from(LucideIcon::Check).to_string(),
+                                content: check_icon.to_string(),
                                 size: self.metrics.check_size.into(),
                                 line_height: text::LineHeight::Absolute(
                                     self.metrics.check_size.into(),
@@ -1669,9 +1711,11 @@ where
                     } else {
                         apply_opacity(menu_style.muted_text_color, 0.4)
                     };
+                    let mut icon_bytes = [0; 4];
+                    let up_icon = char::from(LucideIcon::ChevronUp).encode_utf8(&mut icon_bytes);
                     renderer.fill_text(
                         text::Text {
-                            content: char::from(LucideIcon::ChevronUp).to_string(),
+                            content: up_icon.to_string(),
                             size: self.metrics.chevron_size.into(),
                             line_height: text::LineHeight::Absolute(
                                 self.metrics.chevron_size.into(),
@@ -1713,9 +1757,12 @@ where
                     } else {
                         apply_opacity(menu_style.muted_text_color, 0.4)
                     };
+                    let mut icon_bytes = [0; 4];
+                    let down_icon =
+                        char::from(LucideIcon::ChevronDown).encode_utf8(&mut icon_bytes);
                     renderer.fill_text(
                         text::Text {
-                            content: char::from(LucideIcon::ChevronDown).to_string(),
+                            content: down_icon.to_string(),
                             size: self.metrics.chevron_size.into(),
                             line_height: text::LineHeight::Absolute(
                                 self.metrics.chevron_size.into(),
@@ -1949,11 +1996,11 @@ fn row_at<T>(rows: &[Row<T>], y: f32) -> Option<usize> {
 
 fn list_layout<T>(
     bounds: Rectangle,
-    rows: &[Row<T>],
+    _rows: &[Row<T>],
+    content_height: f32,
     metrics: SelectMetrics,
     scroll_offset: f32,
 ) -> ListLayout {
-    let content_height = rows.iter().map(|row| row.height).sum::<f32>();
     let padding = metrics.content_padding;
     let available_height = (bounds.height - padding * 2.0).max(0.0);
     let can_scroll = content_height > available_height;

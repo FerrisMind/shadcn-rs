@@ -10,6 +10,8 @@ use iced_shadcn::{
 use lucide_icons::LUCIDE_FONT_BYTES;
 
 pub fn main() -> iced::Result {
+    iced_shadcn::profiling::init_runtime();
+
     iced::application(Example::default, Example::update, Example::view)
         .font(LUCIDE_FONT_BYTES)
         .run()

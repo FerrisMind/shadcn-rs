@@ -1,7 +1,6 @@
 use iced::border::Border;
-use iced::time::{self, Duration};
 use iced::widget::{column, container, row, space, text};
-use iced::{Alignment, Background, Color, Element, Length, Subscription};
+use iced::{Alignment, Background, Color, Element, Length};
 
 use iced_shadcn::{
     ButtonProps, ButtonSize, ButtonVariant, InputProps, InputSize, InputVariant, Spinner,
@@ -11,8 +10,9 @@ use lucide_icons::LUCIDE_FONT_BYTES;
 use lucide_icons::iced::icon_arrow_up;
 
 pub fn main() -> iced::Result {
+    iced_shadcn::profiling::init_runtime();
+
     iced::application(Example::default, Example::update, Example::view)
-        .subscription(Example::subscription)
         .font(LUCIDE_FONT_BYTES)
         .run()
 }
@@ -20,27 +20,18 @@ pub fn main() -> iced::Result {
 #[derive(Default)]
 struct Example {
     theme: Theme,
-    progress: f32,
 }
 
 #[derive(Debug, Clone)]
 enum Message {
-    Tick,
     Pressed,
 }
 
 impl Example {
     fn update(&mut self, message: Message) {
         match message {
-            Message::Tick => {
-                self.progress = (self.progress + 0.02) % 1.0;
-            }
             Message::Pressed => {}
         }
-    }
-
-    fn subscription(&self) -> Subscription<Message> {
-        time::every(Duration::from_millis(16)).map(|_| Message::Tick)
     }
 
     fn view(&self) -> Element<'_, Message> {
@@ -48,14 +39,14 @@ impl Example {
         let background = theme.palette.background;
         let border = theme.palette.border;
         let radius = theme.radius.md;
-        let progress = self.progress;
 
         let make_spinner = |size: SpinnerSize, color: Color| {
             spinner(
                 Spinner::new(theme)
-                    .progress(progress)
                     .size(size)
-                    .color(color),
+                    .color(color)
+                    .animated(true)
+                    .duration_ms(800),
             )
         };
 
@@ -111,7 +102,7 @@ impl Example {
             theme,
             column![
                 button_content(
-                    spinner_label(theme, progress, "Loading..."),
+                    spinner_label(theme, "Loading..."),
                     None,
                     ButtonProps::new()
                         .variant(ButtonVariant::Solid)
@@ -119,7 +110,7 @@ impl Example {
                     theme,
                 ),
                 button_content(
-                    spinner_label(theme, progress, "Please wait"),
+                    spinner_label(theme, "Please wait"),
                     None,
                     ButtonProps::new()
                         .variant(ButtonVariant::Outline)
@@ -127,7 +118,7 @@ impl Example {
                     theme,
                 ),
                 button_content(
-                    spinner_label(theme, progress, "Processing"),
+                    spinner_label(theme, "Processing"),
                     None,
                     ButtonProps::new()
                         .variant(ButtonVariant::Soft)
@@ -139,28 +130,25 @@ impl Example {
             .align_x(Alignment::Center),
         );
 
-        let demo = preview(theme, spinner_demo(theme, progress));
-        let empty = preview(theme, spinner_empty(theme, progress));
-        let item = preview(theme, spinner_item(theme, progress));
+        let demo = preview(theme, spinner_demo(theme));
+        let empty = preview(theme, spinner_empty(theme));
+        let item = preview(theme, spinner_item(theme));
 
         let badges = preview(
             theme,
             row![
                 spinner_badge(
                     theme,
-                    progress,
                     "Syncing",
                     BadgeStyle::Solid(theme.palette.primary, theme.palette.primary_foreground),
                 ),
                 spinner_badge(
                     theme,
-                    progress,
                     "Updating",
                     BadgeStyle::Solid(theme.palette.secondary, theme.palette.secondary_foreground),
                 ),
                 spinner_badge(
                     theme,
-                    progress,
                     "Processing",
                     BadgeStyle::Outline(theme.palette.foreground),
                 ),
@@ -169,7 +157,7 @@ impl Example {
             .align_y(Alignment::Center),
         );
 
-        let input_group = preview(theme, spinner_input_group(theme, progress));
+        let input_group = preview(theme, spinner_input_group(theme));
 
         let custom = preview(
             theme,
@@ -236,17 +224,14 @@ fn preview<'a, Message: 'a>(
         })
 }
 
-fn spinner_label<'a>(
-    theme: &'a Theme,
-    progress: f32,
-    text_label: &'a str,
-) -> iced::widget::Row<'a, Message> {
+fn spinner_label<'a>(theme: &'a Theme, text_label: &'a str) -> iced::widget::Row<'a, Message> {
     row![
         spinner(
             Spinner::new(theme)
-                .progress(progress)
                 .size(SpinnerSize::Size1)
-                .color(theme.palette.muted_foreground),
+                .color(theme.palette.muted_foreground)
+                .animated(true)
+                .duration_ms(800),
         ),
         text(text_label)
             .size(12)
@@ -258,13 +243,14 @@ fn spinner_label<'a>(
     .align_y(Alignment::Center)
 }
 
-fn spinner_demo<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Container<'a, Message> {
+fn spinner_demo<'a>(theme: &'a Theme) -> iced::widget::Container<'a, Message> {
     let content = row![
         spinner(
             Spinner::new(theme)
-                .progress(progress)
                 .size(SpinnerSize::Custom(18.0))
-                .color(theme.palette.primary),
+                .color(theme.palette.primary)
+                .animated(true)
+                .duration_ms(800),
         ),
         small_text(theme, "Processing payment..."),
         space().width(Length::Fill),
@@ -287,13 +273,14 @@ fn spinner_demo<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Container<
         })
 }
 
-fn spinner_empty<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Container<'a, Message> {
+fn spinner_empty<'a>(theme: &'a Theme) -> iced::widget::Container<'a, Message> {
     let content = column![
         spinner(
             Spinner::new(theme)
-                .progress(progress)
                 .size(SpinnerSize::Custom(20.0))
-                .color(theme.palette.primary),
+                .color(theme.palette.primary)
+                .animated(true)
+                .duration_ms(800),
         ),
         large_text(theme, "Processing your request"),
         muted_text(
@@ -326,13 +313,14 @@ fn spinner_empty<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Container
         })
 }
 
-fn spinner_item<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Container<'a, Message> {
+fn spinner_item<'a>(theme: &'a Theme) -> iced::widget::Container<'a, Message> {
     let header = row![
         spinner(
             Spinner::new(theme)
-                .progress(progress)
                 .size(SpinnerSize::Custom(18.0))
-                .color(theme.palette.primary),
+                .color(theme.palette.primary)
+                .animated(true)
+                .duration_ms(800),
         ),
         column![
             small_text(theme, "Downloading..."),
@@ -408,7 +396,6 @@ enum BadgeStyle {
 
 fn spinner_badge<'a>(
     theme: &'a Theme,
-    progress: f32,
     label_text: &'a str,
     style: BadgeStyle,
 ) -> iced::widget::Container<'a, Message> {
@@ -420,9 +407,10 @@ fn spinner_badge<'a>(
     let content = row![
         spinner(
             Spinner::new(theme)
-                .progress(progress)
                 .size(SpinnerSize::Size1)
-                .color(text_color),
+                .color(text_color)
+                .animated(true)
+                .duration_ms(800),
         ),
         text(label_text)
             .size(12)
@@ -447,7 +435,7 @@ fn spinner_badge<'a>(
         })
 }
 
-fn spinner_input_group<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Column<'a, Message> {
+fn spinner_input_group<'a>(theme: &'a Theme) -> iced::widget::Column<'a, Message> {
     let input_props = InputProps::new()
         .size(InputSize::Size2)
         .variant(InputVariant::Surface)
@@ -464,9 +452,10 @@ fn spinner_input_group<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Col
         .width(Length::Fill),
         spinner(
             Spinner::new(theme)
-                .progress(progress)
                 .size(SpinnerSize::Size1)
-                .color(theme.palette.muted_foreground),
+                .color(theme.palette.muted_foreground)
+                .animated(true)
+                .duration_ms(800),
         ),
     ]
     .spacing(8)
@@ -493,9 +482,10 @@ fn spinner_input_group<'a>(theme: &'a Theme, progress: f32) -> iced::widget::Col
         row![
             spinner(
                 Spinner::new(theme)
-                    .progress(progress)
                     .size(SpinnerSize::Size1)
-                    .color(theme.palette.muted_foreground),
+                    .color(theme.palette.muted_foreground)
+                    .animated(true)
+                    .duration_ms(800),
             ),
             text("Validating...")
                 .size(12)

@@ -49,6 +49,7 @@ pub mod new_api;
 mod overlay;
 pub mod pagination;
 pub mod popover;
+pub mod profiling;
 pub mod progress;
 pub mod prompt_input;
 pub mod radio;

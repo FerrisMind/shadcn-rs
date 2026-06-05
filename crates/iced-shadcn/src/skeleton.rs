@@ -8,7 +8,9 @@ use iced::gradient;
 use iced::window;
 use iced::{Background, Color, Element, Event, Font, Length, Point, Rectangle, Shadow, Size};
 use std::sync::OnceLock;
+use std::time::Duration;
 
+use crate::profiling::profile_span;
 use crate::theme::Theme;
 use crate::tokens::{AccentColor, accent_low, mix};
 
@@ -137,6 +139,8 @@ fn compute_phase(now: iced::time::Instant, duration_ms: u32) -> f32 {
     (elapsed.as_secs_f32() / duration.as_secs_f32()) % 1.0
 }
 
+const SKELETON_FRAME_INTERVAL: Duration = Duration::from_millis(33);
+
 pub fn skeleton(props: SkeletonProps, theme: &Theme) -> SkeletonWidget {
     SkeletonWidget::new(props, theme)
 }
@@ -184,13 +188,15 @@ where
         &mut self,
         tree: &mut Tree,
         event: &Event,
-        _layout: Layout<'_>,
+        layout: Layout<'_>,
         _cursor: iced::mouse::Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
-        _viewport: &Rectangle,
+        viewport: &Rectangle,
     ) {
+        let _profile = profile_span("skeleton.update");
+
         if !self.props.loading {
             return;
         }
@@ -199,7 +205,9 @@ where
             let state = tree.state.downcast_mut::<SkeletonState>();
             state.phase = compute_phase(*now, self.props.duration_ms);
 
-            shell.request_redraw();
+            if layout.bounds().intersects(viewport) {
+                shell.request_redraw_at(*now + SKELETON_FRAME_INTERVAL);
+            }
         }
     }
 
@@ -213,6 +221,8 @@ where
         _cursor: iced::mouse::Cursor,
         viewport: &Rectangle,
     ) {
+        let _profile = profile_span("skeleton.draw");
+
         if !self.props.loading {
             return;
         }
@@ -406,18 +416,22 @@ where
         &mut self,
         tree: &mut Tree,
         event: &Event,
-        _layout: Layout<'_>,
+        layout: Layout<'_>,
         _cursor: iced::mouse::Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
-        _viewport: &Rectangle,
+        viewport: &Rectangle,
     ) {
+        let _profile = profile_span("skeleton.shimmer_label.update");
+
         if let Event::Window(window::Event::RedrawRequested(now)) = event {
             let state = tree.state.downcast_mut::<SkeletonShimmerLabelState>();
             state.phase = compute_phase(*now, self.duration_ms);
 
-            shell.request_redraw();
+            if layout.bounds().intersects(viewport) {
+                shell.request_redraw_at(*now + SKELETON_FRAME_INTERVAL);
+            }
         }
     }
 
@@ -431,6 +445,8 @@ where
         _cursor: iced::mouse::Cursor,
         viewport: &Rectangle,
     ) {
+        let _profile = profile_span("skeleton.shimmer_label.draw");
+
         let bounds = layout.bounds();
         if !bounds.intersects(viewport) {
             return;
