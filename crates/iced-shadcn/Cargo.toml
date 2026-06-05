@@ -19,7 +19,7 @@ include = [
 ]
 
 [dependencies]
-iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "highlighter", "image", "svg", "tokio", "tiny-skia", "lazy", "x11", "wayland"] }
+iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "highlighter", "image", "svg", "tokio", "wgpu", "tiny-skia", "lazy", "x11", "wayland"] }
 iced_wgpu = { version = "0.14", optional = true, default-features = false }
 lucide-icons = { version = "0.575", features = ["iced"] }
 num-traits = "0.2"
@@ -28,6 +28,9 @@ twill = { git = "https://github.com/FerrisMind/twill.git", rev = "8c384341992e51
 chrono = { version = "0.4", optional = true, default-features = false, features = ["std"] }
 image = { version = "0.25", default-features = false, features = ["avif", "bmp", "dds", "gif", "ico", "jpeg", "png", "pnm", "qoi", "tga", "webp"] }
 rfd = { version = "0.16", optional = true }
+tracing = { version = "0.1", optional = true }
+tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "fmt"] }
+tracy-client = { version = "0.18", optional = true, default-features = false, features = ["enable", "ondemand", "only-localhost"] }
 wry = { version = "0.54.4", optional = true }
 
 [dev-dependencies]
@@ -37,6 +40,8 @@ rfd = "0.16"
 default = []
 chrono = ["dep:chrono"]
 charts = []
+profile-tracing = ["dep:tracing", "dep:tracing-subscriber"]
+profile-tracy = ["dep:tracy-client"]
 rfd = ["dep:rfd"]
 web-colors = ["dep:iced_wgpu", "iced/web-colors", "iced_wgpu/web-colors"]
 wry = ["dep:wry"]

@@ -3,11 +3,11 @@ use std::time::Duration;
 
 use iced::alignment::Vertical;
 use iced::widget::canvas;
-use iced::widget::canvas::{LineJoin, Path, Stroke, Text};
+use iced::widget::canvas::{LineCap, LineJoin, Path, Stroke, Text};
 use iced::window;
 use iced::{Color, Font, Length, Point, Rectangle, Renderer, Size, Vector};
-use lucide_icons::Icon;
 
+use crate::profiling::profile_span;
 use crate::theme::Theme;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -72,7 +72,7 @@ impl Spinner {
             loading: true,
             animated: false,
             duration_ms: 1000,
-            variant: SpinnerVariant::LegacyLucide,
+            variant: SpinnerVariant::AiLoaderIcon,
             amplitudes: None,
         }
     }
@@ -170,6 +170,7 @@ const AI_LOADER_SEGMENTS: [AiLoaderSegment; 10] = [
     ((15.6085, 10.4722), (11.8043, 9.2361), 0.3),
     ((0.391602, 5.52783), (4.19583, 6.7639), 0.8),
 ];
+const SPINNER_FRAME_INTERVAL: Duration = Duration::from_millis(33);
 
 impl<Message> canvas::Program<Message> for Spinner {
     type State = SpinnerState;
@@ -181,6 +182,8 @@ impl<Message> canvas::Program<Message> for Spinner {
         _bounds: Rectangle,
         _cursor: iced::mouse::Cursor,
     ) -> Option<canvas::Action<Message>> {
+        let _profile = profile_span("spinner.update");
+
         if !self.loading || !self.animated {
             return None;
         }
@@ -197,7 +200,7 @@ impl<Message> canvas::Program<Message> for Spinner {
             }
 
             return Some(canvas::Action::request_redraw_at(
-                *now + Duration::from_millis(16),
+                *now + SPINNER_FRAME_INTERVAL,
             ));
         }
 
@@ -212,6 +215,8 @@ impl<Message> canvas::Program<Message> for Spinner {
         bounds: Rectangle,
         _cursor: iced::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
+        let _profile = profile_span("spinner.draw");
+
         if !self.loading {
             return Vec::new();
         }
@@ -231,7 +236,7 @@ impl<Message> canvas::Program<Message> for Spinner {
 
                     match self.variant {
                         SpinnerVariant::LegacyLucide => {
-                            draw_lucide_spinner_icon(frame, center, size, self.color, Icon::Loader);
+                            draw_legacy_spinner_icon(frame, center, size, self.color);
                         }
                         SpinnerVariant::AiLoaderIcon => {
                             draw_ai_loader_icon(frame, center, size, self.color);
@@ -312,23 +317,31 @@ impl<Message> canvas::Program<Message> for Spinner {
     }
 }
 
-fn draw_lucide_spinner_icon(
+fn draw_legacy_spinner_icon(
     frame: &mut canvas::Frame<Renderer>,
     center: Point,
     size: f32,
     color: Color,
-    icon: Icon,
 ) {
-    frame.fill_text(Text {
-        content: char::from(icon).to_string(),
-        position: Point::new(center.x, center.y),
-        color,
-        size: size.into(),
-        font: Font::with_name("lucide"),
-        align_x: iced::widget::text::Alignment::Center,
-        align_y: Vertical::Center,
-        ..Text::default()
-    });
+    let inner = size * 0.18;
+    let outer = size * 0.44;
+    let stroke = (size * 0.10).clamp(1.0, 2.4);
+
+    for i in 0..8 {
+        let angle = (i as f32 / 8.0) * TAU - TAU / 4.0;
+        let dir = Vector::new(angle.cos(), angle.sin());
+        let start = Point::new(center.x + dir.x * inner, center.y + dir.y * inner);
+        let end = Point::new(center.x + dir.x * outer, center.y + dir.y * outer);
+
+        frame.stroke(
+            &Path::line(start, end),
+            Stroke::default()
+                .with_width(stroke)
+                .with_line_cap(LineCap::Round)
+                .with_line_join(LineJoin::Round)
+                .with_color(color),
+        );
+    }
 }
 
 fn draw_prompt_circular(
@@ -601,10 +614,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn spinner_defaults_to_legacy_mode_without_internal_animation() {
+    fn spinner_defaults_to_ai_loader_without_internal_animation() {
         let theme = Theme::default();
         let spinner = Spinner::new(&theme);
-        assert_eq!(spinner.variant, SpinnerVariant::LegacyLucide);
+        assert_eq!(spinner.variant, SpinnerVariant::AiLoaderIcon);
         assert!(!spinner.animated);
         assert_eq!(spinner.duration_ms, 1000);
     }
