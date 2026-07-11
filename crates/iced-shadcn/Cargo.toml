@@ -13,6 +13,7 @@ categories = ["gui", "visualization", "rendering::graphics-api", "game-developme
 
 include = [
     "src/**/*",
+    "assets/**/*",
     "Cargo.toml",
     "/README.md",
     "LICENSE*",
@@ -24,7 +25,7 @@ iced_wgpu = { version = "0.14", optional = true, default-features = false }
 lucide-icons = { version = "0.575", features = ["iced"] }
 num-traits = "0.2"
 regex = "1.10"
-twill = { git = "https://github.com/FerrisMind/twill.git", rev = "8c384341992e51fe7c15e77901096903cc1139f4", features = ["iced"] }
+twill = { git = "https://github.com/FerrisMind/twill.git", rev = "d3419a53af2b20f7c1f7e4532a5ef3afa866229f", features = ["iced"] }
 chrono = { version = "0.4", optional = true, default-features = false, features = ["std"] }
 image = { version = "0.25", default-features = false, features = ["avif", "bmp", "dds", "gif", "ico", "jpeg", "png", "pnm", "qoi", "tga", "webp"] }
 rfd = { version = "0.16", optional = true }
