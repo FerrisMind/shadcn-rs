@@ -47,6 +47,12 @@ pub struct MenuContentProps {
     pub color: AccentColor,
     pub high_contrast: bool,
     pub show_shadow: bool,
+    /// Custom corner radius for the menu surface; falls back to the
+    /// size-derived metric when unset.
+    pub radius: Option<f32>,
+    /// Custom corner radius for item hover highlights; falls back to the
+    /// size-derived metric when unset.
+    pub item_radius: Option<f32>,
 }
 
 impl Default for MenuContentProps {
@@ -57,6 +63,8 @@ impl Default for MenuContentProps {
             color: AccentColor::Gray,
             high_contrast: false,
             show_shadow: true,
+            radius: None,
+            item_radius: None,
         }
     }
 }
@@ -88,6 +96,16 @@ impl MenuContentProps {
 
     pub fn show_shadow(mut self, show_shadow: bool) -> Self {
         self.show_shadow = show_shadow;
+        self
+    }
+
+    pub fn radius(mut self, radius: f32) -> Self {
+        self.radius = Some(radius.max(0.0));
+        self
+    }
+
+    pub fn item_radius(mut self, item_radius: f32) -> Self {
+        self.item_radius = Some(item_radius.max(0.0));
         self
     }
 }
@@ -634,7 +652,7 @@ where
     Message: Clone,
 {
     fn layout(&mut self, renderer: &iced::Renderer, bounds: Size) -> layout::Node {
-        let metrics = menu_metrics(&self.theme, self.content.size);
+        let metrics = menu_metrics(&self.theme, self.content);
         let menu_width = self
             .overlay
             .width
@@ -767,7 +785,7 @@ where
         clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
     ) {
-        let metrics = menu_metrics(&self.theme, self.content.size);
+        let metrics = menu_metrics(&self.theme, self.content);
         let bounds = layout.bounds();
 
         let mut children = layout.children();
@@ -847,7 +865,7 @@ where
         cursor: mouse::Cursor,
     ) {
         let overlay_viewport = layout.bounds();
-        let metrics = menu_metrics(&self.theme, self.content.size);
+        let metrics = menu_metrics(&self.theme, self.content);
 
         for (index, child_layout) in layout.children().enumerate() {
             let bounds = child_layout.bounds();
@@ -929,10 +947,11 @@ struct MenuMetrics {
     base_padding_x: f32,
     inset_padding_x: f32,
     radius: f32,
+    item_radius: f32,
 }
 
-fn menu_metrics(theme: &Theme, size: MenuContentSize) -> MenuMetrics {
-    match size {
+fn menu_metrics(theme: &Theme, content: MenuContentProps) -> MenuMetrics {
+    let mut metrics = match content.size {
         MenuContentSize::Size1 => MenuMetrics {
             content_padding: theme.spacing.xs,
             item_height: 28.0,
@@ -945,6 +964,7 @@ fn menu_metrics(theme: &Theme, size: MenuContentSize) -> MenuMetrics {
             base_padding_x: theme.spacing.sm,
             inset_padding_x: 20.0,
             radius: theme.radius.md,
+            item_radius: theme.radius.md,
         },
         MenuContentSize::Size2 => MenuMetrics {
             content_padding: theme.spacing.xs,
@@ -958,8 +978,16 @@ fn menu_metrics(theme: &Theme, size: MenuContentSize) -> MenuMetrics {
             base_padding_x: theme.spacing.sm,
             inset_padding_x: 24.0,
             radius: theme.radius.md,
+            item_radius: theme.radius.md,
         },
+    };
+    if let Some(radius) = content.radius {
+        metrics.radius = radius;
     }
+    if let Some(item_radius) = content.item_radius {
+        metrics.item_radius = item_radius;
+    }
+    metrics
 }
 
 #[derive(Clone, Copy)]
@@ -1470,7 +1498,7 @@ where
                             renderer::Quad {
                                 bounds: row_bounds,
                                 border: Border {
-                                    radius: self.metrics.radius.into(),
+                                    radius: self.metrics.item_radius.into(),
                                     ..Border::default()
                                 },
                                 ..renderer::Quad::default()
