@@ -15,6 +15,7 @@ use lucide_icons::iced::{icon_moon, icon_sun};
 use super::catalog::PreviewPage;
 use super::demos;
 use super::highlight::{TokenKind, rust_highlight_ranges};
+use super::home;
 #[cfg(target_arch = "wasm32")]
 use super::route;
 
@@ -85,11 +86,11 @@ impl Default for PreviewApp {
         #[cfg(target_arch = "wasm32")]
         let (selected, tab) = route::read_initial_route();
         #[cfg(not(target_arch = "wasm32"))]
-        let (selected, tab) = (PreviewPage::Button, ComponentTab::Demo);
+        let (selected, tab) = (PreviewPage::Home, ComponentTab::Demo);
 
         Self {
-            theme: Theme::dark(),
-            theme_mode: ThemeMode::Dark,
+            theme: Theme::light(),
+            theme_mode: ThemeMode::Light,
             selected,
             tab,
             search: String::new(),
@@ -172,14 +173,23 @@ impl PreviewApp {
     pub fn view(&self) -> Element<'_, Message> {
         let theme = self.theme.clone();
         let background = theme.palette.background;
-        let shell = row![self.sidebar_view(), self.detail_view()]
-            .spacing(12)
-            .height(Length::Fill);
+        let shell: Element<'_, Message> = if self.selected == PreviewPage::Home {
+            home::render(self)
+        } else {
+            row![self.sidebar_view(), self.detail_view()]
+                .spacing(12)
+                .height(Length::Fill)
+                .into()
+        };
 
         container(shell)
             .width(Length::Fill)
             .height(Length::Fill)
-            .padding(16)
+            .padding(if self.selected == PreviewPage::Home {
+                0
+            } else {
+                16
+            })
             .style(move |_theme| iced::widget::container::Style {
                 background: Some(Background::Color(background)),
                 text_color: Some(theme.palette.foreground),
@@ -190,6 +200,10 @@ impl PreviewApp {
 
     pub fn theme(&self) -> &Theme {
         &self.theme
+    }
+
+    pub fn search(&self) -> &str {
+        &self.search
     }
 
     pub fn progress_values(&self) -> &Vec<f32> {
@@ -214,6 +228,10 @@ impl PreviewApp {
 
     pub fn stepper_step(&self) -> usize {
         self.stepper_step
+    }
+
+    pub fn is_dark(&self) -> bool {
+        self.theme_mode == ThemeMode::Dark
     }
 
     fn filtered_pages(&self) -> Vec<PreviewPage> {
@@ -281,6 +299,18 @@ impl PreviewApp {
                                     color: Some(self.theme.palette.muted_foreground),
                                 }
                             }),
+                            button(
+                                "Home",
+                                Some(Message::SelectPage(PreviewPage::Home)),
+                                ButtonProps::new()
+                                    .variant(if self.selected == PreviewPage::Home {
+                                        ButtonVariant::Solid
+                                    } else {
+                                        ButtonVariant::Ghost
+                                    })
+                                    .size(ButtonSize::Size1),
+                                &self.theme,
+                            ),
                             input(
                                 &self.search,
                                 "Search components...",
@@ -296,7 +326,10 @@ impl PreviewApp {
                     );
 
                     let mut items = Vec::new();
-                    for page in filtered {
+                    for page in filtered
+                        .into_iter()
+                        .filter(|page| *page != PreviewPage::Home)
+                    {
                         items.push(sidebar_menu_item(vec![sidebar_menu_button(
                             SidebarMenuButtonProps::new(page.title()).active(self.selected == page),
                             Some(Message::SelectPage(page)),

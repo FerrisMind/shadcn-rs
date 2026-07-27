@@ -1,6 +1,7 @@
 # Rust
 /target
 /target-codex-check
+/crates/wasm-demo/target
 **/*.rs.bk
 **/dist
 **/dist-egui
