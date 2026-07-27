@@ -9,7 +9,7 @@ pub mod fonts;
 pub mod theme;
 
 pub use button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
-pub use fonts::{iced_font, ALL_FACES};
+pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};
 
 pub use shadcn_common::{

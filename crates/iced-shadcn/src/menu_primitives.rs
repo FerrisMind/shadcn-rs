@@ -25,8 +25,7 @@ use crate::tokens::{
     AccentColor, accent_color, accent_foreground, accent_high, accent_soft, accent_soft_foreground,
 };
 
-static NOVA_SHIELD_TERMINAL_SVG: &[u8] =
-    include_bytes!("../assets/icons/shield-terminal.svg");
+static NOVA_SHIELD_TERMINAL_SVG: &[u8] = include_bytes!("../assets/icons/shield-terminal.svg");
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum MenuContentSize {

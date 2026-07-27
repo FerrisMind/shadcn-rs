@@ -344,13 +344,8 @@ impl<'a, Message> Button<'a, Message> {
         let icon = matches!(content, ButtonContent::Icon(_));
         let control_height_px = size.control_height(theme);
         let control_height = height.unwrap_or(Length::Fixed(control_height_px));
-        let resolved_width = resolve_button_width(
-            width,
-            control_height,
-            full_width,
-            icon,
-            control_height_px,
-        );
+        let resolved_width =
+            resolve_button_width(width, control_height, full_width, icon, control_height_px);
 
         let content = build_content(content, variant, size, loading, color, theme);
         // Fill the button's content box and center it inside the configured
@@ -635,7 +630,10 @@ fn button_style(
             // shadcn: `bg-destructive/10 text-destructive` (dark: `/20`)
             let destructive = semantic_color(theme, SemanticColor::Destructive);
             (
-                Some(destructive_soft_fill(theme, destructive_soft_alpha(theme, SoftState::Base))),
+                Some(destructive_soft_fill(
+                    theme,
+                    destructive_soft_alpha(theme, SoftState::Base),
+                )),
                 destructive,
                 Color::TRANSPARENT,
                 BorderWidth::S0,
@@ -721,13 +719,13 @@ fn hovered_state(
                 theme,
                 SemanticColor::Destructive,
             ))),
-        ButtonVariant::Soft | ButtonVariant::Surface => Style::new().background_token(
-            background_token(shift_toward(
+        ButtonVariant::Soft | ButtonVariant::Surface => {
+            Style::new().background_token(background_token(shift_toward(
                 accent_soft_fill(theme, color),
                 theme.is_dark(),
                 0.1,
-            )),
-        ),
+            )))
+        }
         ButtonVariant::Outline => Style::new()
             .background_token(background_token(semantic_color(
                 theme,
@@ -1220,12 +1218,15 @@ mod tests {
             ))
             .expect("scale padding is supported");
 
-        assert_eq!(button.padding, Some(iced::Padding {
-            top: 4.0,
-            right: 8.0,
-            bottom: 12.0,
-            left: 16.0,
-        }));
+        assert_eq!(
+            button.padding,
+            Some(iced::Padding {
+                top: 4.0,
+                right: 8.0,
+                bottom: 12.0,
+                left: 16.0,
+            })
+        );
     }
 
     #[test]
@@ -1251,13 +1252,7 @@ mod tests {
 
     #[test]
     fn icon_button_uses_custom_fixed_height_for_both_dimensions() {
-        let resolved = resolve_button_width(
-            Length::Shrink,
-            Length::Fixed(72.0),
-            false,
-            true,
-            36.0,
-        );
+        let resolved = resolve_button_width(Length::Shrink, Length::Fixed(72.0), false, true, 36.0);
 
         assert_eq!(resolved, Length::Fixed(72.0));
     }
@@ -1407,5 +1402,4 @@ mod tests {
             }
         }
     }
-
 }
