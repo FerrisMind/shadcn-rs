@@ -700,6 +700,7 @@ struct RenderedEntries<'a, Message> {
     visible_items: usize,
 }
 
+#[allow(clippy::too_many_arguments)]
 fn render_entries<'a, Message: Clone + 'a>(
     entries: Vec<CommandListEntry<'a, Message>>,
     query: &str,

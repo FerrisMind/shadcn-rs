@@ -513,8 +513,9 @@ mod tests {
 
     #[test]
     fn decorative_surface_wraps_component_content_with_theme_defaults() {
-        let theme = Theme::light();
-        let button = Button::text("Surface action", &theme)
+        let crate_theme = Theme::light();
+        let api_theme = crate::new_api::Theme::light();
+        let button = Button::text("Surface action", &api_theme)
             .variant(ButtonVariant::Default)
             .into_button();
         let surface: Element<'_, ()> = decorative_surface(
@@ -522,7 +523,7 @@ mod tests {
             vec![container("underlay").into()],
             vec![container("overlay").into()],
             DecorativeSurfaceProps::new().themed().padding(16),
-            &theme,
+            &crate_theme,
         );
 
         let _ = surface;
