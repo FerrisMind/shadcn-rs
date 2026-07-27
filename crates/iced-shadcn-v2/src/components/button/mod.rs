@@ -32,6 +32,15 @@ use crate::theme::Theme;
 /// Theme tokens come from `shadcn-common` via [`Theme`]; iced styles are built
 /// directly on top of `twill-core` tokens, without an intermediate style layer.
 ///
+/// **Who owns style packs (Vega, Nova, …)?** The app’s [`Theme`], not this
+/// builder. Pass `&theme` into every button. To show two style systems at once,
+/// build two themes and pass a different reference to each button. To vary
+/// treatment under one theme, use [`Self::variant`], [`Self::color`],
+/// [`Self::radius`], and [`Self::size`].
+///
+/// [`Self::style_override`] only patches the resolved iced `button::Style`
+/// (fill, text, border, shadow). It is not [`shadcn_common::StyleId`].
+///
 /// ```rust,no_run
 /// use iced::Element;
 /// use iced_shadcn_v2::{

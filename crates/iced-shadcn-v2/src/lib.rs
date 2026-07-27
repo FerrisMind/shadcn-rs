@@ -5,6 +5,15 @@
 //! tokens, without the `twill` style-composition facade. The crate
 //! intentionally does not depend on `iced-shadcn` v1.
 //!
+//! # Theming model
+//!
+//! Store a [`Theme`] in app state and pass `&Theme` into components. Style
+//! packs (`StyleId::Vega`, …) live on [`Theme`]; overrides via `Theme::with_*`
+//! beat pack defaults; per-widget knobs (e.g. [`Button::color`]) beat that
+//! theme for one control. Two looks on one screen ⇒ two [`Theme`] values (or
+//! one theme + different button variants). See the crate README “Theming”
+//! section for the three common patterns.
+//!
 //! ```rust,no_run
 //! use iced::Element;
 //! use iced_shadcn_v2::{Button, ButtonVariant, Theme};

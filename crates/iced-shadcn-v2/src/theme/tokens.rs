@@ -14,10 +14,26 @@ use super::palette::{Palette, color_value_to_iced, preferred_text};
 
 /// v2 theme: `shadcn-common` OKLCH tokens → iced colors.
 ///
-/// ```rust
-/// use iced_shadcn_v2::{AccentColor, SemanticColor, Theme};
+/// Own this in application state and pass `&Theme` into components. There is
+/// no ambient iced theme: widgets do not pick up Vega/Nova until you hand them
+/// a [`Theme`].
 ///
-/// let theme = Theme::light().with_accent(Some(AccentColor::Blue));
+/// **Defaults vs overrides:** [`StyleId`] packs supply default fonts/radius;
+/// [`Self::with_font`], [`Self::with_font_heading`], [`Self::with_radius`], and
+/// the other `with_*` builders take priority over that pack (same idea as the
+/// shadcn-svelte create customizer).
+///
+/// **Several looks on one screen:** keep multiple [`Theme`] values (e.g. Vega
+/// and Nova) and pass a different `&Theme` into each widget. For different
+/// button treatments under one theme, use per-control APIs such as
+/// [`crate::Button::variant`] / [`crate::Button::color`] instead.
+///
+/// ```rust
+/// use iced_shadcn_v2::{AccentColor, SemanticColor, StyleId, Theme};
+///
+/// let theme = Theme::light()
+///     .with_style(StyleId::Vega)
+///     .with_accent(Some(AccentColor::Blue));
 /// let primary = theme.semantic_color(SemanticColor::Primary);
 /// assert!(primary.a > 0.0);
 /// ```
