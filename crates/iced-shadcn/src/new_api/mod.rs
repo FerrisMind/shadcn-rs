@@ -1,9 +1,18 @@
 //! Experimental builder-first APIs.
 //!
-//! `new_api` is an opt-in namespace for crate APIs that are still evolving.
-//! Components here keep semantics in `iced-shadcn` and may use `twill` as the
-//! internal styling substrate.
+//! Theme tokens come from [`shadcn_common`] via [`theme::Theme`]. Crate-level
+//! [`crate::theme::Theme`] / twill `SemanticThemeVars::shadcn_neutral()` are
+//! intentionally not used here.
 
 pub mod button;
+pub mod fonts;
+pub mod theme;
 
-pub use button::{Button, ButtonRadius, ButtonSize, ButtonVariant};
+pub use button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
+pub use fonts::{iced_font, ALL_FACES};
+pub use theme::{Palette, Theme};
+
+pub use shadcn_common::{
+    AccentColor, BaseColor, FontHeading, FontId, FontPack, RadiusId, RadiusScale, ResolvedTheme,
+    StyleId, StylePack, ThemeMode,
+};
