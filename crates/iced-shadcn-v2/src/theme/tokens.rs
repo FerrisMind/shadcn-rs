@@ -1,52 +1,16 @@
-//! Theme for `iced-shadcn-v2`, sourced from `shadcn-common`.
+//! Theme token resolution for `iced-shadcn-v2`.
 //!
 //! OKLCH tokens are converted to [`iced::Color`] directly via
 //! `twill_core::tokens::ColorValue::to_rgba8` — no `twill-iced` adapter.
 
 use iced::Color;
 use shadcn_common::{
-    AccentColor, BaseColor, FontHeading, FontId, FontPack, IconSet, OklchColor, RadiusId,
-    RadiusScale, ResolvedTheme, StyleId, StylePack, ThemeMode,
+    AccentColor, BaseColor, FontHeading, FontId, IconSet, RadiusId, RadiusScale, ResolvedTheme,
+    StyleId, StylePack, ThemeMode,
 };
 use twill_core::prelude::theme::SemanticColor;
-use twill_core::tokens::ColorValue;
 
-/// Cached iced palette built from a [`ResolvedTheme`].
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Palette {
-    pub background: Color,
-    pub foreground: Color,
-    pub card: Color,
-    pub card_foreground: Color,
-    pub popover: Color,
-    pub popover_foreground: Color,
-    pub border: Color,
-    pub input: Color,
-    pub ring: Color,
-    pub primary: Color,
-    pub primary_foreground: Color,
-    pub secondary: Color,
-    pub secondary_foreground: Color,
-    pub accent: Color,
-    pub accent_foreground: Color,
-    pub muted: Color,
-    pub muted_foreground: Color,
-    pub destructive: Color,
-    pub destructive_foreground: Color,
-    pub chart_1: Color,
-    pub chart_2: Color,
-    pub chart_3: Color,
-    pub chart_4: Color,
-    pub chart_5: Color,
-    pub sidebar: Color,
-    pub sidebar_foreground: Color,
-    pub sidebar_primary: Color,
-    pub sidebar_primary_foreground: Color,
-    pub sidebar_accent: Color,
-    pub sidebar_accent_foreground: Color,
-    pub sidebar_border: Color,
-    pub sidebar_ring: Color,
-}
+use super::palette::{Palette, color_value_to_iced, preferred_text};
 
 /// v2 theme: `shadcn-common` OKLCH tokens → iced colors.
 ///
@@ -59,7 +23,7 @@ pub struct Palette {
 /// ```
 #[derive(Debug, Clone, PartialEq)]
 pub struct Theme {
-    resolved: ResolvedTheme,
+    pub(super) resolved: ResolvedTheme,
     pub palette: Palette,
     pub style: StylePack,
 }
@@ -67,46 +31,9 @@ pub struct Theme {
 impl Theme {
     /// Builds a theme (and its cached [`Palette`]) from a [`ResolvedTheme`].
     pub fn from_resolved(resolved: ResolvedTheme) -> Self {
-        let table = resolved.semantic_vars();
-        let destructive = oklch_to_iced(table.destructive);
-        let destructive_foreground = preferred_text(destructive);
-
         Self {
             style: resolved.style_pack(),
-            palette: Palette {
-                background: oklch_to_iced(table.background),
-                foreground: oklch_to_iced(table.foreground),
-                card: oklch_to_iced(table.card),
-                card_foreground: oklch_to_iced(table.card_foreground),
-                popover: oklch_to_iced(table.popover),
-                popover_foreground: oklch_to_iced(table.popover_foreground),
-                border: oklch_to_iced(table.border),
-                input: oklch_to_iced(table.input),
-                ring: oklch_to_iced(table.ring),
-                primary: oklch_to_iced(table.primary),
-                primary_foreground: oklch_to_iced(table.primary_foreground),
-                secondary: oklch_to_iced(table.secondary),
-                secondary_foreground: oklch_to_iced(table.secondary_foreground),
-                accent: oklch_to_iced(table.accent),
-                accent_foreground: oklch_to_iced(table.accent_foreground),
-                muted: oklch_to_iced(table.muted),
-                muted_foreground: oklch_to_iced(table.muted_foreground),
-                destructive,
-                destructive_foreground,
-                chart_1: oklch_to_iced(table.chart_1),
-                chart_2: oklch_to_iced(table.chart_2),
-                chart_3: oklch_to_iced(table.chart_3),
-                chart_4: oklch_to_iced(table.chart_4),
-                chart_5: oklch_to_iced(table.chart_5),
-                sidebar: oklch_to_iced(table.sidebar),
-                sidebar_foreground: oklch_to_iced(table.sidebar_foreground),
-                sidebar_primary: oklch_to_iced(table.sidebar_primary),
-                sidebar_primary_foreground: oklch_to_iced(table.sidebar_primary_foreground),
-                sidebar_accent: oklch_to_iced(table.sidebar_accent),
-                sidebar_accent_foreground: oklch_to_iced(table.sidebar_accent_foreground),
-                sidebar_border: oklch_to_iced(table.sidebar_border),
-                sidebar_ring: oklch_to_iced(table.sidebar_ring),
-            },
+            palette: Palette::from_resolved(&resolved),
             resolved,
         }
     }
@@ -149,21 +76,6 @@ impl Theme {
     /// Selected accent overlay, if any.
     pub fn accent(&self) -> Option<AccentColor> {
         self.resolved.accent
-    }
-
-    /// Resolved font pack (sans/mono/heading).
-    pub fn font_pack(&self) -> FontPack {
-        self.resolved.font_pack()
-    }
-
-    /// Resolved body font.
-    pub fn font_id(&self) -> FontId {
-        self.resolved.font_id()
-    }
-
-    /// Resolved heading font.
-    pub fn font_heading(&self) -> FontHeading {
-        self.resolved.font_heading()
     }
 
     /// Icon set associated with the theme.
@@ -280,52 +192,3 @@ impl Theme {
     }
 }
 
-/// twill-core [`ColorValue`] (OKLCH) → iced sRGB color.
-pub(crate) fn color_value_to_iced(value: ColorValue) -> Color {
-    let (r, g, b) = value.to_rgb8();
-    Color::from_rgba(
-        f32::from(r) / 255.0,
-        f32::from(g) / 255.0,
-        f32::from(b) / 255.0,
-        value.alpha(),
-    )
-}
-
-fn oklch_to_iced(color: OklchColor) -> Color {
-    color_value_to_iced(color.to_color_value())
-}
-
-fn preferred_text(background: Color) -> Color {
-    let luminance = 0.2126 * background.r + 0.7152 * background.g + 0.0722 * background.b;
-    if luminance > 0.55 {
-        Color::BLACK
-    } else {
-        Color::WHITE
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn light_neutral_has_bright_background() {
-        let theme = Theme::light();
-        assert!(theme.palette.background.r > 0.9);
-        assert!(!theme.is_dark());
-    }
-
-    #[test]
-    fn accent_overlay_changes_primary() {
-        let base = Theme::light();
-        let amber = base.clone().with_accent(Some(AccentColor::Amber));
-        assert_ne!(base.palette.primary, amber.palette.primary);
-    }
-
-    #[test]
-    fn color_value_conversion_preserves_alpha() {
-        let value = ColorValue::from_oklch(0.6, 0.1, 200.0).with_alpha(0.5);
-        let color = color_value_to_iced(value);
-        assert!((color.a - 0.5).abs() < f32::EPSILON);
-    }
-}
