@@ -7,8 +7,8 @@ publish = false
 [dependencies]
 iced-shadcn = { path = "../iced-shadcn" }
 egui-shadcn = { path = "../egui-shadcn", features = ["plot"] }
-twill-core = { path = "../../../twill/crates/twill-core" }
-twill-iced = { path = "../../../twill/crates/twill-iced", default-features = false, features = ["wgpu"] }
+twill-core = { git = "https://github.com/FerrisMind/twill.git", rev = "83e8ac1a00766b5304ec88d25a9f3e99274ef0e8" }
+twill-iced = { git = "https://github.com/FerrisMind/twill.git", rev = "83e8ac1a00766b5304ec88d25a9f3e99274ef0e8", default-features = false, features = ["wgpu"] }
 
 # Common
 log = "0.4"
