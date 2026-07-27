@@ -1,0 +1,21 @@
+[package]
+name = "shadcn-common"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+readme = "README.md"
+description = "Shared shadcn design tokens for iced-shadcn and egui-shadcn, built on twill"
+documentation = "https://docs.rs/shadcn-common"
+keywords = ["shadcn", "theme", "design-tokens", "twill", "gui"]
+categories = ["gui"]
+
+[dependencies]
+twill-core = { workspace = true }
+
+[dev-dependencies]
+
+[package.metadata.docs.rs]
+rustdoc-args = ["--cfg", "docsrs"]
