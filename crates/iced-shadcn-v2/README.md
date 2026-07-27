@@ -12,7 +12,10 @@ with native `iced` types.
   - `components::button` — public button API and private geometry, rendering,
     style, and error modules.
   - `components::spinner` — canvas-based loading indicator.
-- `theme` — `shadcn-common` theme adapter for iced.
+- `theme` — `shadcn-common` theme adapter for iced:
+  - `theme::palette` — semantic colors and OKLCH-to-iced conversion.
+  - `theme::tokens` — theme mode, style, base, accent, radius, and semantic APIs.
+  - `theme::typography` — body, heading, and font-pack selection APIs.
 - `fonts` — font-face exports and the iced font adapter.
 
 The root `button` and `spinner` modules are compatibility re-exports of

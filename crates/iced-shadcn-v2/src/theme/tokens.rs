@@ -27,7 +27,6 @@ pub struct Theme {
     pub palette: Palette,
     pub style: StylePack,
 }
-
 impl Theme {
     /// Builds a theme (and its cached [`Palette`]) from a [`ResolvedTheme`].
     pub fn from_resolved(resolved: ResolvedTheme) -> Self {
@@ -191,4 +190,3 @@ impl Theme {
             .unwrap_or(Color::BLACK)
     }
 }
-
