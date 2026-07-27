@@ -22,6 +22,7 @@ use super::fonts::iced_font;
 use super::theme::Theme;
 
 /// Visual treatment of a [`Button`].
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum ButtonVariant {
     /// Filled button using the theme primary color.
@@ -41,13 +42,10 @@ pub enum ButtonVariant {
     Soft,
     /// Elevated button using the background surface and a shadow.
     Surface,
-    /// Compatibility alias for [`ButtonVariant::Default`].
-    Classic,
-    /// Compatibility alias for [`ButtonVariant::Default`].
-    Solid,
 }
 
 /// Preset control size for a [`Button`].
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum ButtonSize {
     /// Extra-small control size.
@@ -64,6 +62,7 @@ pub enum ButtonSize {
 }
 
 /// Border radius preset for a [`Button`].
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum ButtonRadius {
     /// No corner radius.
@@ -80,6 +79,7 @@ pub enum ButtonRadius {
 }
 
 /// Error returned when a button padding value cannot be represented by iced.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ButtonBuildError {
     /// A custom-property padding variable has no value that iced can resolve.
@@ -87,6 +87,8 @@ pub enum ButtonBuildError {
         /// Name of the unsupported custom property.
         name: &'static str,
     },
+    /// The CSS-like `auto` padding value has no iced equivalent.
+    UnsupportedPaddingAuto,
 }
 
 impl fmt::Display for ButtonBuildError {
@@ -96,6 +98,8 @@ impl fmt::Display for ButtonBuildError {
                 formatter,
                 "padding variable `{name}` is not supported by iced-shadcn::new_api::Button"
             ),
+            Self::UnsupportedPaddingAuto => formatter
+                .write_str("padding value `auto` is not supported by iced-shadcn::new_api::Button"),
         }
     }
 }
@@ -271,8 +275,13 @@ impl<'a, Message> Button<'a, Message> {
     /// Sets all supported sides of the button padding.
     ///
     /// `PaddingValue::Var(_)` cannot be resolved by iced and is rejected with
-    /// [`ButtonBuildError::UnsupportedPaddingVariable`] instead of being
-    /// silently converted to zero.
+    /// [`ButtonBuildError::UnsupportedPaddingVariable`]. The same applies to
+    /// [`Spacing::Auto`], which has no fixed-size iced representation.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ButtonBuildError`] when any padding side contains a custom
+    /// variable or `auto` value. The button is returned unchanged on error.
     pub fn padding(mut self, padding: Padding) -> Result<Self, ButtonBuildError> {
         self.padding = Some(resolve_padding(padding)?);
         Ok(self)
@@ -412,7 +421,7 @@ where
 
             if variant == ButtonVariant::Link {
                 // shadcn: `underline-offset-4 hover:underline`
-                link_label(label, size_px, font, line_height)
+                link_label(label, size_px, font)
             } else {
                 iced_text(label)
                     .size(u32::from(size_px))
@@ -441,7 +450,6 @@ fn link_label<'a, Message: 'a>(
     label: Fragment<'a>,
     size_px: u16,
     font: Font,
-    _line_height: LineHeight,
 ) -> Element<'a, Message> {
     let size = f32::from(size_px);
     // Leave room under the glyphs — iced `hover` layers clip to layout bounds,
@@ -561,7 +569,7 @@ fn padding_value_px(value: PaddingValue) -> Result<f32, ButtonBuildError> {
             Spacing::S72 => 288.0,
             Spacing::S80 => 320.0,
             Spacing::S96 => 384.0,
-            Spacing::Auto => 0.0,
+            Spacing::Auto => return Err(ButtonBuildError::UnsupportedPaddingAuto),
         }),
         PaddingValue::Px(px) => Ok(px.max(0.0)),
         PaddingValue::Rem(rem) => Ok((rem * 16.0).max(0.0)),
@@ -616,9 +624,7 @@ fn button_style(
     let soft_fg = accent_txt;
 
     let (base_bg, base_fg, border_color, border_width, shadow) = match variant {
-        ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => {
-            (Some(accent), accent_fg, accent, BorderWidth::S0, None)
-        }
+        ButtonVariant::Default => (Some(accent), accent_fg, accent, BorderWidth::S0, None),
         ButtonVariant::Secondary => (
             Some(semantic_color(theme, SemanticColor::Secondary)),
             semantic_color(theme, SemanticColor::SecondaryForeground),
@@ -695,12 +701,11 @@ fn hovered_state(
     current_text: Color,
 ) -> Style {
     match variant {
-        ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => Style::new()
-            .background_token(background_token(shift_toward(
-                accent_fill(theme, color),
-                theme.is_dark(),
-                0.12,
-            ))),
+        ButtonVariant::Default => Style::new().background_token(background_token(shift_toward(
+            accent_fill(theme, color),
+            theme.is_dark(),
+            0.12,
+        ))),
         ButtonVariant::Secondary => Style::new()
             .background_token(background_token(semantic_color(
                 theme,
@@ -755,12 +760,11 @@ fn hovered_state(
 
 fn pressed_state(theme: &Theme, variant: ButtonVariant, color: Option<AccentColor>) -> Style {
     match variant {
-        ButtonVariant::Default | ButtonVariant::Classic | ButtonVariant::Solid => Style::new()
-            .background_token(background_token(shift_toward(
-                accent_fill(theme, color),
-                theme.is_dark(),
-                0.22,
-            ))),
+        ButtonVariant::Default => Style::new().background_token(background_token(shift_toward(
+            accent_fill(theme, color),
+            theme.is_dark(),
+            0.22,
+        ))),
         ButtonVariant::Secondary => Style::new().background_token(background_token(
             semantic_color(theme, SemanticColor::Muted),
         )),
@@ -1251,6 +1255,17 @@ mod tests {
     }
 
     #[test]
+    fn padding_auto_returns_a_descriptive_error() {
+        let theme = Theme::light();
+        let error = Button::<Message>::text("Save", &theme)
+            .padding(Padding::all(Spacing::Auto))
+            .expect_err("auto padding is unsupported");
+
+        assert_eq!(error, ButtonBuildError::UnsupportedPaddingAuto);
+        assert!(error.to_string().contains("auto"));
+    }
+
+    #[test]
     fn icon_button_uses_custom_fixed_height_for_both_dimensions() {
         let resolved = resolve_button_width(Length::Shrink, Length::Fixed(72.0), false, true, 36.0);
 
@@ -1303,38 +1318,6 @@ mod tests {
     }
 
     #[test]
-    fn classic_and_solid_are_default_aliases() {
-        let theme = Theme::light();
-
-        for variant in [
-            ButtonVariant::Default,
-            ButtonVariant::Classic,
-            ButtonVariant::Solid,
-        ] {
-            assert_eq!(
-                resolve_button_style(
-                    &theme,
-                    variant,
-                    ButtonSize::Size2,
-                    None,
-                    None,
-                    false,
-                    button_widget::Status::Active,
-                ),
-                resolve_button_style(
-                    &theme,
-                    ButtonVariant::Default,
-                    ButtonSize::Size2,
-                    None,
-                    None,
-                    false,
-                    button_widget::Status::Active,
-                )
-            );
-        }
-    }
-
-    #[test]
     fn tone_is_an_alias_for_color() {
         let theme = Theme::light();
         let button: Button<'_, Message> = Button::text("Save", &theme).tone(AccentColor::Blue);
@@ -1379,8 +1362,6 @@ mod tests {
                 ButtonVariant::Link,
                 ButtonVariant::Soft,
                 ButtonVariant::Surface,
-                ButtonVariant::Classic,
-                ButtonVariant::Solid,
             ] {
                 for status in [
                     button_widget::Status::Active,
