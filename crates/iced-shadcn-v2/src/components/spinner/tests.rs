@@ -1,0 +1,45 @@
+//! Behavioral tests for the spinner component.
+
+use super::render::{AI_LOADER_SEGMENTS, AI_LOADER_VIEWBOX};
+use super::*;
+use crate::theme::Theme;
+
+#[test]
+fn spinner_defaults_to_ai_loader_without_internal_animation() {
+    let theme = Theme::light();
+    let spinner = Spinner::new(&theme);
+    assert_eq!(spinner.variant, SpinnerVariant::AiLoaderIcon);
+    assert!(!spinner.animated);
+    assert_eq!(spinner.duration_ms, 1000);
+}
+
+#[test]
+fn spinner_progress_compatibility_uses_external_progress_when_not_animated() {
+    let theme = Theme::light();
+    let spinner = Spinner::new(&theme).progress(0.37);
+    let state = SpinnerState::default();
+    assert!((spinner.resolved_progress(&state) - 0.37).abs() < f32::EPSILON);
+}
+
+#[test]
+fn ai_loader_segments_match_reference_contract() {
+    assert_eq!(AI_LOADER_SEGMENTS.len(), 10);
+    let expected_alpha = [1.0, 0.5, 0.9, 0.1, 0.4, 0.6, 0.2, 0.7, 0.3, 0.8];
+    for (index, (_, _, alpha)) in AI_LOADER_SEGMENTS.iter().copied().enumerate() {
+        assert!((alpha - expected_alpha[index]).abs() < 1e-6);
+    }
+}
+
+#[test]
+fn ai_loader_segment_scaling_stays_within_bounds() {
+    let size = 16.0;
+    let scale = size / AI_LOADER_VIEWBOX;
+    for (start, end, _) in AI_LOADER_SEGMENTS {
+        for (x, y) in [start, end] {
+            let sx = x * scale;
+            let sy = y * scale;
+            assert!((0.0..=size).contains(&sx));
+            assert!((0.0..=size).contains(&sy));
+        }
+    }
+}

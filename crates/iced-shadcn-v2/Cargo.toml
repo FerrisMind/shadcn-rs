@@ -1,0 +1,28 @@
+[package]
+name = "iced-shadcn-v2"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+readme = "README.md"
+description = "Builder-first shadcn-inspired component kit for iced (v2 API)"
+documentation = "https://docs.rs/iced-shadcn-v2"
+keywords = ["iced", "ui", "components", "shadcn", "radix"]
+categories = ["gui", "visualization", "rendering::graphics-api"]
+
+include = [
+    "src/**/*",
+    "Cargo.toml",
+    "/README.md",
+    "LICENSE*",
+]
+
+[dependencies]
+iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "tokio", "wgpu", "tiny-skia", "lazy", "x11", "wayland"] }
+shadcn-common = { workspace = true, features = ["fonts"] }
+twill-core = { workspace = true }
+
+[[example]]
+name = "button"
+path = "examples/button/main.rs"

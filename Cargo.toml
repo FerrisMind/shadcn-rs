@@ -2,6 +2,7 @@
 members = [
     "crates/egui-shadcn",
     "crates/iced-shadcn",
+    "crates/iced-shadcn-v2",
     "crates/shadcn-common",
     "crates/shadcn-rs-cli",
     "crates/wasm-demo",

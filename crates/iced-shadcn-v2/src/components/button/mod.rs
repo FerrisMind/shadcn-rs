@@ -1,0 +1,327 @@
+//! Builder-first button component.
+//!
+//! The public API lives in this module; rendering, geometry, style resolution,
+//! and error types are kept in focused private submodules.
+
+mod error;
+mod geometry;
+mod render;
+mod style;
+mod types;
+
+#[cfg(test)]
+mod tests;
+
+pub use error::ButtonBuildError;
+pub use types::{ButtonRadius, ButtonSize, ButtonVariant};
+
+use std::fmt;
+
+use iced::widget::button as button_widget;
+use iced::widget::button as iced_button;
+use iced::widget::text::{Fragment, IntoFragment};
+use iced::{Element, Length};
+
+use shadcn_common::AccentColor;
+use twill_core::prelude::Padding;
+
+use crate::theme::Theme;
+
+/// Builder-first button styled directly with iced types.
+///
+/// Theme tokens come from `shadcn-common` via [`Theme`]; iced styles are built
+/// directly on top of `twill-core` tokens, without an intermediate style layer.
+///
+/// ```rust,no_run
+/// use iced::Element;
+/// use iced_shadcn_v2::{
+///     AccentColor, Button, ButtonBuildError, ButtonSize, ButtonVariant, Padding, Spacing, Theme,
+/// };
+///
+/// #[derive(Debug, Clone)]
+/// enum Message {
+///     Save,
+/// }
+///
+/// fn save_button(theme: &Theme) -> Result<Element<'_, Message>, ButtonBuildError> {
+///     Ok(Button::text("Save", theme)
+///         .variant(ButtonVariant::Default)
+///         .size(ButtonSize::Size3)
+///         .color(AccentColor::Blue)
+///         .padding(Padding::all(Spacing::S4))?
+///         .on_press(Message::Save)
+///         .into())
+/// }
+/// ```
+pub struct Button<'a, Message> {
+    content: ButtonContent<'a, Message>,
+    theme: &'a Theme,
+    variant: ButtonVariant,
+    size: ButtonSize,
+    radius: Option<ButtonRadius>,
+    /// `None` = theme primary; `Some` = accent overlay from `shadcn-common`.
+    color: Option<AccentColor>,
+    width: Length,
+    height: Option<Length>,
+    padding: Option<iced::Padding>,
+    full_width: bool,
+    loading: bool,
+    disabled: bool,
+    on_press: Option<Message>,
+    style_override: Option<
+        Box<dyn Fn(button_widget::Style, button_widget::Status) -> button_widget::Style + 'a>,
+    >,
+}
+
+enum ButtonContent<'a, Message> {
+    Label(Fragment<'a>),
+    Element(Element<'a, Message>),
+    Icon(Element<'a, Message>),
+}
+
+impl<Message> fmt::Debug for Button<'_, Message> {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let content = match &self.content {
+            ButtonContent::Label(_) => "label",
+            ButtonContent::Element(_) => "element",
+            ButtonContent::Icon(_) => "icon",
+        };
+
+        formatter
+            .debug_struct("Button")
+            .field("content", &content)
+            .field("theme", &self.theme)
+            .field("variant", &self.variant)
+            .field("size", &self.size)
+            .field("radius", &self.radius)
+            .field("color", &self.color)
+            .field("width", &self.width)
+            .field("height", &self.height)
+            .field("padding", &self.padding)
+            .field("full_width", &self.full_width)
+            .field("loading", &self.loading)
+            .field("disabled", &self.disabled)
+            .field("on_press", &self.on_press.is_some())
+            .field("style_override", &self.style_override.is_some())
+            .finish()
+    }
+}
+
+impl<'a, Message> Button<'a, Message> {
+    /// Creates a new button from arbitrary content.
+    ///
+    /// `theme` is required because styling is derived from `shadcn-common`
+    /// theme tokens instead of `iced::Theme`.
+    pub fn new(content: impl Into<Element<'a, Message>>, theme: &'a Theme) -> Self {
+        Self::from_content(ButtonContent::Element(content.into()), theme)
+    }
+
+    /// Creates a text button.
+    pub fn text(label: impl IntoFragment<'a>, theme: &'a Theme) -> Self {
+        Self::from_content(ButtonContent::Label(label.into_fragment()), theme)
+    }
+
+    /// Creates an icon button.
+    pub fn icon(content: impl Into<Element<'a, Message>>, theme: &'a Theme) -> Self {
+        Self::from_content(ButtonContent::Icon(content.into()), theme)
+    }
+
+    fn from_content(content: ButtonContent<'a, Message>, theme: &'a Theme) -> Self {
+        Self {
+            content,
+            theme,
+            variant: ButtonVariant::Default,
+            size: ButtonSize::Size2,
+            radius: None,
+            color: None,
+            width: Length::Shrink,
+            height: None,
+            padding: None,
+            full_width: false,
+            loading: false,
+            disabled: false,
+            on_press: None,
+            style_override: None,
+        }
+    }
+
+    /// Sets the visual treatment of the button.
+    pub fn variant(mut self, variant: ButtonVariant) -> Self {
+        self.variant = variant;
+        self
+    }
+
+    /// Sets the preset control size.
+    pub fn size(mut self, size: ButtonSize) -> Self {
+        self.size = size;
+        self
+    }
+
+    /// Sets the button corner radius.
+    pub fn radius(mut self, radius: ButtonRadius) -> Self {
+        self.radius = Some(radius);
+        self
+    }
+
+    /// Applies an accent color overlay to the button's theme tokens.
+    pub fn color(mut self, color: AccentColor) -> Self {
+        self.color = Some(color);
+        self
+    }
+
+    /// Alias for [`Button::color`] retained for semantic color APIs.
+    pub fn tone(self, color: AccentColor) -> Self {
+        self.color(color)
+    }
+
+    /// Use the theme primary (no per-button accent overlay).
+    pub fn theme_primary(mut self) -> Self {
+        self.color = None;
+        self
+    }
+
+    /// Sets a custom button width.
+    pub fn width(mut self, width: impl Into<Length>) -> Self {
+        self.width = width.into();
+        self
+    }
+
+    /// Sets a custom button height.
+    pub fn height(mut self, height: impl Into<Length>) -> Self {
+        self.height = Some(height.into());
+        self
+    }
+
+    /// Sets all supported sides of the button padding.
+    ///
+    /// [`twill_core::prelude::PaddingValue::Var`] cannot be resolved by iced
+    /// and is rejected with [`ButtonBuildError::UnsupportedPaddingVariable`].
+    /// The same applies to [`twill_core::prelude::Spacing::Auto`], which has
+    /// no fixed-size iced representation.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`ButtonBuildError`] when any padding side contains a custom
+    /// variable or `auto` value. The builder is consumed either way; rebuild
+    /// the button with a supported padding to recover.
+    pub fn padding(mut self, padding: Padding) -> Result<Self, ButtonBuildError> {
+        self.padding = Some(geometry::resolve_padding(padding)?);
+        Ok(self)
+    }
+
+    /// Makes the button fill the available width.
+    pub fn full_width(mut self) -> Self {
+        self.full_width = true;
+        self
+    }
+
+    /// Shows a spinner and disables the button while loading.
+    pub fn loading(mut self, loading: bool) -> Self {
+        self.loading = loading;
+        self
+    }
+
+    /// Disables the button while retaining its configured content.
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
+        self
+    }
+
+    /// Sets the message emitted when the button is pressed.
+    pub fn on_press(mut self, message: Message) -> Self {
+        self.on_press = Some(message);
+        self
+    }
+
+    /// Sets or clears the message emitted when the button is pressed.
+    pub fn on_press_maybe(mut self, message: Option<Message>) -> Self {
+        self.on_press = message;
+        self
+    }
+
+    /// Applies a narrow iced-style escape hatch after internal style resolution.
+    pub fn style_override(
+        mut self,
+        style_override: impl Fn(button_widget::Style, button_widget::Status) -> button_widget::Style
+        + 'a,
+    ) -> Self {
+        self.style_override = Some(Box::new(style_override));
+        self
+    }
+
+    /// Builds the underlying `iced` button widget.
+    pub fn into_button(self) -> button_widget::Button<'a, Message>
+    where
+        Message: Clone + 'a,
+    {
+        let Button {
+            content,
+            theme,
+            variant,
+            size,
+            radius,
+            color,
+            width,
+            height,
+            padding,
+            full_width,
+            loading,
+            disabled,
+            on_press,
+            style_override,
+        } = self;
+
+        let icon = matches!(content, ButtonContent::Icon(_));
+        let control_height_px = size.control_height(theme);
+        let control_height = height.unwrap_or(Length::Fixed(control_height_px));
+        let resolved_width = geometry::resolve_button_width(
+            width,
+            control_height,
+            full_width,
+            icon,
+            control_height_px,
+        );
+
+        let content = render::build_content(content, variant, size, loading, color, theme);
+        let content = render::build_wrapper(content, full_width, icon);
+        let disabled_state = disabled || loading || on_press.is_none();
+        let resolved_padding = padding.unwrap_or_else(|| {
+            if icon {
+                iced::Padding::ZERO
+            } else {
+                size.default_padding()
+            }
+        });
+
+        let mut widget = iced_button(content)
+            .padding(resolved_padding)
+            .width(resolved_width)
+            .height(control_height);
+
+        if let Some(message) = on_press
+            && !disabled_state
+        {
+            widget = widget.on_press(message);
+        }
+
+        widget.style(move |_iced_theme, status| {
+            let mut style =
+                style::resolve_button_style(theme, variant, radius, color, disabled_state, status);
+
+            if let Some(override_fn) = style_override.as_ref() {
+                style = override_fn(style, status);
+            }
+
+            style
+        })
+    }
+}
+
+impl<'a, Message> From<Button<'a, Message>> for Element<'a, Message>
+where
+    Message: Clone + 'a,
+{
+    fn from(button: Button<'a, Message>) -> Self {
+        button.into_button().into()
+    }
+}
