@@ -224,7 +224,9 @@ impl<'a, Message> Button<'a, Message> {
         self
     }
 
-    /// Shows a spinner and disables the button while loading.
+    /// Shows an animated spinner to the left of the label and disables press.
+    ///
+    /// Icon-only buttons replace their glyph with the spinner.
     pub fn loading(mut self, loading: bool) -> Self {
         self.loading = loading;
         self

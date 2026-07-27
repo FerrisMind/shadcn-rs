@@ -2,7 +2,7 @@
 
 use iced::alignment::{Horizontal, Vertical};
 use iced::widget::text::{Fragment, LineHeight, Rich, Span};
-use iced::widget::{container, hover, stack, text as iced_text};
+use iced::widget::{container, hover, row, text as iced_text};
 use iced::{Element, Font, Length};
 
 use shadcn_common::AccentColor;
@@ -24,6 +24,8 @@ pub(super) fn build_content<'a, Message>(
 where
     Message: Clone + 'a,
 {
+    let is_icon = matches!(content, ButtonContent::Icon(_));
+
     let content = match content {
         ButtonContent::Label(label) => {
             let size_px = size.label_text_size();
@@ -50,7 +52,7 @@ where
     };
 
     if loading {
-        loading_overlay(content, size, color, theme)
+        loading_content(content, size, color, theme, is_icon)
     } else {
         content
     }
@@ -101,11 +103,15 @@ pub(super) fn build_wrapper<'a, Message: 'a>(
     wrapper.into()
 }
 
-fn loading_overlay<'a, Message>(
+/// Loading UI matching shadcn: animated spinner inline-start of the label.
+///
+/// Icon-only buttons replace their glyph with the spinner (same footprint).
+fn loading_content<'a, Message>(
     content: Element<'a, Message>,
     size: ButtonSize,
     color: Option<AccentColor>,
     theme: &Theme,
+    is_icon: bool,
 ) -> Element<'a, Message>
 where
     Message: Clone + 'a,
@@ -116,16 +122,30 @@ where
         ButtonSize::Size3 | ButtonSize::Size4 => SpinnerSize::Size3,
     };
 
-    let spinner_color = accent_text(theme, color);
-    let spinner = spinner(Spinner::from_color(spinner_color).size(spinner_size));
-    let spinner_layer = container(spinner)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .center_x(Length::Fill)
-        .center_y(Length::Fill);
+    let indicator = spinner(
+        Spinner::from_color(accent_text(theme, color))
+            .size(spinner_size)
+            .animated(true)
+            .loading(true),
+    );
 
-    stack![container(content), spinner_layer]
-        .width(Length::Fill)
-        .height(Length::Fill)
+    if is_icon {
+        return container(indicator)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .center_x(Length::Fill)
+            .center_y(Length::Fill)
+            .into();
+    }
+
+    let gap = match size {
+        ButtonSize::Size0 | ButtonSize::Size1 => 6.0,
+        ButtonSize::Size2 => 8.0,
+        ButtonSize::Size3 | ButtonSize::Size4 => 8.0,
+    };
+
+    row![indicator, content]
+        .spacing(gap)
+        .align_y(Vertical::Center)
         .into()
 }
