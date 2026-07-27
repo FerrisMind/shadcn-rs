@@ -26,3 +26,7 @@ twill-core = { workspace = true }
 [[example]]
 name = "button"
 path = "examples/button/main.rs"
+
+[[example]]
+name = "spinner"
+path = "examples/spinner/main.rs"

@@ -101,10 +101,15 @@ fn variants(theme: &Theme) -> iced::Element<'_, ()> {
 `Button::style_override` is unrelated to Vega/Nova: it only tweaks the resolved
 iced `button::Style` (colors, border, shadow) after our resolver runs.
 
-## Example
+## Examples
+
+```bash
+cargo run -p iced-shadcn-v2 --example button
+cargo run -p iced-shadcn-v2 --example spinner
+```
 
 ```rust,no_run
-use iced_shadcn_v2::{Button, ButtonVariant, Theme};
+use iced_shadcn_v2::{Button, ButtonVariant, Spinner, SpinnerVariant, Theme, spinner};
 
 #[derive(Debug, Clone)]
 enum Message {
@@ -112,9 +117,16 @@ enum Message {
 }
 
 fn view(theme: &Theme) -> iced::Element<'_, Message> {
-    Button::text("Save", theme)
-        .variant(ButtonVariant::Default)
-        .on_press(Message::Save)
-        .into()
+    iced::widget::row![
+        Button::text("Save", theme)
+            .variant(ButtonVariant::Default)
+            .on_press(Message::Save),
+        spinner(
+            Spinner::new(theme)
+                .variant(SpinnerVariant::AiLoaderIcon)
+                .animated(true),
+        ),
+    ]
+    .into()
 }
 ```
