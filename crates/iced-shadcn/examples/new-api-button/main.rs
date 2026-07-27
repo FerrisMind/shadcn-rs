@@ -9,10 +9,11 @@ use iced::{Alignment, Background, Border, Color, Element, Length, Task};
 use lucide_icons::LUCIDE_FONT_BYTES;
 
 use iced_shadcn::new_api::{
-    fonts, iced_font, AccentColor, BaseColor, Button, ButtonRadius, ButtonSize, ButtonVariant,
-    FontHeading, FontId, FontPack, RadiusId, StyleId, Theme, ThemeMode,
+    AccentColor, BaseColor, Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant,
+    FontHeading, FontId, FontPack, RadiusId, StyleId, Theme, ThemeMode, fonts, iced_font,
 };
-use iced_shadcn::{select, SelectProps, SelectSize, Theme as UiTheme};
+use iced_shadcn::{SelectProps, SelectSize, Theme as UiTheme, select};
+use twill::prelude::{Padding, Spacing};
 
 pub fn main() -> iced::Result {
     let mut app = iced::application(Example::default, Example::update, Example::view)
@@ -109,7 +110,11 @@ impl Example {
         let ui = &self.ui_theme;
 
         let controls = column![
-            section_label("Theme (shadcn-common)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Theme (shadcn-common)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             control_select(
                 "Style",
                 &STYLES,
@@ -299,6 +304,12 @@ impl Example {
                 .variant(ButtonVariant::Default)
                 .full_width()
                 .on_press(Message::Pressed),
+            padded_button(theme).unwrap_or_else(|error| {
+                text(format!("Padding error: {error}"))
+                    .size(13)
+                    .color(p.destructive)
+                    .into()
+            }),
         ]
         .spacing(12)
         .width(Length::Fill);
@@ -359,6 +370,19 @@ impl Example {
     }
 }
 
+fn padded_button<'a>(theme: &'a Theme) -> Result<Element<'a, Message>, ButtonBuildError> {
+    Ok(Button::text("Custom four-side padding", theme)
+        .variant(ButtonVariant::Outline)
+        .padding(Padding::individual(
+            Spacing::S1,
+            Spacing::S3,
+            Spacing::S2,
+            Spacing::S4,
+        ))?
+        .on_press(Message::Pressed)
+        .into())
+}
+
 fn control_select<'a, T, F>(
     label: &'static str,
     options: &'a [T],
@@ -392,11 +416,7 @@ where
     .into()
 }
 
-fn section_label<'a>(
-    label: &'static str,
-    color: Color,
-    pack: FontPack,
-) -> Element<'a, Message> {
+fn section_label<'a>(label: &'static str, color: Color, pack: FontPack) -> Element<'a, Message> {
     text(label)
         .size(18)
         .font(iced_font(pack.heading))
@@ -545,8 +565,7 @@ const ACCENTS: [AccentOpt; 18] = [
     AccentOpt::Color(AccentColor::Yellow),
 ];
 
-const MODES: [Labelled<ThemeMode>; 2] =
-    [Labelled(ThemeMode::Light), Labelled(ThemeMode::Dark)];
+const MODES: [Labelled<ThemeMode>; 2] = [Labelled(ThemeMode::Light), Labelled(ThemeMode::Dark)];
 
 const FONTS: [Labelled<FontId>; 5] = [
     Labelled(FontId::Geist),
