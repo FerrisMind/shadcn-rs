@@ -17,29 +17,29 @@ pub enum SpinnerVariant {
     #[default]
     AiLoaderIcon,
     /// Circular stroke with a gap (rotating arc).
-    PromptCircular,
+    Circular,
     /// Classic twelve-spoke fading spinner.
-    PromptClassic,
+    Classic,
     /// Pulsing ring.
-    PromptPulse,
+    Pulse,
     /// Pulsing dot.
-    PromptPulseDot,
+    PulseDot,
     /// Three bouncing dots.
-    PromptDots,
+    Dots,
     /// Typing-indicator dots.
-    PromptTyping,
+    Typing,
     /// Five-bar audio wave.
-    PromptWave,
+    Wave,
     /// Three-bar audio wave.
-    PromptBars,
+    Bars,
     /// Terminal prompt with a blinking cursor.
-    PromptTerminal,
+    Terminal,
     /// Blinking "Thinking" text.
-    PromptTextBlink,
+    TextBlink,
     /// Shimmering "Thinking" text.
-    PromptTextShimmer,
+    TextShimmer,
     /// "Loading" text with animated dots.
-    PromptLoadingDots,
+    LoadingDots,
 }
 
 /// Preset (or custom pixel) size of a [`Spinner`].
@@ -172,7 +172,7 @@ impl Spinner {
     ///
     /// Each value in `[f32; 5]` is clamped to `[0.0, 1.0]` and maps to one bar.
     /// When set, real audio amplitudes are used instead of the time-driven sine wave.
-    /// For the `PromptBars` variant (3 bars) only the first 3 values are used.
+    /// For the `Bars` variant (3 bars) only the first 3 values are used.
     pub fn amplitudes(mut self, amps: [f32; 5]) -> Self {
         self.amplitudes = Some(amps.map(|a| a.clamp(0.0, 1.0)));
         self
@@ -189,10 +189,10 @@ impl Spinner {
     pub(super) fn dimensions(self) -> Size {
         let size = self.size.pixels();
         match self.variant {
-            SpinnerVariant::PromptTerminal => Size::new(size * 2.4, size),
-            SpinnerVariant::PromptTextBlink
-            | SpinnerVariant::PromptTextShimmer
-            | SpinnerVariant::PromptLoadingDots => Size::new(size * 4.8, size * 1.2),
+            SpinnerVariant::Terminal => Size::new(size * 2.4, size),
+            SpinnerVariant::TextBlink
+            | SpinnerVariant::TextShimmer
+            | SpinnerVariant::LoadingDots => Size::new(size * 4.8, size * 1.2),
             _ => Size::new(size, size),
         }
     }

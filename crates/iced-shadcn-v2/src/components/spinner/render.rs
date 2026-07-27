@@ -96,25 +96,25 @@ impl<Message> canvas::Program<Message> for Spinner {
                     }
                 });
             }
-            SpinnerVariant::PromptCircular => {
-                draw_prompt_circular(&mut frame, center, size, self.color, phase)
+            SpinnerVariant::Circular => {
+                draw_circular(&mut frame, center, size, self.color, phase)
             }
-            SpinnerVariant::PromptClassic => {
-                draw_prompt_classic(&mut frame, center, size, self.color, phase)
+            SpinnerVariant::Classic => {
+                draw_classic(&mut frame, center, size, self.color, phase)
             }
-            SpinnerVariant::PromptPulse => {
-                draw_prompt_pulse(&mut frame, center, size, self.color, phase)
+            SpinnerVariant::Pulse => {
+                draw_pulse(&mut frame, center, size, self.color, phase)
             }
-            SpinnerVariant::PromptPulseDot => {
-                draw_prompt_pulse_dot(&mut frame, center, size, self.color, phase)
+            SpinnerVariant::PulseDot => {
+                draw_pulse_dot(&mut frame, center, size, self.color, phase)
             }
-            SpinnerVariant::PromptDots => {
-                draw_prompt_dots(&mut frame, center, size, self.color, phase, false)
+            SpinnerVariant::Dots => {
+                draw_dots(&mut frame, center, size, self.color, phase, false)
             }
-            SpinnerVariant::PromptTyping => {
-                draw_prompt_dots(&mut frame, center, size, self.color, phase, true)
+            SpinnerVariant::Typing => {
+                draw_dots(&mut frame, center, size, self.color, phase, true)
             }
-            SpinnerVariant::PromptWave => draw_prompt_wave(
+            SpinnerVariant::Wave => draw_wave(
                 &mut frame,
                 center,
                 size,
@@ -123,7 +123,7 @@ impl<Message> canvas::Program<Message> for Spinner {
                 5,
                 self.amplitudes,
             ),
-            SpinnerVariant::PromptBars => draw_prompt_wave(
+            SpinnerVariant::Bars => draw_wave(
                 &mut frame,
                 center,
                 size,
@@ -132,10 +132,10 @@ impl<Message> canvas::Program<Message> for Spinner {
                 3,
                 self.amplitudes,
             ),
-            SpinnerVariant::PromptTerminal => {
-                draw_prompt_terminal(&mut frame, bounds, size, self.color, phase)
+            SpinnerVariant::Terminal => {
+                draw_terminal(&mut frame, bounds, size, self.color, phase)
             }
-            SpinnerVariant::PromptTextBlink => draw_prompt_text(
+            SpinnerVariant::TextBlink => draw_text(
                 &mut frame,
                 bounds,
                 size,
@@ -144,7 +144,7 @@ impl<Message> canvas::Program<Message> for Spinner {
                 phase,
                 TextAnimation::Blink,
             ),
-            SpinnerVariant::PromptTextShimmer => draw_prompt_text(
+            SpinnerVariant::TextShimmer => draw_text(
                 &mut frame,
                 bounds,
                 size,
@@ -153,7 +153,7 @@ impl<Message> canvas::Program<Message> for Spinner {
                 phase,
                 TextAnimation::Shimmer,
             ),
-            SpinnerVariant::PromptLoadingDots => draw_prompt_text(
+            SpinnerVariant::LoadingDots => draw_text(
                 &mut frame,
                 bounds,
                 size,
@@ -195,7 +195,7 @@ fn draw_legacy_spinner_icon(
     }
 }
 
-fn draw_prompt_circular(
+fn draw_circular(
     frame: &mut canvas::Frame<Renderer>,
     center: Point,
     size: f32,
@@ -227,7 +227,7 @@ fn draw_prompt_circular(
     );
 }
 
-fn draw_prompt_classic(
+fn draw_classic(
     frame: &mut canvas::Frame<Renderer>,
     center: Point,
     size: f32,
@@ -256,7 +256,7 @@ fn draw_prompt_classic(
     }
 }
 
-fn draw_prompt_pulse(
+fn draw_pulse(
     frame: &mut canvas::Frame<Renderer>,
     center: Point,
     size: f32,
@@ -275,7 +275,7 @@ fn draw_prompt_pulse(
     );
 }
 
-fn draw_prompt_pulse_dot(
+fn draw_pulse_dot(
     frame: &mut canvas::Frame<Renderer>,
     center: Point,
     size: f32,
@@ -290,7 +290,7 @@ fn draw_prompt_pulse_dot(
     );
 }
 
-fn draw_prompt_dots(
+fn draw_dots(
     frame: &mut canvas::Frame<Renderer>,
     center: Point,
     size: f32,
@@ -315,7 +315,7 @@ fn draw_prompt_dots(
     }
 }
 
-fn draw_prompt_wave(
+fn draw_wave(
     frame: &mut canvas::Frame<Renderer>,
     center: Point,
     size: f32,
@@ -351,7 +351,7 @@ fn draw_prompt_wave(
     }
 }
 
-fn draw_prompt_terminal(
+fn draw_terminal(
     frame: &mut canvas::Frame<Renderer>,
     bounds: Rectangle,
     size: f32,
@@ -393,7 +393,7 @@ enum TextAnimation {
     LoadingDots,
 }
 
-fn draw_prompt_text(
+fn draw_text(
     frame: &mut canvas::Frame<Renderer>,
     bounds: Rectangle,
     size: f32,
