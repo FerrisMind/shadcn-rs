@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shadcn-rs WASM Showcase</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #09090b; color: #fafafa; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .nav { padding: 0.75rem 1rem; background: #18181b; border-bottom: 1px solid #27272a; display: flex; gap: 1rem; align-items: center; z-index: 100; }
+        .btn { padding: 0.5rem 1rem; background: #27272a; border: 1px solid #3f3f46; color: white; cursor: pointer; border-radius: 6px; font-size: 14px; }
+        .btn:hover { background: #3f3f46; }
+        .btn.active { background: #fafafa; color: #18181b; border-color: #fafafa; }
+        .view-container { flex-grow: 1; position: relative; width: 100%; height: 100%; }
+        iframe { border: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <strong style="margin-right: 10px;">Shadcn-rs WASM Demo</strong>
+        <button id="btn-iced" class="btn active" onclick="switchApp('iced')">Iced Version</button>
+        <button id="btn-egui" class="btn" onclick="switchApp('egui')">Egui Version</button>
+    </div>
+
+    <div class="view-container">
+        <iframe id="app-frame" src="iced/index.html" title="WASM Demo"></iframe>
+    </div>
+
+    <script>
+        let currentApp = 'iced';
+        const loadedApps = new Set(['iced']);
+
+        function switchApp(name) {
+            if (name === currentApp) return;
+
+            const frame = document.getElementById('app-frame');
+            if (!loadedApps.has(name)) {
+                frame.src = name + '/index.html';
+                loadedApps.add(name);
+            } else {
+                frame.src = name + '/index.html';
+            }
+            currentApp = name;
+
+            document.getElementById('btn-iced').classList.toggle('active', name === 'iced');
+            document.getElementById('btn-egui').classList.toggle('active', name === 'egui');
+        }
+    </script>
+</body>
+</html>
