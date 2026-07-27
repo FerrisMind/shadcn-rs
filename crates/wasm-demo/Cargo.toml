@@ -15,7 +15,8 @@ log = "0.4"
 env_logger = "0.11"
 wasm-bindgen = "0.2.114"
 wasm-bindgen-futures = "0.4.64"
-web-sys = { version = "0.3.91", features = ["Window", "Document", "History", "Location", "HtmlCanvasElement"] }
+js-sys = "0.3.91"
+web-sys = { version = "0.3.91", features = ["Window", "Document", "History", "Location", "HtmlCanvasElement", "Response"] }
 lucide-icons = "0.575.0"
 
 # Iced WASM specific

@@ -1,26 +1,34 @@
 use iced::font::{Family, Weight};
+use iced::mouse;
+use iced::widget::text::{Rich, Span};
 use iced::widget::{
-    Column, Row, button as iced_button, column, container, image, responsive, row, scrollable,
+    Column, Row, button as iced_button, column, container, mouse_area, responsive, row, scrollable,
     space, stack, text,
 };
-use iced::{
-    Alignment, Background, Border, Color, ContentFit, Element, Length, Padding, Rectangle, Size,
-};
+use iced::{Alignment, Background, Border, Color, Element, Length, Padding, Size};
 use iced_shadcn::{ButtonProps, ButtonSize, ButtonVariant, Theme, button_content};
 use lucide_icons::iced::{
-    icon_arrow_right, icon_badge_check, icon_github, icon_menu, icon_plus, icon_sliders_horizontal,
-    icon_square, icon_sun_moon,
+    icon_activity, icon_arrow_left_right, icon_arrow_right, icon_arrow_up, icon_badge_check,
+    icon_bell, icon_book_open, icon_building_2, icon_calendar, icon_chart_bar, icon_chart_line,
+    icon_chart_pie, icon_chevron_right, icon_circle_question_mark, icon_credit_card, icon_ellipsis,
+    icon_file_text, icon_github, icon_globe, icon_menu, icon_message_square, icon_moon,
+    icon_palette, icon_plus, icon_refresh_cw, icon_search, icon_settings, icon_shield, icon_sun,
+    icon_target, icon_trending_up, icon_user, icon_wallet, icon_x,
 };
 
-use super::app::{Message, PreviewApp};
+use super::app::{FooterLink, Message, PreviewApp};
 use super::catalog::PreviewPage;
 
 const MOBILE_BREAKPOINT: f32 = 768.0;
-const DARK_CARDS: &[u8] =
-    include_bytes!("../../../../../../shadcn-svelte/docs/static/img/registry/full-dark.png");
-const LIGHT_CARDS: &[u8] =
-    include_bytes!("../../../../../../shadcn-svelte/docs/static/img/registry/full-light.png");
 const DEMO_GAP: f32 = 22.0;
+
+fn format_github_stars(stars: u64) -> String {
+    if stars >= 1_000 {
+        format!("{:.1}k", stars as f64 / 1_000.0)
+    } else {
+        stars.to_string()
+    }
+}
 
 pub fn render(app: &PreviewApp) -> Element<'_, Message> {
     responsive(move |size| page(app, size))
@@ -56,27 +64,27 @@ fn topbar<'a>(app: &'a PreviewApp, compact: bool) -> Element<'a, Message> {
     let theme = app.theme();
     let github_content = row![
         icon_github().size(14),
-        text(if compact { "8.0k" } else { "9.0k" }).size(12)
+        text(format_github_stars(app.github_stars())).size(12)
     ]
     .spacing(4)
     .align_y(Alignment::Center);
-    let github: Element<'a, Message> = if compact {
-        container(github_content).padding([0.0, 14.0]).into()
+    let github: Element<'a, Message> = button_content(
+        github_content,
+        Some(Message::OpenGithub),
+        ButtonProps::new()
+            .variant(ButtonVariant::Ghost)
+            .size(ButtonSize::Size1),
+        theme,
+    )
+    .into();
+    let customizer_icon = if app.is_dark() {
+        icon_sun()
     } else {
-        github_content.into()
-    };
-    let customizer_icon = if compact {
-        icon_sun_moon().size(16)
-    } else {
-        icon_sliders_horizontal().size(15)
+        icon_moon()
     };
     let customizer = iced_shadcn::icon_button(
-        customizer_icon,
-        Some(if compact {
-            Message::ToggleTheme
-        } else {
-            Message::Noop
-        }),
+        customizer_icon.size(if compact { 16 } else { 15 }),
+        Some(Message::ToggleTheme),
         ButtonProps::new()
             .variant(ButtonVariant::Ghost)
             .size(ButtonSize::Size0),
@@ -341,7 +349,7 @@ fn white_button<'a>(
 
 fn cards_demo<'a>(app: &'a PreviewApp, size: Size) -> Element<'a, Message> {
     if size.width < MOBILE_BREAKPOINT {
-        return mobile_cards(app, size);
+        return mobile_cards(app);
     }
 
     container(desktop_cards(app))
@@ -350,40 +358,25 @@ fn cards_demo<'a>(app: &'a PreviewApp, size: Size) -> Element<'a, Message> {
         .into()
 }
 
-fn mobile_cards<'a>(app: &'a PreviewApp, size: Size) -> Element<'a, Message> {
-    let bytes = if app.is_dark() {
-        DARK_CARDS
-    } else {
-        LIGHT_CARDS
-    };
-    let handle = iced::widget::image::Handle::from_bytes(bytes.to_vec());
-    let display_width = size.width * 1.4;
-    let display_height = display_width * 2764.0 / 2560.0;
-    let preview = container(
-        image::Image::new(handle)
-            .width(Length::Fill)
-            .height(Length::Fixed(display_height))
-            .crop(Rectangle {
-                x: 0,
-                y: 0,
-                width: 1828,
-                height: 2764,
-            })
-            .content_fit(ContentFit::Contain),
-    )
+fn mobile_cards<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
+    let theme = app.theme();
+    let content = column![
+        ui_elements_card(theme),
+        contribution_history(theme),
+        claimable_balance(theme),
+        sidebar_nav(theme),
+        savings_targets(theme),
+        dividend_income(theme),
+        qr_connect(theme),
+        transfer_funds(theme),
+        payments(theme),
+    ]
+    .spacing(DEMO_GAP)
     .width(Length::Fill)
-    .clip(true)
-    .style({
-        let background = app.theme().palette.background;
-        move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(background)),
-            ..iced::widget::container::Style::default()
-        }
-    });
+    .padding([0.0, 12.0]);
 
-    container(preview)
+    container(content)
         .width(Length::Fill)
-        .clip(true)
         .padding(Padding::ZERO)
         .into()
 }
@@ -750,7 +743,7 @@ fn ui_elements_card<'a>(theme: &'a Theme) -> Element<'a, Message> {
         row![
             label(theme, "Name", 14),
             space::horizontal(),
-            icon_square().size(14)
+            icon_search().size(14)
         ]
         .align_y(Alignment::Center),
     )
@@ -790,7 +783,7 @@ fn ui_elements_card<'a>(theme: &'a Theme) -> Element<'a, Message> {
     let bottom = row![
         button_chip("Alert Dialog", theme, ChipKind::Outline),
         space::horizontal(),
-        chip_with_icon("Button Group", icon_square(), theme),
+        chip_with_icon("Button Group", icon_arrow_up(), theme),
     ]
     .spacing(8);
 
@@ -904,8 +897,30 @@ fn sidebar_group<'a>(
 }
 
 fn sidebar_icon<'a>(heading: &str, index: usize) -> iced::widget::Text<'a> {
-    let _ = (heading, index);
-    icon_square().size(15)
+    let icon = match (heading, index) {
+        ("Planning", 0) => icon_file_text(),
+        ("Planning", 1) => icon_wallet(),
+        ("Planning", 2) => icon_chart_bar(),
+        ("Planning", 3) => icon_target(),
+        ("Planning", 4) => icon_calendar(),
+        ("Support", 0) => icon_circle_question_mark(),
+        ("Support", 1) => icon_book_open(),
+        ("Support", 2) => icon_message_square(),
+        ("Support", 3) => icon_activity(),
+        ("Support", 4) => icon_globe(),
+        ("Overview", 0) => icon_chart_line(),
+        ("Overview", 1) => icon_arrow_left_right(),
+        ("Overview", 2) => icon_trending_up(),
+        ("Overview", 3) => icon_building_2(),
+        ("Overview", 4) => icon_chart_pie(),
+        ("Account", 0) => icon_user(),
+        ("Account", 1) => icon_credit_card(),
+        ("Account", 2) => icon_bell(),
+        ("Account", 3) => icon_shield(),
+        ("Account", 4) => icon_palette(),
+        _ => icon_settings(),
+    };
+    icon.size(15)
 }
 
 fn savings_targets<'a>(theme: &'a Theme) -> Element<'a, Message> {
@@ -1182,7 +1197,7 @@ fn dividend_income<'a>(theme: &'a Theme) -> Element<'a, Message> {
             row![
                 card_title("Q2 Dividend Income", 17),
                 space::horizontal(),
-                muted_icon_button(theme, icon_square()),
+                muted_icon_button(theme, icon_x()),
             ],
             label(
                 theme,
@@ -1358,7 +1373,7 @@ fn transfer_funds<'a>(theme: &'a Theme) -> Element<'a, Message> {
             row![
                 card_title("Transfer Funds", 17),
                 space::horizontal(),
-                muted_icon_button(theme, icon_square())
+                muted_icon_button(theme, icon_x())
             ],
             label(theme, "Move money between your connected accounts.", 14),
             field("Amount to Transfer", "$ 1,200.00"),
@@ -1378,9 +1393,9 @@ fn transfer_funds<'a>(theme: &'a Theme) -> Element<'a, Message> {
 fn payments<'a>(theme: &'a Theme) -> Element<'a, Message> {
     let payment = |title: &'a str, description: &'a str| {
         let leading_icon = match title {
-            "Change transfer limit" => icon_square(),
-            "Scheduled transfers" => icon_square(),
-            _ => icon_square(),
+            "Change transfer limit" => icon_settings(),
+            "Scheduled transfers" => icon_calendar(),
+            _ => icon_refresh_cw(),
         };
         container(
             row![
@@ -1407,9 +1422,9 @@ fn payments<'a>(theme: &'a Theme) -> Element<'a, Message> {
         column![
             row![
                 label(theme, "Home", 14),
-                icon_square().size(14),
-                icon_square().size(15),
-                icon_square().size(14),
+                icon_chevron_right().size(14),
+                icon_ellipsis().size(15),
+                icon_chevron_right().size(14),
                 space::horizontal(),
                 card_title("Payments", 14)
             ],
@@ -1435,12 +1450,40 @@ fn payments<'a>(theme: &'a Theme) -> Element<'a, Message> {
 
 fn footer<'a>(app: &'a PreviewApp, compact: bool) -> Element<'a, Message> {
     let theme = app.theme();
+    let size = if compact { 12.0 } else { 14.0 };
+    let muted = theme.palette.muted_foreground;
+    let link_color = theme.palette.primary;
+
+    let muted_text = move |value: &'static str| {
+        text(value)
+            .size(size)
+            .style(move |_theme| iced::widget::text::Style { color: Some(muted) })
+    };
+
     container(
-        text("Built by shadcn. Ported to Svelte by Huntabyte & CokaKoala.")
-            .size(if compact { 12 } else { 14 })
-            .style(move |_theme| iced::widget::text::Style {
-                color: Some(theme.palette.muted_foreground),
-            }),
+        row![
+            muted_text("Built by "),
+            footer_link(
+                "shadcn",
+                "https://ui.shadcn.com",
+                FooterLink::Shadcn,
+                app.footer_link_hovered(FooterLink::Shadcn),
+                size,
+                link_color,
+            ),
+            muted_text(". Ported to "),
+            footer_link(
+                "iced",
+                "https://iced.rs",
+                FooterLink::Iced,
+                app.footer_link_hovered(FooterLink::Iced),
+                size,
+                link_color,
+            ),
+            muted_text(" by FerrisMind."),
+        ]
+        .spacing(0)
+        .align_y(Alignment::Center),
     )
     .width(Length::Fill)
     .padding([
@@ -1449,4 +1492,25 @@ fn footer<'a>(app: &'a PreviewApp, compact: bool) -> Element<'a, Message> {
     ])
     .align_x(iced::alignment::Horizontal::Center)
     .into()
+}
+
+fn footer_link<'a>(
+    label: &'static str,
+    url: &'static str,
+    link: FooterLink,
+    hovered: bool,
+    size: f32,
+    color: Color,
+) -> Element<'a, Message> {
+    let content = Rich::<(), Message>::with_spans(vec![
+        Span::new(label).color(color).underline(hovered),
+    ])
+    .size(size);
+
+    mouse_area(content)
+        .on_press(Message::OpenUrl(url))
+        .on_enter(Message::FooterLinkHover(link, true))
+        .on_exit(Message::FooterLinkHover(link, false))
+        .interaction(mouse::Interaction::Pointer)
+        .into()
 }
