@@ -41,20 +41,28 @@ pub enum SpinnerVariant {
 
 /// Preset (or custom pixel) size of a [`Spinner`].
 ///
+/// Presets mirror common Tailwind `size-*` classes used with shadcn-svelte’s
+/// Spinner (`size-3` … `size-8`); there is no size prop in svelte — only `class`.
+///
 /// ```rust
 /// use iced_shadcn_v2::SpinnerSize;
 ///
 /// let size = SpinnerSize::Custom(24.0);
-/// assert_ne!(size, SpinnerSize::Size2);
+/// assert_ne!(size, SpinnerSize::Default);
 /// ```
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 pub enum SpinnerSize {
-    /// 12 px.
-    Size1,
-    /// 16 px.
-    Size2,
-    /// 20 px.
-    Size3,
+    /// 12 px (`size-3`).
+    Xs,
+    /// 16 px (`size-4`).
+    Sm,
+    /// 16 px — same footprint as shadcn’s default `size-4` class.
+    #[default]
+    Default,
+    /// 24 px (`size-6`).
+    Lg,
+    /// 32 px (`size-8`).
+    Xl,
     /// Custom size in pixels (clamped to at least 1 px).
     Custom(f32),
 }
@@ -62,9 +70,10 @@ pub enum SpinnerSize {
 impl SpinnerSize {
     pub(super) fn pixels(self) -> f32 {
         match self {
-            SpinnerSize::Size1 => 12.0,
-            SpinnerSize::Size2 => 16.0,
-            SpinnerSize::Size3 => 20.0,
+            SpinnerSize::Xs => 12.0,
+            SpinnerSize::Sm | SpinnerSize::Default => 16.0,
+            SpinnerSize::Lg => 24.0,
+            SpinnerSize::Xl => 32.0,
             SpinnerSize::Custom(value) => value.max(1.0),
         }
     }
@@ -76,7 +85,7 @@ impl SpinnerSize {
 /// use iced_shadcn_v2::{Spinner, SpinnerSize, Theme};
 ///
 /// let theme = Theme::light();
-/// let indicator = Spinner::new(&theme).size(SpinnerSize::Size3).animated(true);
+/// let indicator = Spinner::new(&theme).size(SpinnerSize::Lg).animated(true);
 /// ```
 #[derive(Clone, Copy, Debug)]
 pub struct Spinner {
@@ -104,7 +113,7 @@ impl Spinner {
         Self {
             progress: 0.0,
             color,
-            size: SpinnerSize::Size2,
+            size: SpinnerSize::Default,
             loading: true,
             animated: false,
             duration_ms: 1000,

@@ -23,7 +23,7 @@ fn builder_updates_semantic_fields() {
     let theme = Theme::light();
     let button: Button<'_, Message> = Button::text("Save", &theme)
         .variant(ButtonVariant::Outline)
-        .size(ButtonSize::Size3)
+        .size(ButtonSize::Lg)
         .radius(ButtonRadius::Large)
         .color(AccentColor::Blue)
         .loading(true)
@@ -31,7 +31,7 @@ fn builder_updates_semantic_fields() {
 
     assert!(matches!(button.content, ButtonContent::Label(_)));
     assert_eq!(button.variant, ButtonVariant::Outline);
-    assert_eq!(button.size, ButtonSize::Size3);
+    assert_eq!(button.size, ButtonSize::Lg);
     assert_eq!(button.radius, Some(ButtonRadius::Large));
     assert_eq!(button.color, Some(AccentColor::Blue));
     assert!(button.loading);
@@ -184,21 +184,17 @@ fn icon_button_uses_custom_fixed_height_for_both_dimensions() {
 }
 
 #[test]
-fn button_sizes_never_resolve_to_negative_heights() {
-    let mut theme = Theme::light();
-    theme.style.control_height_sm_px = 4.0;
-    theme.style.control_height_md_px = -1.0;
-    theme.style.control_height_lg_px = -2.0;
-
-    for size in [
-        ButtonSize::Size0,
-        ButtonSize::Size1,
-        ButtonSize::Size2,
-        ButtonSize::Size3,
-        ButtonSize::Size4,
-    ] {
-        assert!(size.control_height(&theme) >= 0.0);
-    }
+fn button_sizes_match_shadcn_pixel_footprints() {
+    assert_eq!(ButtonSize::Xs.control_height(), 24.0);
+    assert_eq!(ButtonSize::Sm.control_height(), 32.0);
+    assert_eq!(ButtonSize::Default.control_height(), 36.0);
+    assert_eq!(ButtonSize::Lg.control_height(), 40.0);
+    assert_eq!(ButtonSize::IconXs.control_height(), 24.0);
+    assert_eq!(ButtonSize::IconSm.control_height(), 32.0);
+    assert_eq!(ButtonSize::Icon.control_height(), 36.0);
+    assert_eq!(ButtonSize::IconLg.control_height(), 40.0);
+    assert!(ButtonSize::Icon.is_icon());
+    assert!(!ButtonSize::Default.is_icon());
 }
 
 #[test]
@@ -222,9 +218,9 @@ fn configuration_enums_support_hashing_and_expected_order() {
     }
 
     let _ = hash(&ButtonVariant::Default);
-    let _ = hash(&ButtonSize::Size2);
+    let _ = hash(&ButtonSize::Default);
     let _ = hash(&ButtonRadius::Medium);
-    assert!(ButtonSize::Size0 < ButtonSize::Size4);
+    assert!(ButtonSize::Icon.is_icon());
     assert!(ButtonRadius::None < ButtonRadius::Full);
 }
 

@@ -53,7 +53,7 @@ impl Default for Example {
         Self {
             theme: Theme::light(),
             variant: SpinnerVariant::AiLoaderIcon,
-            size: SizeOpt::Size2,
+            size: SizeOpt::Default,
             color: ColorOpt::Primary,
             duration_ms: 1000,
             animated: true,
@@ -212,13 +212,20 @@ impl Example {
         .spacing(8);
 
         let sizes = row![
-            labelled_spinner("S1", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Size1), theme),
-            labelled_spinner("S2", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Size2), theme),
-            labelled_spinner("S3", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Size3), theme),
+            labelled_spinner("xs", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Xs), theme),
+            labelled_spinner("sm", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Sm), theme),
             labelled_spinner(
-                "32px",
+                "default",
                 self.build_spinner(theme, color, self.variant)
-                    .size(SpinnerSize::Custom(32.0)),
+                    .size(SpinnerSize::Default),
+                theme,
+            ),
+            labelled_spinner("lg", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Lg), theme),
+            labelled_spinner("xl", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Xl), theme),
+            labelled_spinner(
+                "custom",
+                self.build_spinner(theme, color, self.variant)
+                    .size(SpinnerSize::Custom(28.0)),
                 theme,
             ),
         ]
@@ -449,28 +456,33 @@ impl fmt::Display for LabelledVariant {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum SizeOpt {
-    Size1,
-    Size2,
-    Size3,
-    Custom32,
+    Xs,
+    Sm,
+    Default,
+    Lg,
+    Xl,
+    Custom28,
 }
 
 impl SizeOpt {
     const fn to_spinner_size(self) -> SpinnerSize {
         match self {
-            Self::Size1 => SpinnerSize::Size1,
-            Self::Size2 => SpinnerSize::Size2,
-            Self::Size3 => SpinnerSize::Size3,
-            Self::Custom32 => SpinnerSize::Custom(32.0),
+            Self::Xs => SpinnerSize::Xs,
+            Self::Sm => SpinnerSize::Sm,
+            Self::Default => SpinnerSize::Default,
+            Self::Lg => SpinnerSize::Lg,
+            Self::Xl => SpinnerSize::Xl,
+            Self::Custom28 => SpinnerSize::Custom(28.0),
         }
     }
 
     const fn pixels(self) -> f32 {
         match self {
-            Self::Size1 => 12.0,
-            Self::Size2 => 16.0,
-            Self::Size3 => 20.0,
-            Self::Custom32 => 32.0,
+            Self::Xs => 12.0,
+            Self::Sm | Self::Default => 16.0,
+            Self::Lg => 24.0,
+            Self::Xl => 32.0,
+            Self::Custom28 => 28.0,
         }
     }
 }
@@ -478,10 +490,12 @@ impl SizeOpt {
 impl fmt::Display for SizeOpt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Size1 => f.write_str("size-1 (12px)"),
-            Self::Size2 => f.write_str("size-2 (16px)"),
-            Self::Size3 => f.write_str("size-3 (20px)"),
-            Self::Custom32 => f.write_str("custom (32px)"),
+            Self::Xs => f.write_str("xs (12px)"),
+            Self::Sm => f.write_str("sm (16px)"),
+            Self::Default => f.write_str("default (16px)"),
+            Self::Lg => f.write_str("lg (24px)"),
+            Self::Xl => f.write_str("xl (32px)"),
+            Self::Custom28 => f.write_str("custom (28px)"),
         }
     }
 }
@@ -609,11 +623,13 @@ const VARIANTS: [LabelledVariant; 14] = [
     LabelledVariant(SpinnerVariant::PromptLoadingDots),
 ];
 
-const SIZES: [SizeOpt; 4] = [
-    SizeOpt::Size1,
-    SizeOpt::Size2,
-    SizeOpt::Size3,
-    SizeOpt::Custom32,
+const SIZES: [SizeOpt; 6] = [
+    SizeOpt::Xs,
+    SizeOpt::Sm,
+    SizeOpt::Default,
+    SizeOpt::Lg,
+    SizeOpt::Xl,
+    SizeOpt::Custom28,
 ];
 
 const COLORS: [ColorOpt; 5] = [

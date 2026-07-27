@@ -5,7 +5,6 @@ use twill_core::prelude::{Padding, PaddingValue, Spacing};
 
 use super::error::ButtonBuildError;
 use super::types::ButtonSize;
-use crate::theme::Theme;
 
 pub(super) fn resolve_padding(padding: Padding) -> Result<iced::Padding, ButtonBuildError> {
     let (top, right, bottom, left) = padding.sides();
@@ -67,39 +66,48 @@ fn padding_value_px(value: PaddingValue) -> Result<f32, ButtonBuildError> {
 }
 
 impl ButtonSize {
-    pub(super) fn control_height(self, theme: &Theme) -> f32 {
+    /// Control height in px — Tailwind `h-6` / `h-8` / `h-9` / `h-10` (and matching `size-*` for icons).
+    pub(super) fn control_height(self) -> f32 {
         match self {
-            Self::Size0 => theme.style.control_height_sm_px - 8.0,
-            Self::Size1 => theme.style.control_height_sm_px,
-            Self::Size2 => theme.style.control_height_md_px,
-            Self::Size3 => theme.style.control_height_lg_px,
-            Self::Size4 => theme.style.control_height_lg_px + 8.0,
+            Self::Xs | Self::IconXs => 24.0,
+            Self::Sm | Self::IconSm => 32.0,
+            Self::Default | Self::Icon => 36.0,
+            Self::Lg | Self::IconLg => 40.0,
         }
-        .max(0.0)
     }
 
     pub(super) fn label_text_size(self) -> u16 {
         match self {
-            Self::Size0 => 12,
-            Self::Size1 | Self::Size2 | Self::Size3 => 14,
-            Self::Size4 => 16,
+            Self::Xs | Self::IconXs => 12,
+            Self::Sm | Self::IconSm | Self::Default | Self::Icon | Self::Lg | Self::IconLg => 14,
         }
     }
 
     pub(super) fn default_padding(self) -> iced::Padding {
-        let (vertical, horizontal) = match self {
-            Self::Size0 => (4.0, 8.0),
-            Self::Size1 => (6.0, 12.0),
-            Self::Size2 => (8.0, 16.0),
-            Self::Size3 => (10.0, 24.0),
-            Self::Size4 => (12.0, 28.0),
+        if self.is_icon() {
+            return iced::Padding::ZERO;
+        }
+
+        // Horizontal padding from shadcn CSS (`px-2` / `px-2.5`); vertical centering
+        // comes from the fixed control height + iced align.
+        let horizontal = match self {
+            Self::Xs => 8.0,
+            Self::Sm | Self::Default | Self::Lg => 10.0,
+            Self::IconXs | Self::IconSm | Self::Icon | Self::IconLg => 0.0,
         };
 
         iced::Padding {
-            top: vertical,
+            top: 0.0,
             right: horizontal,
-            bottom: vertical,
+            bottom: 0.0,
             left: horizontal,
+        }
+    }
+
+    pub(super) fn loading_gap(self) -> f32 {
+        match self {
+            Self::Xs | Self::IconXs | Self::Sm | Self::IconSm => 4.0,
+            Self::Default | Self::Icon | Self::Lg | Self::IconLg => 6.0,
         }
     }
 }

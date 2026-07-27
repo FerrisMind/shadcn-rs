@@ -117,9 +117,10 @@ where
     Message: Clone + 'a,
 {
     let spinner_size = match size {
-        ButtonSize::Size0 | ButtonSize::Size1 => SpinnerSize::Size1,
-        ButtonSize::Size2 => SpinnerSize::Size2,
-        ButtonSize::Size3 | ButtonSize::Size4 => SpinnerSize::Size3,
+        ButtonSize::Xs | ButtonSize::IconXs => SpinnerSize::Xs,
+        ButtonSize::Sm | ButtonSize::IconSm => SpinnerSize::Sm,
+        ButtonSize::Default | ButtonSize::Icon => SpinnerSize::Default,
+        ButtonSize::Lg | ButtonSize::IconLg => SpinnerSize::Lg,
     };
 
     let indicator = spinner(
@@ -129,7 +130,7 @@ where
             .loading(true),
     );
 
-    if is_icon {
+    if is_icon || size.is_icon() {
         return container(indicator)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -138,14 +139,8 @@ where
             .into();
     }
 
-    let gap = match size {
-        ButtonSize::Size0 | ButtonSize::Size1 => 6.0,
-        ButtonSize::Size2 => 8.0,
-        ButtonSize::Size3 | ButtonSize::Size4 => 8.0,
-    };
-
     row![indicator, content]
-        .spacing(gap)
+        .spacing(size.loading_gap())
         .align_y(Vertical::Center)
         .into()
 }

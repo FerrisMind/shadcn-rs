@@ -238,29 +238,37 @@ impl Example {
         .wrap();
 
         let sizes = row![
-            Button::text("S0", theme)
-                .size(ButtonSize::Size0)
+            Button::text("xs", theme)
+                .size(ButtonSize::Xs)
                 .variant(ButtonVariant::Outline)
                 .on_press(Message::Pressed),
-            Button::text("S1", theme)
-                .size(ButtonSize::Size1)
+            Button::text("sm", theme)
+                .size(ButtonSize::Sm)
                 .variant(ButtonVariant::Outline)
                 .on_press(Message::Pressed),
-            Button::text("S2", theme)
-                .size(ButtonSize::Size2)
+            Button::text("default", theme)
+                .size(ButtonSize::Default)
                 .variant(ButtonVariant::Outline)
                 .on_press(Message::Pressed),
-            Button::text("S3", theme)
-                .size(ButtonSize::Size3)
+            Button::text("lg", theme)
+                .size(ButtonSize::Lg)
                 .variant(ButtonVariant::Outline)
                 .on_press(Message::Pressed),
-            Button::text("S4", theme)
-                .size(ButtonSize::Size4)
+            Button::icon(text("+").size(14), theme)
+                .size(ButtonSize::IconXs)
+                .variant(ButtonVariant::Outline)
+                .on_press(Message::Pressed),
+            Button::icon(text("+").size(16), theme)
+                .size(ButtonSize::IconSm)
                 .variant(ButtonVariant::Outline)
                 .on_press(Message::Pressed),
             Button::icon(text("+").size(18), theme)
-                .size(ButtonSize::Size2)
+                .size(ButtonSize::Icon)
                 .radius(ButtonRadius::Full)
+                .variant(ButtonVariant::Outline)
+                .on_press(Message::Pressed),
+            Button::icon(text("+").size(20), theme)
+                .size(ButtonSize::IconLg)
                 .variant(ButtonVariant::Outline)
                 .on_press(Message::Pressed),
         ]
@@ -324,7 +332,7 @@ impl Example {
                 theme.font_pack(),
             ),
             accent_tones,
-            section_label("Sizes / icon", p.muted_foreground, theme.font_pack()),
+            section_label("Sizes / icon (shadcn xs·sm·default·lg·icon*)", p.muted_foreground, theme.font_pack()),
             sizes,
             section_label("States / layout", p.muted_foreground, theme.font_pack()),
             states,
