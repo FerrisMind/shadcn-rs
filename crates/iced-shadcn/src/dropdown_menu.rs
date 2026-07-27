@@ -67,6 +67,18 @@ impl DropdownMenuProps {
         self
     }
 
+    /// Custom corner radius for the dropdown surface.
+    pub fn radius(mut self, radius: f32) -> Self {
+        self.content = self.content.radius(radius);
+        self
+    }
+
+    /// Custom corner radius for item hover highlights.
+    pub fn item_radius(mut self, item_radius: f32) -> Self {
+        self.content = self.content.item_radius(item_radius);
+        self
+    }
+
     pub fn width(mut self, width: u32) -> Self {
         self.width = Some(width.max(1));
         self

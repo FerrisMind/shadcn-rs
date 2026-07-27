@@ -66,6 +66,8 @@ pub struct ButtonProps {
     pub size: ButtonSize,
     pub color: AccentColor,
     pub radius: Option<ButtonRadius>,
+    /// Exact corner radius in pixels; takes precedence over `radius`.
+    pub custom_radius: Option<f32>,
     pub custom_size: Option<f32>,
     pub justify: ButtonJustify,
     pub opaque_outline: bool,
@@ -81,6 +83,7 @@ impl Default for ButtonProps {
             size: ButtonSize::Size2,
             color: AccentColor::Gray,
             radius: None,
+            custom_radius: None,
             custom_size: None,
             justify: ButtonJustify::Center,
             opaque_outline: false,
@@ -113,6 +116,12 @@ impl ButtonProps {
 
     pub fn radius(mut self, radius: ButtonRadius) -> Self {
         self.radius = Some(radius);
+        self
+    }
+
+    /// Exact corner radius in pixels; takes precedence over `radius`.
+    pub fn custom_radius(mut self, radius: f32) -> Self {
+        self.custom_radius = Some(radius.max(0.0));
         self
     }
 
@@ -283,6 +292,9 @@ fn loading_overlay<'a, Message: Clone + 'a>(
 }
 
 fn button_radius(theme: &Theme, props: ButtonProps) -> f32 {
+    if let Some(custom_radius) = props.custom_radius {
+        return custom_radius;
+    }
     match props.radius {
         Some(ButtonRadius::None) => 0.0,
         Some(ButtonRadius::Small) => theme.radius.sm,

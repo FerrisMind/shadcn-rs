@@ -54,6 +54,10 @@ pub struct CommandProps<'a, Message> {
     pub show_item_border: bool,
     pub should_filter: bool,
     pub filter: CommandFilter,
+    /// Custom corner radius for the command surface; falls back to `theme.radius.md`.
+    pub radius: Option<f32>,
+    /// Custom corner radius for item rows; falls back to theme defaults.
+    pub item_radius: Option<f32>,
 }
 
 impl<'a, Message> CommandProps<'a, Message> {
@@ -75,6 +79,8 @@ impl<'a, Message> CommandProps<'a, Message> {
             input_separator_color: None,
             input_list_gap: 6.0,
             show_item_border: false,
+            radius: None,
+            item_radius: None,
             should_filter: true,
             filter: default_command_filter,
         }
@@ -142,6 +148,18 @@ impl<'a, Message> CommandProps<'a, Message> {
 
     pub fn input_list_gap(mut self, gap: f32) -> Self {
         self.input_list_gap = gap.max(0.0);
+        self
+    }
+
+    /// Custom corner radius for the command surface.
+    pub fn radius(mut self, radius: f32) -> Self {
+        self.radius = Some(radius.max(0.0));
+        self
+    }
+
+    /// Custom corner radius for item rows.
+    pub fn item_radius(mut self, item_radius: f32) -> Self {
+        self.item_radius = Some(item_radius.max(0.0));
         self
     }
 
@@ -463,6 +481,8 @@ pub fn command<'a, Message: Clone + 'a>(
         show_item_border,
         should_filter,
         filter,
+        radius,
+        item_radius,
     } = props;
 
     let mut tokens = command_tokens(theme);
@@ -470,7 +490,7 @@ pub fn command<'a, Message: Clone + 'a>(
         tokens.bg = background;
     }
     let min_width = min_width.unwrap_or(theme.styles.command.min_width);
-    let radius_md = theme.radius.md;
+    let radius_md = radius.unwrap_or(theme.radius.md);
     let menu_shadow = theme.styles.menu.shadow;
     let container_border_color = theme.palette.border;
 
@@ -495,6 +515,7 @@ pub fn command<'a, Message: Clone + 'a>(
         query,
         should_filter,
         show_item_border,
+        item_radius,
         filter,
         tokens,
         theme,
@@ -684,6 +705,7 @@ fn render_entries<'a, Message: Clone + 'a>(
     query: &str,
     should_filter: bool,
     show_item_border: bool,
+    item_radius: Option<f32>,
     filter: CommandFilter,
     tokens: CommandTokens,
     theme: &'a Theme,
@@ -699,6 +721,7 @@ fn render_entries<'a, Message: Clone + 'a>(
                     query,
                     should_filter,
                     show_item_border,
+                    item_radius,
                     filter,
                     tokens,
                     theme,
@@ -724,6 +747,7 @@ fn render_entries<'a, Message: Clone + 'a>(
                             on_select: item.on_select,
                         },
                         show_item_border,
+                        item_radius,
                         tokens,
                         theme,
                     ));
@@ -745,6 +769,7 @@ fn render_entries<'a, Message: Clone + 'a>(
                             on_select: item.on_select,
                         },
                         show_item_border,
+                        item_radius,
                         tokens,
                         theme,
                     ));
@@ -795,6 +820,7 @@ fn command_group<'a, Message: Clone + 'a>(
 fn command_item<'a, Message: Clone + 'a>(
     props: CommandItemRenderProps<'a, Message>,
     show_item_border: bool,
+    item_radius: Option<f32>,
     _tokens: CommandTokens,
     theme: &'a Theme,
 ) -> Element<'a, Message> {
@@ -826,19 +852,23 @@ fn command_item<'a, Message: Clone + 'a>(
         content = content.push(command_shortcut(shortcut, theme));
     }
 
+    let mut item_button = ButtonProps::new()
+        .variant(ButtonVariant::Ghost)
+        .size(ButtonSize::Size1)
+        .disabled(props.disabled);
+    if let Some(item_radius) = item_radius {
+        item_button = item_button.custom_radius(item_radius);
+    }
     let item = button_content(
         content,
         props.on_select.filter(|_| !props.disabled),
-        ButtonProps::new()
-            .variant(ButtonVariant::Ghost)
-            .size(ButtonSize::Size1)
-            .disabled(props.disabled),
+        item_button,
         theme,
     )
     .width(Length::Fill);
 
     if show_item_border {
-        let item_border_radius = theme.radius.sm;
+        let item_border_radius = item_radius.unwrap_or(theme.radius.sm);
         let item_border_color = theme.palette.border;
         container(item)
             .width(Length::Fill)
@@ -877,6 +907,7 @@ struct LinkRenderProps<'a, Message> {
 fn command_link_item<'a, Message: Clone + 'a>(
     props: LinkRenderProps<'a, Message>,
     show_item_border: bool,
+    item_radius: Option<f32>,
     tokens: CommandTokens,
     theme: &'a Theme,
 ) -> Element<'a, Message> {
@@ -904,19 +935,23 @@ fn command_link_item<'a, Message: Clone + 'a>(
         content = content.push(command_shortcut(shortcut, theme));
     }
 
+    let mut item_button = ButtonProps::new()
+        .variant(ButtonVariant::Ghost)
+        .size(ButtonSize::Size1)
+        .disabled(props.disabled);
+    if let Some(item_radius) = item_radius {
+        item_button = item_button.custom_radius(item_radius);
+    }
     let item = button_content(
         content,
         props.on_select.filter(|_| !props.disabled),
-        ButtonProps::new()
-            .variant(ButtonVariant::Ghost)
-            .size(ButtonSize::Size1)
-            .disabled(props.disabled),
+        item_button,
         theme,
     )
     .width(Length::Fill);
 
     if show_item_border {
-        let item_border_radius = theme.radius.sm;
+        let item_border_radius = item_radius.unwrap_or(theme.radius.sm);
         let item_border_color = theme.palette.border;
         container(item)
             .width(Length::Fill)
