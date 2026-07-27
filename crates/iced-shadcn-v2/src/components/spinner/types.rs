@@ -13,7 +13,7 @@ pub enum SpinnerVariant {
     LegacyLucide,
     /// Ten-segment AI loader icon.
     AiLoaderIcon,
-    /// Dot orbiting a circle.
+    /// Circular stroke with a gap (rotating arc).
     PromptCircular,
     /// Classic twelve-spoke fading spinner.
     PromptClassic,

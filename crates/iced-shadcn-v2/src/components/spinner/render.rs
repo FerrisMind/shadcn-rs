@@ -7,7 +7,7 @@ use iced::alignment::Vertical;
 use iced::widget::canvas;
 use iced::widget::canvas::{LineCap, LineJoin, Path, Stroke, Text};
 use iced::window;
-use iced::{Color, Font, Point, Rectangle, Renderer, Size, Vector};
+use iced::{Color, Font, Point, Radians, Rectangle, Renderer, Size, Vector};
 
 use super::types::{Spinner, SpinnerState, SpinnerVariant};
 
@@ -203,15 +203,29 @@ fn draw_prompt_circular(
     color: Color,
     phase: f32,
 ) {
-    let radius = (size * 0.1).clamp(1.5, 2.4);
-    let distance_from_center = size * 0.5 - radius;
-    let (y, x) = (phase * TAU).sin_cos();
-    let position = Point::new(
-        center.x + x * distance_from_center,
-        center.y + y * distance_from_center,
-    );
+    // ~270° stroke with a ~90° gap — classic “ring with cutout” loader.
+    let radius = (size * 0.38).max(2.0);
+    let stroke = (size * 0.12).clamp(1.5, 3.0);
+    let start = phase * TAU - TAU / 4.0;
+    let sweep = TAU * 0.75;
 
-    frame.fill(&Path::circle(position, radius), color);
+    let arc = Path::new(|builder| {
+        builder.arc(canvas::path::Arc {
+            center,
+            radius,
+            start_angle: Radians(start),
+            end_angle: Radians(start + sweep),
+        });
+    });
+
+    frame.stroke(
+        &arc,
+        Stroke::default()
+            .with_width(stroke)
+            .with_line_cap(LineCap::Round)
+            .with_line_join(LineJoin::Round)
+            .with_color(color),
+    );
 }
 
 fn draw_prompt_classic(
