@@ -12,8 +12,21 @@ documentation = "https://docs.rs/shadcn-common"
 keywords = ["shadcn", "theme", "design-tokens", "twill", "gui"]
 categories = ["gui"]
 
+include = [
+    "src/**/*",
+    "assets/**/*",
+    "Cargo.toml",
+    "/README.md",
+    "LICENSE*",
+]
+
 [dependencies]
 twill-core = { workspace = true }
+
+[features]
+default = []
+## Bundle TTF font faces (Geist, Inter, Instrument Serif, JetBrains Mono).
+fonts = []
 
 [dev-dependencies]
 

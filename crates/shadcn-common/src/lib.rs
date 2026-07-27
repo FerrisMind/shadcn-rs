@@ -5,6 +5,8 @@
 #![forbid(unsafe_code)]
 
 pub mod color;
+#[cfg(feature = "fonts")]
+pub mod fonts;
 pub mod icons;
 pub mod radius;
 pub mod style;
