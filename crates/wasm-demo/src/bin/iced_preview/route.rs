@@ -31,15 +31,15 @@ pub fn parse_query(search: &str) -> (Option<PreviewPage>, Option<ComponentTab>) 
 #[cfg(target_arch = "wasm32")]
 pub fn read_initial_route() -> (PreviewPage, ComponentTab) {
     let Some(window) = web_sys::window() else {
-        return (PreviewPage::Button, ComponentTab::Demo);
+        return (PreviewPage::Home, ComponentTab::Demo);
     };
     let Ok(search) = window.location().search() else {
-        return (PreviewPage::Button, ComponentTab::Demo);
+        return (PreviewPage::Home, ComponentTab::Demo);
     };
 
     let (component, tab) = parse_query(&search);
     (
-        component.unwrap_or(PreviewPage::Button),
+        component.unwrap_or(PreviewPage::Home),
         tab.unwrap_or(ComponentTab::Demo),
     )
 }

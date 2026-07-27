@@ -1,5 +1,6 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PreviewPage {
+    Home,
     Button,
     Badge,
     Progress,
@@ -8,7 +9,8 @@ pub enum PreviewPage {
 }
 
 impl PreviewPage {
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; 6] = [
+        Self::Home,
         Self::Button,
         Self::Badge,
         Self::Progress,
@@ -18,6 +20,7 @@ impl PreviewPage {
 
     pub const fn title(self) -> &'static str {
         match self {
+            Self::Home => "Home",
             Self::Button => "Button",
             Self::Badge => "Badge",
             Self::Progress => "Progress",
@@ -28,6 +31,7 @@ impl PreviewPage {
 
     pub const fn description(self) -> &'static str {
         match self {
+            Self::Home => "The shadcn-rs design system landing page.",
             Self::Button => "Variants, sizes and states.",
             Self::Badge => "Status labels, variants and colors.",
             Self::Progress => "Determinate and loading indicators.",
@@ -38,10 +42,11 @@ impl PreviewPage {
 
     pub const fn code(self) -> &'static str {
         match self {
+            Self::Home => include_str!("home.rs"),
             Self::Button => include_str!("../../../../iced-shadcn/examples/button/main.rs"),
             Self::Badge => include_str!("../../../../iced-shadcn/examples/badge/main.rs"),
             Self::Progress => include_str!("../../../../iced-shadcn/examples/progress/main.rs"),
-            Self::Stepper => include_str!("../../../../iced-shadcn/examples/stepper-demo/main.rs"),
+            Self::Stepper => include_str!("../../../../iced-shadcn/examples/stepper/main.rs"),
             Self::Input => include_str!("../../../../iced-shadcn/examples/input/main.rs"),
         }
     }
@@ -49,6 +54,7 @@ impl PreviewPage {
     #[cfg(target_arch = "wasm32")]
     pub const fn slug(self) -> &'static str {
         match self {
+            Self::Home => "home",
             Self::Button => "button",
             Self::Badge => "badge",
             Self::Progress => "progress",
@@ -60,6 +66,7 @@ impl PreviewPage {
     #[cfg(target_arch = "wasm32")]
     pub fn from_slug(slug: &str) -> Option<Self> {
         match slug {
+            "home" => Some(Self::Home),
             "button" => Some(Self::Button),
             "badge" => Some(Self::Badge),
             "progress" => Some(Self::Progress),
