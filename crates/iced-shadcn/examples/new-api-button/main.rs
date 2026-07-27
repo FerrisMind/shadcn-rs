@@ -1,31 +1,58 @@
-use iced::widget::{column, container, row, text};
-use iced::{Alignment, Element, Length, Task};
+//! Interactive playground for `new_api::Button` + `shadcn-common` theme knobs.
+//!
+//! Run: `cargo run -p iced-shadcn --example new-api-button`
 
-use iced_shadcn::new_api::{Button, ButtonRadius, ButtonSize, ButtonVariant};
-use iced_shadcn::{AccentColor, Theme};
+use std::fmt;
+
+use iced::widget::{column, container, row, scrollable, text};
+use iced::{Alignment, Background, Border, Color, Element, Length, Task};
+use lucide_icons::LUCIDE_FONT_BYTES;
+
+use iced_shadcn::new_api::{
+    fonts, iced_font, AccentColor, BaseColor, Button, ButtonRadius, ButtonSize, ButtonVariant,
+    FontHeading, FontId, FontPack, RadiusId, StyleId, Theme, ThemeMode,
+};
+use iced_shadcn::{select, SelectProps, SelectSize, Theme as UiTheme};
 
 pub fn main() -> iced::Result {
-    iced::application(Example::default, Example::update, Example::view)
+    let mut app = iced::application(Example::default, Example::update, Example::view)
         .title(Example::title)
-        .run()
+        .default_font(iced_font(FontId::Geist))
+        .font(LUCIDE_FONT_BYTES);
+
+    for face in fonts::ALL_FACES {
+        app = app.font(*face);
+    }
+
+    app.run()
 }
 
 struct Example {
     theme: Theme,
+    ui_theme: UiTheme,
     loading: bool,
     pressed_count: u32,
 }
 
 #[derive(Debug, Clone)]
 enum Message {
+    Style(Labelled<StyleId>),
+    Base(Labelled<BaseColor>),
+    Accent(AccentOpt),
+    Mode(Labelled<ThemeMode>),
+    Font(Labelled<FontId>),
+    Heading(Labelled<FontHeading>),
+    Radius(Labelled<RadiusId>),
     ToggleLoading,
     Pressed,
 }
 
 impl Default for Example {
     fn default() -> Self {
+        let theme = Theme::light();
         Self {
-            theme: Theme::light(),
+            ui_theme: ui_theme_for(&theme),
+            theme,
             loading: false,
             pressed_count: 0,
         }
@@ -37,8 +64,34 @@ impl Example {
         "iced-shadcn new_api::Button".to_owned()
     }
 
+    fn set_theme(&mut self, theme: Theme) {
+        self.ui_theme = ui_theme_for(&theme);
+        self.theme = theme;
+    }
+
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
+            Message::Style(style) => {
+                self.set_theme(self.theme.clone().with_style(style.0));
+            }
+            Message::Base(base) => {
+                self.set_theme(self.theme.clone().with_base(base.0));
+            }
+            Message::Accent(accent) => {
+                self.set_theme(self.theme.clone().with_accent(accent.into_option()));
+            }
+            Message::Mode(mode) => {
+                self.set_theme(self.theme.clone().with_mode(mode.0));
+            }
+            Message::Font(font) => {
+                self.set_theme(self.theme.clone().with_font(font.0));
+            }
+            Message::Heading(heading) => {
+                self.set_theme(self.theme.clone().with_font_heading(heading.0));
+            }
+            Message::Radius(radius) => {
+                self.set_theme(self.theme.clone().with_radius(radius.0));
+            }
             Message::ToggleLoading => {
                 self.loading = !self.loading;
             }
@@ -52,11 +105,97 @@ impl Example {
 
     fn view(&self) -> Element<'_, Message> {
         let theme = &self.theme;
+        let p = &theme.palette;
+        let ui = &self.ui_theme;
+
+        let controls = column![
+            section_label("Theme (shadcn-common)", p.muted_foreground, theme.font_pack()),
+            control_select(
+                "Style",
+                &STYLES,
+                Some(Labelled(theme.style_id())),
+                Message::Style,
+                theme,
+                ui,
+            ),
+            control_select(
+                "Base",
+                &BASES,
+                Some(Labelled(theme.base())),
+                Message::Base,
+                theme,
+                ui,
+            ),
+            control_select(
+                "Accent",
+                &ACCENTS,
+                Some(AccentOpt::from_option(theme.accent())),
+                Message::Accent,
+                theme,
+                ui,
+            ),
+            control_select(
+                "Mode",
+                &MODES,
+                Some(Labelled(theme.mode())),
+                Message::Mode,
+                theme,
+                ui,
+            ),
+            control_select(
+                "Heading",
+                &HEADINGS,
+                Some(Labelled(theme.font_heading())),
+                Message::Heading,
+                theme,
+                ui,
+            ),
+            control_select(
+                "Font",
+                &FONTS,
+                Some(Labelled(theme.font_id())),
+                Message::Font,
+                theme,
+                ui,
+            ),
+            control_select(
+                "Radius",
+                &RADII,
+                Some(Labelled(theme.radius_id())),
+                Message::Radius,
+                theme,
+                ui,
+            ),
+            text(format!(
+                "radius lg={:.0}px · control h={:.0}/{:.0}/{:.0} · sans={} · heading={}",
+                theme.radius_scale().lg_px,
+                theme.style.control_height_sm_px,
+                theme.style.control_height_md_px,
+                theme.style.control_height_lg_px,
+                theme.font_pack().sans.title(),
+                theme.font_heading().title(),
+            ))
+            .size(12)
+            .font(iced_font(theme.font_pack().mono))
+            .color(p.muted_foreground),
+        ]
+        .spacing(8);
+
+        let swatches = row![
+            swatch("bg", p.background, p.border),
+            swatch("fg", p.foreground, p.border),
+            swatch("primary", p.primary, p.border),
+            swatch("secondary", p.secondary, p.border),
+            swatch("muted", p.muted, p.border),
+            swatch("destructive", p.destructive, p.border),
+            swatch("border", p.border, p.foreground),
+        ]
+        .spacing(8)
+        .wrap();
 
         let variants = row![
             Button::text("Default", theme)
                 .variant(ButtonVariant::Default)
-                .color(AccentColor::Blue)
                 .on_press(Message::Pressed),
             Button::text("Outline", theme)
                 .variant(ButtonVariant::Outline)
@@ -69,16 +208,51 @@ impl Example {
                 .on_press(Message::Pressed),
             Button::text("Link", theme)
                 .variant(ButtonVariant::Link)
-                .color(AccentColor::Indigo)
                 .on_press(Message::Pressed),
             Button::text("Destructive", theme)
                 .variant(ButtonVariant::Destructive)
                 .on_press(Message::Pressed),
+            Button::text("Soft", theme)
+                .variant(ButtonVariant::Soft)
+                .on_press(Message::Pressed),
+            Button::text("Surface", theme)
+                .variant(ButtonVariant::Surface)
+                .on_press(Message::Pressed),
         ]
         .spacing(12)
-        .align_y(Alignment::Center);
+        .align_y(Alignment::Center)
+        .wrap();
+
+        let accent_tones = row![
+            Button::text("Theme primary", theme)
+                .variant(ButtonVariant::Default)
+                .on_press(Message::Pressed),
+            Button::text("Blue", theme)
+                .variant(ButtonVariant::Default)
+                .color(AccentColor::Blue)
+                .on_press(Message::Pressed),
+            Button::text("Amber", theme)
+                .variant(ButtonVariant::Default)
+                .color(AccentColor::Amber)
+                .on_press(Message::Pressed),
+            Button::text("Emerald", theme)
+                .variant(ButtonVariant::Default)
+                .color(AccentColor::Emerald)
+                .on_press(Message::Pressed),
+            Button::text("Rose", theme)
+                .variant(ButtonVariant::Default)
+                .color(AccentColor::Rose)
+                .on_press(Message::Pressed),
+        ]
+        .spacing(12)
+        .align_y(Alignment::Center)
+        .wrap();
 
         let sizes = row![
+            Button::text("S0", theme)
+                .size(ButtonSize::Size0)
+                .variant(ButtonVariant::Outline)
+                .on_press(Message::Pressed),
             Button::text("S1", theme)
                 .size(ButtonSize::Size1)
                 .variant(ButtonVariant::Outline)
@@ -91,26 +265,30 @@ impl Example {
                 .size(ButtonSize::Size3)
                 .variant(ButtonVariant::Outline)
                 .on_press(Message::Pressed),
-            Button::icon(text("+"), theme)
+            Button::text("S4", theme)
+                .size(ButtonSize::Size4)
+                .variant(ButtonVariant::Outline)
+                .on_press(Message::Pressed),
+            Button::icon(text("+").size(18), theme)
                 .size(ButtonSize::Size2)
                 .radius(ButtonRadius::Full)
                 .variant(ButtonVariant::Outline)
                 .on_press(Message::Pressed),
         ]
         .spacing(12)
-        .align_y(Alignment::Center);
+        .align_y(Alignment::Center)
+        .wrap();
 
         let states = column![
             Button::text(
                 if self.loading {
-                    "Остановить loading"
+                    "Stop loading"
                 } else {
-                    "Включить loading"
+                    "Start loading"
                 },
                 theme,
             )
             .variant(ButtonVariant::Default)
-            .color(AccentColor::Teal)
             .loading(self.loading)
             .on_press(Message::ToggleLoading),
             Button::text("Disabled", theme)
@@ -119,34 +297,278 @@ impl Example {
                 .on_press(Message::Pressed),
             Button::text("Full width action", theme)
                 .variant(ButtonVariant::Default)
-                .color(AccentColor::Green)
                 .full_width()
-                .height(44)
                 .on_press(Message::Pressed),
         ]
         .spacing(12)
         .width(Length::Fill);
 
+        let title_px = 32u32;
+
+        let content = column![
+            text("new_api::Button")
+                .size(title_px)
+                .font(iced_font(theme.font_pack().heading))
+                .color(p.foreground),
+            text("shadcn-common fonts (Geist / Inter / Instrument Serif / JetBrains Mono)")
+                .size(14)
+                .font(iced_font(theme.font_pack().sans))
+                .color(p.muted_foreground),
+            text(format!("Pressed: {}", self.pressed_count))
+                .size(14)
+                .font(iced_font(theme.font_pack().sans))
+                .color(p.foreground),
+            controls,
+            section_label("Palette", p.muted_foreground, theme.font_pack()),
+            swatches,
+            section_label("Variants", p.muted_foreground, theme.font_pack()),
+            variants,
+            section_label(
+                "Per-button accent overlay",
+                p.muted_foreground,
+                theme.font_pack(),
+            ),
+            accent_tones,
+            section_label("Sizes / icon", p.muted_foreground, theme.font_pack()),
+            sizes,
+            section_label("States / layout", p.muted_foreground, theme.font_pack()),
+            states,
+        ]
+        .spacing(16)
+        .max_width(960)
+        .padding(8);
+
         container(
-            column![
-                text("new_api::Button").size(32),
-                text("Builder-first API поверх twill").size(16),
-                text(format!("Нажатий: {}", self.pressed_count)).size(14),
-                text("Variants").size(20),
-                variants,
-                text("Sizes / icon").size(20),
-                sizes,
-                text("States / layout").size(20),
-                states,
-            ]
-            .spacing(16)
-            .max_width(960),
+            scrollable(
+                container(content)
+                    .width(Length::Fill)
+                    .center_x(Length::Fill)
+                    .padding(24),
+            )
+            .width(Length::Fill)
+            .height(Length::Fill),
         )
         .width(Length::Fill)
         .height(Length::Fill)
-        .center_x(Length::Fill)
-        .center_y(Length::Fill)
-        .padding(24)
+        .style(move |_| container::Style {
+            background: Some(Background::Color(p.background)),
+            text_color: Some(p.foreground),
+            ..container::Style::default()
+        })
         .into()
     }
 }
+
+fn control_select<'a, T, F>(
+    label: &'static str,
+    options: &'a [T],
+    selected: Option<T>,
+    on_select: F,
+    theme: &'a Theme,
+    ui_theme: &'a UiTheme,
+) -> Element<'a, Message>
+where
+    T: Clone + PartialEq + ToString + 'a,
+    F: Fn(T) -> Message + 'a,
+{
+    row![
+        text(label)
+            .size(13)
+            .width(72)
+            .font(iced_font(theme.font_pack().sans))
+            .color(theme.palette.muted_foreground),
+        select(
+            options,
+            selected,
+            label,
+            on_select,
+            SelectProps::new().size(SelectSize::Size1),
+            ui_theme,
+        )
+        .width(Length::Fixed(200.0)),
+    ]
+    .spacing(8)
+    .align_y(Alignment::Center)
+    .into()
+}
+
+fn section_label<'a>(
+    label: &'static str,
+    color: Color,
+    pack: FontPack,
+) -> Element<'a, Message> {
+    text(label)
+        .size(18)
+        .font(iced_font(pack.heading))
+        .color(color)
+        .into()
+}
+
+fn swatch<'a>(label: &'static str, fill: Color, border: Color) -> Element<'a, Message> {
+    column![
+        container(text(""))
+            .width(36)
+            .height(36)
+            .style(move |_| container::Style {
+                background: Some(Background::Color(fill)),
+                border: Border {
+                    color: border,
+                    width: 1.0,
+                    radius: 6.0.into(),
+                },
+                ..container::Style::default()
+            }),
+        text(label).size(10).color(border),
+    ]
+    .spacing(4)
+    .align_x(Alignment::Center)
+    .into()
+}
+
+fn ui_theme_for(theme: &Theme) -> UiTheme {
+    if theme.is_dark() {
+        UiTheme::dark()
+    } else {
+        UiTheme::light()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct Labelled<T>(T);
+
+impl fmt::Display for Labelled<StyleId> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}
+
+impl fmt::Display for Labelled<BaseColor> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}
+
+impl fmt::Display for Labelled<ThemeMode> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0.as_str())
+    }
+}
+
+impl fmt::Display for Labelled<FontId> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0.title())
+    }
+}
+
+impl fmt::Display for Labelled<FontHeading> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0.title())
+    }
+}
+
+impl fmt::Display for Labelled<RadiusId> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.0.label())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum AccentOpt {
+    None,
+    Color(AccentColor),
+}
+
+impl AccentOpt {
+    const fn from_option(accent: Option<AccentColor>) -> Self {
+        match accent {
+            None => Self::None,
+            Some(color) => Self::Color(color),
+        }
+    }
+
+    const fn into_option(self) -> Option<AccentColor> {
+        match self {
+            Self::None => None,
+            Self::Color(color) => Some(color),
+        }
+    }
+}
+
+impl fmt::Display for AccentOpt {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::None => f.write_str("none"),
+            Self::Color(color) => f.write_str(color.as_str()),
+        }
+    }
+}
+
+const STYLES: [Labelled<StyleId>; 8] = [
+    Labelled(StyleId::Vega),
+    Labelled(StyleId::Nova),
+    Labelled(StyleId::Maia),
+    Labelled(StyleId::Lyra),
+    Labelled(StyleId::Mira),
+    Labelled(StyleId::Luma),
+    Labelled(StyleId::Sera),
+    Labelled(StyleId::Rhea),
+];
+
+const BASES: [Labelled<BaseColor>; 7] = [
+    Labelled(BaseColor::Neutral),
+    Labelled(BaseColor::Zinc),
+    Labelled(BaseColor::Stone),
+    Labelled(BaseColor::Mauve),
+    Labelled(BaseColor::Mist),
+    Labelled(BaseColor::Olive),
+    Labelled(BaseColor::Taupe),
+];
+
+const ACCENTS: [AccentOpt; 18] = [
+    AccentOpt::None,
+    AccentOpt::Color(AccentColor::Amber),
+    AccentOpt::Color(AccentColor::Blue),
+    AccentOpt::Color(AccentColor::Cyan),
+    AccentOpt::Color(AccentColor::Emerald),
+    AccentOpt::Color(AccentColor::Fuchsia),
+    AccentOpt::Color(AccentColor::Green),
+    AccentOpt::Color(AccentColor::Indigo),
+    AccentOpt::Color(AccentColor::Lime),
+    AccentOpt::Color(AccentColor::Orange),
+    AccentOpt::Color(AccentColor::Pink),
+    AccentOpt::Color(AccentColor::Purple),
+    AccentOpt::Color(AccentColor::Red),
+    AccentOpt::Color(AccentColor::Rose),
+    AccentOpt::Color(AccentColor::Sky),
+    AccentOpt::Color(AccentColor::Teal),
+    AccentOpt::Color(AccentColor::Violet),
+    AccentOpt::Color(AccentColor::Yellow),
+];
+
+const MODES: [Labelled<ThemeMode>; 2] =
+    [Labelled(ThemeMode::Light), Labelled(ThemeMode::Dark)];
+
+const FONTS: [Labelled<FontId>; 5] = [
+    Labelled(FontId::Geist),
+    Labelled(FontId::Inter),
+    Labelled(FontId::InstrumentSerif),
+    Labelled(FontId::GeistMono),
+    Labelled(FontId::JetBrainsMono),
+];
+
+const HEADINGS: [Labelled<FontHeading>; 6] = [
+    Labelled(FontHeading::Inherit),
+    Labelled(FontHeading::Font(FontId::Geist)),
+    Labelled(FontHeading::Font(FontId::Inter)),
+    Labelled(FontHeading::Font(FontId::InstrumentSerif)),
+    Labelled(FontHeading::Font(FontId::GeistMono)),
+    Labelled(FontHeading::Font(FontId::JetBrainsMono)),
+];
+
+const RADII: [Labelled<RadiusId>; 5] = [
+    Labelled(RadiusId::Default),
+    Labelled(RadiusId::None),
+    Labelled(RadiusId::Small),
+    Labelled(RadiusId::Medium),
+    Labelled(RadiusId::Large),
+];
