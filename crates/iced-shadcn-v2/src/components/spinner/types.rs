@@ -1,5 +1,7 @@
 //! Public configuration and state types for the spinner component.
 
+use std::time::Duration;
+
 use iced::widget::canvas;
 use iced::{Color, Length, Size};
 
@@ -7,11 +9,12 @@ use crate::theme::Theme;
 
 /// Animation style of a [`Spinner`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub enum SpinnerVariant {
     /// Eight-spoke legacy Lucide spinner.
-    #[default]
     LegacyLucide,
     /// Ten-segment AI loader icon.
+    #[default]
     AiLoaderIcon,
     /// Circular stroke with a gap (rotating arc).
     PromptCircular,
@@ -51,6 +54,7 @@ pub enum SpinnerVariant {
 /// assert_ne!(size, SpinnerSize::Default);
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[non_exhaustive]
 pub enum SpinnerSize {
     /// 12 px (`size-3`).
     Xs,
@@ -94,7 +98,7 @@ pub struct Spinner {
     pub(super) size: SpinnerSize,
     pub(super) loading: bool,
     pub(super) animated: bool,
-    pub(super) duration_ms: u32,
+    pub(super) duration: Duration,
     pub(super) variant: SpinnerVariant,
     /// Per-bar amplitude values for Wave/Bars variants (0.0–1.0 each).
     /// When `Some`, overrides the sine-wave animation with real audio levels.
@@ -116,8 +120,8 @@ impl Spinner {
             size: SpinnerSize::Default,
             loading: true,
             animated: false,
-            duration_ms: 1000,
-            variant: SpinnerVariant::AiLoaderIcon,
+            duration: Duration::from_millis(1000),
+            variant: SpinnerVariant::default(),
             amplitudes: None,
         }
     }
@@ -153,8 +157,8 @@ impl Spinner {
     }
 
     /// Sets the duration of one animation cycle (clamped to at least 1 ms).
-    pub fn duration_ms(mut self, duration_ms: u32) -> Self {
-        self.duration_ms = duration_ms.max(1);
+    pub fn duration(mut self, duration: Duration) -> Self {
+        self.duration = duration.max(Duration::from_millis(1));
         self
     }
 

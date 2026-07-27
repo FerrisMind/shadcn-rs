@@ -3,6 +3,7 @@
 //! Run: `cargo run -p iced-shadcn-v2 --example spinner`
 
 use std::fmt;
+use std::time::Duration;
 
 use iced::widget::{column, container, pick_list, row, scrollable, text};
 use iced::{Alignment, Background, Border, Color, Element, Length, Task};
@@ -336,7 +337,7 @@ impl Example {
             .variant(variant)
             .size(self.size.to_spinner_size())
             .color(color)
-            .duration_ms(self.duration_ms)
+            .duration(Duration::from_millis(u64::from(self.duration_ms)))
             .animated(self.animated)
             .loading(self.loading)
     }
@@ -450,6 +451,8 @@ impl fmt::Display for LabelledVariant {
             SpinnerVariant::PromptTextBlink => "text-blink",
             SpinnerVariant::PromptTextShimmer => "text-shimmer",
             SpinnerVariant::PromptLoadingDots => "loading-dots",
+            // `SpinnerVariant` is `#[non_exhaustive]`.
+            _ => "unknown",
         })
     }
 }

@@ -1,5 +1,7 @@
 //! Behavioral tests for the spinner component.
 
+use std::time::Duration;
+
 use super::render::{AI_LOADER_SEGMENTS, AI_LOADER_VIEWBOX};
 use super::*;
 use crate::theme::Theme;
@@ -9,8 +11,16 @@ fn spinner_defaults_to_ai_loader_without_internal_animation() {
     let theme = Theme::light();
     let spinner = Spinner::new(&theme);
     assert_eq!(spinner.variant, SpinnerVariant::AiLoaderIcon);
+    assert_eq!(spinner.variant, SpinnerVariant::default());
     assert!(!spinner.animated);
-    assert_eq!(spinner.duration_ms, 1000);
+    assert_eq!(spinner.duration, Duration::from_millis(1000));
+}
+
+#[test]
+fn spinner_duration_is_clamped_to_at_least_one_millisecond() {
+    let theme = Theme::light();
+    let spinner = Spinner::new(&theme).duration(Duration::ZERO);
+    assert_eq!(spinner.duration, Duration::from_millis(1));
 }
 
 #[test]

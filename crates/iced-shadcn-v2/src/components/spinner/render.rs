@@ -49,8 +49,7 @@ impl<Message> canvas::Program<Message> for Spinner {
 
             if let Some(start) = state.start_time {
                 let elapsed = now.saturating_duration_since(start);
-                let duration = Duration::from_millis(self.duration_ms as u64);
-                state.phase = (elapsed.as_secs_f32() / duration.as_secs_f32()) % 1.0;
+                state.phase = (elapsed.as_secs_f32() / self.duration.as_secs_f32()) % 1.0;
             }
 
             return Some(canvas::Action::request_redraw_at(
