@@ -3,6 +3,11 @@ use iced::widget::text::{Rich, Span};
 use iced::widget::{column, container, row, scrollable, text};
 use iced::{Alignment, Background, Element, Length, Subscription, Task};
 
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::{JsCast, JsValue};
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_futures::JsFuture;
+
 use iced_shadcn::{
     ButtonProps, ButtonSize, ButtonVariant, InputProps, InputSize, InputVariant, ScrollAreaProps,
     ScrollAreaScrollbars, SidebarMenuButtonProps, SidebarProps, SidebarProviderProps, Theme,
@@ -47,6 +52,8 @@ impl ComponentTab {
 pub struct PreviewApp {
     theme: Theme,
     theme_mode: ThemeMode,
+    github_stars: u64,
+    github_stars_loaded: bool,
     selected: PreviewPage,
     tab: ComponentTab,
     search: String,
@@ -55,6 +62,13 @@ pub struct PreviewApp {
     stepper_step: usize,
     email: String,
     username: String,
+    footer_hovered: Option<FooterLink>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FooterLink {
+    Shadcn,
+    Iced,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -69,6 +83,10 @@ pub enum Message {
     SelectPage(PreviewPage),
     SelectTab(ComponentTab),
     ToggleTheme,
+    OpenGithub,
+    OpenUrl(&'static str),
+    FooterLinkHover(FooterLink, bool),
+    GithubStarsLoaded(u64),
     StepperStepChanged(usize),
     StepperNext,
     StepperPrevious,
@@ -91,6 +109,8 @@ impl Default for PreviewApp {
         Self {
             theme: Theme::light(),
             theme_mode: ThemeMode::Light,
+            github_stars: FALLBACK_GITHUB_STARS,
+            github_stars_loaded: false,
             selected,
             tab,
             search: String::new(),
@@ -99,6 +119,7 @@ impl Default for PreviewApp {
             stepper_step: 1,
             email: String::new(),
             username: String::new(),
+            footer_hovered: None,
         }
     }
 }
@@ -113,6 +134,15 @@ impl PreviewApp {
             Message::SelectPage(page) => self.selected = page,
             Message::SelectTab(tab) => self.tab = tab,
             Message::ToggleTheme => self.toggle_theme(),
+            Message::OpenGithub => self.open_github(),
+            Message::OpenUrl(url) => self.open_url(url),
+            Message::FooterLinkHover(link, hovered) => {
+                self.footer_hovered = hovered.then_some(link);
+            }
+            Message::GithubStarsLoaded(stars) => {
+                self.github_stars = stars;
+                self.github_stars_loaded = true;
+            }
             Message::StepperStepChanged(step) => self.stepper_step = step,
             Message::StepperNext => {
                 if self.stepper_step < 4 {
@@ -146,28 +176,37 @@ impl PreviewApp {
     pub fn subscription(&self) -> Subscription<Message> {
         let needs_animation =
             self.tab == ComponentTab::Demo && self.selected == PreviewPage::Button;
+        let mut subscriptions = Vec::new();
 
         #[cfg(target_arch = "wasm32")]
         {
-            if needs_animation {
-                return iced::time::every(std::time::Duration::from_millis(16))
-                    .map(|_| Message::AnimationTick);
+            if !self.github_stars_loaded {
+                subscriptions.push(github_stars_subscription());
             }
-            if self.tab == ComponentTab::Code {
-                return iced::time::every(std::time::Duration::from_millis(350))
-                    .map(|_| Message::HighlightTick);
+            if needs_animation {
+                subscriptions.push(
+                    iced::time::every(std::time::Duration::from_millis(16))
+                        .map(|_| Message::AnimationTick),
+                );
+            } else if self.tab == ComponentTab::Code {
+                subscriptions.push(
+                    iced::time::every(std::time::Duration::from_millis(350))
+                        .map(|_| Message::HighlightTick),
+                );
             }
         }
 
         #[cfg(not(target_arch = "wasm32"))]
         {
             if needs_animation {
-                return iced::time::every(std::time::Duration::from_millis(16))
-                    .map(|_| Message::AnimationTick);
+                subscriptions.push(
+                    iced::time::every(std::time::Duration::from_millis(16))
+                        .map(|_| Message::AnimationTick),
+                );
             }
         }
 
-        Subscription::none()
+        Subscription::batch(subscriptions)
     }
 
     pub fn view(&self) -> Element<'_, Message> {
@@ -234,6 +273,14 @@ impl PreviewApp {
         self.theme_mode == ThemeMode::Dark
     }
 
+    pub fn github_stars(&self) -> u64 {
+        self.github_stars
+    }
+
+    pub fn footer_link_hovered(&self, link: FooterLink) -> bool {
+        self.footer_hovered == Some(link)
+    }
+
     fn filtered_pages(&self) -> Vec<PreviewPage> {
         let needle = self.search.to_lowercase();
         PreviewPage::ALL
@@ -265,6 +312,20 @@ impl PreviewApp {
             ThemeMode::Dark => Theme::dark(),
             ThemeMode::Light => Theme::light(),
         };
+    }
+
+    fn open_github(&self) {
+        self.open_url("https://github.com/FerrisMind/shadcn-rs");
+    }
+
+    fn open_url(&self, url: &str) {
+        #[cfg(target_arch = "wasm32")]
+        if let Some(window) = web_sys::window() {
+            let _ = window.open_with_url_and_target(url, "_blank");
+        }
+
+        #[cfg(not(target_arch = "wasm32"))]
+        let _ = url;
     }
 
     fn sidebar_view(&self) -> Element<'_, Message> {
@@ -442,6 +503,54 @@ impl PreviewApp {
             })
             .into()
     }
+}
+
+const FALLBACK_GITHUB_STARS: u64 = 65;
+
+#[cfg(target_arch = "wasm32")]
+fn github_stars_subscription() -> Subscription<Message> {
+    Subscription::run(|| {
+        iced::stream::channel(1, async |mut output| {
+            use iced::futures::SinkExt;
+
+            let stars = fetch_github_stars().await;
+            let _ = output.send(Message::GithubStarsLoaded(stars)).await;
+        })
+    })
+}
+
+#[cfg(target_arch = "wasm32")]
+async fn fetch_github_stars() -> u64 {
+    let Some(window) = web_sys::window() else {
+        return FALLBACK_GITHUB_STARS;
+    };
+    let Ok(response_value) =
+        JsFuture::from(window.fetch_with_str("https://ungh.cc/repos/FerrisMind/shadcn-rs"))
+            .await
+    else {
+        return FALLBACK_GITHUB_STARS;
+    };
+    let Ok(response) = response_value.dyn_into::<web_sys::Response>() else {
+        return FALLBACK_GITHUB_STARS;
+    };
+    let Ok(json_promise) = response.json() else {
+        return FALLBACK_GITHUB_STARS;
+    };
+    let Ok(json) = JsFuture::from(json_promise).await else {
+        return FALLBACK_GITHUB_STARS;
+    };
+    let Ok(repo) = js_sys::Reflect::get(&json, &JsValue::from_str("repo")) else {
+        return FALLBACK_GITHUB_STARS;
+    };
+    let Ok(stars) = js_sys::Reflect::get(&repo, &JsValue::from_str("stars")) else {
+        return FALLBACK_GITHUB_STARS;
+    };
+
+    stars
+        .as_f64()
+        .filter(|value| value.is_finite() && *value >= 0.0)
+        .map(|value| value as u64)
+        .unwrap_or(FALLBACK_GITHUB_STARS)
 }
 
 fn render_highlighted_code<'a>(theme: &'a Theme, source: &'a str) -> Rich<'a, (), Message> {
