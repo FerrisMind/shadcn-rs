@@ -72,11 +72,7 @@ impl RadiusId {
     /// Twill corner tokens for a resolved rem.
     pub const fn twill_radii_for_rem(rem: f32) -> (BorderRadius, BorderRadius, BorderRadius) {
         if rem <= 0.0 {
-            (
-                BorderRadius::None,
-                BorderRadius::None,
-                BorderRadius::None,
-            )
+            (BorderRadius::None, BorderRadius::None, BorderRadius::None)
         } else if rem <= 0.45 {
             (BorderRadius::Sm, BorderRadius::Md, BorderRadius::Md)
         } else if rem <= 0.5 {

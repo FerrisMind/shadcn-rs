@@ -27,31 +27,10 @@ pub mod yellow;
 pub mod zinc;
 
 pub const BASE_COLOR_NAMES: &[&str] = &[
-    "mauve",
-    "mist",
-    "neutral",
-    "olive",
-    "stone",
-    "taupe",
-    "zinc",
+    "mauve", "mist", "neutral", "olive", "stone", "taupe", "zinc",
 ];
 
 pub const ACCENT_COLOR_NAMES: &[&str] = &[
-    "amber",
-    "blue",
-    "cyan",
-    "emerald",
-    "fuchsia",
-    "green",
-    "indigo",
-    "lime",
-    "orange",
-    "pink",
-    "purple",
-    "red",
-    "rose",
-    "sky",
-    "teal",
-    "violet",
-    "yellow",
+    "amber", "blue", "cyan", "emerald", "fuchsia", "green", "indigo", "lime", "orange", "pink",
+    "purple", "red", "rose", "sky", "teal", "violet", "yellow",
 ];

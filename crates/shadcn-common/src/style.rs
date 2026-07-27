@@ -72,11 +72,7 @@ impl StyleId {
     /// `default` keeps the base-color `--radius` (`0.625rem`). Locked styles
     /// always resolve to `0`.
     pub const fn default_radius_rem(self) -> f32 {
-        if self.locks_radius() {
-            0.0
-        } else {
-            0.625
-        }
+        if self.locks_radius() { 0.0 } else { 0.625 }
     }
 
     /// Picker value when no explicit radius override is set.

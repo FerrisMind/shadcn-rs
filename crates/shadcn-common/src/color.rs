@@ -157,7 +157,11 @@ impl ThemeMode {
     }
 }
 
-pub(crate) fn base_token(base: BaseColor, mode: ThemeMode, token: SemanticColor) -> Option<OklchColor> {
+pub(crate) fn base_token(
+    base: BaseColor,
+    mode: ThemeMode,
+    token: SemanticColor,
+) -> Option<OklchColor> {
     match mode {
         ThemeMode::Light => base_light(base, token),
         ThemeMode::Dark => base_dark(base, token),

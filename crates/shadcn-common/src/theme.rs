@@ -3,9 +3,7 @@
 use twill_core::prelude::theme::SemanticColor;
 use twill_core::tokens::ColorValue;
 
-use crate::color::{
-    accent_token, base_token, AccentColor, BaseColor, OklchColor, ThemeMode,
-};
+use crate::color::{AccentColor, BaseColor, OklchColor, ThemeMode, accent_token, base_token};
 use crate::icons::IconSet;
 use crate::radius::RadiusId;
 use crate::style::{StyleId, StylePack};
@@ -30,12 +28,7 @@ pub struct ResolvedTheme {
 
 impl Default for ResolvedTheme {
     fn default() -> Self {
-        Self::new(
-            StyleId::Vega,
-            BaseColor::Neutral,
-            None,
-            ThemeMode::Light,
-        )
+        Self::new(StyleId::Vega, BaseColor::Neutral, None, ThemeMode::Light)
     }
 }
 
