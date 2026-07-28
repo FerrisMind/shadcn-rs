@@ -1,10 +1,12 @@
 //! Button dimensions and padding conversion.
 
 use iced::Length;
+use shadcn_common::{ButtonSizeRecipe, ControlSize};
 use twill_core::prelude::{Padding, PaddingValue, Spacing};
 
 use super::error::ButtonBuildError;
 use super::types::ButtonSize;
+use crate::theme::Theme;
 
 pub(super) fn resolve_padding(padding: Padding) -> Result<iced::Padding, ButtonBuildError> {
     let (top, right, bottom, left) = padding.sides();
@@ -66,49 +68,45 @@ fn padding_value_px(value: PaddingValue) -> Result<f32, ButtonBuildError> {
 }
 
 impl ButtonSize {
-    /// Control height in px — Tailwind `h-6` / `h-8` / `h-9` / `h-10` (and matching `size-*` for icons).
-    pub(super) fn control_height(self) -> f32 {
+    pub(super) fn control_size(self) -> ControlSize {
         match self {
-            Self::Xs | Self::IconXs => 24.0,
-            Self::Sm | Self::IconSm => 32.0,
-            Self::Default | Self::Icon => 36.0,
-            Self::Lg | Self::IconLg => 40.0,
+            Self::Xs | Self::IconXs => ControlSize::Xs,
+            Self::Sm | Self::IconSm => ControlSize::Sm,
+            Self::Default | Self::Icon => ControlSize::Md,
+            Self::Lg | Self::IconLg => ControlSize::Lg,
         }
     }
 
-    pub(super) fn label_text_size(self) -> u16 {
-        match self {
-            Self::Xs | Self::IconXs => 12,
-            Self::Sm | Self::IconSm | Self::Default | Self::Icon | Self::Lg | Self::IconLg => 14,
-        }
+    /// Size recipe from [`shadcn_common`] for the active style pack.
+    pub(super) fn recipe(self, theme: &Theme) -> ButtonSizeRecipe {
+        theme.style.button_size(self.control_size())
     }
 
-    pub(super) fn default_padding(self) -> iced::Padding {
+    /// Control height in px from the style pack size ladder.
+    pub(super) fn control_height(self, theme: &Theme) -> f32 {
+        self.recipe(theme).height_px
+    }
+
+    pub(super) fn label_text_size(self, theme: &Theme) -> f32 {
+        self.recipe(theme).text_size_px
+    }
+
+    pub(super) fn default_padding(self, theme: &Theme) -> iced::Padding {
         if self.is_icon() {
             return iced::Padding::ZERO;
         }
 
-        // Horizontal padding from shadcn CSS (`px-2` / `px-2.5`); vertical centering
-        // comes from the fixed control height + iced align.
-        let horizontal = match self {
-            Self::Xs => 8.0,
-            Self::Sm | Self::Default | Self::Lg => 10.0,
-            Self::IconXs | Self::IconSm | Self::Icon | Self::IconLg => 0.0,
-        };
-
+        let recipe = self.recipe(theme);
         iced::Padding {
             top: 0.0,
-            right: horizontal,
+            right: recipe.pad_x_px,
             bottom: 0.0,
-            left: horizontal,
+            left: recipe.pad_x_px,
         }
     }
 
-    pub(super) fn loading_gap(self) -> f32 {
-        match self {
-            Self::Xs | Self::IconXs | Self::Sm | Self::IconSm => 4.0,
-            Self::Default | Self::Icon | Self::Lg | Self::IconLg => 6.0,
-        }
+    pub(super) fn loading_gap(self, theme: &Theme) -> f32 {
+        self.recipe(theme).gap_px
     }
 }
 

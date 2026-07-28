@@ -283,7 +283,7 @@ impl<'a, Message> Button<'a, Message> {
         } = self;
 
         let icon = matches!(content, ButtonContent::Icon(_)) || size.is_icon();
-        let control_height_px = size.control_height();
+        let control_height_px = size.control_height(theme);
         let control_height = height.unwrap_or(Length::Fixed(control_height_px));
         let resolved_width = geometry::resolve_button_width(
             width,
@@ -296,7 +296,7 @@ impl<'a, Message> Button<'a, Message> {
         let content = render::build_content(content, variant, size, loading, color, theme);
         let content = render::build_wrapper(content, full_width, icon);
         let disabled_state = disabled || loading || on_press.is_none();
-        let resolved_padding = padding.unwrap_or_else(|| size.default_padding());
+        let resolved_padding = padding.unwrap_or_else(|| size.default_padding(theme));
 
         let mut widget = iced_button(content)
             .padding(resolved_padding)

@@ -50,7 +50,7 @@ pub(super) fn resolve_button_style(
             .map(iced::Background::Color),
         text_color: visual.text,
         border: Border {
-            radius: radius_px(theme, radius.unwrap_or_default()).into(),
+            radius: radius_px(theme, effective_button_radius(theme, radius)).into(),
             width: visual.border_width,
             color: visual.border_color,
         },
@@ -307,6 +307,22 @@ fn current_text_for_state(current: Color, fallback: Color) -> Color {
         g: current.g * alpha + fallback.g * (1.0 - alpha),
         b: current.b * alpha + fallback.b * (1.0 - alpha),
         a: 1.0,
+    }
+}
+
+fn effective_button_radius(theme: &Theme, radius: Option<ButtonRadius>) -> ButtonRadius {
+    match radius {
+        Some(radius) => radius,
+        None => match theme.style.button_type().default_radius {
+            shadcn_common::ComponentRadius::None => ButtonRadius::None,
+            shadcn_common::ComponentRadius::Sm => ButtonRadius::Small,
+            shadcn_common::ComponentRadius::Md => ButtonRadius::Medium,
+            shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
+                ButtonRadius::Large
+            }
+            shadcn_common::ComponentRadius::Full => ButtonRadius::Full,
+            _ => ButtonRadius::Medium,
+        },
     }
 }
 

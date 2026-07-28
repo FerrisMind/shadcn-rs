@@ -184,15 +184,20 @@ fn icon_button_uses_custom_fixed_height_for_both_dimensions() {
 }
 
 #[test]
-fn button_sizes_match_shadcn_pixel_footprints() {
-    assert_eq!(ButtonSize::Xs.control_height(), 24.0);
-    assert_eq!(ButtonSize::Sm.control_height(), 32.0);
-    assert_eq!(ButtonSize::Default.control_height(), 36.0);
-    assert_eq!(ButtonSize::Lg.control_height(), 40.0);
-    assert_eq!(ButtonSize::IconXs.control_height(), 24.0);
-    assert_eq!(ButtonSize::IconSm.control_height(), 32.0);
-    assert_eq!(ButtonSize::Icon.control_height(), 36.0);
-    assert_eq!(ButtonSize::IconLg.control_height(), 40.0);
+fn button_sizes_match_style_pack_recipes() {
+    let vega = Theme::light();
+    assert_eq!(ButtonSize::Xs.control_height(&vega), 24.0);
+    assert_eq!(ButtonSize::Sm.control_height(&vega), 32.0);
+    assert_eq!(ButtonSize::Default.control_height(&vega), 36.0);
+    assert_eq!(ButtonSize::Lg.control_height(&vega), 40.0);
+
+    let nova = Theme::light().with_style(shadcn_common::StyleId::Nova);
+    assert_eq!(ButtonSize::Default.control_height(&nova), 32.0);
+
+    let sera = Theme::light().with_style(shadcn_common::StyleId::Sera);
+    assert_eq!(ButtonSize::Default.control_height(&sera), 40.0);
+    assert_eq!(ButtonSize::Lg.control_height(&sera), 44.0);
+
     assert!(ButtonSize::Icon.is_icon());
     assert!(!ButtonSize::Default.is_icon());
 }

@@ -28,15 +28,22 @@ where
 
     let content = match content {
         ButtonContent::Label(label) => {
-            let size_px = size.label_text_size();
-            let font = iced_font(theme.font_pack().sans);
-            let line_height = LineHeight::Absolute(f32::from(size_px).into());
+            let size_px = size.label_text_size(theme);
+            let type_recipe = theme.style.button_type();
+            let mut font = iced_font(theme.font_pack().sans);
+            font.weight = crate::recipes::iced_font_weight(type_recipe.typography.weight);
+            let line_height = LineHeight::Absolute(size_px.into());
+            let text = if type_recipe.typography.uppercase {
+                label.as_ref().to_uppercase()
+            } else {
+                label.into_owned()
+            };
 
             if variant == super::ButtonVariant::Link {
-                link_label(label, size_px, font)
+                link_label(text.into(), size_px, font)
             } else {
-                iced_text(label)
-                    .size(u32::from(size_px))
+                iced_text(text)
+                    .size(size_px)
                     .font(font)
                     .line_height(line_height)
                     .into()
@@ -60,10 +67,10 @@ where
 
 fn link_label<'a, Message: 'a>(
     label: Fragment<'a>,
-    size_px: u16,
+    size_px: f32,
     font: Font,
 ) -> Element<'a, Message> {
-    let size = f32::from(size_px);
+    let size = size_px;
     // Leave room under the glyphs — iced `hover` layers clip to layout bounds,
     // so a tight Absolute line-height would crop `Span::underline`.
     let line_height = LineHeight::Absolute((size + 3.0).into());
@@ -140,7 +147,7 @@ where
     }
 
     row![indicator, content]
-        .spacing(size.loading_gap())
+        .spacing(size.loading_gap(theme))
         .align_y(Vertical::Center)
         .into()
 }
