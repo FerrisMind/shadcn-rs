@@ -40,6 +40,10 @@ name = "label"
 path = "examples/label/main.rs"
 
 [[example]]
+name = "aspect_ratio"
+path = "examples/aspect_ratio/main.rs"
+
+[[example]]
 name = "separator"
 path = "examples/separator/main.rs"
 
@@ -50,3 +54,15 @@ path = "examples/skeleton/main.rs"
 [[example]]
 name = "spinner"
 path = "examples/spinner/main.rs"
+
+[[example]]
+name = "progress"
+path = "examples/progress/main.rs"
+
+[[example]]
+name = "checkbox"
+path = "examples/checkbox/main.rs"
+
+[[example]]
+name = "typography"
+path = "examples/typography/main.rs"

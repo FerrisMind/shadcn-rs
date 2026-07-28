@@ -16,13 +16,15 @@ with native `iced` types.
   - `components::separator` — horizontal/vertical rule.
   - `components::skeleton` — theme-aware pulse and static placeholders.
   - `components::spinner` — canvas-based loading indicator.
+  - `components::progress` — theme-aware determinate and indeterminate progress bar.
+  - `components::checkbox` — controlled checked, unchecked, and indeterminate input.
 - `theme` — `shadcn-common` theme adapter for iced:
   - `theme::palette` — semantic colors and OKLCH-to-iced conversion.
   - `theme::tokens` — theme mode, style, base, accent, radius, and semantic APIs.
   - `theme::typography` — body, heading, and font-pack selection APIs.
 - `fonts` — font-face exports and the iced font adapter.
 
-The root `badge`, `button`, `label`, `separator`, `skeleton`, and `spinner`
+The root `badge`, `button`, `checkbox`, `label`, `separator`, `skeleton`, and `spinner`
 modules are compatibility re-exports of `components`, so existing v2 imports
 remain valid while new code can use the feature-oriented
 `iced_shadcn_v2::components::*` paths.
@@ -113,6 +115,8 @@ cargo run -p iced-shadcn-v2 --example badge
 cargo run -p iced-shadcn-v2 --example button
 cargo run -p iced-shadcn-v2 --example skeleton
 cargo run -p iced-shadcn-v2 --example spinner
+cargo run -p iced-shadcn-v2 --example progress
+cargo run -p iced-shadcn-v2 --example checkbox
 ```
 
 ```rust,no_run

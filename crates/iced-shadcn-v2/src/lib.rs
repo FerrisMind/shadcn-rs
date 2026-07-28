@@ -36,30 +36,47 @@ pub mod fonts;
 pub mod recipes;
 pub mod theme;
 
+/// Backwards-compatible access to the aspect-ratio component.
+pub use components::aspect_ratio;
 /// Backwards-compatible access to the badge component.
 pub use components::badge;
 /// Backwards-compatible access to the button component.
 pub use components::button;
+/// Backwards-compatible access to the checkbox component.
+pub use components::checkbox;
 /// Backwards-compatible access to the kbd component.
 pub use components::kbd;
 /// Backwards-compatible access to the label component.
 pub use components::label;
+/// Backwards-compatible access to the progress component.
+pub use components::progress;
 /// Backwards-compatible access to the separator component.
 pub use components::separator;
 /// Backwards-compatible access to the skeleton component.
 pub use components::skeleton;
 /// Backwards-compatible access to the spinner component.
 pub use components::spinner;
+/// Backwards-compatible access to the typography component.
+pub use components::typography;
 
+pub use components::aspect_ratio::{AspectRatio, MIN_ASPECT_RATIO, aspect_ratio};
 pub use components::badge::{Badge, BadgeBuildError, BadgeRadius, BadgeVariant};
 pub use components::button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
+pub use components::checkbox::{
+    Checkbox, CheckboxConfig, CheckboxSize, CheckboxState, CheckboxVariant,
+};
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
+pub use components::progress::{
+    Progress, ProgressOrientation, ProgressRadius, ProgressSize, ProgressState, ProgressVariant,
+    progress,
+};
 pub use components::separator::{Separator, SeparatorOrientation, separator};
 pub use components::skeleton::{
     Skeleton, SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape,
 };
 pub use components::spinner::{Spinner, SpinnerSize, SpinnerVariant, spinner};
+pub use components::typography::{Typography, TypographyList, TypographyTable, TypographyVariant};
 pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};
 
