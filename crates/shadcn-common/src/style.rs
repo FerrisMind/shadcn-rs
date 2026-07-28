@@ -242,9 +242,10 @@ impl StylePack {
         id: StyleId::Sera,
         radius: RadiusScale::none(),
         spacing_unit_px: 4.0,
-        control_height_sm_px: 32.0,
-        control_height_md_px: 36.0,
-        control_height_lg_px: 40.0,
+        // Matches `.cn-button-size-*`: h-7 / h-9 / h-10 / h-11.
+        control_height_sm_px: 36.0,
+        control_height_md_px: 40.0,
+        control_height_lg_px: 44.0,
         card_padding_px: 24.0,
         font_pack: FontPack::INSTRUMENT_SERIF,
         twill_radius_sm: BorderRadius::None,
@@ -299,5 +300,38 @@ impl StylePack {
 
     pub fn radius_id(self) -> RadiusId {
         self.id.default_radius_id()
+    }
+
+    /// `.cn-label` recipe for this pack.
+    pub const fn label(self, context: crate::recipes::LabelContext) -> crate::recipes::LabelRecipe {
+        crate::recipes::label_recipe(self.id, context)
+    }
+
+    /// `.cn-button-size-*` geometry for this pack.
+    pub const fn button_size(
+        self,
+        size: crate::recipes::ControlSize,
+    ) -> crate::recipes::ButtonSizeRecipe {
+        crate::recipes::button_size(self.id, size)
+    }
+
+    /// Base `.cn-button` type + default radius for this pack.
+    pub const fn button_type(self) -> crate::recipes::ButtonTypeRecipe {
+        crate::recipes::button_type(self.id)
+    }
+
+    /// `.cn-badge` recipe for this pack.
+    pub const fn badge(self) -> crate::recipes::BadgeRecipe {
+        crate::recipes::badge_recipe(self.id)
+    }
+
+    /// `.cn-kbd` recipe for this pack.
+    pub const fn kbd(self) -> crate::recipes::KbdRecipe {
+        crate::recipes::kbd_recipe(self.id)
+    }
+
+    /// `.cn-skeleton` default radius for this pack.
+    pub const fn skeleton_default_radius(self) -> crate::recipes::ComponentRadius {
+        crate::recipes::skeleton_default_radius(self.id)
     }
 }

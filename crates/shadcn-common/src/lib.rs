@@ -9,6 +9,7 @@ pub mod color;
 pub mod fonts;
 pub mod icons;
 pub mod radius;
+pub mod recipes;
 pub mod style;
 pub mod theme;
 pub mod typography;
@@ -18,6 +19,11 @@ mod generated;
 pub use color::{AccentColor, BaseColor, OklchColor, ThemeMode};
 pub use icons::{IconName, IconSet};
 pub use radius::{RadiusId, RadiusScale};
+pub use recipes::{
+    BadgeRecipe, ButtonSizeRecipe, ButtonTypeRecipe, ComponentRadius, ControlSize, FontWeight,
+    KbdRecipe, LabelContext, LabelRecipe, SkeletonRecipe, TypeRecipe, badge_recipe, button_size,
+    button_type, kbd_recipe, label_recipe, skeleton_default_radius, skeleton_recipe,
+};
 pub use style::{StyleId, StylePack};
 pub use theme::{ResolvedTheme, SemanticThemeTable};
 pub use typography::{FontHeading, FontId, FontPack};

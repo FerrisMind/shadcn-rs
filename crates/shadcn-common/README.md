@@ -3,10 +3,13 @@
 Shared shadcn design tokens for `iced-shadcn` and `egui-shadcn`.
 
 Built on [`twill-core`](https://github.com/FerrisMind/twill): styles, base/accent colors,
-theme mode, typography, radius, and icon catalog — without GUI backend deps.
+theme mode, typography, radius, icon catalog, and **component recipes**
+(`recipes::{label,button,badge,kbd,skeleton}`) — without GUI backend deps.
 
 ```rust
-use shadcn_common::{AccentColor, BaseColor, ResolvedTheme, StyleId, ThemeMode};
+use shadcn_common::{
+    AccentColor, BaseColor, ControlSize, LabelContext, ResolvedTheme, StyleId, ThemeMode,
+};
 
 let theme = ResolvedTheme::new(
     StyleId::Vega,
@@ -15,4 +18,6 @@ let theme = ResolvedTheme::new(
     ThemeMode::Light,
 );
 let primary = theme.color_value(shadcn_common::SemanticColor::Primary);
+let label = theme.style_pack().label(LabelContext::Field);
+let button = theme.style_pack().button_size(ControlSize::Md);
 ```
