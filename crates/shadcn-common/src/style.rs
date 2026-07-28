@@ -334,4 +334,9 @@ impl StylePack {
     pub const fn skeleton_default_radius(self) -> crate::recipes::ComponentRadius {
         crate::recipes::skeleton_default_radius(self.id)
     }
+
+    /// `.cn-progress` geometry and default radius for this pack.
+    pub const fn progress(self) -> crate::recipes::ProgressRecipe {
+        crate::recipes::progress_recipe(self.id)
+    }
 }
