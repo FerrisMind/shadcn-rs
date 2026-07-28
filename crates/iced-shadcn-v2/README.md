@@ -9,8 +9,12 @@ with native `iced` types.
 ## Module layout
 
 - `components` — component implementations grouped by feature:
+  - `components::badge` — status label with shadcn variants, icons, and as-link.
   - `components::button` — public button API and private geometry, rendering,
     style, and error modules.
+  - `components::label` — form label with style-pack typography and `for` / click.
+  - `components::separator` — horizontal/vertical rule.
+  - `components::skeleton` — theme-aware pulse and static placeholders.
   - `components::spinner` — canvas-based loading indicator.
 - `theme` — `shadcn-common` theme adapter for iced:
   - `theme::palette` — semantic colors and OKLCH-to-iced conversion.
@@ -18,9 +22,10 @@ with native `iced` types.
   - `theme::typography` — body, heading, and font-pack selection APIs.
 - `fonts` — font-face exports and the iced font adapter.
 
-The root `button` and `spinner` modules are compatibility re-exports of
-`components`, so existing v2 imports remain valid while new code can use the
-feature-oriented `iced_shadcn_v2::components::*` paths.
+The root `badge`, `button`, `label`, `separator`, `skeleton`, and `spinner`
+modules are compatibility re-exports of `components`, so existing v2 imports
+remain valid while new code can use the feature-oriented
+`iced_shadcn_v2::components::*` paths.
 
 ## Theming
 
@@ -104,12 +109,16 @@ iced `button::Style` (colors, border, shadow) after our resolver runs.
 ## Examples
 
 ```bash
+cargo run -p iced-shadcn-v2 --example badge
 cargo run -p iced-shadcn-v2 --example button
+cargo run -p iced-shadcn-v2 --example skeleton
 cargo run -p iced-shadcn-v2 --example spinner
 ```
 
 ```rust,no_run
-use iced_shadcn_v2::{Button, ButtonVariant, Spinner, SpinnerVariant, Theme, spinner};
+use iced_shadcn_v2::{
+    Badge, BadgeVariant, Button, ButtonVariant, Spinner, SpinnerVariant, Theme, spinner,
+};
 
 #[derive(Debug, Clone)]
 enum Message {
@@ -118,6 +127,7 @@ enum Message {
 
 fn view(theme: &Theme) -> iced::Element<'_, Message> {
     iced::widget::row![
+        Badge::text("New", theme).variant(BadgeVariant::Secondary),
         Button::text("Save", theme)
             .variant(ButtonVariant::Default)
             .on_press(Message::Save),

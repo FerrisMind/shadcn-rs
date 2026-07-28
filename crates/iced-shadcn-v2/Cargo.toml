@@ -24,8 +24,28 @@ shadcn-common = { workspace = true, features = ["fonts"] }
 twill-core = { workspace = true }
 
 [[example]]
+name = "badge"
+path = "examples/badge/main.rs"
+
+[[example]]
 name = "button"
 path = "examples/button/main.rs"
+
+[[example]]
+name = "kbd"
+path = "examples/kbd/main.rs"
+
+[[example]]
+name = "label"
+path = "examples/label/main.rs"
+
+[[example]]
+name = "separator"
+path = "examples/separator/main.rs"
+
+[[example]]
+name = "skeleton"
+path = "examples/skeleton/main.rs"
 
 [[example]]
 name = "spinner"
