@@ -287,8 +287,8 @@ impl<'a, Message> Badge<'a, Message> {
         let has_icon_start = loading || icon_start.is_some();
         let has_icon_end = icon_end.is_some();
         let recipe = theme.style.badge();
-        let resolved_padding =
-            padding.unwrap_or_else(|| geometry::default_padding(theme, has_icon_start, has_icon_end));
+        let resolved_padding = padding
+            .unwrap_or_else(|| geometry::default_padding(theme, has_icon_start, has_icon_end));
         let control_height = height.unwrap_or_else(|| {
             Length::Fixed(recipe.height_px.unwrap_or_else(|| {
                 // Sera has no fixed height — shrink to content with a sensible floor.
@@ -297,13 +297,7 @@ impl<'a, Message> Badge<'a, Message> {
         });
 
         let body = render::build_content(
-            content,
-            icon_start,
-            icon_end,
-            variant,
-            loading,
-            color,
-            theme,
+            content, icon_start, icon_end, variant, loading, color, theme,
         );
         let body = render::build_wrapper(body);
 

@@ -43,9 +43,7 @@ fn text_and_generic_labels_convert_to_elements() {
     let theme = Theme::light();
 
     let _: Element<'_, Message> = Label::new(container(text("Custom")), &theme).into();
-    let _: Element<'_, Message> = Label::text("Email", &theme)
-        .on_press(Message::Focus)
-        .into();
+    let _: Element<'_, Message> = Label::text("Email", &theme).on_press(Message::Focus).into();
     let _: Element<'_, Message> = Label::text("Disabled", &theme).disabled(true).into();
 }
 

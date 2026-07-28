@@ -96,24 +96,12 @@ impl<Message> canvas::Program<Message> for Spinner {
                     }
                 });
             }
-            SpinnerVariant::Circular => {
-                draw_circular(&mut frame, center, size, self.color, phase)
-            }
-            SpinnerVariant::Classic => {
-                draw_classic(&mut frame, center, size, self.color, phase)
-            }
-            SpinnerVariant::Pulse => {
-                draw_pulse(&mut frame, center, size, self.color, phase)
-            }
-            SpinnerVariant::PulseDot => {
-                draw_pulse_dot(&mut frame, center, size, self.color, phase)
-            }
-            SpinnerVariant::Dots => {
-                draw_dots(&mut frame, center, size, self.color, phase, false)
-            }
-            SpinnerVariant::Typing => {
-                draw_dots(&mut frame, center, size, self.color, phase, true)
-            }
+            SpinnerVariant::Circular => draw_circular(&mut frame, center, size, self.color, phase),
+            SpinnerVariant::Classic => draw_classic(&mut frame, center, size, self.color, phase),
+            SpinnerVariant::Pulse => draw_pulse(&mut frame, center, size, self.color, phase),
+            SpinnerVariant::PulseDot => draw_pulse_dot(&mut frame, center, size, self.color, phase),
+            SpinnerVariant::Dots => draw_dots(&mut frame, center, size, self.color, phase, false),
+            SpinnerVariant::Typing => draw_dots(&mut frame, center, size, self.color, phase, true),
             SpinnerVariant::Wave => draw_wave(
                 &mut frame,
                 center,
@@ -132,9 +120,7 @@ impl<Message> canvas::Program<Message> for Spinner {
                 3,
                 self.amplitudes,
             ),
-            SpinnerVariant::Terminal => {
-                draw_terminal(&mut frame, bounds, size, self.color, phase)
-            }
+            SpinnerVariant::Terminal => draw_terminal(&mut frame, bounds, size, self.color, phase),
             SpinnerVariant::TextBlink => draw_text(
                 &mut frame,
                 bounds,

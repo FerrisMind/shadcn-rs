@@ -246,14 +246,7 @@ impl<'a, Message> Label<'a, Message> {
 
         let recipe = style::resolve_recipe(theme, context);
         let text_color = style::resolve_color(theme, color, disabled);
-        let body = render::build_content(
-            content,
-            icon_start,
-            icon_end,
-            recipe,
-            text_color,
-            theme,
-        );
+        let body = render::build_content(content, icon_start, icon_end, recipe, text_color, theme);
 
         if let Some(message) = on_press {
             render::wrap_interactive(body, width, text_color, message, disabled, style_override)

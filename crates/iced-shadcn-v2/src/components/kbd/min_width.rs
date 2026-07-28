@@ -53,10 +53,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
         renderer: &iced::Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let content =
-            self.content
-                .as_widget_mut()
-                .layout(&mut tree.children[0], renderer, limits);
+        let content = self
+            .content
+            .as_widget_mut()
+            .layout(&mut tree.children[0], renderer, limits);
         let content_size = content.size();
 
         let width = content_size
@@ -79,7 +79,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
     ) {
         self.content.as_widget_mut().operate(
             &mut tree.children[0],
-            layout.children().next().expect("kbd min-width child layout"),
+            layout
+                .children()
+                .next()
+                .expect("kbd min-width child layout"),
             renderer,
             operation,
         );
@@ -99,7 +102,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
         self.content.as_widget_mut().update(
             &mut tree.children[0],
             event,
-            layout.children().next().expect("kbd min-width child layout"),
+            layout
+                .children()
+                .next()
+                .expect("kbd min-width child layout"),
             cursor,
             renderer,
             clipboard,
@@ -118,7 +124,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
     ) -> mouse::Interaction {
         self.content.as_widget().mouse_interaction(
             &tree.children[0],
-            layout.children().next().expect("kbd min-width child layout"),
+            layout
+                .children()
+                .next()
+                .expect("kbd min-width child layout"),
             cursor,
             viewport,
             renderer,
@@ -140,7 +149,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
             renderer,
             theme,
             style,
-            layout.children().next().expect("kbd min-width child layout"),
+            layout
+                .children()
+                .next()
+                .expect("kbd min-width child layout"),
             cursor,
             viewport,
         );
@@ -156,7 +168,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
     ) -> Option<overlay::Element<'b, Message, iced::Theme, iced::Renderer>> {
         self.content.as_widget_mut().overlay(
             &mut tree.children[0],
-            layout.children().next().expect("kbd min-width child layout"),
+            layout
+                .children()
+                .next()
+                .expect("kbd min-width child layout"),
             renderer,
             viewport,
             translation,

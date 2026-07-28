@@ -43,9 +43,7 @@ fn text_and_generic_badges_convert_to_elements() {
 
     let _: Element<'_, Message> = Badge::new(container(text("Custom")), &theme).into();
 
-    let _: Element<'_, Message> = Badge::text("New", &theme)
-        .on_press(Message::Pressed)
-        .into();
+    let _: Element<'_, Message> = Badge::text("New", &theme).on_press(Message::Pressed).into();
 }
 
 #[test]
@@ -67,13 +65,21 @@ fn icons_and_loading_compose() {
 fn variant_mapping_matches_expected_surface_rules() {
     let theme = Theme::light();
 
-    let default_style =
-        style::resolve_container_style(&theme, BadgeVariant::Default, None, Some(AccentColor::Blue));
+    let default_style = style::resolve_container_style(
+        &theme,
+        BadgeVariant::Default,
+        None,
+        Some(AccentColor::Blue),
+    );
     assert!(default_style.background.is_some());
     assert_eq!(default_style.border.width, 0.0);
 
-    let outline_style =
-        style::resolve_container_style(&theme, BadgeVariant::Outline, None, Some(AccentColor::Blue));
+    let outline_style = style::resolve_container_style(
+        &theme,
+        BadgeVariant::Outline,
+        None,
+        Some(AccentColor::Blue),
+    );
     assert_eq!(outline_style.border.width, 1.0);
 
     let link_style =
@@ -218,16 +224,10 @@ fn badge_recipe_comes_from_shadcn_common() {
 #[test]
 fn locked_style_packs_default_to_no_radius() {
     let lyra = Theme::light().with_style(StyleId::Lyra);
-    assert_eq!(
-        style::effective_radius(&lyra, None),
-        BadgeRadius::None
-    );
+    assert_eq!(style::effective_radius(&lyra, None), BadgeRadius::None);
 
     let vega = Theme::light().with_style(StyleId::Vega);
-    assert_eq!(
-        style::effective_radius(&vega, None),
-        BadgeRadius::Full
-    );
+    assert_eq!(style::effective_radius(&vega, None), BadgeRadius::Full);
 }
 
 #[test]

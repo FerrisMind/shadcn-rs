@@ -51,10 +51,16 @@ fn vertical_separator_fills_height_with_fixed_width() {
 #[test]
 fn separator_length_override_applies_to_main_axis() {
     let rule = Separator::from_color(Color::BLACK).length(Length::Fixed(120.0));
-    assert_eq!(rule.resolved_axes(), (Length::Fixed(120.0), Length::Fixed(1.0)));
+    assert_eq!(
+        rule.resolved_axes(),
+        (Length::Fixed(120.0), Length::Fixed(1.0))
+    );
 
     let rule = rule.orientation(SeparatorOrientation::Vertical);
-    assert_eq!(rule.resolved_axes(), (Length::Fixed(1.0), Length::Fixed(120.0)));
+    assert_eq!(
+        rule.resolved_axes(),
+        (Length::Fixed(1.0), Length::Fixed(120.0))
+    );
 }
 
 #[test]
@@ -62,7 +68,9 @@ fn separator_radius_is_clamped_to_at_least_zero() {
     let rule = Separator::from_color(Color::BLACK).radius(-3.0);
     assert!(rule.radius.abs() < f32::EPSILON);
 
-    let rule = Separator::from_color(Color::BLACK).thickness(8.0).radius(4.0);
+    let rule = Separator::from_color(Color::BLACK)
+        .thickness(8.0)
+        .radius(4.0);
     assert!((rule.radius - 4.0).abs() < f32::EPSILON);
 }
 

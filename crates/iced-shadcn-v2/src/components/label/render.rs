@@ -37,9 +37,7 @@ where
     let nudge = has_sidecar;
 
     let label = match content {
-        LabelContent::Text(fragment) => {
-            plain_label(fragment, typography, font, text_color, nudge)
-        }
+        LabelContent::Text(fragment) => plain_label(fragment, typography, font, text_color, nudge),
         LabelContent::Element(content) => maybe_nudge(content, nudge),
     };
 
@@ -109,9 +107,7 @@ fn maybe_nudge<'a, Message: 'a>(
     }
 }
 
-fn sidecar_slot<'a, Message: 'a>(
-    content: impl Into<Element<'a, Message>>,
-) -> Element<'a, Message> {
+fn sidecar_slot<'a, Message: 'a>(content: impl Into<Element<'a, Message>>) -> Element<'a, Message> {
     container(content.into())
         .width(Length::Fixed(SIDECAR_PX))
         .height(Length::Fixed(SIDECAR_PX))

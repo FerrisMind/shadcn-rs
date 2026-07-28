@@ -63,7 +63,10 @@ fn surface_mapping_matches_expected_rules() {
         default_style.background,
         Some(Background::Color(theme.palette.muted))
     );
-    assert_eq!(default_style.text_color, Some(theme.palette.muted_foreground));
+    assert_eq!(
+        default_style.text_color,
+        Some(theme.palette.muted_foreground)
+    );
 
     let input_group_style = style::resolve_container_style(&theme, KbdSurface::InputGroup, None);
     assert_eq!(
@@ -233,11 +236,7 @@ fn all_surfaces_resolve_in_light_and_dark_themes() {
             KbdSurface::InputGroup,
         ] {
             let resolved = style::resolve_container_style(&theme, surface, None);
-            assert!(
-                resolved
-                    .text_color
-                    .is_some_and(|color| color.a.is_finite())
-            );
+            assert!(resolved.text_color.is_some_and(|color| color.a.is_finite()));
             assert!(resolved.background.is_some());
         }
     }
