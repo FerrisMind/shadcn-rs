@@ -21,8 +21,8 @@ description = "Shadcn and Radix UI-inspired component library for the Rust GUI (
 [workspace.dependencies]
 log = "0.4"
 env_logger = "0.11"
-shadcn-common = { path = "crates/shadcn-common" }
-twill-core = { git = "https://github.com/FerrisMind/twill.git", rev = "83e8ac1a00766b5304ec88d25a9f3e99274ef0e8" }
+shadcn-common = { path = "crates/shadcn-common", version = "0.5.0" }
+twill-core = { git = "https://github.com/FerrisMind/twill.git", rev = "83e8ac1a00766b5304ec88d25a9f3e99274ef0e8", version = "0.3.0" }
 twill-iced = { git = "https://github.com/FerrisMind/twill.git", rev = "83e8ac1a00766b5304ec88d25a9f3e99274ef0e8", default-features = false }
 
 [profile.dev]
