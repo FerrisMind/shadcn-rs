@@ -9,6 +9,7 @@ mod button;
 mod kbd;
 mod label;
 mod progress;
+mod radio_group;
 mod skeleton;
 mod slider;
 mod switch;
@@ -19,6 +20,7 @@ pub use button::{ButtonSizeRecipe, ButtonTypeRecipe, ControlSize, button_size, b
 pub use kbd::{KbdRecipe, kbd_recipe};
 pub use label::{LabelContext, LabelRecipe, label_recipe};
 pub use progress::{ProgressRecipe, progress_recipe};
+pub use radio_group::{RadioCheckedFill, RadioGroupRecipe, RadioSurface, radio_group_recipe};
 pub use skeleton::{SkeletonRecipe, skeleton_default_radius, skeleton_recipe};
 pub use slider::{
     SliderRecipe, SliderThumbBorder, SliderThumbFill, SliderTrackSurface, slider_recipe,

@@ -345,6 +345,11 @@ impl StylePack {
         crate::recipes::slider_recipe(self.id)
     }
 
+    /// `.cn-radio-group*` indicator, dot, ring, and gap tokens for this pack.
+    pub const fn radio_group(self) -> crate::recipes::RadioGroupRecipe {
+        crate::recipes::radio_group_recipe(self.id)
+    }
+
     /// `.cn-switch` border, ring, and default radius for this pack.
     pub const fn switch(self) -> crate::recipes::SwitchRecipe {
         crate::recipes::switch_recipe(self.id)
