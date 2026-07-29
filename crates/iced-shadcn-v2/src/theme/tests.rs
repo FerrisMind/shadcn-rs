@@ -21,6 +21,18 @@ fn accent_overlay_changes_primary() {
 }
 
 #[test]
+fn background_foreground_uses_the_theme_token() {
+    use twill_core::prelude::theme::SemanticColor;
+
+    for theme in [Theme::light(), Theme::dark()] {
+        assert_eq!(
+            theme.semantic_foreground(SemanticColor::Background),
+            theme.palette.foreground,
+        );
+    }
+}
+
+#[test]
 fn color_value_conversion_preserves_alpha() {
     let value = ColorValue::from_oklch(0.6, 0.1, 200.0).with_alpha(0.5);
     let color = color_value_to_iced(value);

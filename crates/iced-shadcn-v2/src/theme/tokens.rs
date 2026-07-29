@@ -194,6 +194,7 @@ impl Theme {
     /// Foreground color paired with a semantic surface slot.
     pub fn semantic_foreground(&self, token: SemanticColor) -> Color {
         match token {
+            SemanticColor::Background => self.palette.foreground,
             SemanticColor::Destructive => self.palette.destructive_foreground,
             SemanticColor::Primary => self.palette.primary_foreground,
             SemanticColor::Secondary => self.palette.secondary_foreground,
