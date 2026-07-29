@@ -1,12 +1,12 @@
 //! Layout and rendering for the table component.
 
 use crate::iced_compat::advanced::layout::{self, Layout};
-use crate::iced_compat::advanced::widget::{Operation, Tree};
+use crate::iced_compat::advanced::widget::{Operation, Tree, tree};
 use crate::iced_compat::advanced::{Clipboard, Shell, Widget, overlay, renderer};
 use crate::iced_compat::widget::text::LineHeight;
 use crate::iced_compat::widget::{Space, column, container, row, scrollable, text as iced_text};
 use crate::iced_compat::{
-    Background, Color, Element, Event, Length, Padding, Rectangle, Size, Vector, mouse,
+    Background, Color, Element, Event, Length, Padding, Rectangle, Size, Vector, mouse, window,
 };
 use crate::theme::Theme;
 use iced_core::Renderer as _;
@@ -538,9 +538,22 @@ struct HoverRow<'a, Message> {
     hoverable: bool,
 }
 
+#[derive(Debug, Default)]
+struct HoverRowState {
+    is_hovered: bool,
+}
+
 impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>
     for HoverRow<'_, Message>
 {
+    fn tag(&self) -> tree::Tag {
+        tree::Tag::of::<HoverRowState>()
+    }
+
+    fn state(&self) -> tree::State {
+        tree::State::new(HoverRowState::default())
+    }
+
     fn children(&self) -> Vec<Tree> {
         vec![Tree::new(&self.content)]
     }
@@ -592,6 +605,8 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
     ) {
+        let bounds = layout.bounds();
+
         self.content.as_widget_mut().update(
             &mut tree.children[0],
             event,
@@ -602,6 +617,19 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
             shell,
             viewport,
         );
+
+        let is_hovered = self.hoverable && cursor.is_over(bounds);
+        let state = tree.state.downcast_mut::<HoverRowState>();
+        match event {
+            Event::Mouse(mouse::Event::CursorMoved { .. }) if state.is_hovered != is_hovered => {
+                state.is_hovered = is_hovered;
+                shell.request_redraw();
+            }
+            Event::Window(window::Event::RedrawRequested(_)) => {
+                state.is_hovered = is_hovered;
+            }
+            _ => {}
+        }
     }
 
     fn mouse_interaction(
@@ -636,7 +664,8 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
             return;
         }
 
-        let style = if self.hoverable && cursor.is_over(bounds) {
+        let is_hovered = tree.state.downcast_ref::<HoverRowState>().is_hovered;
+        let style = if self.hoverable && is_hovered {
             self.hovered
         } else {
             self.base

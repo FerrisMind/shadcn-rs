@@ -6,7 +6,7 @@ use crate::iced_compat::{Color, Element, Length, Padding};
 use crate::theme::Theme;
 use shadcn_common::{FontWeight, StyleId};
 
-use super::style::{cell_padding, metrics, row_style, with_alpha};
+use super::style::{cell_padding, hover_row_style, metrics, row_style, with_alpha};
 use super::*;
 
 #[test]
@@ -84,6 +84,27 @@ fn row_style_uses_semantic_surfaces() {
             theme.palette.muted,
             0.5,
         )))
+    );
+}
+
+#[test]
+fn hover_style_changes_unselected_body_surface() {
+    let theme = Theme::light().with_style(StyleId::Vega);
+    let resting = row_style(&theme, SectionKind::Body, false, true);
+    let hovered = hover_row_style(&theme, SectionKind::Body, false, true);
+    let selected = hover_row_style(&theme, SectionKind::Body, true, true);
+
+    assert_ne!(hovered.background, resting.background);
+    assert_eq!(
+        hovered.background,
+        Some(crate::iced_compat::Background::Color(with_alpha(
+            theme.palette.muted,
+            0.5,
+        )))
+    );
+    assert_eq!(
+        selected.background,
+        Some(crate::iced_compat::Background::Color(theme.palette.muted))
     );
 }
 
