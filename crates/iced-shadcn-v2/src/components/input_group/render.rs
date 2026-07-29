@@ -497,7 +497,7 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
                 &mut tree.children[0],
                 child_layout,
                 renderer,
-                &mut focused,
+                &mut black_box(&mut focused),
             );
 
             matches!(focused.finish(), Outcome::Some(true))

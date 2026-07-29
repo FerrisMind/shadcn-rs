@@ -324,10 +324,10 @@ impl InputGroupInputProps {
 
 /// Resize policy for an [`super::InputGroupTextarea`].
 ///
-/// Iced's [`iced_core::text_editor`] has no browser-style pointer resize
-/// handle. [`Self::None`] keeps the control at its minimum height; the other
-/// values leave the height unconstrained while preserving the source
-/// component's intent for applications that provide their own layout policy.
+/// Iced's `text_editor` widget has no browser-style pointer resize handle.
+/// [`Self::None`] keeps the control at its minimum height; the other values
+/// leave the height unconstrained while preserving the source component's
+/// intent for applications that provide their own layout policy.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

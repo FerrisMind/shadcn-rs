@@ -25,10 +25,17 @@
 //!
 //! fn search<'a>(theme: &'a Theme, query: &'a str) -> Element<'a, Message> {
 //!     InputGroup::new(theme)
-//!         .push(Input::new(theme).value(query).placeholder("Search...").on_input(Message::QueryChanged))
+//!         .push(
+//!             Input::new(theme)
+//!                 .value(query)
+//!                 .placeholder("Search...")
+//!                 .id("search-input")
+//!                 .on_input(Message::QueryChanged),
+//!         )
 //!         .push(
 //!             InputGroupAddon::empty(theme)
 //!                 .align(InputGroupAddonAlign::InlineEnd)
+//!                 .focus_input("search-input")
 //!                 .push(InputGroupButton::text("Search", theme)
 //!                     .variant(ButtonVariant::Secondary)
 //!                     .on_press(Message::Search))
@@ -801,6 +808,9 @@ impl<'a, Message> InputGroupTextarea<'a, Message> {
     }
 
     /// Sets the resize policy.
+    ///
+    /// Iced does not expose a browser-style resize handle. `None` fixes the
+    /// minimum height; the other modes leave the editor height unconstrained.
     pub fn resize(mut self, resize: InputGroupTextareaResize) -> Self {
         self.props = self.props.resize(resize);
         self

@@ -149,6 +149,34 @@ fn addon_geometry_matches_the_nova_css_slots() {
 }
 
 #[test]
+fn sera_uses_a_bottom_border_for_resting_focus_and_invalid_states() {
+    let theme = Theme::light().with_style(StyleId::Sera);
+    let input = theme.semantic_color(twill_core::prelude::theme::SemanticColor::Input);
+    let ring = theme.semantic_color(twill_core::prelude::theme::SemanticColor::Ring);
+    let destructive = theme.semantic_color(twill_core::prelude::theme::SemanticColor::Destructive);
+
+    assert!(style::uses_bottom_border(&theme));
+    assert_eq!(
+        style::resolve_group_style(&theme, None, false, false, false)
+            .border
+            .color,
+        input
+    );
+    assert_eq!(
+        style::resolve_group_style(&theme, None, false, false, true)
+            .border
+            .color,
+        ring
+    );
+    assert_eq!(
+        style::resolve_group_style(&theme, None, true, false, false)
+            .border
+            .color,
+        destructive
+    );
+}
+
+#[test]
 fn control_state_is_carried_into_the_group_layout_metadata() {
     let theme = theme();
     let item: InputGroupItem<'_, Message> = Input::new(&theme).invalid(true).disabled(true).into();
