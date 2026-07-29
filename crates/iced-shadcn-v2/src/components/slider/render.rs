@@ -23,27 +23,36 @@ impl<Message> canvas::Program<Message> for Slider<'_, Message> {
         let track = geometry::track_rect(bounds.size(), metrics, self.orientation);
 
         match event {
-            canvas::Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
-            | canvas::Event::Touch(touch::Event::FingerPressed { .. }) => {
+            canvas::Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
                 if self.disabled || !self.is_interactive() {
                     return None;
                 }
 
                 let position = local_cursor(cursor, bounds)?;
-                // Pressing the track jumps the nearest thumb to the cursor and
-                // keeps dragging it, exactly like the web component.
-                let index = geometry::closest_thumb(self, track, metrics, position)?;
-                state.dragging = Some(index);
-                state.hovered = Some(index);
-
-                let value = geometry::value_at(self, track, metrics, position);
-                Some(self.change_action(index, value).and_capture())
+                self.begin_drag(state, track, metrics, position, None)
             }
-            canvas::Event::Mouse(mouse::Event::CursorMoved { .. })
-            | canvas::Event::Touch(touch::Event::FingerMoved { .. }) => {
+            canvas::Event::Touch(touch::Event::FingerPressed { id, position }) => {
+                if self.disabled
+                    || !self.is_interactive()
+                    || state.dragging.is_some()
+                    || !bounds.contains(*position)
+                {
+                    return None;
+                }
+
+                self.begin_drag(
+                    state,
+                    track,
+                    metrics,
+                    local_point(*position, bounds),
+                    Some(*id),
+                )
+            }
+            canvas::Event::Mouse(mouse::Event::CursorMoved { .. }) => {
                 if let Some(index) = state.dragging {
-                    if self.disabled {
+                    if self.disabled || state.active_finger.is_some() {
                         state.dragging = None;
+                        state.active_finger = None;
                         return None;
                     }
 
@@ -67,16 +76,34 @@ impl<Message> canvas::Program<Message> for Slider<'_, Message> {
                     canvas::Action::request_redraw()
                 })
             }
-            canvas::Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
-            | canvas::Event::Touch(touch::Event::FingerLifted { .. })
-            | canvas::Event::Touch(touch::Event::FingerLost { .. }) => {
-                state
-                    .dragging
-                    .take()
-                    .map(|_| match self.on_release.as_ref() {
-                        Some(on_release) => canvas::Action::publish(on_release()),
-                        None => canvas::Action::request_redraw(),
-                    })
+            canvas::Event::Touch(touch::Event::FingerMoved { id, position }) => {
+                if state.active_finger != Some(*id) {
+                    return None;
+                }
+
+                let index = state.dragging?;
+                if self.disabled {
+                    state.dragging = None;
+                    state.active_finger = None;
+                    return None;
+                }
+
+                let value =
+                    geometry::value_at(self, track, metrics, local_point(*position, bounds));
+                Some(self.change_action(index, value).and_capture())
+            }
+            canvas::Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left)) => {
+                if state.active_finger.is_some() {
+                    return None;
+                }
+                self.finish_drag(state)
+            }
+            canvas::Event::Touch(touch::Event::FingerLifted { id, .. })
+            | canvas::Event::Touch(touch::Event::FingerLost { id, .. }) => {
+                if state.active_finger != Some(*id) {
+                    return None;
+                }
+                self.finish_drag(state)
             }
             _ => None,
         }
@@ -107,7 +134,7 @@ impl<Message> canvas::Program<Message> for Slider<'_, Message> {
                 .unwrap_or_else(|| geometry::default_track_radius(self.theme)),
             track.size(),
         );
-        let thumb_size = Size::new(metrics.thumb_length, metrics.thumb_thickness);
+        let thumb_size = geometry::thumb_size(metrics, self.orientation);
         let thumb_radius = geometry::radius_px(
             self.theme,
             self.thumb_radius
@@ -167,6 +194,39 @@ impl<Message> canvas::Program<Message> for Slider<'_, Message> {
 }
 
 impl<Message> Slider<'_, Message> {
+    fn begin_drag(
+        &self,
+        state: &mut SliderState,
+        track: Rectangle,
+        metrics: Metrics,
+        position: Point,
+        active_finger: Option<touch::Finger>,
+    ) -> Option<canvas::Action<Message>> {
+        if state.dragging.is_some() {
+            return None;
+        }
+
+        // Pressing the track jumps the nearest thumb to the cursor and keeps
+        // dragging it, exactly like the web component.
+        let index = geometry::closest_thumb(self, track, metrics, position)?;
+        state.dragging = Some(index);
+        state.hovered = Some(index);
+        state.active_finger = active_finger;
+
+        let value = geometry::value_at(self, track, metrics, position);
+        Some(self.change_action(index, value).and_capture())
+    }
+
+    fn finish_drag(&self, state: &mut SliderState) -> Option<canvas::Action<Message>> {
+        let was_dragging = state.dragging.take();
+        state.active_finger = None;
+
+        was_dragging.map(|_| match self.on_release.as_ref() {
+            Some(on_release) => canvas::Action::publish(on_release()),
+            None => canvas::Action::request_redraw(),
+        })
+    }
+
     /// Fills the selected range: up to the thumb for a single value, between the
     /// outer thumbs when several are present.
     fn draw_range(
@@ -225,14 +285,14 @@ impl<Message> Slider<'_, Message> {
         metrics: Metrics,
         style: &SliderStyle,
     ) {
-        let thumb_size = Size::new(metrics.thumb_length, metrics.thumb_thickness);
+        let thumb_size = geometry::thumb_size(metrics, self.orientation);
 
         for (index, value) in self.values.iter().copied().enumerate() {
             let center = geometry::thumb_center(
                 track,
                 metrics,
                 self.orientation,
-                geometry::fraction(value, self.min, self.max),
+                geometry::snapped_fraction(value, self.min, self.max, self.step),
             );
             let position = Point::new(
                 center.x - thumb_size.width / 2.0,
@@ -282,6 +342,10 @@ fn local_cursor(cursor: mouse::Cursor, bounds: Rectangle) -> Option<Point> {
     cursor
         .position_over(bounds)
         .map(|position| Point::new(position.x - bounds.x, position.y - bounds.y))
+}
+
+fn local_point(position: Point, bounds: Rectangle) -> Point {
+    Point::new(position.x - bounds.x, position.y - bounds.y)
 }
 
 fn rounded_rect(position: Point, size: Size, radius: f32) -> Path {

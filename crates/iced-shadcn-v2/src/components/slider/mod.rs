@@ -655,8 +655,8 @@ impl<'a, Message> Slider<'a, Message> {
         });
 
         Some((
-            geometry::fraction(lowest, self.min, self.max),
-            geometry::fraction(highest, self.min, self.max),
+            geometry::snapped_fraction(lowest, self.min, self.max, self.step),
+            geometry::snapped_fraction(highest, self.min, self.max, self.step),
         ))
     }
 

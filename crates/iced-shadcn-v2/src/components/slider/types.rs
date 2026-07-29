@@ -131,4 +131,5 @@ pub struct SliderStyle {
 pub struct SliderState {
     pub(super) dragging: Option<usize>,
     pub(super) hovered: Option<usize>,
+    pub(super) active_finger: Option<crate::iced_compat::touch::Finger>,
 }

@@ -36,6 +36,14 @@ pub(super) fn resolve_metrics(theme: &Theme) -> Metrics {
     }
 }
 
+/// Size of a painted thumb in the widget's local axes.
+pub(super) fn thumb_size(metrics: Metrics, orientation: SliderOrientation) -> Size {
+    match orientation {
+        SliderOrientation::Horizontal => Size::new(metrics.thumb_length, metrics.thumb_thickness),
+        SliderOrientation::Vertical => Size::new(metrics.thumb_thickness, metrics.thumb_length),
+    }
+}
+
 /// Widget dimensions, honoring explicit overrides from the builder.
 pub(super) fn resolved_dimensions<Message>(slider: &Slider<'_, Message>) -> (Length, Length) {
     let metrics = resolve_metrics(slider.theme);
@@ -128,6 +136,11 @@ pub(super) fn fraction(value: f32, min: f32, max: f32) -> f32 {
     }
 
     ((value - min) / (max - min)).clamp(0.0, 1.0)
+}
+
+/// Fraction of a controlled value after applying the configured step grid.
+pub(super) fn snapped_fraction(value: f32, min: f32, max: f32, step: f32) -> f32 {
+    fraction(snap(value, min, max, step), min, max)
 }
 
 /// Value a cursor position maps to, snapped to `step` and clamped to the range.

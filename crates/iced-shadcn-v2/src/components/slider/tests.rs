@@ -1,6 +1,7 @@
 //! Behavioral tests for the slider component.
 
-use crate::iced_compat::{Color, Element, Length, Point, Rectangle, Size};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::{Color, Element, Length, Point, Rectangle, Size, mouse, touch};
 use shadcn_common::{AccentColor, StyleId};
 
 use super::geometry;
@@ -128,6 +129,22 @@ fn fractions_are_clamped_and_never_divide_by_zero() {
     assert_eq!(geometry::fraction(120.0, 0.0, 100.0), 1.0);
     assert_eq!(geometry::fraction(5.0, 5.0, 5.0), 0.0);
     assert_eq!(geometry::fraction(f32::NAN, 0.0, 100.0), 0.0);
+}
+
+#[test]
+fn painted_geometry_snaps_values_and_rotates_vertical_thumbs() {
+    let theme = Theme::light().with_style(StyleId::Luma);
+    let metrics = geometry::resolve_metrics(&theme);
+
+    assert!((geometry::snapped_fraction(12.0, 0.0, 100.0, 5.0) - 0.1).abs() < f32::EPSILON);
+    assert_eq!(
+        geometry::thumb_size(metrics, SliderOrientation::Horizontal),
+        Size::new(metrics.thumb_length, metrics.thumb_thickness),
+    );
+    assert_eq!(
+        geometry::thumb_size(metrics, SliderOrientation::Vertical),
+        Size::new(metrics.thumb_thickness, metrics.thumb_length),
+    );
 }
 
 #[test]
@@ -267,6 +284,53 @@ fn pressing_the_track_picks_the_closest_thumb() {
 
     let empty = Slider::<Message>::new(&theme).values(Vec::new());
     assert_eq!(geometry::closest_thumb(&empty, track, metrics, right), None);
+}
+
+#[test]
+fn touch_positions_drive_slider_without_a_mouse_cursor() {
+    let theme = Theme::light();
+    let slider = Slider::new(&theme).on_change(Message::Changed);
+    let (metrics, track) = horizontal_layout(&theme);
+    let bounds = Rectangle::new(
+        Point::new(20.0, 30.0),
+        Size::new(100.0 + metrics.ring_width * 2.0, metrics.cross_size()),
+    );
+    let midpoint = geometry::thumb_center(track, metrics, SliderOrientation::Horizontal, 0.5);
+    let end = geometry::thumb_center(track, metrics, SliderOrientation::Horizontal, 1.0);
+    let finger = touch::Finger(7);
+    let mut state = SliderState::default();
+
+    let pressed = canvas::Event::Touch(touch::Event::FingerPressed {
+        id: finger,
+        position: Point::new(bounds.x + midpoint.x, bounds.y + midpoint.y),
+    });
+    let action = <Slider<'_, Message> as canvas::Program<Message>>::update(
+        &slider,
+        &mut state,
+        &pressed,
+        bounds,
+        mouse::Cursor::Unavailable,
+    )
+    .expect("touch press should publish a value");
+    let (message, _, _) = action.into_inner();
+    assert!(matches!(message, Some(Message::Changed(value)) if (value - 50.0).abs() < 0.01));
+    assert_eq!(state.dragging, Some(0));
+    assert_eq!(state.active_finger, Some(finger));
+
+    let moved = canvas::Event::Touch(touch::Event::FingerMoved {
+        id: finger,
+        position: Point::new(bounds.x + end.x, bounds.y + end.y),
+    });
+    let action = <Slider<'_, Message> as canvas::Program<Message>>::update(
+        &slider,
+        &mut state,
+        &moved,
+        bounds,
+        mouse::Cursor::Unavailable,
+    )
+    .expect("touch move should publish a value");
+    let (message, _, _) = action.into_inner();
+    assert!(matches!(message, Some(Message::Changed(value)) if (value - 100.0).abs() < 0.01));
 }
 
 #[test]
