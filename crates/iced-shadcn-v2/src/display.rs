@@ -14,11 +14,16 @@ use crate::components::card::{
     CardBorder, CardFooterAlignment, CardFooterDirection, CardRadius, CardSize,
 };
 use crate::components::checkbox::{CheckboxSize, CheckboxState, CheckboxVariant};
+use crate::components::collapsible::{
+    CollapsibleAlignment, CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement,
+    CollapsibleOrientation, CollapsibleState,
+};
 use crate::components::input::{InputRadius, InputSize};
 use crate::components::input_group::{
     InputGroupAddonAlign, InputGroupButtonSize, InputGroupRadius, InputGroupTextareaResize,
 };
 use crate::components::kbd::{KbdRadius, KbdSurface};
+use crate::components::pagination::PaginationItem;
 use crate::components::progress::{
     ProgressOrientation, ProgressRadius, ProgressSize, ProgressVariant,
 };
@@ -97,6 +102,14 @@ impl_display! {
     }
     CheckboxVariant { Surface => "surface", Classic => "classic", Soft => "soft" }
     CheckboxSize { Sm => "sm", Md => "md", Lg => "lg" }
+    CollapsibleState { Closed => "closed", Open => "open" }
+    CollapsibleOrientation { Vertical => "vertical", Horizontal => "horizontal" }
+    CollapsibleAlignment { Start => "start", Center => "center", End => "end" }
+    CollapsibleIndicator { Chevron => "chevron", ChevronDown => "chevron-down" }
+    CollapsibleIndicatorPlacement { Leading => "leading", Trailing => "trailing" }
+    CollapsibleEasing {
+        Linear => "linear", EaseOut => "ease-out", EaseInOut => "ease-in-out",
+    }
     InputSize { Sm => "sm", Default => "default", Lg => "lg" }
     InputRadius {
         None => "none", Small => "small", Medium => "medium",
@@ -200,6 +213,15 @@ impl_display_custom_px! {
     SwitchRadius {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
+    }
+}
+
+impl fmt::Display for PaginationItem {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Page(page) => write!(formatter, "{page}"),
+            Self::Ellipsis => formatter.write_str("ellipsis"),
+        }
     }
 }
 

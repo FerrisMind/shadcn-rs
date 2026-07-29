@@ -81,6 +81,8 @@ pub use components::aspect_ratio;
 pub use components::avatar;
 /// Backwards-compatible access to the badge component.
 pub use components::badge;
+/// Backwards-compatible access to the breadcrumb component.
+pub use components::breadcrumb;
 /// Backwards-compatible access to the button component.
 pub use components::button;
 /// Backwards-compatible access to the button-group component.
@@ -89,14 +91,20 @@ pub use components::button_group;
 pub use components::card;
 /// Backwards-compatible access to the checkbox component.
 pub use components::checkbox;
+/// Backwards-compatible access to the collapsible component.
+pub use components::collapsible;
 /// Backwards-compatible access to the input component.
 pub use components::input;
 /// Backwards-compatible access to the input-group component.
 pub use components::input_group;
+/// Backwards-compatible access to the item component.
+pub use components::item;
 /// Backwards-compatible access to the kbd component.
 pub use components::kbd;
 /// Backwards-compatible access to the label component.
 pub use components::label;
+/// Backwards-compatible access to the pagination component.
+pub use components::pagination;
 /// Backwards-compatible access to the progress component.
 pub use components::progress;
 /// Backwards-compatible access to the radio-group component.
@@ -129,6 +137,10 @@ pub use components::avatar::{
     AvatarSize,
 };
 pub use components::badge::{Badge, BadgeBuildError, BadgeRadius, BadgeVariant};
+pub use components::breadcrumb::{
+    Breadcrumb, BreadcrumbEllipsis, BreadcrumbEntry, BreadcrumbItem, BreadcrumbLink,
+    BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator,
+};
 pub use components::button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
 pub use components::button_group::{
     ButtonGroup, ButtonGroupItem, ButtonGroupOrientation, ButtonGroupText,
@@ -140,6 +152,11 @@ pub use components::card::{
 pub use components::checkbox::{
     Checkbox, CheckboxConfig, CheckboxSize, CheckboxState, CheckboxVariant,
 };
+pub use components::collapsible::{
+    Collapsible, CollapsibleAlignment, CollapsibleBuildError, CollapsibleContent,
+    CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement, CollapsibleOrientation,
+    CollapsibleState, CollapsibleTrigger, collapsible,
+};
 pub use components::input::{Input, InputBuildError, InputRadius, InputSize, input};
 pub use components::input_group::{
     InputGroup, InputGroupAddon, InputGroupAddonAlign, InputGroupAddonProps, InputGroupButton,
@@ -149,8 +166,16 @@ pub use components::input_group::{
     input_group_control, input_group_input, input_group_text, input_group_textarea,
     input_group_textarea_apply_action,
 };
+pub use components::item::{
+    Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemGroup, ItemHeader, ItemMedia,
+    ItemMediaVariant, ItemRadius, ItemSeparator, ItemSize, ItemTitle, ItemVariant,
+};
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
+pub use components::pagination::{
+    Pagination, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext,
+    PaginationPrevious, pagination,
+};
 pub use components::progress::{
     Progress, ProgressOrientation, ProgressRadius, ProgressSize, ProgressState, ProgressVariant,
     progress,
