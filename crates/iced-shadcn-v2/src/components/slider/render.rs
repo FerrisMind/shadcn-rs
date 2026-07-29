@@ -49,10 +49,15 @@ impl<Message> canvas::Program<Message> for Slider<'_, Message> {
                 )
             }
             canvas::Event::Mouse(mouse::Event::CursorMoved { .. }) => {
+                // A live touch drag owns the pointer; stray mouse motion
+                // (e.g. a palm brushing the touchpad) must not cancel it.
+                if state.active_finger.is_some() {
+                    return None;
+                }
+
                 if let Some(index) = state.dragging {
-                    if self.disabled || state.active_finger.is_some() {
+                    if self.disabled {
                         state.dragging = None;
-                        state.active_finger = None;
                         return None;
                     }
 
