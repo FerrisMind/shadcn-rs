@@ -48,12 +48,20 @@ name = "aspect_ratio"
 path = "examples/aspect_ratio/main.rs"
 
 [[example]]
+name = "alert"
+path = "examples/alert/main.rs"
+
+[[example]]
 name = "separator"
 path = "examples/separator/main.rs"
 
 [[example]]
 name = "skeleton"
 path = "examples/skeleton/main.rs"
+
+[[example]]
+name = "slider"
+path = "examples/slider/main.rs"
 
 [[example]]
 name = "spinner"
@@ -70,6 +78,10 @@ path = "examples/checkbox/main.rs"
 [[example]]
 name = "switch"
 path = "examples/switch/main.rs"
+
+[[example]]
+name = "toggle"
+path = "examples/toggle/main.rs"
 
 [[example]]
 name = "typography"

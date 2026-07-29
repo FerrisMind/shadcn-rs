@@ -4,6 +4,7 @@
 //!—geometry, rendering, styles, errors, and tests—inside its own submodule.
 
 pub mod aspect_ratio;
+pub mod alert;
 pub mod badge;
 pub mod button;
 pub mod card;
@@ -13,6 +14,8 @@ pub mod label;
 pub mod progress;
 pub mod separator;
 pub mod skeleton;
+pub mod slider;
 pub mod spinner;
 pub mod switch;
+pub mod toggle;
 pub mod typography;

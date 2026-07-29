@@ -38,6 +38,8 @@ pub mod theme;
 
 /// Backwards-compatible access to the aspect-ratio component.
 pub use components::aspect_ratio;
+/// Backwards-compatible access to the alert component.
+pub use components::alert;
 /// Backwards-compatible access to the badge component.
 pub use components::badge;
 /// Backwards-compatible access to the button component.
@@ -56,14 +58,19 @@ pub use components::progress;
 pub use components::separator;
 /// Backwards-compatible access to the skeleton component.
 pub use components::skeleton;
+/// Backwards-compatible access to the slider component.
+pub use components::slider;
 /// Backwards-compatible access to the spinner component.
 pub use components::spinner;
 /// Backwards-compatible access to the switch component.
 pub use components::switch;
+/// Backwards-compatible access to the toggle component.
+pub use components::toggle;
 /// Backwards-compatible access to the typography component.
 pub use components::typography;
 
 pub use components::aspect_ratio::{AspectRatio, MIN_ASPECT_RATIO, aspect_ratio};
+pub use components::alert::{Alert, AlertAction, AlertDescription, AlertRadius, AlertTitle, AlertVariant};
 pub use components::badge::{Badge, BadgeBuildError, BadgeRadius, BadgeVariant};
 pub use components::button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
 pub use components::card::{
@@ -83,10 +90,14 @@ pub use components::separator::{Separator, SeparatorOrientation, separator};
 pub use components::skeleton::{
     Skeleton, SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape,
 };
+pub use components::slider::{
+    Slider, SliderOrientation, SliderRadius, SliderState, SliderStatus, SliderStyle, slider,
+};
 pub use components::spinner::{Spinner, SpinnerSize, SpinnerVariant, spinner};
 pub use components::switch::{
     Switch, SwitchRadius, SwitchSize, SwitchState, SwitchStatus, SwitchStyle, switch,
 };
+pub use components::toggle::{Toggle, ToggleRadius, ToggleSize, ToggleVariant};
 pub use components::typography::{Typography, TypographyList, TypographyTable, TypographyVariant};
 pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};

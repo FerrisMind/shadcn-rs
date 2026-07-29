@@ -33,8 +33,8 @@
 10. **`textarea`** — с нуля (обёртка над `text_editor`)
 11. ~~**`checkbox`** — с нуля~~ ✅
 12. ~~**`switch`** — с нуля (checkbox-подобная логика + анимация)~~ ✅
-13. **`toggle`** — с нуля (кнопка с состоянием, переиспользует стили `button`)
-14. **`slider`** — с нуля (обёртка над iced `slider`)
+13. ~~**`toggle`** — с нуля (кнопка с состоянием, переиспользует стили `button`)~~ ✅
+14. ~~**`slider`** — с нуля (обёртка над iced `slider`)~~ ✅ — свой canvas-контрол: нативный `iced::slider` не умеет несколько пальцев (`type="multiple"`)
 15. **`avatar`** — с нуля (image + fallback-логика)
 16. ~~**`card`** — с нуля (контейнер: Header/Title/Description/Content/Footer)~~ ✅
 17. **`alert`** — с нуля (контейнер + иконка + typography)
@@ -98,7 +98,7 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 ### С нуля (собственные примитивы)
 
 button ✅, spinner ✅, separator ✅, skeleton, label ✅, badge ✅, kbd ✅, typography ✅,
-aspect-ratio, progress, input, textarea, checkbox ✅, switch ✅, toggle, slider,
+aspect-ratio, progress, input, textarea, checkbox ✅, switch ✅, toggle ✅, slider ✅,
 avatar, card ✅, alert, scroll-area, radio-group, breadcrumb, item, table, tabs,
 collapsible, native-select, resizable, tooltip, popover, dialog, sonner,
 carousel, calendar, chart, command, overlay/menu-примитивы.
