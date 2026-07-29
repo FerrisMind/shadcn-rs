@@ -9,8 +9,8 @@ use iced::widget::{column, container, row, scrollable, slider, text};
 use iced::{Alignment, Background, Color, Element, Length, Task};
 
 use iced_shadcn_v2::{
-    AccentColor, Button, ButtonVariant, FontId, Progress, ProgressOrientation, ProgressRadius,
-    ProgressSize, ProgressVariant, StyleId, Theme, ThemeMode, fonts, iced_font,
+    fonts, iced_font, AccentColor, Button, ButtonVariant, FontId, Progress, ProgressOrientation,
+    ProgressVariant, StyleId, Theme, ThemeMode,
 };
 
 pub fn main() -> iced::Result {
@@ -186,13 +186,7 @@ impl Example {
             labeled_bar("horizontal", base.width(Length::Fixed(220.0)),),
             column![
                 text("vertical").size(11).color(palette.muted_foreground),
-                Progress::new(theme)
-                    .value(self.value)
-                    .orientation(ProgressOrientation::Vertical)
-                    .radius(ProgressRadius::Full)
-                    .size(ProgressSize::Lg)
-                    .height(Length::Fixed(140.0))
-                    .animated(self.animated),
+                vertical_progress(base),
             ]
             .spacing(8)
             .align_x(Alignment::Center),
@@ -288,6 +282,12 @@ impl Example {
     }
 }
 
+fn vertical_progress<'a>(progress: Progress<'a>) -> Progress<'a> {
+    progress
+        .orientation(ProgressOrientation::Vertical)
+        .height(Length::Fixed(140.0))
+}
+
 fn labeled_bar<'a>(label: &'static str, progress: Progress<'a>) -> Element<'a, Message> {
     column![text(label).size(11), progress,].spacing(6).into()
 }
@@ -298,4 +298,39 @@ fn section_label<'a>(label: &'static str, theme: &'a Theme) -> Element<'a, Messa
         .font(iced_font(theme.font_pack().heading))
         .color(theme.palette.muted_foreground)
         .into()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn vertical_progress_inherits_indeterminate_state() {
+        let mut example = Example::default();
+        example.indeterminate = true;
+
+        let vertical = vertical_progress(example.current_progress(&example.theme));
+        let debug = format!("{vertical:?}");
+
+        assert!(debug.contains("value: None"), "{debug}");
+        assert!(debug.contains("orientation: Vertical"), "{debug}");
+        assert!(debug.contains("animated: true"), "{debug}");
+    }
+
+    #[test]
+    fn vertical_progress_preserves_style_and_controlled_settings() {
+        let mut example = Example::default();
+        example.value = 42.0;
+        example.animated = false;
+
+        let vertical = vertical_progress(example.current_progress(&example.theme));
+        let debug = format!("{vertical:?}");
+
+        assert!(debug.contains("value: Some(42.0)"), "{debug}");
+        assert!(debug.contains("max: 100.0"), "{debug}");
+        assert!(debug.contains("animated: false"), "{debug}");
+        assert!(debug.contains("size: Default"), "{debug}");
+        assert!(debug.contains("radius: None"), "{debug}");
+        assert!(debug.contains("height: Some(Fixed(140.0))"), "{debug}");
+    }
 }
