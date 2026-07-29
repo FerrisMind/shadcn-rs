@@ -19,7 +19,7 @@ include = [
 ]
 
 [dependencies]
-iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "tokio", "wgpu", "tiny-skia", "lazy", "x11", "wayland"] }
+iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image", "tokio", "wgpu", "tiny-skia", "lazy", "x11", "wayland"] }
 shadcn-common = { workspace = true, features = ["fonts"] }
 twill-core = { workspace = true }
 
@@ -50,6 +50,10 @@ path = "examples/aspect_ratio/main.rs"
 [[example]]
 name = "alert"
 path = "examples/alert/main.rs"
+
+[[example]]
+name = "avatar"
+path = "examples/avatar/main.rs"
 
 [[example]]
 name = "scroll_area"

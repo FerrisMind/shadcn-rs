@@ -10,6 +10,7 @@ with native `iced` types.
 
 - `components` — component implementations grouped by feature:
   - `components::alert` — callout with variants, icon, typed text, and action slots.
+  - `components::avatar` — image/fallback roots, badges, overlapping groups, and counts.
   - `components::badge` — status label with shadcn variants, icons, and as-link.
   - `components::button` — public button API and private geometry, rendering,
     style, and error modules.
@@ -29,7 +30,7 @@ with native `iced` types.
   - `theme::typography` — body, heading, and font-pack selection APIs.
 - `fonts` — font-face exports and the iced font adapter.
 
-The root `alert`, `badge`, `button`, `card`, `checkbox`, `label`, `scroll_area`, `separator`,
+The root `alert`, `avatar`, `badge`, `button`, `card`, `checkbox`, `label`, `scroll_area`, `separator`,
 `skeleton`, and `spinner`
 modules are compatibility re-exports of `components`, so existing v2 imports
 remain valid while new code can use the feature-oriented
@@ -119,6 +120,7 @@ iced `button::Style` (colors, border, shadow) after our resolver runs.
 ```bash
 cargo run -p iced-shadcn-v2 --example badge
 cargo run -p iced-shadcn-v2 --example alert
+cargo run -p iced-shadcn-v2 --example avatar
 cargo run -p iced-shadcn-v2 --example button
 cargo run -p iced-shadcn-v2 --example card
 cargo run -p iced-shadcn-v2 --example skeleton

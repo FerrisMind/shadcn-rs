@@ -18,7 +18,7 @@
 //!     Avatar::new(theme)
 //!         .size(AvatarSize::Lg)
 //!         .fallback(AvatarFallback::text("CN", theme))
-//!         .push_badge(text("+"), theme)
+//!         .push_badge(text("+"))
 //!         .into()
 //! }
 //! ```
@@ -39,7 +39,7 @@ use std::path::PathBuf;
 use iced::widget::container;
 use iced::widget::image as image_widget;
 use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Bytes, Color, ContentFit, Element, Font, Length};
+use iced::{Color, ContentFit, Element, Font, Length};
 
 use crate::theme::Theme;
 
@@ -74,13 +74,17 @@ impl AvatarImage {
     }
 
     /// Creates an image source from encoded image bytes.
-    pub fn from_bytes(bytes: impl Into<Bytes>) -> Self {
-        Self::new(image_widget::Handle::from_bytes(bytes))
+    pub fn from_bytes(bytes: impl AsRef<[u8]>) -> Self {
+        Self::new(image_widget::Handle::from_bytes(bytes.as_ref().to_vec()))
     }
 
     /// Creates an image source from decoded RGBA pixels.
-    pub fn from_rgba(width: u32, height: u32, pixels: impl Into<Bytes>) -> Self {
-        Self::new(image_widget::Handle::from_rgba(width, height, pixels))
+    pub fn from_rgba(width: u32, height: u32, pixels: impl AsRef<[u8]>) -> Self {
+        Self::new(image_widget::Handle::from_rgba(
+            width,
+            height,
+            pixels.as_ref().to_vec(),
+        ))
     }
 
     /// Returns the underlying iced handle.
@@ -359,7 +363,7 @@ where
 
 /// A count or action item appended to an [`AvatarGroup`].
 pub struct AvatarGroupCount<'a, Message> {
-    content: Element<'a, Message>,
+    content: AvatarTextContent<'a, Message>,
     theme: &'a Theme,
     width: Option<Length>,
     height: Option<Length>,
@@ -382,7 +386,7 @@ impl<'a, Message> AvatarGroupCount<'a, Message> {
     /// Creates a group count from arbitrary content.
     pub fn new(content: impl Into<Element<'a, Message>>, theme: &'a Theme) -> Self {
         Self {
-            content: content.into(),
+            content: AvatarTextContent::Element(content.into()),
             theme,
             width: None,
             height: None,
@@ -392,7 +396,13 @@ impl<'a, Message> AvatarGroupCount<'a, Message> {
 
     /// Creates a text group count.
     pub fn text(label: impl IntoFragment<'a>, theme: &'a Theme) -> Self {
-        Self::new(iced::widget::text(label), theme)
+        Self {
+            content: AvatarTextContent::Label(label.into_fragment()),
+            theme,
+            width: None,
+            height: None,
+            style_override: None,
+        }
     }
 
     /// Sets an explicit count width.
@@ -536,15 +546,13 @@ impl<'a, Message> Avatar<'a, Message> {
 
     /// Adds a dot badge using the active theme.
     pub fn badge_dot(self) -> Self {
-        self.badge(AvatarBadge::dot(self.theme))
+        let theme = self.theme;
+        self.badge(AvatarBadge::dot(theme))
     }
 
     /// Adds an arbitrary badge element using the active theme.
-    pub fn push_badge(
-        self,
-        content: impl Into<Element<'a, Message>>,
-        theme: &'a Theme,
-    ) -> Self {
+    pub fn push_badge(self, content: impl Into<Element<'a, Message>>) -> Self {
+        let theme = self.theme;
         self.badge(AvatarBadge::new(content, theme))
     }
 
@@ -559,6 +567,10 @@ impl<'a, Message> Avatar<'a, Message> {
 
     pub(super) fn nominal_size(&self) -> f32 {
         self.size.pixels()
+    }
+
+    pub(super) fn nominal_radius(&self) -> AvatarRadius {
+        self.radius
     }
 
     pub(super) fn into_group_element(self) -> Element<'a, Message>
@@ -587,10 +599,11 @@ where
 }
 
 enum AvatarGroupItem<'a, Message> {
-    Avatar(Avatar<'a, Message>),
+    Avatar(Box<Avatar<'a, Message>>),
     Element {
         element: Element<'a, Message>,
         size: AvatarSize,
+        radius: AvatarRadius,
     },
     Count(AvatarGroupCount<'a, Message>),
 }
@@ -632,14 +645,17 @@ impl<'a, Message> AvatarGroup<'a, Message> {
         children: impl IntoIterator<Item = Avatar<'a, Message>>,
     ) -> Self {
         Self {
-            items: children.into_iter().map(AvatarGroupItem::Avatar).collect(),
+            items: children
+                .into_iter()
+                .map(|avatar| AvatarGroupItem::Avatar(Box::new(avatar)))
+                .collect(),
             ..Self::new(theme)
         }
     }
 
     /// Appends an avatar root to the group.
     pub fn push(mut self, avatar: Avatar<'a, Message>) -> Self {
-        self.items.push(AvatarGroupItem::Avatar(avatar));
+        self.items.push(AvatarGroupItem::Avatar(Box::new(avatar)));
         self
     }
 
@@ -652,6 +668,26 @@ impl<'a, Message> AvatarGroup<'a, Message> {
         self.items.push(AvatarGroupItem::Element {
             element: element.into(),
             size,
+            radius: AvatarRadius::Theme,
+        });
+        self
+    }
+
+    /// Appends arbitrary content with an explicit footprint and corner radius.
+    ///
+    /// The source group applies its `ring-2` to arbitrary children, so the
+    /// ring follows the child's shape. Use this method when the child is not
+    /// a fully rounded avatar root.
+    pub fn push_element_with_radius(
+        mut self,
+        element: impl Into<Element<'a, Message>>,
+        size: AvatarSize,
+        radius: AvatarRadius,
+    ) -> Self {
+        self.items.push(AvatarGroupItem::Element {
+            element: element.into(),
+            size,
+            radius,
         });
         self
     }

@@ -1,14 +1,17 @@
 //! Layout and rendering for avatar roots, slots, and groups.
 
+use iced::advanced::layout::{self, Layout};
+use iced::advanced::widget::{Operation, Tree};
+use iced::advanced::{Clipboard, Widget, overlay, renderer};
 use iced::alignment::{Horizontal, Vertical};
 use iced::widget::image as image_widget;
 use iced::widget::text::LineHeight;
 use iced::widget::{Space, container, row, stack, text as iced_text};
-use iced::{Element, Font, Length};
+use iced::{Element, Event, Font, Length, Point, Rectangle, Size, Vector, mouse};
 
 use super::geometry;
 use super::style;
-use super::types::AvatarSize;
+use super::types::{AvatarRadius, AvatarSize};
 use super::{
     Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarGroupItem,
     AvatarImage, AvatarTextContent,
@@ -50,46 +53,26 @@ where
         layers.push(Space::new().into());
     }
 
-    let content = stack(layers).width(width).height(height);
-
     if let Some(badge) = badge {
-        let badge = build_badge(badge, size);
-        layers_with_badge(content, badge, width, height)
-    } else {
-        let mut resolved = style::resolve_root_style(theme, radius);
-        if let Some(override_fn) = style_override.as_ref() {
-            resolved = override_fn(resolved);
-        }
-
-        container(content)
-            .width(width)
-            .height(height)
-            .clip(true)
-            .style(move |_| resolved)
-            .into()
+        let badge_layer = container(build_badge(badge, size))
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .align_x(Horizontal::Right)
+            .align_y(Vertical::Bottom);
+        layers.push(badge_layer.into());
     }
-}
 
-fn layers_with_badge<'a, Message>(
-    content: iced::widget::Stack<'a, Message>,
-    badge: Element<'a, Message>,
-    width: Length,
-    height: Length,
-) -> Element<'a, Message>
-where
-    Message: 'a,
-{
-    let badge_layer = container(badge)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .align_x(Horizontal::Right)
-        .align_y(Vertical::Bottom);
+    let content = stack(layers).width(width).height(height);
+    let mut resolved = style::resolve_root_style(theme, radius);
+    if let Some(override_fn) = style_override.as_ref() {
+        resolved = override_fn(resolved);
+    }
 
-    let content = content.push(badge_layer);
     container(content)
         .width(width)
         .height(height)
         .clip(true)
+        .style(move |_| resolved)
         .into()
 }
 
@@ -252,17 +235,14 @@ where
         resolved = override_fn(resolved);
     }
 
-    let content = container(
-        iced_text("")
-            .size(metrics.size_px)
-            .line_height(LineHeight::Absolute(metrics.line_height_px.into()))
-            .font(iced_font(theme.font_pack().sans))
-            .color(theme.palette.muted_foreground),
-    )
-    .width(Length::Shrink)
-    .height(Length::Shrink)
-    .align_x(Horizontal::Center)
-    .align_y(Vertical::Center);
+    let content = build_text_content(
+        content,
+        theme,
+        metrics.size_px,
+        metrics.line_height_px,
+        theme.palette.muted_foreground,
+        None,
+    );
 
     let content = container(content)
         .width(width.unwrap_or(Length::Fixed(size_px)))
@@ -271,22 +251,10 @@ where
         .align_y(Vertical::Center)
         .style(move |_| resolved);
 
-    // The source count accepts arbitrary children. The outer style provides
-    // the semantic surface; the supplied child remains responsible for its
-    // own typography and icon painting.
-    let _ = content;
-    container(content)
-        .width(width.unwrap_or(Length::Fixed(size_px)))
-        .height(height.unwrap_or(Length::Fixed(size_px)))
-        .align_x(Horizontal::Center)
-        .align_y(Vertical::Center)
-        .style(move |_| resolved)
-        .into()
+    count_slot(content.into(), size_px, theme)
 }
 
-pub(super) fn build_group<'a, Message>(
-    group: AvatarGroup<'a, Message>,
-) -> Element<'a, Message>
+pub(super) fn build_group<'a, Message>(group: AvatarGroup<'a, Message>) -> Element<'a, Message>
 where
     Message: 'a,
 {
@@ -314,31 +282,34 @@ where
         match item {
             AvatarGroupItem::Avatar(avatar) => {
                 let size = avatar.nominal_size();
+                let radius = avatar.nominal_radius();
                 children.push(group_slot(
-                    avatar.into_group_element(),
+                    (*avatar).into_group_element(),
                     size,
-                    overlap,
+                    radius,
                     theme,
                 ));
             }
-            AvatarGroupItem::Element { element, size } => {
-                children.push(group_slot(element, size.pixels(), overlap, theme));
+            AvatarGroupItem::Element {
+                element,
+                size,
+                radius,
+            } => {
+                children.push(group_slot(element, size.pixels(), radius, theme));
             }
             AvatarGroupItem::Count(count) => {
-                children.push(group_slot(
-                    build_group_count(count, group_size),
-                    group_size.pixels(),
-                    overlap,
-                    theme,
-                ));
+                children.push(build_group_count(count, group_size));
             }
         }
     }
 
     let content = row(children)
-        .spacing(0.0)
-        .height(Length::Fixed(group_size.pixels()))
-        .align_y(Vertical::Center);
+        // CSS `-space-x-2` keeps every child at its nominal footprint and
+        // moves the next child left by the overlap amount. Negative row
+        // spacing models that geometry directly; shrinking an outer slot and
+        // relying on child overflow does not preserve the ring's layout box.
+        .spacing(-overlap)
+        .height(Length::Fixed(group_size.pixels()));
 
     let mut resolved = style::resolve_group_style(theme);
     if let Some(override_fn) = style_override.as_ref() {
@@ -355,20 +326,234 @@ where
 fn group_slot<'a, Message>(
     child: Element<'a, Message>,
     size: f32,
-    overlap: f32,
+    radius: AvatarRadius,
     theme: &'a crate::theme::Theme,
 ) -> Element<'a, Message>
 where
     Message: 'a,
 {
-    let ring = container(child)
-        .width(Length::Fixed(size))
-        .height(Length::Fixed(size))
-        .style(move |_| style::resolve_group_ring_style(theme, size));
+    ring_slot(child, size, radius, theme)
+}
 
-    container(ring)
-        .width(Length::Fixed((size - overlap).max(1.0)))
-        .height(Length::Fixed(size))
+fn ring_slot<'a, Message>(
+    child: Element<'a, Message>,
+    size: f32,
+    radius: AvatarRadius,
+    theme: &'a crate::theme::Theme,
+) -> Element<'a, Message>
+where
+    Message: 'a,
+{
+    let ring_size = size + 4.0;
+    let ring_radius = geometry::radius_px(theme, radius) + 2.0;
+    let content: Element<'a, Message> = container(child)
+        .width(Length::Fixed(ring_size))
+        .height(Length::Fixed(ring_size))
+        .align_x(Horizontal::Center)
+        .align_y(Vertical::Center)
         .clip(false)
-        .into()
+        .into();
+
+    let overlay = container(Space::new())
+        .width(Length::Fixed(ring_size))
+        .height(Length::Fixed(ring_size))
+        .style(move |_| style::resolve_group_ring_style(theme, ring_radius));
+
+    let ring = stack![content, overlay]
+        .width(Length::Fixed(ring_size))
+        .height(Length::Fixed(ring_size))
+        .clip(false);
+
+    overflow_slot(ring.into(), size)
+}
+
+fn count_slot<'a, Message>(
+    content: Element<'a, Message>,
+    size: f32,
+    theme: &'a crate::theme::Theme,
+) -> Element<'a, Message>
+where
+    Message: 'a,
+{
+    let ring_size = size + 4.0;
+    let base = container(Space::new())
+        .width(Length::Fixed(ring_size))
+        .height(Length::Fixed(ring_size));
+    let surface: Element<'a, Message> = container(content)
+        .width(Length::Fixed(ring_size))
+        .height(Length::Fixed(ring_size))
+        .align_x(Horizontal::Center)
+        .align_y(Vertical::Center)
+        .clip(false)
+        .into();
+    let overlay = container(Space::new())
+        .width(Length::Fixed(ring_size))
+        .height(Length::Fixed(ring_size))
+        .style(move |_| style::resolve_group_ring_style(theme, ring_size));
+
+    let ring = stack![base, surface, overlay]
+        .width(Length::Fixed(ring_size))
+        .height(Length::Fixed(ring_size))
+        .clip(false);
+
+    overflow_slot(ring.into(), size)
+}
+
+fn overflow_slot<'a, Message>(content: Element<'a, Message>, size: f32) -> Element<'a, Message>
+where
+    Message: 'a,
+{
+    Element::new(OverflowSlot { content, size })
+}
+
+struct OverflowSlot<'a, Message> {
+    content: Element<'a, Message>,
+    size: f32,
+}
+
+impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, Message> {
+    fn children(&self) -> Vec<Tree> {
+        vec![Tree::new(&self.content)]
+    }
+
+    fn diff(&self, tree: &mut Tree) {
+        tree.diff_children(std::slice::from_ref(&self.content));
+    }
+
+    fn size(&self) -> Size<Length> {
+        Size::new(Length::Fixed(self.size), Length::Fixed(self.size))
+    }
+
+    fn layout(
+        &mut self,
+        tree: &mut Tree,
+        renderer: &iced::Renderer,
+        limits: &layout::Limits,
+    ) -> layout::Node {
+        let size = limits.resolve(
+            Length::Fixed(self.size),
+            Length::Fixed(self.size),
+            Size::ZERO,
+        );
+        let child_size = Size::new(size.width + 4.0, size.height + 4.0);
+        let child_limits = layout::Limits::new(Size::ZERO, child_size);
+        let child =
+            self.content
+                .as_widget_mut()
+                .layout(&mut tree.children[0], renderer, &child_limits);
+        let offset = Point::new(
+            (size.width - child.size().width) / 2.0,
+            (size.height - child.size().height) / 2.0,
+        );
+
+        layout::Node::with_children(size, vec![child.move_to(offset)])
+    }
+
+    fn operate(
+        &mut self,
+        tree: &mut Tree,
+        layout: Layout<'_>,
+        renderer: &iced::Renderer,
+        operation: &mut dyn Operation,
+    ) {
+        self.content.as_widget_mut().operate(
+            &mut tree.children[0],
+            layout
+                .children()
+                .next()
+                .expect("avatar group slot child layout"),
+            renderer,
+            operation,
+        );
+    }
+
+    fn update(
+        &mut self,
+        tree: &mut Tree,
+        event: &Event,
+        layout: Layout<'_>,
+        cursor: mouse::Cursor,
+        renderer: &iced::Renderer,
+        clipboard: &mut dyn Clipboard,
+        shell: &mut iced::advanced::Shell<'_, Message>,
+        viewport: &Rectangle,
+    ) {
+        self.content.as_widget_mut().update(
+            &mut tree.children[0],
+            event,
+            layout
+                .children()
+                .next()
+                .expect("avatar group slot child layout"),
+            cursor,
+            renderer,
+            clipboard,
+            shell,
+            viewport,
+        );
+    }
+
+    fn mouse_interaction(
+        &self,
+        tree: &Tree,
+        layout: Layout<'_>,
+        cursor: mouse::Cursor,
+        viewport: &Rectangle,
+        renderer: &iced::Renderer,
+    ) -> mouse::Interaction {
+        self.content.as_widget().mouse_interaction(
+            &tree.children[0],
+            layout
+                .children()
+                .next()
+                .expect("avatar group slot child layout"),
+            cursor,
+            viewport,
+            renderer,
+        )
+    }
+
+    fn draw(
+        &self,
+        tree: &Tree,
+        renderer: &mut iced::Renderer,
+        theme: &iced::Theme,
+        style: &renderer::Style,
+        layout: Layout<'_>,
+        cursor: mouse::Cursor,
+        viewport: &Rectangle,
+    ) {
+        self.content.as_widget().draw(
+            &tree.children[0],
+            renderer,
+            theme,
+            style,
+            layout
+                .children()
+                .next()
+                .expect("avatar group slot child layout"),
+            cursor,
+            viewport,
+        );
+    }
+
+    fn overlay<'b>(
+        &'b mut self,
+        tree: &'b mut Tree,
+        layout: Layout<'b>,
+        renderer: &iced::Renderer,
+        viewport: &Rectangle,
+        translation: Vector,
+    ) -> Option<overlay::Element<'b, Message, iced::Theme, iced::Renderer>> {
+        self.content.as_widget_mut().overlay(
+            &mut tree.children[0],
+            layout
+                .children()
+                .next()
+                .expect("avatar group slot child layout"),
+            renderer,
+            viewport,
+            translation,
+        )
+    }
 }

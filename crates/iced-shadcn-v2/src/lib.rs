@@ -40,6 +40,8 @@ pub mod theme;
 pub use components::alert;
 /// Backwards-compatible access to the aspect-ratio component.
 pub use components::aspect_ratio;
+/// Backwards-compatible access to the avatar component.
+pub use components::avatar;
 /// Backwards-compatible access to the badge component.
 pub use components::badge;
 /// Backwards-compatible access to the button component.
@@ -77,6 +79,10 @@ pub use components::alert::{
     Alert, AlertAction, AlertDescription, AlertRadius, AlertTitle, AlertVariant,
 };
 pub use components::aspect_ratio::{AspectRatio, MIN_ASPECT_RATIO, aspect_ratio};
+pub use components::avatar::{
+    Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarImage, AvatarRadius,
+    AvatarSize,
+};
 pub use components::badge::{Badge, BadgeBuildError, BadgeRadius, BadgeVariant};
 pub use components::button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
 pub use components::card::{

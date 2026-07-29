@@ -49,12 +49,12 @@ pub(super) fn resolve_badge_style(theme: &Theme, size: AvatarSize) -> container:
     }
 }
 
-pub(super) fn resolve_group_ring_style(theme: &Theme, size: f32) -> container::Style {
+pub(super) fn resolve_group_ring_style(theme: &Theme, radius: f32) -> container::Style {
     container::Style {
         border: Border {
             color: theme.palette.background,
             width: 2.0,
-            radius: size.min(9999.0).into(),
+            radius: geometry::normalize_px(radius).min(9999.0).into(),
         },
         snap: true,
         ..container::Style::default()
@@ -66,8 +66,8 @@ pub(super) fn resolve_group_count_style(theme: &Theme, size: f32) -> container::
         background: Some(Background::Color(theme.palette.muted)),
         text_color: Some(theme.palette.muted_foreground),
         border: Border {
-            color: theme.palette.background,
-            width: 2.0,
+            color: Color::TRANSPARENT,
+            width: 0.0,
             radius: size.min(9999.0).into(),
         },
         snap: true,

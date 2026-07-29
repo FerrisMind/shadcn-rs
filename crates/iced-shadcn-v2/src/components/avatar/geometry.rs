@@ -17,15 +17,7 @@ pub(super) fn badge_size(size: AvatarSize) -> f32 {
         AvatarSize::Sm => 8.0,
         AvatarSize::Default => 10.0,
         AvatarSize::Lg => 12.0,
-        AvatarSize::Custom(value) => (size.pixels() * 0.3125).clamp(6.0, 16.0),
-    }
-}
-
-pub(super) fn badge_icon_size(size: AvatarSize) -> f32 {
-    match size {
-        AvatarSize::Sm => 0.0,
-        AvatarSize::Default | AvatarSize::Lg => 8.0,
-        AvatarSize::Custom(value) => (size.pixels() * 0.25).clamp(4.0, 10.0),
+        AvatarSize::Custom(_) => (size.pixels() * 0.3125).clamp(6.0, 16.0),
     }
 }
 
