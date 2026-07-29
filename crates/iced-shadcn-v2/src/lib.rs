@@ -83,18 +83,24 @@ pub use components::avatar;
 pub use components::badge;
 /// Backwards-compatible access to the button component.
 pub use components::button;
+/// Backwards-compatible access to the button-group component.
+pub use components::button_group;
 /// Backwards-compatible access to the card component.
 pub use components::card;
 /// Backwards-compatible access to the checkbox component.
 pub use components::checkbox;
 /// Backwards-compatible access to the input component.
 pub use components::input;
+/// Backwards-compatible access to the input-group component.
+pub use components::input_group;
 /// Backwards-compatible access to the kbd component.
 pub use components::kbd;
 /// Backwards-compatible access to the label component.
 pub use components::label;
 /// Backwards-compatible access to the progress component.
 pub use components::progress;
+/// Backwards-compatible access to the radio-group component.
+pub use components::radio_group;
 /// Backwards-compatible access to the scroll-area component.
 pub use components::scroll_area;
 /// Backwards-compatible access to the separator component.
@@ -109,6 +115,8 @@ pub use components::spinner;
 pub use components::switch;
 /// Backwards-compatible access to the toggle component.
 pub use components::toggle;
+/// Backwards-compatible access to the toggle-group component.
+pub use components::toggle_group;
 /// Backwards-compatible access to the typography component.
 pub use components::typography;
 
@@ -122,6 +130,9 @@ pub use components::avatar::{
 };
 pub use components::badge::{Badge, BadgeBuildError, BadgeRadius, BadgeVariant};
 pub use components::button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
+pub use components::button_group::{
+    ButtonGroup, ButtonGroupItem, ButtonGroupOrientation, ButtonGroupText,
+};
 pub use components::card::{
     Card, CardAction, CardBorder, CardContent, CardDescription, CardFooter, CardFooterAlignment,
     CardFooterDirection, CardHeader, CardRadius, CardSize, CardTitle,
@@ -130,11 +141,23 @@ pub use components::checkbox::{
     Checkbox, CheckboxConfig, CheckboxSize, CheckboxState, CheckboxVariant,
 };
 pub use components::input::{Input, InputBuildError, InputRadius, InputSize, input};
+pub use components::input_group::{
+    InputGroup, InputGroupAddon, InputGroupAddonAlign, InputGroupAddonProps, InputGroupButton,
+    InputGroupButtonProps, InputGroupButtonSize, InputGroupInput, InputGroupInputProps,
+    InputGroupItem, InputGroupProps, InputGroupRadius, InputGroupText, InputGroupTextarea,
+    InputGroupTextareaProps, InputGroupTextareaResize, input_group_addon, input_group_button,
+    input_group_control, input_group_input, input_group_text, input_group_textarea,
+    input_group_textarea_apply_action,
+};
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
 pub use components::progress::{
     Progress, ProgressOrientation, ProgressRadius, ProgressSize, ProgressState, ProgressVariant,
     progress,
+};
+pub use components::radio_group::{
+    RadioGroup, RadioGroupItem, RadioGroupOrientation, RadioGroupRadius, RadioGroupSize,
+    RadioGroupStatus, RadioGroupStyle, radio_group,
 };
 pub use components::scroll_area::{
     ScrollArea, ScrollAreaAnchor, ScrollAreaBuildError, ScrollAreaOrientation, ScrollAreaRadius,
@@ -152,6 +175,10 @@ pub use components::switch::{
     Switch, SwitchRadius, SwitchSize, SwitchState, SwitchStatus, SwitchStyle, switch,
 };
 pub use components::toggle::{Toggle, ToggleRadius, ToggleSize, ToggleVariant};
+pub use components::toggle_group::{
+    ToggleGroup, ToggleGroupItem, ToggleGroupOrientation, ToggleGroupRadius, ToggleGroupSelection,
+    ToggleGroupMode, ToggleGroupSize, ToggleGroupType, ToggleGroupValue, ToggleGroupVariant,
+};
 pub use components::typography::{Typography, TypographyList, TypographyTable, TypographyVariant};
 pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};

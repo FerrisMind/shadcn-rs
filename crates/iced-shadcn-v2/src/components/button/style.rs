@@ -310,6 +310,11 @@ fn current_text_for_state(current: Color, fallback: Color) -> Color {
     }
 }
 
+/// Default button corner radius in px for the active style pack.
+pub(super) fn default_radius_px(theme: &Theme) -> f32 {
+    radius_px(theme, effective_button_radius(theme, None))
+}
+
 fn effective_button_radius(theme: &Theme, radius: Option<ButtonRadius>) -> ButtonRadius {
     match radius {
         Some(radius) => radius,

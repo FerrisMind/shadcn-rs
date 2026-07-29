@@ -121,6 +121,19 @@ pub(super) fn pack_pad_x(theme: &Theme) -> f32 {
     pack_recipe(theme.style_id()).pad_x_px
 }
 
+pub(super) fn group_slot_pad_x(theme: &Theme) -> f32 {
+    match theme.style_id() {
+        StyleId::Sera => 8.0,
+        StyleId::Vega
+        | StyleId::Nova
+        | StyleId::Maia
+        | StyleId::Lyra
+        | StyleId::Mira
+        | StyleId::Luma
+        | StyleId::Rhea => 6.0,
+    }
+}
+
 /// `md:text-sm` / `md:text-xs` of the active pack.
 pub(super) fn pack_text_size(theme: &Theme) -> f32 {
     pack_recipe(theme.style_id()).text_size_px

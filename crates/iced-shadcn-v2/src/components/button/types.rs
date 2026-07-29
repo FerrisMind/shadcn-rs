@@ -75,6 +75,24 @@ impl ButtonSize {
     }
 }
 
+/// Crate-internal mask of corners flattened to a zero radius after style
+/// resolution. Group containers (e.g. the button-group component) use it to
+/// merge adjacent controls into a single visual unit.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub(crate) struct CornerFlatten {
+    pub(crate) top_left: bool,
+    pub(crate) top_right: bool,
+    pub(crate) bottom_right: bool,
+    pub(crate) bottom_left: bool,
+}
+
+impl CornerFlatten {
+    /// Whether at least one corner is flattened.
+    pub(crate) const fn is_any(self) -> bool {
+        self.top_left || self.top_right || self.bottom_right || self.bottom_left
+    }
+}
+
 /// Border radius preset for a [`super::Button`].
 ///
 /// ```rust

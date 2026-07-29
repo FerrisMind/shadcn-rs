@@ -518,6 +518,21 @@ impl<'a, Message> Toggle<'a, Message> {
         self
     }
 
+    pub(crate) fn chain_style_override(
+        mut self,
+        style_override: impl Fn(button_widget::Style, button_widget::Status) -> button_widget::Style
+        + 'a,
+    ) -> Self {
+        let previous = self.style_override.take();
+        self.style_override = Some(Box::new(move |style, status| {
+            let style = previous
+                .as_ref()
+                .map_or(style, |previous| previous(style, status));
+            style_override(style, status)
+        }));
+        self
+    }
+
     /// Builds the underlying `iced` button widget.
     ///
     /// ```rust

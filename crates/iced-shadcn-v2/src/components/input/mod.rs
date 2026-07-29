@@ -100,6 +100,8 @@ pub struct Input<'a, Message> {
     color: Option<AccentColor>,
     width: Length,
     padding: Option<crate::iced_compat::Padding>,
+    group_inline_start: bool,
+    group_inline_end: bool,
     text_size: Option<f32>,
     align_x: alignment::Horizontal,
     secure: bool,
@@ -137,6 +139,8 @@ impl<Message> fmt::Debug for Input<'_, Message> {
             .field("color", &self.color)
             .field("width", &self.width)
             .field("padding", &self.padding)
+            .field("group_inline_start", &self.group_inline_start)
+            .field("group_inline_end", &self.group_inline_end)
             .field("text_size", &self.text_size)
             .field("align_x", &self.align_x)
             .field("secure", &self.secure)
@@ -176,6 +180,8 @@ impl<'a, Message> Input<'a, Message> {
             color: None,
             width: Length::Fill,
             padding: None,
+            group_inline_start: false,
+            group_inline_end: false,
             text_size: None,
             align_x: alignment::Horizontal::Left,
             secure: false,
@@ -188,6 +194,24 @@ impl<'a, Message> Input<'a, Message> {
             on_paste: None,
             style_override: None,
         }
+    }
+
+    pub(crate) const fn is_disabled(&self) -> bool {
+        self.disabled
+    }
+
+    pub(crate) const fn is_invalid(&self) -> bool {
+        self.invalid
+    }
+
+    pub(crate) fn focus_id(&self) -> Option<widget::Id> {
+        self.id.clone()
+    }
+
+    pub(crate) fn group_slot_padding(mut self, inline_start: bool, inline_end: bool) -> Self {
+        self.group_inline_start = inline_start;
+        self.group_inline_end = inline_end;
+        self
     }
 
     /// Sets the controlled value shown in the input.
@@ -371,6 +395,8 @@ impl<'a, Message> Input<'a, Message> {
             color,
             width,
             padding,
+            group_inline_start,
+            group_inline_end,
             text_size,
             align_x,
             secure,
@@ -385,8 +411,15 @@ impl<'a, Message> Input<'a, Message> {
         } = self;
 
         let text_size = text_size.unwrap_or_else(|| style::pack_text_size(theme));
-        let resolved_padding =
+        let mut resolved_padding =
             padding.unwrap_or_else(|| geometry::default_padding(theme, size, text_size));
+        let group_pad_x = style::group_slot_pad_x(theme);
+        if group_inline_start {
+            resolved_padding.left = group_pad_x;
+        }
+        if group_inline_end {
+            resolved_padding.right = group_pad_x;
+        }
 
         let mut widget = text_input_widget::TextInput::new(placeholder.as_ref(), value.as_ref())
             .size(text_size)

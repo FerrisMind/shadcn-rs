@@ -15,10 +15,14 @@ use crate::components::card::{
 };
 use crate::components::checkbox::{CheckboxSize, CheckboxState, CheckboxVariant};
 use crate::components::input::{InputRadius, InputSize};
+use crate::components::input_group::{
+    InputGroupAddonAlign, InputGroupButtonSize, InputGroupRadius, InputGroupTextareaResize,
+};
 use crate::components::kbd::{KbdRadius, KbdSurface};
 use crate::components::progress::{
     ProgressOrientation, ProgressRadius, ProgressSize, ProgressVariant,
 };
+use crate::components::radio_group::{RadioGroupOrientation, RadioGroupRadius, RadioGroupSize};
 use crate::components::scroll_area::{ScrollAreaAnchor, ScrollAreaOrientation, ScrollAreaRadius};
 use crate::components::separator::SeparatorOrientation;
 use crate::components::skeleton::{SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape};
@@ -26,6 +30,7 @@ use crate::components::slider::{SliderOrientation, SliderRadius};
 use crate::components::spinner::{SpinnerSize, SpinnerVariant};
 use crate::components::switch::{SwitchRadius, SwitchSize};
 use crate::components::toggle::{ToggleRadius, ToggleSize, ToggleVariant};
+use crate::components::toggle_group::{ToggleGroupOrientation, ToggleGroupType};
 use crate::components::typography::TypographyVariant;
 
 /// Implements [`fmt::Display`] for unit-variant enums with fixed token text.
@@ -97,6 +102,20 @@ impl_display! {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
     }
+    InputGroupAddonAlign {
+        InlineStart => "inline-start", InlineEnd => "inline-end",
+        BlockStart => "block-start", BlockEnd => "block-end",
+    }
+    InputGroupButtonSize {
+        Xs => "xs", Sm => "sm", IconXs => "icon-xs", IconSm => "icon-sm",
+    }
+    InputGroupRadius {
+        None => "none", Small => "small", Medium => "medium",
+        Large => "large", Full => "full",
+    }
+    InputGroupTextareaResize {
+        None => "none", Vertical => "vertical", Horizontal => "horizontal", Both => "both",
+    }
     KbdSurface {
         Default => "default", Tooltip => "tooltip", InputGroup => "input-group",
     }
@@ -109,6 +128,7 @@ impl_display! {
         Surface => "surface", Soft => "soft",
     }
     ProgressOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    RadioGroupOrientation { Vertical => "vertical", Horizontal => "horizontal" }
     ScrollAreaOrientation {
         Vertical => "vertical", Horizontal => "horizontal", Both => "both",
     }
@@ -130,6 +150,8 @@ impl_display! {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
     }
+    ToggleGroupType { Single => "single", Multiple => "multiple" }
+    ToggleGroupOrientation { Horizontal => "horizontal", Vertical => "vertical" }
     TypographyVariant {
         H1 => "h1", H2 => "h2", H3 => "h3", H4 => "h4", P => "p",
         Blockquote => "blockquote", InlineCode => "inline-code",
@@ -153,6 +175,11 @@ impl_display_custom_px! {
     }
     ProgressSize { Xs => "xs", Sm => "sm", Default => "default", Lg => "lg", Xl => "xl" }
     ProgressRadius {
+        None => "none", Small => "small", Medium => "medium",
+        Large => "large", Full => "full",
+    }
+    RadioGroupSize { Sm => "sm", Default => "default", Lg => "lg" }
+    RadioGroupRadius {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
     }
@@ -212,6 +239,8 @@ mod tests {
         );
         assert_eq!(KbdSurface::InputGroup.to_string(), "input-group");
         assert_eq!(SpinnerVariant::TextShimmer.to_string(), "text-shimmer");
+        assert_eq!(ToggleGroupType::Multiple.to_string(), "multiple");
+        assert_eq!(ToggleGroupOrientation::Vertical.to_string(), "vertical");
         assert_eq!(TypographyVariant::InlineCode.to_string(), "inline-code");
     }
 

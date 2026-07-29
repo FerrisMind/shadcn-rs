@@ -15,6 +15,8 @@ mod tests;
 pub use error::ButtonBuildError;
 pub use types::{ButtonRadius, ButtonSize, ButtonVariant};
 
+pub(crate) use types::CornerFlatten;
+
 use std::fmt;
 
 use crate::iced_compat::widget::button as button_widget;
@@ -78,6 +80,7 @@ pub struct Button<'a, Message> {
     loading: bool,
     disabled: bool,
     on_press: Option<Message>,
+    group_corners: Option<CornerFlatten>,
     style_override: Option<
         Box<dyn Fn(button_widget::Style, button_widget::Status) -> button_widget::Style + 'a>,
     >,
@@ -112,6 +115,7 @@ impl<Message> fmt::Debug for Button<'_, Message> {
             .field("loading", &self.loading)
             .field("disabled", &self.disabled)
             .field("on_press", &self.on_press.is_some())
+            .field("group_corners", &self.group_corners)
             .field("style_override", &self.style_override.is_some())
             .finish()
     }
@@ -151,6 +155,7 @@ impl<'a, Message> Button<'a, Message> {
             loading: false,
             disabled: false,
             on_press: None,
+            group_corners: None,
             style_override: None,
         }
     }
@@ -261,6 +266,20 @@ impl<'a, Message> Button<'a, Message> {
         self
     }
 
+    /// Crate-internal: flattens the given corners to a zero radius after
+    /// variant styling and any [`Self::style_override`]. Used by group
+    /// containers (button-group) to merge adjacent controls.
+    pub(crate) fn flatten_corners(mut self, corners: CornerFlatten) -> Self {
+        self.group_corners = corners.is_any().then_some(corners);
+        self
+    }
+
+    /// Crate-internal: whether the configured variant paints a 1 px border
+    /// in its resting state. Drives border merging inside group containers.
+    pub(crate) fn has_resting_border(&self) -> bool {
+        matches!(self.variant, ButtonVariant::Outline | ButtonVariant::Surface)
+    }
+
     /// Builds the underlying `iced` button widget.
     pub fn into_button(self) -> button_widget::Button<'a, Message>
     where
@@ -280,6 +299,7 @@ impl<'a, Message> Button<'a, Message> {
             loading,
             disabled,
             on_press,
+            group_corners,
             style_override,
         } = self;
 
@@ -318,6 +338,23 @@ impl<'a, Message> Button<'a, Message> {
                 style = override_fn(style, status);
             }
 
+            if let Some(corners) = group_corners {
+                let radius = &mut style.border.radius;
+
+                if corners.top_left {
+                    radius.top_left = 0.0;
+                }
+                if corners.top_right {
+                    radius.top_right = 0.0;
+                }
+                if corners.bottom_right {
+                    radius.bottom_right = 0.0;
+                }
+                if corners.bottom_left {
+                    radius.bottom_left = 0.0;
+                }
+            }
+
             style
         })
     }
@@ -330,4 +367,11 @@ where
     fn from(button: Button<'a, Message>) -> Self {
         button.into_button().into()
     }
+}
+
+/// Crate-internal: default button corner radius in px for the active style
+/// pack. Shared with group containers so sibling surfaces (e.g. the
+/// button-group text cell) round consistently with buttons.
+pub(crate) fn default_radius_px(theme: &Theme) -> f32 {
+    style::default_radius_px(theme)
 }
