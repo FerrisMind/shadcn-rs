@@ -25,11 +25,19 @@ impl<Message> canvas::Program<Message> for Switch<'_, Message> {
         cursor: mouse::Cursor,
     ) -> Option<canvas::Action<Message>> {
         match event {
-            canvas::Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
-            | canvas::Event::Touch(touch::Event::FingerPressed { .. }) => {
+            canvas::Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) => {
                 let on_toggle = self.on_toggle.as_ref()?;
 
                 if self.disabled || !cursor.is_over(bounds) {
+                    return None;
+                }
+
+                Some(canvas::Action::publish(on_toggle(!self.checked)).and_capture())
+            }
+            canvas::Event::Touch(touch::Event::FingerPressed { position, .. }) => {
+                let on_toggle = self.on_toggle.as_ref()?;
+
+                if self.disabled || !bounds.contains(*position) {
                     return None;
                 }
 

@@ -2,7 +2,8 @@
 
 use std::time::Duration;
 
-use crate::iced_compat::{Color, Element, Size};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::{Color, Element, Point, Rectangle, Size, mouse, touch};
 use shadcn_common::{AccentColor, ControlSize, StyleId};
 
 use super::geometry::{self, Metrics};
@@ -124,6 +125,33 @@ fn callbacks_and_press_messages_convert_to_elements() {
             .on_toggle
             .is_some()
     );
+}
+
+#[test]
+fn touch_press_uses_the_touch_position_without_a_mouse_cursor() {
+    let theme = Theme::light();
+    let switch = Switch::new(&theme).on_toggle(Message::Toggled);
+    let metrics = geometry::resolve_metrics(&theme, SwitchSize::Default);
+    let bounds = Rectangle::new(Point::new(12.0, 18.0), metrics.track);
+    let event = canvas::Event::Touch(touch::Event::FingerPressed {
+        id: touch::Finger(3),
+        position: Point::new(
+            bounds.x + bounds.width / 2.0,
+            bounds.y + bounds.height / 2.0,
+        ),
+    });
+
+    let action = <Switch<'_, Message> as canvas::Program<Message>>::update(
+        &switch,
+        &mut super::types::SwitchState::default(),
+        &event,
+        bounds,
+        mouse::Cursor::Unavailable,
+    )
+    .expect("touch press inside the switch should publish");
+    let (message, _, _) = action.into_inner();
+
+    assert!(matches!(message, Some(Message::Toggled(true))));
 }
 
 #[test]
