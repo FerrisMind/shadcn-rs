@@ -19,10 +19,6 @@ include = [
 ]
 
 [dependencies]
-# Like twill-iced, the library depends on the granular iced crates instead
-# of the `iced` facade: the facade unconditionally drags in winit and the
-# application runtime, which a widget library never needs. Renderer
-# backends stay behind the forwarded features below.
 iced_core = { version = "0.14", default-features = false, features = ["advanced"] }
 iced_widget = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image"] }
 iced_renderer = { version = "0.14", default-features = false, optional = true }
@@ -31,26 +27,17 @@ twill-core = { workspace = true }
 serde = { version = "1", features = ["derive"], optional = true }
 
 [dev-dependencies]
-# Examples and doctests are real applications, so they use the full facade
-# and opt into concrete backends plus an async runtime.
 iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image", "wgpu", "tiny-skia", "tokio", "x11", "wayland", "lazy"] }
 
 [features]
-## Same out-of-the-box experience as the facade; disable with
-## `default-features = false` to pick a single renderer.
 default = ["wgpu", "tiny-skia"]
-## GPU renderer backend.
 wgpu = ["iced_widget/wgpu"]
-## Software renderer backend (softbuffer needs the X11/Wayland
-## integrations on Linux).
 tiny-skia = [
     "dep:iced_renderer",
     "iced_renderer/tiny-skia",
     "iced_renderer/x11",
     "iced_renderer/wayland",
 ]
-## Derives `serde::{Serialize, Deserialize}` for the configuration enums
-## (variants, sizes, radii, orientations, states).
 serde = ["dep:serde"]
 
 [[example]]
