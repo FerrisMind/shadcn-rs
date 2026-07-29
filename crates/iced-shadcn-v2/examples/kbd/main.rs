@@ -225,7 +225,10 @@ impl Example {
         // shadcn `kbd-in-input-group`: chip on an input-like field.
         let input_group = container(
             row![
-                text("Search…").size(13).font(font).color(p.muted_foreground),
+                text("Search…")
+                    .size(13)
+                    .font(font)
+                    .color(p.muted_foreground),
                 iced::widget::Space::new().width(Length::Fill),
                 Kbd::text("⌘", theme).surface(KbdSurface::InputGroup),
                 Kbd::text("K", theme).surface(KbdSurface::InputGroup),
@@ -269,7 +272,9 @@ impl Example {
             }),
             Kbd::text("Wide", theme).width(Length::Fixed(96.0)),
             Kbd::text("No min", theme).min_width(0.0),
-            Kbd::text("Big", theme).text_size(16.0).height(Length::Fixed(28.0)),
+            Kbd::text("Big", theme)
+                .text_size(16.0)
+                .height(Length::Fixed(28.0)),
         ]
         .spacing(8)
         .align_y(Alignment::Center)

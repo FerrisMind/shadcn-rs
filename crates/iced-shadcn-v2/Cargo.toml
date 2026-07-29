@@ -32,6 +32,10 @@ name = "button"
 path = "examples/button/main.rs"
 
 [[example]]
+name = "card"
+path = "examples/card/main.rs"
+
+[[example]]
 name = "kbd"
 path = "examples/kbd/main.rs"
 
@@ -62,6 +66,10 @@ path = "examples/progress/main.rs"
 [[example]]
 name = "checkbox"
 path = "examples/checkbox/main.rs"
+
+[[example]]
+name = "switch"
+path = "examples/switch/main.rs"
 
 [[example]]
 name = "typography"

@@ -150,8 +150,10 @@ impl Example {
 
         let preview = column![
             section_label("Preview (separator-demo)", p.muted_foreground, theme),
-            container(demo).padding(24).width(Length::Fill).style(
-                move |_| container::Style {
+            container(demo)
+                .padding(24)
+                .width(Length::Fill)
+                .style(move |_| container::Style {
                     background: Some(Background::Color(p.card)),
                     border: Border {
                         color: p.border,
@@ -159,8 +161,7 @@ impl Example {
                         radius: 8.0.into(),
                     },
                     ..container::Style::default()
-                }
-            ),
+                }),
         ]
         .spacing(8);
 

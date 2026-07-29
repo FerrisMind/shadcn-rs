@@ -332,7 +332,11 @@ impl Example {
                 theme.font_pack(),
             ),
             accent_tones,
-            section_label("Sizes / icon (shadcn xs·sm·default·lg·icon*)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Sizes / icon (shadcn xs·sm·default·lg·icon*)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             sizes,
             section_label("States / layout", p.muted_foreground, theme.font_pack()),
             states,

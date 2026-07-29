@@ -7,9 +7,7 @@ use std::fmt;
 use iced::widget::{column, container, pick_list, row, scrollable, text};
 use iced::{Background, Border, Element, Length, Task};
 
-use iced_shadcn_v2::{
-    AspectRatio, BaseColor, FontId, StyleId, Theme, ThemeMode, fonts, iced_font,
-};
+use iced_shadcn_v2::{AspectRatio, BaseColor, FontId, StyleId, Theme, ThemeMode, fonts, iced_font};
 
 pub fn main() -> iced::Result {
     let mut app = iced::application(Example::default, Example::update, Example::view)

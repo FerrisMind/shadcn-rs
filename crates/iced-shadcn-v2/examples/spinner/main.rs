@@ -213,16 +213,36 @@ impl Example {
         .spacing(8);
 
         let sizes = row![
-            labelled_spinner("xs", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Xs), theme),
-            labelled_spinner("sm", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Sm), theme),
+            labelled_spinner(
+                "xs",
+                self.build_spinner(theme, color, self.variant)
+                    .size(SpinnerSize::Xs),
+                theme
+            ),
+            labelled_spinner(
+                "sm",
+                self.build_spinner(theme, color, self.variant)
+                    .size(SpinnerSize::Sm),
+                theme
+            ),
             labelled_spinner(
                 "default",
                 self.build_spinner(theme, color, self.variant)
                     .size(SpinnerSize::Default),
                 theme,
             ),
-            labelled_spinner("lg", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Lg), theme),
-            labelled_spinner("xl", self.build_spinner(theme, color, self.variant).size(SpinnerSize::Xl), theme),
+            labelled_spinner(
+                "lg",
+                self.build_spinner(theme, color, self.variant)
+                    .size(SpinnerSize::Lg),
+                theme
+            ),
+            labelled_spinner(
+                "xl",
+                self.build_spinner(theme, color, self.variant)
+                    .size(SpinnerSize::Xl),
+                theme
+            ),
             labelled_spinner(
                 "custom",
                 self.build_spinner(theme, color, self.variant)
@@ -305,7 +325,11 @@ impl Example {
             colors,
             section_label("All variants", p.muted_foreground, theme),
             gallery,
-            section_label("Inside Button::loading (spinner left of label)", p.muted_foreground, theme),
+            section_label(
+                "Inside Button::loading (spinner left of label)",
+                p.muted_foreground,
+                theme
+            ),
             in_button,
         ]
         .spacing(16)

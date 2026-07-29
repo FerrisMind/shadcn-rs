@@ -303,11 +303,7 @@ fn fake_input<'a>(
     input.into()
 }
 
-fn fake_checkbox<'a>(
-    checked: bool,
-    on_toggle: Message,
-    theme: &'a Theme,
-) -> Element<'a, Message> {
+fn fake_checkbox<'a>(checked: bool, on_toggle: Message, theme: &'a Theme) -> Element<'a, Message> {
     let p = theme.palette;
     let mark = if checked { "✓" } else { " " };
 
