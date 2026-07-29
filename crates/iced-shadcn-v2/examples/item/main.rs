@@ -11,8 +11,8 @@ use iced::widget::{Space, column, container, pick_list, row, scrollable, text};
 use iced::{Alignment, Background, Border, Color, Element, Length, Task};
 
 use iced_shadcn_v2::{
-    AccentColor, BaseColor, Button, ButtonSize, ButtonVariant, FontHeading, FontId, FontPack,
-    Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemGroup, ItemHeader, ItemMedia,
+    AccentColor, BaseColor, Button, ButtonSize, ButtonVariant, FontHeading, FontId, FontPack, Item,
+    ItemActions, ItemContent, ItemDescription, ItemFooter, ItemGroup, ItemHeader, ItemMedia,
     ItemSize, ItemTitle, ItemVariant, RadiusId, StyleId, Theme, ThemeMode, fonts, iced_font,
 };
 
@@ -335,7 +335,11 @@ impl Example {
             variants,
             section_label("Sizes", p.muted_foreground, theme.font_pack()),
             sizes,
-            section_label("Media (icon / image)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Media (icon / image)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             media,
             section_label("Pressable item", p.muted_foreground, theme.font_pack()),
             pressable,

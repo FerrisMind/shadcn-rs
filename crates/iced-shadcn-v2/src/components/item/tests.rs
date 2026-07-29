@@ -210,7 +210,10 @@ fn builder_composes_all_slots_and_iced_overrides() {
         .width(Length::Fixed(420.0))
         .spacing(12.0)
         .header(ItemHeader::new(&theme).push(crate::iced_compat::widget::text("Header")))
-        .media(ItemMedia::icon(crate::iced_compat::widget::text("i"), &theme))
+        .media(ItemMedia::icon(
+            crate::iced_compat::widget::text("i"),
+            &theme,
+        ))
         .content(
             ItemContent::new(&theme)
                 .title(ItemTitle::text("Title", &theme))
@@ -255,8 +258,8 @@ fn public_builders_have_non_empty_debug_output() {
 #[test]
 fn standalone_slots_build_into_elements() {
     let theme = Theme::light();
-    let _: Element<'_, ()> = ItemMedia::image(crate::iced_compat::widget::text("img"), &theme)
-        .into_element();
+    let _: Element<'_, ()> =
+        ItemMedia::image(crate::iced_compat::widget::text("img"), &theme).into_element();
     let _: Element<'_, ()> = ItemContent::new(&theme)
         .title(ItemTitle::text("Title", &theme))
         .into_element();

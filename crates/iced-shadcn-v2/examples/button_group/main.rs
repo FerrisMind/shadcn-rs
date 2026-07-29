@@ -304,11 +304,7 @@ fn outline<'a>(label: &'static str, theme: &'a Theme) -> Button<'a, Message> {
         .on_press(Message::Action(label))
 }
 
-fn outline_icon<'a>(
-    icon: &'a str,
-    action: &'static str,
-    theme: &'a Theme,
-) -> Button<'a, Message> {
+fn outline_icon<'a>(icon: &'a str, action: &'static str, theme: &'a Theme) -> Button<'a, Message> {
     Button::icon(glyph(icon, theme), theme)
         .variant(ButtonVariant::Outline)
         .size(ButtonSize::Icon)

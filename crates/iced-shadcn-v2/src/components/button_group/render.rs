@@ -207,9 +207,7 @@ pub(super) fn corner_mask(
 }
 
 /// Orientation of a separator inside a group: always the cross axis.
-pub(super) const fn cross_orientation(
-    orientation: ButtonGroupOrientation,
-) -> SeparatorOrientation {
+pub(super) const fn cross_orientation(orientation: ButtonGroupOrientation) -> SeparatorOrientation {
     match orientation {
         ButtonGroupOrientation::Horizontal => SeparatorOrientation::Vertical,
         ButtonGroupOrientation::Vertical => SeparatorOrientation::Horizontal,
@@ -295,7 +293,11 @@ fn sizing_merged(
             },
         },
         ButtonGroupOrientation::Vertical => TextSizing {
-            width: if stretch { Length::Fill } else { Length::Shrink },
+            width: if stretch {
+                Length::Fill
+            } else {
+                Length::Shrink
+            },
             height: Length::Shrink,
         },
     }

@@ -60,10 +60,7 @@ fn push_accepts_every_item_kind() {
         .push(ButtonGroup::new(&theme).push(outline_button(&theme)));
 
     let kinds: Vec<_> = group.items.iter().map(ButtonGroupItem::kind_name).collect();
-    assert_eq!(
-        kinds,
-        ["button", "text", "separator", "element", "group"],
-    );
+    assert_eq!(kinds, ["button", "text", "separator", "element", "group"],);
 }
 
 #[test]

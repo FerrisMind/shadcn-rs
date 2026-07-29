@@ -47,7 +47,10 @@ pub(super) fn resolve_hover_style(
 }
 
 /// Adapts a resolved container style onto iced's button style.
-pub(super) fn to_button_style(style: container::Style, fallback_text: Color) -> button_widget::Style {
+pub(super) fn to_button_style(
+    style: container::Style,
+    fallback_text: Color,
+) -> button_widget::Style {
     button_widget::Style {
         background: style.background.filter(|background| match background {
             Background::Color(color) => color.a > f32::EPSILON,

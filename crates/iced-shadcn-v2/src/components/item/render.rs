@@ -37,9 +37,9 @@ where
 
     let metrics = geometry::size_metrics(theme, size);
     let gap = spacing.unwrap_or(metrics.gap);
-    let has_description = children.iter().any(|child| {
-        matches!(child, ItemRowChild::Content(content) if content.has_description())
-    });
+    let has_description = children
+        .iter()
+        .any(|child| matches!(child, ItemRowChild::Content(content) if content.has_description()));
 
     let mut header = None;
     let mut footer = None;

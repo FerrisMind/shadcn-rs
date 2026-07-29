@@ -277,7 +277,10 @@ impl<'a, Message> Button<'a, Message> {
     /// Crate-internal: whether the configured variant paints a 1 px border
     /// in its resting state. Drives border merging inside group containers.
     pub(crate) fn has_resting_border(&self) -> bool {
-        matches!(self.variant, ButtonVariant::Outline | ButtonVariant::Surface)
+        matches!(
+            self.variant,
+            ButtonVariant::Outline | ButtonVariant::Surface
+        )
     }
 
     /// Builds the underlying `iced` button widget.

@@ -151,10 +151,7 @@ impl<'a, Message> ButtonGroup<'a, Message> {
     }
 
     /// Appends every child of the given iterator.
-    pub fn extend(
-        self,
-        children: impl IntoIterator<Item = ButtonGroupItem<'a, Message>>,
-    ) -> Self {
+    pub fn extend(self, children: impl IntoIterator<Item = ButtonGroupItem<'a, Message>>) -> Self {
         children.into_iter().fold(self, Self::push)
     }
 
