@@ -137,9 +137,23 @@ fn oklch_to_iced(color: OklchColor) -> Color {
 }
 
 /// Chooses black or white text with sufficient contrast for a surface.
+///
+/// Relative luminance is computed on linearized sRGB channels per WCAG; the
+/// threshold is the linear-light equivalent of the previous gamma-space 0.55
+/// cutoff, so neutral surfaces keep their existing text color.
 pub(super) fn preferred_text(background: Color) -> Color {
-    let luminance = 0.2126 * background.r + 0.7152 * background.g + 0.0722 * background.b;
-    if luminance > 0.55 {
+    fn linear(channel: f32) -> f32 {
+        if channel <= 0.039_28 {
+            channel / 12.92
+        } else {
+            ((channel + 0.055) / 1.055).powf(2.4)
+        }
+    }
+
+    let luminance = 0.2126 * linear(background.r)
+        + 0.7152 * linear(background.g)
+        + 0.0722 * linear(background.b);
+    if luminance > 0.2636 {
         Color::BLACK
     } else {
         Color::WHITE
