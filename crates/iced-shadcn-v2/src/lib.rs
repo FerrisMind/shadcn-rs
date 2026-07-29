@@ -42,6 +42,8 @@ pub use components::aspect_ratio;
 pub use components::badge;
 /// Backwards-compatible access to the button component.
 pub use components::button;
+/// Backwards-compatible access to the card component.
+pub use components::card;
 /// Backwards-compatible access to the checkbox component.
 pub use components::checkbox;
 /// Backwards-compatible access to the kbd component.
@@ -56,12 +58,18 @@ pub use components::separator;
 pub use components::skeleton;
 /// Backwards-compatible access to the spinner component.
 pub use components::spinner;
+/// Backwards-compatible access to the switch component.
+pub use components::switch;
 /// Backwards-compatible access to the typography component.
 pub use components::typography;
 
 pub use components::aspect_ratio::{AspectRatio, MIN_ASPECT_RATIO, aspect_ratio};
 pub use components::badge::{Badge, BadgeBuildError, BadgeRadius, BadgeVariant};
 pub use components::button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
+pub use components::card::{
+    Card, CardAction, CardBorder, CardContent, CardDescription, CardFooter, CardFooterAlignment,
+    CardFooterDirection, CardHeader, CardRadius, CardSize, CardTitle,
+};
 pub use components::checkbox::{
     Checkbox, CheckboxConfig, CheckboxSize, CheckboxState, CheckboxVariant,
 };
@@ -76,6 +84,9 @@ pub use components::skeleton::{
     Skeleton, SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape,
 };
 pub use components::spinner::{Spinner, SpinnerSize, SpinnerVariant, spinner};
+pub use components::switch::{
+    Switch, SwitchRadius, SwitchSize, SwitchState, SwitchStatus, SwitchStyle, switch,
+};
 pub use components::typography::{Typography, TypographyList, TypographyTable, TypographyVariant};
 pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};

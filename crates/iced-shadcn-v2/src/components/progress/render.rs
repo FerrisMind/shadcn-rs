@@ -84,9 +84,8 @@ impl<Message> canvas::Program<Message> for Progress<'_> {
             // Advance an in-flight value transition, if one is running.
             if let Some(start) = state.transition_start {
                 let elapsed = now.saturating_duration_since(start);
-                let progress = (elapsed.as_secs_f32()
-                    / self.transition_duration.as_secs_f32())
-                .clamp(0.0, 1.0);
+                let progress = (elapsed.as_secs_f32() / self.transition_duration.as_secs_f32())
+                    .clamp(0.0, 1.0);
                 let eased = progress * progress * (3.0 - 2.0 * progress);
                 state.displayed_ratio =
                     state.transition_from + (state.transition_to - state.transition_from) * eased;
