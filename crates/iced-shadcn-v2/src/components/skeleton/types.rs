@@ -82,6 +82,11 @@ impl Default for SkeletonShape {
 ///
 /// Semantic colors are preferred because they follow the active [`Theme`].
 /// [`SkeletonFill::Custom`] is provided for intentionally bespoke placeholders.
+///
+/// Unlike the other configuration enums, this one does not derive serde
+/// support under the `serde` feature: its variants wrap foreign types
+/// (`iced` [`Color`], `twill-core` [`SemanticColor`]) that are not
+/// serializable.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum SkeletonFill {

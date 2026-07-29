@@ -20,7 +20,8 @@ use shadcn_common::FontWeight;
 /// Mirrors the `typography-table` example: 1 px grid in the theme border
 /// color, `px-4 py-2` cells, `font-bold` header, and `even:bg-muted` striping
 /// on body rows. Columns share the width evenly and default to start
-/// alignment (`text-start`), like the web version.
+/// alignment (`text-start`), like the web version. The column count follows
+/// the widest row (header or body); shorter rows are padded with empty cells.
 ///
 /// ```rust,no_run
 /// use iced::Element;

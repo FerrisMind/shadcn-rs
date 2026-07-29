@@ -89,6 +89,11 @@ pub enum ProgressRadius {
 /// Values are normalized against `max` and clamped to the visible range at
 /// render time.
 ///
+/// An animated determinate bar only self-schedules redraws while a value
+/// transition is in flight; once settled, the next frame is driven by the
+/// application. Do not rely on the bar as a continuous redraw "heartbeat" —
+/// only the indeterminate state animates continuously.
+///
 /// ```rust,no_run
 /// use iced::{Element, Length};
 /// use iced_shadcn_v2::{Progress, ProgressSize, Theme};

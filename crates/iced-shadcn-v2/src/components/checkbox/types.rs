@@ -83,6 +83,7 @@ impl CheckboxSize {
 
 /// Visual configuration for the checkbox.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CheckboxConfig {
     /// Current controlled state.
     pub state: CheckboxState,

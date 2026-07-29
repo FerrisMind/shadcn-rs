@@ -10,28 +10,35 @@ with native `iced` types.
 
 - `components` — component implementations grouped by feature:
   - `components::alert` — callout with variants, icon, typed text, and action slots.
+  - `components::aspect_ratio` — layout wrapper that preserves a width-to-height ratio.
   - `components::avatar` — image/fallback roots, badges, overlapping groups, and counts.
   - `components::badge` — status label with shadcn variants, icons, and as-link.
   - `components::button` — public button API and private geometry, rendering,
     style, and error modules.
   - `components::card` — composable card root with header, title,
     description, action, content, and footer slots.
+  - `components::checkbox` — controlled checked, unchecked, and indeterminate input.
+  - `components::input` — controlled text field over iced `text_input` with `.cn-input` styling.
+  - `components::kbd` — keyboard-shortcut chip and grouped key sequences.
   - `components::label` — form label with style-pack typography and `for` / click.
+  - `components::progress` — theme-aware determinate and indeterminate progress bar.
   - `components::scroll_area` — themed rail and thumb over iced's own scrolling.
   - `components::separator` — horizontal/vertical rule.
   - `components::skeleton` — theme-aware pulse and static placeholders.
+  - `components::slider` — single- and multi-thumb canvas slider with steps.
   - `components::spinner` — canvas-based loading indicator.
-  - `components::progress` — theme-aware determinate and indeterminate progress bar.
-  - `components::checkbox` — controlled checked, unchecked, and indeterminate input.
-  - `components::input` — controlled text field over iced `text_input` with `.cn-input` styling.
+  - `components::switch` — controlled on/off toggle with animated thumb.
+  - `components::toggle` — pressed/unpressed toggle button with variants.
+  - `components::typography` — prose text, lists, and tables.
 - `theme` — `shadcn-common` theme adapter for iced:
   - `theme::palette` — semantic colors and OKLCH-to-iced conversion.
   - `theme::tokens` — theme mode, style, base, accent, radius, and semantic APIs.
   - `theme::typography` — body, heading, and font-pack selection APIs.
 - `fonts` — font-face exports and the iced font adapter.
 
-The root `alert`, `avatar`, `badge`, `button`, `card`, `checkbox`, `label`, `scroll_area`, `separator`,
-`skeleton`, and `spinner`
+The root `alert`, `aspect_ratio`, `avatar`, `badge`, `button`, `card`, `checkbox`,
+`input`, `kbd`, `label`, `progress`, `scroll_area`, `separator`, `skeleton`,
+`slider`, `spinner`, `switch`, `toggle`, and `typography`
 modules are compatibility re-exports of `components`, so existing v2 imports
 remain valid while new code can use the feature-oriented
 `iced_shadcn_v2::components::*` paths.
@@ -118,17 +125,25 @@ iced `button::Style` (colors, border, shadow) after our resolver runs.
 ## Examples
 
 ```bash
-cargo run -p iced-shadcn-v2 --example badge
 cargo run -p iced-shadcn-v2 --example alert
+cargo run -p iced-shadcn-v2 --example aspect_ratio
 cargo run -p iced-shadcn-v2 --example avatar
+cargo run -p iced-shadcn-v2 --example badge
 cargo run -p iced-shadcn-v2 --example button
 cargo run -p iced-shadcn-v2 --example card
-cargo run -p iced-shadcn-v2 --example skeleton
-cargo run -p iced-shadcn-v2 --example spinner
-cargo run -p iced-shadcn-v2 --example progress
 cargo run -p iced-shadcn-v2 --example checkbox
 cargo run -p iced-shadcn-v2 --example input
+cargo run -p iced-shadcn-v2 --example kbd
+cargo run -p iced-shadcn-v2 --example label
+cargo run -p iced-shadcn-v2 --example progress
 cargo run -p iced-shadcn-v2 --example scroll_area
+cargo run -p iced-shadcn-v2 --example separator
+cargo run -p iced-shadcn-v2 --example skeleton
+cargo run -p iced-shadcn-v2 --example slider
+cargo run -p iced-shadcn-v2 --example spinner
+cargo run -p iced-shadcn-v2 --example switch
+cargo run -p iced-shadcn-v2 --example toggle
+cargo run -p iced-shadcn-v2 --example typography
 ```
 
 ```rust,no_run

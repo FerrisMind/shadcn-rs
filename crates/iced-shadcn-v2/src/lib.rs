@@ -38,7 +38,9 @@
 //!   the X11/Wayland integrations it needs on Linux).
 //! - `serde` — derives `serde::Serialize` / `serde::Deserialize` for the
 //!   configuration enums (variants, sizes, radii, orientations, states), so
-//!   app settings that reference them can be persisted. Disabled by default.
+//!   app settings that reference them can be persisted. The one exception is
+//!   [`SkeletonFill`], whose variants wrap non-serializable foreign types
+//!   (`iced` colors and `twill-core` semantic slots). Disabled by default.
 //!
 //! The library depends on the granular `iced_core` / `iced_widget` crates
 //! only — not the full `iced` facade with its window/runtime stack — so use
