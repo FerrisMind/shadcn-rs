@@ -83,6 +83,7 @@ use crate::theme::Theme;
 ///         .into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct ScrollArea<'a, Message> {
     content: Element<'a, Message>,
     theme: &'a Theme,

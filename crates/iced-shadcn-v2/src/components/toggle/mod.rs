@@ -72,6 +72,7 @@ use crate::theme::Theme;
 ///         .into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Toggle<'a, Message> {
     content: ToggleContent<'a, Message>,
     theme: &'a Theme,

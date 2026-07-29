@@ -38,9 +38,12 @@ use super::palette::{Palette, color_value_to_iced, preferred_text};
 /// assert!(primary.a > 0.0);
 /// ```
 #[derive(Debug, Clone, PartialEq)]
+#[must_use = "a Theme does nothing unless passed into components"]
 pub struct Theme {
     pub(super) resolved: ResolvedTheme,
+    /// Cached iced palette built from the resolved theme tokens.
     pub palette: Palette,
+    /// Active style pack (fonts, radius, per-component recipes).
     pub style: StylePack,
 }
 impl Theme {

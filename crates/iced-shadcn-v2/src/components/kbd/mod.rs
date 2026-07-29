@@ -52,6 +52,7 @@ use crate::theme::Theme;
 ///         .into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Kbd<'a, Message> {
     content: KbdContent<'a, Message>,
     theme: &'a Theme,
@@ -298,6 +299,7 @@ where
 ///         .into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct KbdGroup<'a, Message> {
     children: Vec<Element<'a, Message>>,
     spacing: f32,

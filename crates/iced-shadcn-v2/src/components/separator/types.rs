@@ -42,6 +42,7 @@ pub enum SeparatorOrientation {
 ///     .thickness(2.0);
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq)]
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Separator {
     pub(super) color: Color,
     pub(super) orientation: SeparatorOrientation,

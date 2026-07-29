@@ -58,6 +58,7 @@ use crate::theme::Theme;
 ///         .into())
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Badge<'a, Message> {
     content: BadgeContent<'a, Message>,
     theme: &'a Theme,

@@ -92,6 +92,7 @@ impl SpinnerSize {
 /// let indicator = Spinner::new(&theme).size(SpinnerSize::Lg).animated(true);
 /// ```
 #[derive(Clone, Copy, Debug)]
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Spinner {
     pub(super) progress: f32,
     pub(super) color: Color,

@@ -49,6 +49,7 @@ use crate::theme::Theme;
 
 /// A composable callout that draws attention to information, success, or an
 /// error state.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Alert<'a, Message> {
     theme: &'a Theme,
     variant: AlertVariant,
@@ -236,6 +237,7 @@ where
 }
 
 /// Styled title content for an [`Alert`].
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AlertTitle<'a, Message> {
     content: AlertTextContent<'a, Message>,
     theme: &'a Theme,
@@ -345,6 +347,7 @@ where
 }
 
 /// Styled description content for an [`Alert`].
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AlertDescription<'a, Message> {
     content: AlertTextContent<'a, Message>,
     theme: &'a Theme,
@@ -454,6 +457,7 @@ where
 }
 
 /// A top-right action slot for an [`Alert`].
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AlertAction<'a, Message> {
     content: Element<'a, Message>,
     width: Length,

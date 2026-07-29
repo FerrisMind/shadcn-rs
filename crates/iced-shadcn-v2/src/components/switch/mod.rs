@@ -79,6 +79,7 @@ const DEFAULT_TRANSITION: Duration = Duration::from_millis(150);
 ///         .into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Switch<'a, Message> {
     theme: &'a Theme,
     checked: bool,

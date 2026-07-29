@@ -116,6 +116,7 @@ impl Default for SkeletonFill {
 /// }
 /// ```
 #[derive(Debug, Clone, Copy)]
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Skeleton<'a> {
     pub(super) theme: &'a Theme,
     pub(super) width: Length,

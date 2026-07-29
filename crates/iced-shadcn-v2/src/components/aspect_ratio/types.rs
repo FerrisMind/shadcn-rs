@@ -25,10 +25,11 @@ pub const MIN_ASPECT_RATIO: f32 = 0.000_1;
 /// use iced_shadcn_v2::{AspectRatio, Theme};
 ///
 /// let theme = Theme::light();
-/// let frame = AspectRatio::new(text("16:9"))
+/// let frame: AspectRatio<'_, ()> = AspectRatio::new(text("16:9"))
 ///     .ratio(16.0 / 9.0)
 ///     .muted(&theme);
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AspectRatio<'a, Message> {
     pub(super) content: Element<'a, Message>,
     pub(super) ratio: f32,

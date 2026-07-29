@@ -101,6 +101,7 @@ pub enum ProgressRadius {
 /// }
 /// ```
 #[derive(Clone, Copy, Debug)]
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Progress<'a> {
     pub(super) theme: &'a Theme,
     pub(super) value: Option<f32>,

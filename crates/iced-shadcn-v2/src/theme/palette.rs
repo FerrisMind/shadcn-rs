@@ -7,37 +7,69 @@ use twill_core::tokens::ColorValue;
 /// Cached iced palette built from a [`ResolvedTheme`].
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Palette {
+    /// Page background color.
     pub background: Color,
+    /// Default text color on [`Self::background`].
     pub foreground: Color,
+    /// Card surface color.
     pub card: Color,
+    /// Text color on [`Self::card`].
     pub card_foreground: Color,
+    /// Popover surface color.
     pub popover: Color,
+    /// Text color on [`Self::popover`].
     pub popover_foreground: Color,
+    /// Default border color.
     pub border: Color,
+    /// Input border/background color.
     pub input: Color,
+    /// Focus ring color.
     pub ring: Color,
+    /// Primary action color.
     pub primary: Color,
+    /// Text color on [`Self::primary`].
     pub primary_foreground: Color,
+    /// Secondary surface color.
     pub secondary: Color,
+    /// Text color on [`Self::secondary`].
     pub secondary_foreground: Color,
+    /// Accent surface color (hover states, highlights).
     pub accent: Color,
+    /// Text color on [`Self::accent`].
     pub accent_foreground: Color,
+    /// Muted surface color.
     pub muted: Color,
+    /// Text color on [`Self::muted`].
     pub muted_foreground: Color,
+    /// Destructive action color.
     pub destructive: Color,
+    /// Text color on [`Self::destructive`].
     pub destructive_foreground: Color,
+    /// First chart series color.
     pub chart_1: Color,
+    /// Second chart series color.
     pub chart_2: Color,
+    /// Third chart series color.
     pub chart_3: Color,
+    /// Fourth chart series color.
     pub chart_4: Color,
+    /// Fifth chart series color.
     pub chart_5: Color,
+    /// Sidebar surface color.
     pub sidebar: Color,
+    /// Text color on [`Self::sidebar`].
     pub sidebar_foreground: Color,
+    /// Primary action color inside the sidebar.
     pub sidebar_primary: Color,
+    /// Text color on [`Self::sidebar_primary`].
     pub sidebar_primary_foreground: Color,
+    /// Accent surface color inside the sidebar.
     pub sidebar_accent: Color,
+    /// Text color on [`Self::sidebar_accent`].
     pub sidebar_accent_foreground: Color,
+    /// Border color inside the sidebar.
     pub sidebar_border: Color,
+    /// Focus ring color inside the sidebar.
     pub sidebar_ring: Color,
 }
 

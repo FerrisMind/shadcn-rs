@@ -34,6 +34,7 @@ use shadcn_common::FontWeight;
 ///         .into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct TypographyTable<'a, Message> {
     header: Option<Vec<Fragment<'a>>>,
     rows: Vec<Vec<Fragment<'a>>>,

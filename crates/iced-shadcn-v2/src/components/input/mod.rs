@@ -89,6 +89,7 @@ use crate::theme::Theme;
 ///         .into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Input<'a, Message> {
     theme: &'a Theme,
     value: Fragment<'a>,
@@ -427,7 +428,7 @@ impl<'a, Message> Input<'a, Message> {
     }
 }
 
-/// Convenience wrapper mirroring [`iced::widget::text_input`].
+/// Convenience wrapper mirroring [`iced::widget::text_input()`].
 ///
 /// ```rust,no_run
 /// use iced::Element;

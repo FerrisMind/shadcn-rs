@@ -39,6 +39,7 @@ use std::fmt;
 use crate::theme::Theme;
 
 /// Builder-first checkbox component.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Checkbox<'a, Message> {
     config: CheckboxConfig,
     theme: &'a Theme,

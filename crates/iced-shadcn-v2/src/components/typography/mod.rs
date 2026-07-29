@@ -48,6 +48,7 @@ use crate::theme::Theme;
 ///     Typography::h1("Taxing Laughter: The Joke Tax Chronicles", theme).into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Typography<'a, Message> {
     content: TypographyContent<'a, Message>,
     theme: &'a Theme,

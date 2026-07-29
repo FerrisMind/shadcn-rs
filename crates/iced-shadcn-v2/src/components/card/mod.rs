@@ -55,6 +55,7 @@ use iced::{Color, Element, Font, Length};
 use crate::theme::Theme;
 
 /// A style-pack-aware card root.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Card<'a, Message> {
     theme: &'a Theme,
     size: CardSize,
@@ -282,6 +283,7 @@ where
 }
 
 /// A card header with typed title, description, and top-right action slots.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct CardHeader<'a, Message> {
     pub(super) theme: &'a Theme,
     pub(super) title: Option<CardTitle<'a, Message>>,
@@ -427,6 +429,7 @@ where
 }
 
 /// A content section with automatic horizontal card insets.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct CardContent<'a, Message> {
     pub(super) theme: &'a Theme,
     pub(super) children: Vec<Element<'a, Message>>,
@@ -521,6 +524,7 @@ where
 }
 
 /// A card footer with row/column layout and optional top border.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct CardFooter<'a, Message> {
     pub(super) theme: &'a Theme,
     pub(super) children: Vec<Element<'a, Message>>,
@@ -675,6 +679,7 @@ where
 }
 
 /// A header action wrapper for an arbitrary element.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct CardAction<'a, Message> {
     pub(super) content: Element<'a, Message>,
     pub(super) width: Length,
@@ -744,6 +749,7 @@ where
 }
 
 /// Styled card title content.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct CardTitle<'a, Message> {
     pub(super) content: CardTextContent<'a, Message>,
     pub(super) theme: &'a Theme,
@@ -853,6 +859,7 @@ where
 }
 
 /// Styled card description content.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct CardDescription<'a, Message> {
     pub(super) content: CardTextContent<'a, Message>,
     pub(super) theme: &'a Theme,

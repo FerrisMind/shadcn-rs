@@ -1,8 +1,8 @@
 //! Theme-aware loading placeholder.
 //!
-//! The public builder and configuration types live in [`types`], shape
-//! calculations in [`geometry`], canvas drawing in [`render`], and behavioral
-//! checks in [`tests`].
+//! The public builder and configuration types live in `types`, shape
+//! calculations in `geometry`, canvas drawing in `render`, and behavioral
+//! checks in `tests`.
 
 mod geometry;
 mod render;

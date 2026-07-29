@@ -30,8 +30,25 @@
 //!         .into()
 //! }
 //! ```
+//!
+//! # Panics
+//!
+//! The public builder API never panics: invalid numeric inputs are clamped
+//! or normalized, and unsupported values (e.g. `auto` padding) are reported
+//! through `*BuildError` results instead.
+//!
+//! # Thread safety
+//!
+//! [`Theme`], [`Palette`], every configuration enum, and every error type are
+//! `Send + Sync`. Widget builders (e.g. [`Button`]) borrow the theme and may
+//! hold non-`Send` style closures; build them inside `view` instead of
+//! sharing them across threads.
+
+#![deny(missing_docs)]
+#![warn(missing_debug_implementations)]
 
 pub mod components;
+mod display;
 pub mod fonts;
 pub mod recipes;
 pub mod theme;

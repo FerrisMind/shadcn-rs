@@ -78,6 +78,7 @@ const DEFAULT_STEP: f32 = 1.0;
 ///         .into()
 /// }
 /// ```
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Slider<'a, Message> {
     theme: &'a Theme,
     values: Vec<f32>,

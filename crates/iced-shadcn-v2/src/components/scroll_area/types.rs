@@ -133,6 +133,7 @@ pub enum ScrollAreaAnchor {
 /// );
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[must_use = "configuring a scrollbar has no effect unless it is passed to a ScrollArea"]
 pub struct ScrollAreaScrollbar {
     pub(super) width: f32,
     pub(super) padding: f32,

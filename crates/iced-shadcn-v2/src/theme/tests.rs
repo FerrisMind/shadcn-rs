@@ -26,3 +26,23 @@ fn color_value_conversion_preserves_alpha() {
     let color = color_value_to_iced(value);
     assert!((color.a - 0.5).abs() < f32::EPSILON);
 }
+
+/// C-SEND-SYNC: theme values and configuration types stay thread-safe.
+#[test]
+fn theme_and_config_types_are_send_and_sync() {
+    fn assert_send_sync<T: Send + Sync>() {}
+
+    assert_send_sync::<Theme>();
+    assert_send_sync::<super::Palette>();
+    assert_send_sync::<crate::ButtonVariant>();
+    assert_send_sync::<crate::ButtonSize>();
+    assert_send_sync::<crate::ButtonBuildError>();
+    assert_send_sync::<crate::BadgeBuildError>();
+    assert_send_sync::<crate::InputBuildError>();
+    assert_send_sync::<crate::KbdBuildError>();
+    assert_send_sync::<crate::ScrollAreaBuildError>();
+    assert_send_sync::<crate::ScrollAreaScrollbar>();
+    assert_send_sync::<crate::CheckboxConfig>();
+    assert_send_sync::<crate::SliderStyle>();
+    assert_send_sync::<crate::SwitchStyle>();
+}
