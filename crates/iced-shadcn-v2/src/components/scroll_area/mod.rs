@@ -303,12 +303,13 @@ impl<'a, Message> ScrollArea<'a, Message> {
     ///
     /// # #[derive(Debug, Clone)]
     /// # enum Message {}
-    /// # fn build(theme: &Theme) -> Result<(), ScrollAreaBuildError> {
-    /// let area = ScrollArea::<Message>::new(text("Notes"), theme)
+    /// # fn main() -> Result<(), ScrollAreaBuildError> {
+    /// let theme = Theme::light();
+    /// let area = ScrollArea::<Message>::new(text("Notes"), &theme)
     ///     .padding(Padding::all(Spacing::S4))?;
+    /// # let _ = area;
     /// # Ok(())
     /// # }
-    /// # build(&Theme::light()).unwrap();
     /// ```
     pub fn padding(mut self, padding: Padding) -> Result<Self, ScrollAreaBuildError> {
         self.padding = Some(geometry::resolve_padding(padding)?);

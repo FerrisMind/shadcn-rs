@@ -5,6 +5,11 @@ use shadcn_common::{OklchColor, ResolvedTheme};
 use twill_core::tokens::ColorValue;
 
 /// Cached iced palette built from a [`ResolvedTheme`].
+///
+/// The struct is `#[non_exhaustive]`: new semantic slots may be added in
+/// minor releases, so construct it through [`crate::Theme`] instead of a
+/// struct literal.
+#[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Palette {
     /// Page background color.

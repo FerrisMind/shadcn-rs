@@ -46,6 +46,14 @@ pub struct Theme {
     /// Active style pack (fonts, radius, per-component recipes).
     pub style: StylePack,
 }
+
+impl Default for Theme {
+    /// Equivalent to [`Theme::light`] (Vega style, neutral base).
+    fn default() -> Self {
+        Self::light()
+    }
+}
+
 impl Theme {
     /// Builds a theme (and its cached [`Palette`]) from a [`ResolvedTheme`].
     pub fn from_resolved(resolved: ResolvedTheme) -> Self {

@@ -31,11 +31,20 @@
 //! }
 //! ```
 //!
+//! # Feature flags
+//!
+//! - `serde` — derives `serde::Serialize` / `serde::Deserialize` for the
+//!   configuration enums (variants, sizes, radii, orientations, states), so
+//!   app settings that reference them can be persisted. Disabled by default.
+//!
 //! # Panics
 //!
 //! The public builder API never panics: invalid numeric inputs are clamped
 //! or normalized, and unsupported values (e.g. `auto` padding) are reported
-//! through `*BuildError` results instead.
+//! through `*BuildError` results instead. Rendering internals `expect` on
+//! layout invariants guaranteed by iced (every custom widget lays out the
+//! child it created); those panics are unreachable unless iced itself
+//! violates its layout contract.
 //!
 //! # Thread safety
 //!
