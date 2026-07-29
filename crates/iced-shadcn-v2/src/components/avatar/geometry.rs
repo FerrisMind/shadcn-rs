@@ -21,6 +21,26 @@ pub(super) fn badge_size(size: AvatarSize) -> f32 {
     }
 }
 
+/// Returns the source icon footprint for an explicitly icon-marked badge.
+pub(super) fn badge_icon_size(size: AvatarSize) -> Option<f32> {
+    match size {
+        AvatarSize::Sm => None,
+        AvatarSize::Default | AvatarSize::Lg | AvatarSize::Custom(_) => Some(8.0),
+    }
+}
+
+/// Returns the source icon footprint for an explicitly icon-marked group count.
+pub(super) fn group_count_icon_size(size: AvatarSize) -> f32 {
+    match size {
+        AvatarSize::Sm => 12.0,
+        AvatarSize::Default => 16.0,
+        AvatarSize::Lg => 20.0,
+        AvatarSize::Custom(value) if value.is_finite() && value <= 24.0 => 12.0,
+        AvatarSize::Custom(value) if value.is_finite() && value <= 32.0 => 16.0,
+        AvatarSize::Custom(_) => 20.0,
+    }
+}
+
 /// Fallback initials use `text-sm`, except for the compact `sm` root.
 pub(super) fn fallback_metrics(size: AvatarSize) -> TextMetrics {
     if matches!(size, AvatarSize::Sm)

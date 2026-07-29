@@ -13,8 +13,8 @@ use super::geometry;
 use super::style;
 use super::types::{AvatarRadius, AvatarSize};
 use super::{
-    Avatar, AvatarBadge, AvatarFallback, AvatarGroup, AvatarGroupCount, AvatarGroupItem,
-    AvatarImage, AvatarTextContent,
+    Avatar, AvatarBadge, AvatarBadgeContent, AvatarFallback, AvatarGroup, AvatarGroupCount,
+    AvatarGroupItem, AvatarImage, AvatarTextContent,
 };
 use crate::fonts::iced_font;
 
@@ -71,7 +71,10 @@ where
     container(content)
         .width(width)
         .height(height)
-        .clip(true)
+        // The source root is `overflow: visible`: badge rings must remain
+        // visible outside the avatar footprint. Image and fallback layers
+        // apply their own radius-aware clipping.
+        .clip(false)
         .style(move |_| resolved)
         .into()
 }
@@ -176,7 +179,7 @@ where
             .font(font)
             .color(color)
             .into(),
-        AvatarTextContent::Element(element) => element,
+        AvatarTextContent::Element(element) | AvatarTextContent::Icon(element) => element,
     }
 }
 
@@ -196,21 +199,93 @@ where
     } = badge;
 
     let badge_size = geometry::badge_size(avatar_size);
-    let content = content.unwrap_or_else(|| Space::new().into());
+    let badge_width = width.unwrap_or(Length::Fixed(badge_size));
+    let badge_height = height.unwrap_or(Length::Fixed(badge_size));
+    let content = match content {
+        Some(AvatarBadgeContent::Element(element)) => element,
+        Some(AvatarBadgeContent::Icon(element)) => {
+            if let Some(icon_size) = geometry::badge_icon_size(avatar_size) {
+                let icon_color = theme.palette.primary_foreground;
+                container(element)
+                    .width(Length::Fixed(icon_size))
+                    .height(Length::Fixed(icon_size))
+                    .align_x(Horizontal::Center)
+                    .align_y(Vertical::Center)
+                    .style(move |_| container::Style {
+                        text_color: Some(icon_color),
+                        ..container::Style::default()
+                    })
+                    .into()
+            } else {
+                Space::new().into()
+            }
+        }
+        None => Space::new().into(),
+    };
     let mut resolved = style::resolve_badge_style(theme, avatar_size);
 
     if let Some(override_fn) = style_override.as_ref() {
         resolved = override_fn(resolved);
     }
 
-    container(content)
-        .width(width.unwrap_or(Length::Fixed(badge_size)))
-        .height(height.unwrap_or(Length::Fixed(badge_size)))
+    let ring_width = resolved.border.width.max(0.0);
+    let ring_color = resolved.border.color;
+    let fixed_size =
+        matches!(badge_width, Length::Fixed(_)) && matches!(badge_height, Length::Fixed(_));
+    let mut surface_style = resolved;
+    if fixed_size {
+        surface_style.border.width = 0.0;
+    }
+
+    let surface = container(content)
+        .width(badge_width)
+        .height(badge_height)
         .align_x(Horizontal::Center)
         .align_y(Vertical::Center)
         .clip(true)
-        .style(move |_| resolved)
-        .into()
+        .style(move |_| surface_style);
+
+    // CSS `ring-2` is an external box-shadow. Keep the badge's nominal
+    // footprint at 8/10/12px while painting the ring in a larger overflow
+    // layer. Non-fixed custom lengths retain the regular container behavior;
+    // the source-sized path (and explicit fixed sizes) gets exact ring
+    // geometry without asking iced to infer a size from an arbitrary child.
+    if fixed_size {
+        let badge_width_px = match badge_width {
+            Length::Fixed(value) => value.max(1.0),
+            _ => badge_size,
+        };
+        let badge_height_px = match badge_height {
+            Length::Fixed(value) => value.max(1.0),
+            _ => badge_size,
+        };
+        let ring_width_px = badge_width_px + ring_width * 2.0;
+        let ring_height_px = badge_height_px + ring_width * 2.0;
+        let surface_layer = container(surface)
+            .width(Length::Fixed(ring_width_px))
+            .height(Length::Fixed(ring_height_px))
+            .align_x(Horizontal::Center)
+            .align_y(Vertical::Center)
+            .clip(false);
+        let overlay = container(Space::new())
+            .width(Length::Fixed(ring_width_px))
+            .height(Length::Fixed(ring_height_px))
+            .style(move |_| {
+                style::resolve_badge_ring_style(
+                    ring_color,
+                    badge_width_px.min(badge_height_px) / 2.0 + ring_width,
+                    ring_width,
+                )
+            });
+        let ring = stack![surface_layer, overlay]
+            .width(Length::Fixed(ring_width_px))
+            .height(Length::Fixed(ring_height_px))
+            .clip(false);
+
+        overflow_slot(ring.into(), badge_width, badge_height, ring_width)
+    } else {
+        surface.into()
+    }
 }
 
 pub(super) fn build_group_count<'a, Message>(
@@ -235,14 +310,30 @@ where
         resolved = override_fn(resolved);
     }
 
-    let content = build_text_content(
-        content,
-        theme,
-        metrics.size_px,
-        metrics.line_height_px,
-        theme.palette.muted_foreground,
-        None,
-    );
+    let content = match content {
+        AvatarTextContent::Icon(element) => {
+            let icon_size = geometry::group_count_icon_size(group_size);
+            let icon_color = theme.palette.muted_foreground;
+            container(element)
+                .width(Length::Fixed(icon_size))
+                .height(Length::Fixed(icon_size))
+                .align_x(Horizontal::Center)
+                .align_y(Vertical::Center)
+                .style(move |_| container::Style {
+                    text_color: Some(icon_color),
+                    ..container::Style::default()
+                })
+                .into()
+        }
+        content => build_text_content(
+            content,
+            theme,
+            metrics.size_px,
+            metrics.line_height_px,
+            theme.palette.muted_foreground,
+            None,
+        ),
+    };
 
     let content = container(content)
         .width(width.unwrap_or(Length::Fixed(size_px)))
@@ -364,7 +455,7 @@ where
         .height(Length::Fixed(ring_size))
         .clip(false);
 
-    overflow_slot(ring.into(), size)
+    overflow_slot(ring.into(), Length::Fixed(size), Length::Fixed(size), 2.0)
 }
 
 fn count_slot<'a, Message>(
@@ -396,19 +487,31 @@ where
         .height(Length::Fixed(ring_size))
         .clip(false);
 
-    overflow_slot(ring.into(), size)
+    overflow_slot(ring.into(), Length::Fixed(size), Length::Fixed(size), 2.0)
 }
 
-fn overflow_slot<'a, Message>(content: Element<'a, Message>, size: f32) -> Element<'a, Message>
+fn overflow_slot<'a, Message>(
+    content: Element<'a, Message>,
+    width: Length,
+    height: Length,
+    overflow: f32,
+) -> Element<'a, Message>
 where
     Message: 'a,
 {
-    Element::new(OverflowSlot { content, size })
+    Element::new(OverflowSlot {
+        content,
+        width,
+        height,
+        overflow,
+    })
 }
 
 struct OverflowSlot<'a, Message> {
     content: Element<'a, Message>,
-    size: f32,
+    width: Length,
+    height: Length,
+    overflow: f32,
 }
 
 impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, Message> {
@@ -421,7 +524,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, 
     }
 
     fn size(&self) -> Size<Length> {
-        Size::new(Length::Fixed(self.size), Length::Fixed(self.size))
+        Size::new(self.width, self.height)
     }
 
     fn layout(
@@ -430,12 +533,11 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, 
         renderer: &iced::Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let size = limits.resolve(
-            Length::Fixed(self.size),
-            Length::Fixed(self.size),
-            Size::ZERO,
+        let size = limits.resolve(self.width, self.height, Size::ZERO);
+        let child_size = Size::new(
+            size.width + self.overflow * 2.0,
+            size.height + self.overflow * 2.0,
         );
-        let child_size = Size::new(size.width + 4.0, size.height + 4.0);
         let child_limits = layout::Limits::new(Size::ZERO, child_size);
         let child =
             self.content

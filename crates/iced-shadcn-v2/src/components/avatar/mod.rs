@@ -9,7 +9,7 @@
 //!
 //! ```rust,no_run
 //! use iced::{Element, widget::text};
-//! use iced_shadcn_v2::{Avatar, AvatarFallback, AvatarSize, Theme};
+//! use iced_shadcn_v2::{Avatar, AvatarBadge, AvatarFallback, AvatarSize, Theme};
 //!
 //! #[derive(Debug, Clone)]
 //! enum Message {}
@@ -18,7 +18,7 @@
 //!     Avatar::new(theme)
 //!         .size(AvatarSize::Lg)
 //!         .fallback(AvatarFallback::text("CN", theme))
-//!         .push_badge(text("+"))
+//!         .badge(AvatarBadge::icon(text("+"), theme))
 //!         .into()
 //! }
 //! ```
@@ -48,6 +48,7 @@ use crate::theme::Theme;
 /// The handle is intentionally owned so callers can use a path, encoded image
 /// bytes, or already-decoded RGBA pixels without an additional wrapper type.
 #[derive(Clone, Debug)]
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AvatarImage {
     handle: image_widget::Handle,
     content_fit: ContentFit,
@@ -146,6 +147,7 @@ impl From<PathBuf> for AvatarImage {
 enum AvatarTextContent<'a, Message> {
     Label(Fragment<'a>),
     Element(Element<'a, Message>),
+    Icon(Element<'a, Message>),
 }
 
 impl<Message> AvatarTextContent<'_, Message> {
@@ -153,11 +155,27 @@ impl<Message> AvatarTextContent<'_, Message> {
         match self {
             Self::Label(_) => "label",
             Self::Element(_) => "element",
+            Self::Icon(_) => "icon",
+        }
+    }
+}
+
+enum AvatarBadgeContent<'a, Message> {
+    Element(Element<'a, Message>),
+    Icon(Element<'a, Message>),
+}
+
+impl<Message> AvatarBadgeContent<'_, Message> {
+    fn kind(&self) -> &'static str {
+        match self {
+            Self::Element(_) => "element",
+            Self::Icon(_) => "icon",
         }
     }
 }
 
 /// Content displayed when an [`AvatarImage`] is not available.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AvatarFallback<'a, Message> {
     content: AvatarTextContent<'a, Message>,
     theme: &'a Theme,
@@ -273,8 +291,9 @@ where
 }
 
 /// A primary-colored status dot or icon positioned at an avatar's bottom-right.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AvatarBadge<'a, Message> {
-    content: Option<Element<'a, Message>>,
+    content: Option<AvatarBadgeContent<'a, Message>>,
     theme: &'a Theme,
     width: Option<Length>,
     height: Option<Length>,
@@ -285,7 +304,10 @@ impl<Message> fmt::Debug for AvatarBadge<'_, Message> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("AvatarBadge")
-            .field("content", &self.content.is_some())
+            .field(
+                "content",
+                &self.content.as_ref().map(AvatarBadgeContent::kind),
+            )
             .field("theme", &self.theme)
             .field("width", &self.width)
             .field("height", &self.height)
@@ -298,7 +320,7 @@ impl<'a, Message> AvatarBadge<'a, Message> {
     /// Creates a badge with arbitrary content.
     pub fn new(content: impl Into<Element<'a, Message>>, theme: &'a Theme) -> Self {
         Self {
-            content: Some(content.into()),
+            content: Some(AvatarBadgeContent::Element(content.into())),
             theme,
             width: None,
             height: None,
@@ -320,6 +342,22 @@ impl<'a, Message> AvatarBadge<'a, Message> {
     /// Creates a text badge.
     pub fn text(label: impl IntoFragment<'a>, theme: &'a Theme) -> Self {
         Self::new(iced::widget::text(label), theme)
+    }
+
+    /// Creates a badge containing an icon-sized element.
+    ///
+    /// This follows the source component's direct-`svg` selectors: the icon
+    /// is hidden for [`AvatarSize::Sm`] and constrained to 8px for the other
+    /// preset avatar sizes. Use [`Self::new`] when the badge should preserve
+    /// arbitrary child layout instead.
+    pub fn icon(content: impl Into<Element<'a, Message>>, theme: &'a Theme) -> Self {
+        Self {
+            content: Some(AvatarBadgeContent::Icon(content.into())),
+            theme,
+            width: None,
+            height: None,
+            style_override: None,
+        }
     }
 
     /// Sets an explicit badge width.
@@ -362,6 +400,7 @@ where
 }
 
 /// A count or action item appended to an [`AvatarGroup`].
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AvatarGroupCount<'a, Message> {
     content: AvatarTextContent<'a, Message>,
     theme: &'a Theme,
@@ -398,6 +437,22 @@ impl<'a, Message> AvatarGroupCount<'a, Message> {
     pub fn text(label: impl IntoFragment<'a>, theme: &'a Theme) -> Self {
         Self {
             content: AvatarTextContent::Label(label.into_fragment()),
+            theme,
+            width: None,
+            height: None,
+            style_override: None,
+        }
+    }
+
+    /// Creates a group count containing an icon-sized element.
+    ///
+    /// The icon follows the source component's size selectors: 12px for a
+    /// small group, 16px for the default group, and 20px for a large group.
+    /// Use [`Self::new`] when the count should preserve arbitrary child
+    /// layout instead.
+    pub fn icon(content: impl Into<Element<'a, Message>>, theme: &'a Theme) -> Self {
+        Self {
+            content: AvatarTextContent::Icon(content.into()),
             theme,
             width: None,
             height: None,
@@ -445,6 +500,7 @@ where
 }
 
 /// A composable avatar root with image, fallback, and badge slots.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct Avatar<'a, Message> {
     theme: &'a Theme,
     size: AvatarSize,
@@ -609,6 +665,7 @@ enum AvatarGroupItem<'a, Message> {
 }
 
 /// A horizontally-overlapping collection of avatars and an optional count.
+#[must_use = "builders do nothing unless turned into an iced Element"]
 pub struct AvatarGroup<'a, Message> {
     theme: &'a Theme,
     items: Vec<AvatarGroupItem<'a, Message>>,

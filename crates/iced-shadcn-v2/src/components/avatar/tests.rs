@@ -59,7 +59,9 @@ fn all_public_slot_types_convert_to_elements_without_message_debug() {
 
     let _: Element<'_, NoDebugMessage> = AvatarFallback::text("CN", &theme).into();
     let _: Element<'_, NoDebugMessage> = AvatarBadge::dot(&theme).into();
+    let _: Element<'_, NoDebugMessage> = AvatarBadge::icon(text("+"), &theme).into();
     let _: Element<'_, NoDebugMessage> = AvatarGroupCount::text("+3", &theme).into();
+    let _: Element<'_, NoDebugMessage> = AvatarGroupCount::icon(text("+"), &theme).into();
     let _: Element<'_, NoDebugMessage> = AvatarGroup::new(&theme).into();
 
     assert!(format!("{:?}", Avatar::<NoDebugMessage>::new(&theme)).contains("Avatar"));
@@ -98,6 +100,12 @@ fn source_geometry_is_preserved() {
     assert_eq!(geometry::badge_size(AvatarSize::Sm), 8.0);
     assert_eq!(geometry::badge_size(AvatarSize::Default), 10.0);
     assert_eq!(geometry::badge_size(AvatarSize::Lg), 12.0);
+    assert_eq!(geometry::badge_icon_size(AvatarSize::Sm), None);
+    assert_eq!(geometry::badge_icon_size(AvatarSize::Default), Some(8.0));
+    assert_eq!(geometry::badge_icon_size(AvatarSize::Lg), Some(8.0));
+    assert_eq!(geometry::group_count_icon_size(AvatarSize::Sm), 12.0);
+    assert_eq!(geometry::group_count_icon_size(AvatarSize::Default), 16.0);
+    assert_eq!(geometry::group_count_icon_size(AvatarSize::Lg), 20.0);
 
     let fallback_sm = geometry::fallback_metrics(AvatarSize::Sm);
     let fallback_default = geometry::fallback_metrics(AvatarSize::Default);
@@ -155,6 +163,9 @@ fn semantic_styles_follow_light_and_dark_theme_tokens() {
             style::resolve_group_ring_style(&theme, 36.0).border.width,
             2.0
         );
+        let badge_ring = style::resolve_badge_ring_style(Color::BLACK, 7.0, 2.0);
+        assert_eq!(badge_ring.border.color, Color::BLACK);
+        assert_eq!(badge_ring.border.width, 2.0);
     }
 }
 

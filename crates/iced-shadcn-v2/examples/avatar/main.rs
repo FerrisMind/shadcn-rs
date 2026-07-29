@@ -120,13 +120,13 @@ impl Example {
                 Avatar::new(theme)
                     .radius(radius)
                     .fallback_text("PP")
-                    .badge(AvatarBadge::text("+", theme)),
+                    .badge(AvatarBadge::icon(text("+").size(8), theme)),
                 Avatar::new(theme)
                     .size(AvatarSize::Lg)
                     .radius(radius)
                     .image(sample_image())
                     .fallback_text("OK")
-                    .badge(AvatarBadge::text("✓", theme)),
+                    .badge(AvatarBadge::icon(text("✓").size(8), theme)),
             ]
             .spacing(20)
             .align_y(iced::alignment::Vertical::Center),
@@ -145,12 +145,12 @@ impl Example {
                         .fallback_text("LR"),
                 )
                 .push(
-                    Avatar::new(theme)
-                        .size(AvatarSize::Sm)
-                        .image(reference_image("03.png"))
-                        .fallback_text("ER"),
-                )
-                .count(AvatarGroupCount::text("+3", theme)),
+                Avatar::new(theme)
+                    .size(AvatarSize::Sm)
+                    .image(reference_image("03.png"))
+                    .fallback_text("ER"),
+            )
+                .count(AvatarGroupCount::icon(text("+").size(10), theme)),
             AvatarGroup::new(theme)
                 .push(
                     Avatar::new(theme)

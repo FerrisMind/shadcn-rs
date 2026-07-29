@@ -49,6 +49,18 @@ pub(super) fn resolve_badge_style(theme: &Theme, size: AvatarSize) -> container:
     }
 }
 
+pub(super) fn resolve_badge_ring_style(color: Color, radius: f32, width: f32) -> container::Style {
+    container::Style {
+        border: Border {
+            color,
+            width: geometry::normalize_px(width),
+            radius: geometry::normalize_px(radius).into(),
+        },
+        snap: true,
+        ..container::Style::default()
+    }
+}
+
 pub(super) fn resolve_group_ring_style(theme: &Theme, radius: f32) -> container::Style {
     container::Style {
         border: Border {
