@@ -16,6 +16,7 @@ with native `iced` types.
   - `components::card` — composable card root with header, title,
     description, action, content, and footer slots.
   - `components::label` — form label with style-pack typography and `for` / click.
+  - `components::scroll_area` — themed rail and thumb over iced's own scrolling.
   - `components::separator` — horizontal/vertical rule.
   - `components::skeleton` — theme-aware pulse and static placeholders.
   - `components::spinner` — canvas-based loading indicator.
@@ -27,7 +28,8 @@ with native `iced` types.
   - `theme::typography` — body, heading, and font-pack selection APIs.
 - `fonts` — font-face exports and the iced font adapter.
 
-The root `alert`, `badge`, `button`, `card`, `checkbox`, `label`, `separator`, `skeleton`, and `spinner`
+The root `alert`, `badge`, `button`, `card`, `checkbox`, `label`, `scroll_area`, `separator`,
+`skeleton`, and `spinner`
 modules are compatibility re-exports of `components`, so existing v2 imports
 remain valid while new code can use the feature-oriented
 `iced_shadcn_v2::components::*` paths.
@@ -122,6 +124,7 @@ cargo run -p iced-shadcn-v2 --example skeleton
 cargo run -p iced-shadcn-v2 --example spinner
 cargo run -p iced-shadcn-v2 --example progress
 cargo run -p iced-shadcn-v2 --example checkbox
+cargo run -p iced-shadcn-v2 --example scroll_area
 ```
 
 ```rust,no_run

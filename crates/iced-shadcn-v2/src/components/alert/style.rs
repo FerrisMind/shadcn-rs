@@ -43,10 +43,9 @@ pub(super) fn foreground_color(theme: &Theme, variant: AlertVariant) -> Color {
 pub(super) fn description_color(theme: &Theme, variant: AlertVariant) -> Color {
     match variant {
         AlertVariant::Default => theme.palette.muted_foreground,
-        AlertVariant::Destructive => with_alpha(
-            theme.semantic_color(SemanticColor::Destructive),
-            0.90,
-        ),
+        AlertVariant::Destructive => {
+            with_alpha(theme.semantic_color(SemanticColor::Destructive), 0.90)
+        }
     }
 }
 

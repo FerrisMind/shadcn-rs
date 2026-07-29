@@ -36,10 +36,10 @@ pub mod fonts;
 pub mod recipes;
 pub mod theme;
 
-/// Backwards-compatible access to the aspect-ratio component.
-pub use components::aspect_ratio;
 /// Backwards-compatible access to the alert component.
 pub use components::alert;
+/// Backwards-compatible access to the aspect-ratio component.
+pub use components::aspect_ratio;
 /// Backwards-compatible access to the badge component.
 pub use components::badge;
 /// Backwards-compatible access to the button component.
@@ -54,6 +54,8 @@ pub use components::kbd;
 pub use components::label;
 /// Backwards-compatible access to the progress component.
 pub use components::progress;
+/// Backwards-compatible access to the scroll-area component.
+pub use components::scroll_area;
 /// Backwards-compatible access to the separator component.
 pub use components::separator;
 /// Backwards-compatible access to the skeleton component.
@@ -69,8 +71,10 @@ pub use components::toggle;
 /// Backwards-compatible access to the typography component.
 pub use components::typography;
 
+pub use components::alert::{
+    Alert, AlertAction, AlertDescription, AlertRadius, AlertTitle, AlertVariant,
+};
 pub use components::aspect_ratio::{AspectRatio, MIN_ASPECT_RATIO, aspect_ratio};
-pub use components::alert::{Alert, AlertAction, AlertDescription, AlertRadius, AlertTitle, AlertVariant};
 pub use components::badge::{Badge, BadgeBuildError, BadgeRadius, BadgeVariant};
 pub use components::button::{Button, ButtonBuildError, ButtonRadius, ButtonSize, ButtonVariant};
 pub use components::card::{
@@ -85,6 +89,10 @@ pub use components::label::{Label, LabelContext};
 pub use components::progress::{
     Progress, ProgressOrientation, ProgressRadius, ProgressSize, ProgressState, ProgressVariant,
     progress,
+};
+pub use components::scroll_area::{
+    ScrollArea, ScrollAreaAnchor, ScrollAreaBuildError, ScrollAreaOrientation, ScrollAreaRadius,
+    ScrollAreaScrollbar,
 };
 pub use components::separator::{Separator, SeparatorOrientation, separator};
 pub use components::skeleton::{

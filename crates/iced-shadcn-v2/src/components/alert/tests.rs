@@ -48,7 +48,7 @@ fn builder_supports_all_source_slots_and_arbitrary_children() {
     assert_eq!(alert.padding, Some(Padding::new(12.0)));
     assert_eq!(alert.spacing, Some(6.0));
     assert!(alert.icon.is_some());
-    assert_eq!(alert.items.len(), 4);
+    assert_eq!(alert.items.len(), 3);
     assert!(alert.action.is_some());
 
     let _: Element<'_, NoDebugMessage> = alert.into();
@@ -113,7 +113,10 @@ fn theme_radius_matches_source_shape_families() {
     assert_eq!(geometry::radius_px(&luma, AlertRadius::Theme), 18.0);
     assert_eq!(geometry::radius_px(&rhea, AlertRadius::Theme), 18.0);
     assert_eq!(geometry::radius_px(&vega, AlertRadius::Custom(-4.0)), 0.0);
-    assert_eq!(geometry::radius_px(&vega, AlertRadius::Custom(f32::NAN)), 0.0);
+    assert_eq!(
+        geometry::radius_px(&vega, AlertRadius::Custom(f32::NAN)),
+        0.0
+    );
 }
 
 #[test]

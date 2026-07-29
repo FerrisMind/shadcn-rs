@@ -52,6 +52,10 @@ name = "alert"
 path = "examples/alert/main.rs"
 
 [[example]]
+name = "scroll_area"
+path = "examples/scroll_area/main.rs"
+
+[[example]]
 name = "separator"
 path = "examples/separator/main.rs"
 

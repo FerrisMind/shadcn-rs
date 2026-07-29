@@ -6,8 +6,8 @@
 //!
 //! Run: `cargo run -p iced-shadcn-v2 --example alert`
 
-use iced::widget::{Button, button, column, container, row, scrollable, text};
-use iced::{Alignment, Background, Element, Length, Task};
+use iced::widget::{column, container, row, scrollable, text};
+use iced::{Background, Element, Length, Task};
 
 use iced_shadcn_v2::{
     Alert, AlertAction, AlertDescription, AlertRadius, AlertTitle, AlertVariant, BaseColor,
@@ -148,7 +148,10 @@ impl Example {
         Alert::new(theme)
             .radius(self.radius.into())
             .icon(glyph("✓", theme))
-            .title(AlertTitle::text("Success! Your changes have been saved", theme))
+            .title(AlertTitle::text(
+                "Success! Your changes have been saved",
+                theme,
+            ))
             .description(AlertDescription::text(
                 "This is an alert with icon, title and description.",
                 theme,
@@ -227,12 +230,12 @@ fn style_button(style: StyleId, theme: &Theme) -> Element<'_, Message> {
         .into()
 }
 
-fn option_button<T>(
+fn option_button<'a, T>(
     label: &'static str,
     value: T,
-    theme: &Theme,
+    theme: &'a Theme,
     message: impl Fn(T) -> Message,
-) -> Element<'_, Message>
+) -> Element<'a, Message>
 where
     T: Copy + 'static,
 {
@@ -304,4 +307,3 @@ impl From<RadiusOpt> for AlertRadius {
         }
     }
 }
-

@@ -59,8 +59,8 @@ where
         let icon = container(icon)
             .width(Length::Fixed(metrics.icon_size_px))
             .height(Length::Fixed(metrics.icon_size_px))
-            .center_x(Length::Fill)
-            .center_y(Length::Fill)
+            .align_x(Horizontal::Center)
+            .align_y(Vertical::Center)
             .style(move |_| container::Style {
                 text_color: Some(icon_color),
                 ..container::Style::default()
