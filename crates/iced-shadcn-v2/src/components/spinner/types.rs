@@ -176,11 +176,18 @@ impl Spinner {
 
     /// Set per-bar amplitude values for Wave/Bars variants.
     ///
-    /// Each value in `[f32; 5]` is clamped to `[0.0, 1.0]` and maps to one bar.
+    /// Each value in `[f32; 5]` is clamped to `[0.0, 1.0]` and maps to one bar;
+    /// non-finite values (`NaN`, `±inf`) are treated as silence (`0.0`).
     /// When set, real audio amplitudes are used instead of the time-driven sine wave.
     /// For the `Bars` variant (3 bars) only the first 3 values are used.
     pub fn amplitudes(mut self, amps: [f32; 5]) -> Self {
-        self.amplitudes = Some(amps.map(|a| a.clamp(0.0, 1.0)));
+        self.amplitudes = Some(amps.map(|a| {
+            if a.is_finite() {
+                a.clamp(0.0, 1.0)
+            } else {
+                0.0
+            }
+        }));
         self
     }
 

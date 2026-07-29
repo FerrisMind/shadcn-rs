@@ -32,6 +32,27 @@ fn spinner_progress_compatibility_uses_external_progress_when_not_animated() {
 }
 
 #[test]
+fn spinner_progress_normalizes_non_finite_values() {
+    let theme = Theme::light();
+
+    assert_eq!(Spinner::new(&theme).progress(f32::NAN).progress, 0.0);
+    assert_eq!(Spinner::new(&theme).progress(f32::INFINITY).progress, 0.0);
+    assert_eq!(
+        Spinner::new(&theme).progress(f32::NEG_INFINITY).progress,
+        0.0
+    );
+}
+
+#[test]
+fn spinner_amplitudes_are_clamped_and_nan_becomes_silence() {
+    let theme = Theme::light();
+    let spinner =
+        Spinner::new(&theme).amplitudes([f32::NAN, f32::INFINITY, f32::NEG_INFINITY, -0.5, 1.5]);
+
+    assert_eq!(spinner.amplitudes, Some([0.0, 0.0, 0.0, 0.0, 1.0]));
+}
+
+#[test]
 fn ai_loader_segments_match_reference_contract() {
     assert_eq!(AI_LOADER_SEGMENTS.len(), 10);
     let expected_alpha = [1.0, 0.5, 0.9, 0.1, 0.4, 0.6, 0.2, 0.7, 0.3, 0.8];
