@@ -1,8 +1,8 @@
 //! Canvas rendering and pointer handling for [`super::Slider`].
 
-use iced::widget::canvas;
-use iced::widget::canvas::{Path, Stroke};
-use iced::{Point, Rectangle, Renderer, Size, mouse, touch};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::widget::canvas::{Path, Stroke};
+use crate::iced_compat::{Point, Rectangle, Renderer, Size, mouse, touch};
 
 use super::Slider;
 use super::geometry::{self, Metrics};
@@ -86,7 +86,7 @@ impl<Message> canvas::Program<Message> for Slider<'_, Message> {
         &self,
         state: &Self::State,
         renderer: &Renderer,
-        _theme: &iced::Theme,
+        _theme: &crate::iced_compat::Theme,
         bounds: Rectangle,
         cursor: mouse::Cursor,
     ) -> Vec<canvas::Geometry> {

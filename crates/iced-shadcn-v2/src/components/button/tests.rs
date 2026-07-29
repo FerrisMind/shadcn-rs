@@ -3,8 +3,8 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use iced::widget::{button as button_widget, container};
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::{button as button_widget, container};
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::AccentColor;
 use twill_core::prelude::{Padding, PaddingValue, PaddingVar, Spacing};
 
@@ -134,7 +134,7 @@ fn padding_builder_stores_resolved_padding() {
 
     assert_eq!(
         button.padding,
-        Some(iced::Padding {
+        Some(crate::iced_compat::Padding {
             top: 4.0,
             right: 8.0,
             bottom: 12.0,

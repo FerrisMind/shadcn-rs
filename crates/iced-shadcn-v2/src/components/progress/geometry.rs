@@ -1,6 +1,6 @@
 //! Size, radius, and value normalization for the progress component.
 
-use iced::Length;
+use crate::iced_compat::Length;
 
 use super::Progress;
 use super::types::{ProgressOrientation, ProgressRadius, ProgressSize, ProgressState};

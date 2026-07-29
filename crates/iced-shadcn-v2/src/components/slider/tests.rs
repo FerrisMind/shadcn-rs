@@ -1,6 +1,6 @@
 //! Behavioral tests for the slider component.
 
-use iced::{Color, Element, Length, Point, Rectangle, Size};
+use crate::iced_compat::{Color, Element, Length, Point, Rectangle, Size};
 use shadcn_common::{AccentColor, StyleId};
 
 use super::geometry;

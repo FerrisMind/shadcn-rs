@@ -17,11 +17,11 @@ pub use types::{BadgeRadius, BadgeVariant};
 
 use std::fmt;
 
-use iced::widget::button as button_widget;
-use iced::widget::button as iced_button;
-use iced::widget::container;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Element, Length};
+use crate::iced_compat::widget::button as button_widget;
+use crate::iced_compat::widget::button as iced_button;
+use crate::iced_compat::widget::container;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Element, Length};
 
 use shadcn_common::AccentColor;
 use twill_core::prelude::Padding;
@@ -68,7 +68,7 @@ pub struct Badge<'a, Message> {
     color: Option<AccentColor>,
     width: Length,
     height: Option<Length>,
-    padding: Option<iced::Padding>,
+    padding: Option<crate::iced_compat::Padding>,
     loading: bool,
     disabled: bool,
     icon_start: Option<Element<'a, Message>>,
@@ -263,7 +263,7 @@ impl<'a, Message> Badge<'a, Message> {
         self
     }
 
-    /// Builds the badge as an iced [`Element`].
+    /// Builds the badge as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: Clone + 'a,

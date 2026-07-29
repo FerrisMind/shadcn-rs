@@ -1,9 +1,9 @@
 //! Content composition for kbds (label, icon slots).
 
-use iced::alignment::Vertical;
-use iced::widget::text::{Fragment, LineHeight};
-use iced::widget::{container, row, text as iced_text};
-use iced::{Element, Length};
+use crate::iced_compat::alignment::Vertical;
+use crate::iced_compat::widget::text::{Fragment, LineHeight};
+use crate::iced_compat::widget::{container, row, text as iced_text};
+use crate::iced_compat::{Element, Length};
 
 use super::KbdContent;
 use super::geometry::{gap, icon_px};

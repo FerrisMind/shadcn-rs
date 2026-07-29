@@ -7,9 +7,9 @@
 //! `focus-visible:border-ring` part of the web rule. Sera's underline-only
 //! border cannot be expressed either — it degrades to a full hairline box.
 
-use iced::border::Border;
-use iced::widget::text_input;
-use iced::{Background, Color};
+use crate::iced_compat::border::Border;
+use crate::iced_compat::widget::text_input;
+use crate::iced_compat::{Background, Color};
 
 use shadcn_common::{AccentColor, StyleId};
 use twill_core::prelude::theme::SemanticColor;

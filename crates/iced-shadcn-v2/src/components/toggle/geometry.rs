@@ -1,6 +1,6 @@
 //! Toggle dimensions and padding resolution.
 
-use iced::Length;
+use crate::iced_compat::Length;
 use shadcn_common::{ControlSize, ToggleSizeRecipe};
 
 use super::types::ToggleSize;
@@ -39,13 +39,13 @@ impl ToggleSize {
         icon_only: bool,
         icon_start: bool,
         icon_end: bool,
-    ) -> iced::Padding {
+    ) -> crate::iced_compat::Padding {
         if icon_only {
-            return iced::Padding::ZERO;
+            return crate::iced_compat::Padding::ZERO;
         }
 
         let recipe = self.recipe(theme);
-        iced::Padding {
+        crate::iced_compat::Padding {
             top: 0.0,
             right: if icon_end {
                 recipe.pad_x_icon_px

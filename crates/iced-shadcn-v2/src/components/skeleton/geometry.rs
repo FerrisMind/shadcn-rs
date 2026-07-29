@@ -1,6 +1,6 @@
 //! Shape geometry for skeleton placeholders.
 
-use iced::Size;
+use crate::iced_compat::Size;
 
 use super::types::{SkeletonRadius, SkeletonShape};
 use crate::theme::Theme;

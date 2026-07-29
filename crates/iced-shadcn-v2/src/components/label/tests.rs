@@ -1,7 +1,7 @@
 //! Behavioral tests for the label component.
 
-use iced::widget::{container, text};
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::{container, text};
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::{FontWeight, StyleId};
 
 use super::style;

@@ -2,8 +2,8 @@
 
 use std::time::Duration;
 
-use iced::widget::canvas;
-use iced::{Color, Length, Size};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::{Color, Length, Size};
 
 use crate::theme::Theme;
 
@@ -212,6 +212,6 @@ pub fn spinner<Message>(spinner: Spinner) -> canvas::Canvas<Spinner, Message> {
 /// Internal animation state of a [`Spinner`] canvas program.
 #[derive(Debug, Default)]
 pub struct SpinnerState {
-    pub(super) start_time: Option<iced::time::Instant>,
+    pub(super) start_time: Option<crate::iced_compat::time::Instant>,
     pub(super) phase: f32,
 }

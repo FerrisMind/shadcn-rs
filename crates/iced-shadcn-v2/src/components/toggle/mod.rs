@@ -42,10 +42,10 @@ pub use types::{ToggleRadius, ToggleSize, ToggleVariant};
 
 use std::fmt;
 
-use iced::widget::button as button_widget;
-use iced::widget::button as iced_button;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Element, Length};
+use crate::iced_compat::widget::button as button_widget;
+use crate::iced_compat::widget::button as iced_button;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Element, Length};
 
 use crate::theme::Theme;
 
@@ -86,7 +86,7 @@ pub struct Toggle<'a, Message> {
     disabled: bool,
     width: Length,
     height: Option<Length>,
-    padding: Option<iced::Padding>,
+    padding: Option<crate::iced_compat::Padding>,
     full_width: bool,
     on_toggle: Option<Box<dyn Fn(bool) -> Message + 'a>>,
     style_override: Option<
@@ -367,7 +367,7 @@ impl<'a, Message> Toggle<'a, Message> {
     /// let theme = Theme::light();
     /// let toggle = Toggle::<Message>::text("Bold", &theme).padding([0, 16]);
     /// ```
-    pub fn padding(mut self, padding: impl Into<iced::Padding>) -> Self {
+    pub fn padding(mut self, padding: impl Into<crate::iced_compat::Padding>) -> Self {
         self.padding = Some(padding.into());
         self
     }

@@ -5,10 +5,10 @@ use twill_core::prelude::{Padding, PaddingValue, Spacing};
 use super::error::BadgeBuildError;
 use crate::theme::Theme;
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<iced::Padding, BadgeBuildError> {
+pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, BadgeBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
-    Ok(iced::Padding {
+    Ok(crate::iced_compat::Padding {
         top: top.map(padding_value_px).transpose()?.unwrap_or(0.0),
         right: right.map(padding_value_px).transpose()?.unwrap_or(0.0),
         bottom: bottom.map(padding_value_px).transpose()?.unwrap_or(0.0),
@@ -69,9 +69,9 @@ pub(super) fn default_padding(
     theme: &Theme,
     has_icon_start: bool,
     has_icon_end: bool,
-) -> iced::Padding {
+) -> crate::iced_compat::Padding {
     let recipe = theme.style.badge();
-    iced::Padding {
+    crate::iced_compat::Padding {
         top: 0.0,
         right: if has_icon_end {
             recipe.pad_x_icon_px

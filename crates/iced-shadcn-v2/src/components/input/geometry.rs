@@ -11,10 +11,10 @@ use super::error::InputBuildError;
 use super::types::InputSize;
 use crate::theme::Theme;
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<iced::Padding, InputBuildError> {
+pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, InputBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
-    Ok(iced::Padding {
+    Ok(crate::iced_compat::Padding {
         top: top.map(padding_value_px).transpose()?.unwrap_or(0.0),
         right: right.map(padding_value_px).transpose()?.unwrap_or(0.0),
         bottom: bottom.map(padding_value_px).transpose()?.unwrap_or(0.0),
@@ -93,11 +93,11 @@ pub(super) fn line_height_px(text_size: f32) -> f32 {
 
 /// Default padding recreating `.cn-input` (`px-*` from the pack, `py`
 /// derived from the fixed control height).
-pub(super) fn default_padding(theme: &Theme, size: InputSize, text_size: f32) -> iced::Padding {
+pub(super) fn default_padding(theme: &Theme, size: InputSize, text_size: f32) -> crate::iced_compat::Padding {
     let pad_x = super::style::pack_pad_x(theme);
     let pad_y = ((size.control_height(theme) - line_height_px(text_size)) / 2.0).max(0.0);
 
-    iced::Padding {
+    crate::iced_compat::Padding {
         top: pad_y,
         right: pad_x,
         bottom: pad_y,

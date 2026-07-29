@@ -3,8 +3,8 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use iced::widget::{button as button_widget, container};
-use iced::{Background, Color, Element, Length};
+use crate::iced_compat::widget::{button as button_widget, container};
+use crate::iced_compat::{Background, Color, Element, Length};
 use shadcn_common::StyleId;
 
 use super::geometry;
@@ -77,7 +77,7 @@ fn builder_updates_semantic_fields() {
     assert!(toggle.disabled);
     assert_eq!(toggle.width, Length::Fixed(120.0));
     assert_eq!(toggle.height, Some(Length::Fixed(48.0)));
-    assert_eq!(toggle.padding, Some(iced::Padding::from([0, 16])));
+    assert_eq!(toggle.padding, Some(crate::iced_compat::Padding::from([0, 16])));
     assert!(toggle.full_width);
 }
 
@@ -337,7 +337,7 @@ fn icon_toggles_drop_the_horizontal_padding() {
 
     assert_eq!(
         ToggleSize::Default.default_padding(&theme, true, false, false),
-        iced::Padding::ZERO,
+        crate::iced_compat::Padding::ZERO,
     );
 
     let padded = ToggleSize::Default.default_padding(&theme, false, false, false);

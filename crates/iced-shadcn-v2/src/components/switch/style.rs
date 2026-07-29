@@ -5,7 +5,7 @@
 //! mode swaps in `foreground` / `primary-foreground`), and the ring uses `ring`
 //! for focus and `destructive` for invalid values.
 
-use iced::Color;
+use crate::iced_compat::Color;
 use twill_core::prelude::theme::SemanticColor;
 
 use super::Switch;

@@ -32,8 +32,8 @@ mod tests;
 
 pub use types::{CheckboxConfig, CheckboxSize, CheckboxState, CheckboxVariant};
 
-use iced::widget::checkbox as checkbox_widget;
-use iced::{Element, Length, Pixels};
+use crate::iced_compat::widget::checkbox as checkbox_widget;
+use crate::iced_compat::{Element, Length, Pixels};
 use std::fmt;
 
 use crate::theme::Theme;

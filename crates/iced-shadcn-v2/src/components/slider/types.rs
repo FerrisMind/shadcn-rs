@@ -1,6 +1,6 @@
 //! Public configuration, style, and state types for the slider component.
 
-use iced::Color;
+use crate::iced_compat::Color;
 
 /// Axis a [`super::Slider`] runs along.
 ///

@@ -1,9 +1,9 @@
 //! Content composition for typography blocks.
 
-use iced::alignment;
-use iced::widget::text::{Fragment, LineHeight};
-use iced::widget::{column, container, row, text as iced_text};
-use iced::{Background, Color, Element, Font, Length, Padding};
+use crate::iced_compat::alignment;
+use crate::iced_compat::widget::text::{Fragment, LineHeight};
+use crate::iced_compat::widget::{column, container, row, text as iced_text};
+use crate::iced_compat::{Background, Color, Element, Font, Length, Padding};
 
 use super::style::{
     BLOCKQUOTE_BAR_PX, BLOCKQUOTE_INSET_PX, H2_UNDERLINE_GAP_PX, INLINE_CODE_PADDING_X_PX,
@@ -55,7 +55,7 @@ pub(super) fn apply_chrome<'a, Message: 'a>(
             .into(),
         TypographyVariant::Blockquote => {
             let bar_color = theme.palette.border;
-            let bar = container(iced::widget::Space::new())
+            let bar = container(crate::iced_compat::widget::Space::new())
                 .width(Length::Fixed(BLOCKQUOTE_BAR_PX))
                 .height(Length::Fill)
                 .style(move |_| solid(bar_color));
@@ -78,9 +78,9 @@ pub(super) fn apply_chrome<'a, Message: 'a>(
                 })
                 .style(move |_| container::Style {
                     background: Some(Background::Color(background)),
-                    border: iced::Border {
+                    border: crate::iced_compat::Border {
                         radius: radius.into(),
-                        ..iced::Border::default()
+                        ..crate::iced_compat::Border::default()
                     },
                     ..container::Style::default()
                 })
@@ -109,7 +109,7 @@ pub(super) fn apply_margin_top<'a, Message: 'a>(
 
 /// 1 px full-width rule in `color` (`border-b` / table grid lines).
 pub(super) fn horizontal_rule<'a, Message: 'a>(color: Color) -> Element<'a, Message> {
-    container(iced::widget::Space::new())
+    container(crate::iced_compat::widget::Space::new())
         .width(Length::Fill)
         .height(Length::Fixed(RULE_PX))
         .style(move |_| solid(color))
@@ -118,7 +118,7 @@ pub(super) fn horizontal_rule<'a, Message: 'a>(color: Color) -> Element<'a, Mess
 
 /// 1 px full-height rule in `color` (table column separators).
 pub(super) fn vertical_rule<'a, Message: 'a>(color: Color) -> Element<'a, Message> {
-    container(iced::widget::Space::new())
+    container(crate::iced_compat::widget::Space::new())
         .width(Length::Fixed(RULE_PX))
         .height(Length::Fill)
         .style(move |_| solid(color))

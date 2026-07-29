@@ -1,6 +1,6 @@
 //! Iced color palette derived from shadcn semantic tokens.
 
-use iced::Color;
+use crate::iced_compat::Color;
 use shadcn_common::{OklchColor, ResolvedTheme};
 use twill_core::tokens::ColorValue;
 

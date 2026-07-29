@@ -1,7 +1,7 @@
 //! Viewport composition and widget construction for [`super::ScrollArea`].
 
-use iced::Element;
-use iced::widget::{container, scrollable};
+use crate::iced_compat::Element;
+use crate::iced_compat::widget::{container, scrollable};
 
 use super::{ScrollArea, geometry, style};
 
@@ -79,7 +79,7 @@ pub(super) fn build_scrollable<'a, Message: 'a>(
 /// rails keep hugging the frame edge instead of floating in the padding box.
 fn build_viewport<'a, Message: 'a>(
     content: Element<'a, Message>,
-    padding: Option<iced::Padding>,
+    padding: Option<crate::iced_compat::Padding>,
 ) -> Element<'a, Message> {
     match padding {
         Some(padding) => container(content).padding(padding).into(),

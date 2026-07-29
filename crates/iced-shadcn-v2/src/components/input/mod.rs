@@ -48,9 +48,9 @@ pub use types::{InputRadius, InputSize};
 
 use std::fmt;
 
-use iced::widget::text::{Fragment, IntoFragment, LineHeight};
-use iced::widget::text_input as text_input_widget;
-use iced::{Element, Font, Length, Pixels, alignment, widget};
+use crate::iced_compat::widget::text::{Fragment, IntoFragment, LineHeight};
+use crate::iced_compat::widget::text_input as text_input_widget;
+use crate::iced_compat::{Element, Font, Length, Pixels, alignment, widget};
 
 use shadcn_common::AccentColor;
 use twill_core::prelude::Padding;
@@ -99,7 +99,7 @@ pub struct Input<'a, Message> {
     /// `None` = theme ring/primary; `Some` = accent overlay from `shadcn-common`.
     color: Option<AccentColor>,
     width: Length,
-    padding: Option<iced::Padding>,
+    padding: Option<crate::iced_compat::Padding>,
     text_size: Option<f32>,
     align_x: alignment::Horizontal,
     secure: bool,
@@ -428,7 +428,7 @@ impl<'a, Message> Input<'a, Message> {
     }
 }
 
-/// Convenience wrapper mirroring [`iced::widget::text_input()`].
+/// Convenience wrapper mirroring [`iced::widget::text_input()`](iced_widget::text_input()).
 ///
 /// ```rust,no_run
 /// use iced::Element;

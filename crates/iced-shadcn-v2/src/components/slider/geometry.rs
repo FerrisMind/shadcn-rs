@@ -1,6 +1,6 @@
 //! Geometry, layout, and value mapping for the slider component.
 
-use iced::{Length, Point, Rectangle, Size};
+use crate::iced_compat::{Length, Point, Rectangle, Size};
 
 use super::Slider;
 use super::types::{SliderOrientation, SliderRadius};

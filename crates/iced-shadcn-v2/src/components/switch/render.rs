@@ -2,9 +2,9 @@
 
 use std::time::Duration;
 
-use iced::widget::canvas;
-use iced::widget::canvas::{Path, Stroke};
-use iced::{Point, Rectangle, Renderer, Size, mouse, touch, window};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::widget::canvas::{Path, Stroke};
+use crate::iced_compat::{Point, Rectangle, Renderer, Size, mouse, touch, window};
 
 use super::Switch;
 use super::geometry;
@@ -50,7 +50,7 @@ impl<Message> canvas::Program<Message> for Switch<'_, Message> {
         &self,
         state: &Self::State,
         renderer: &Renderer,
-        _theme: &iced::Theme,
+        _theme: &crate::iced_compat::Theme,
         bounds: Rectangle,
         cursor: mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
@@ -157,7 +157,7 @@ impl<Message> canvas::Program<Message> for Switch<'_, Message> {
 
 impl<Message> Switch<'_, Message> {
     /// Advances the thumb transition for the frame drawn at `now`.
-    pub(super) fn advance(&self, state: &mut SwitchState, now: iced::time::Instant) {
+    pub(super) fn advance(&self, state: &mut SwitchState, now: crate::iced_compat::time::Instant) {
         let target = f32::from(u8::from(self.checked));
 
         if !state.initialized {

@@ -2,8 +2,8 @@
 
 use std::time::Duration;
 
-use iced::widget::canvas;
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::{Color, Element, Length};
 use twill_core::prelude::theme::SemanticColor;
 
 use crate::theme::Theme;
@@ -236,6 +236,6 @@ impl<'a, Message: 'a> From<Skeleton<'a>> for Element<'a, Message> {
 #[derive(Debug, Default)]
 #[doc(hidden)]
 pub struct SkeletonState {
-    pub(super) start_time: Option<iced::time::Instant>,
+    pub(super) start_time: Option<crate::iced_compat::time::Instant>,
     pub(super) phase: f32,
 }

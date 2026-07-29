@@ -1,8 +1,8 @@
 //! Behavioral tests for the typography component.
 
-use iced::alignment::Horizontal;
-use iced::widget::{container, text};
-use iced::{Color, Element, Length};
+use crate::iced_compat::alignment::Horizontal;
+use crate::iced_compat::widget::{container, text};
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::{FontWeight, StyleId};
 
 use super::style;
@@ -139,7 +139,7 @@ fn headings_use_the_theme_heading_face() {
     assert_eq!(code.family, crate::iced_font(pack.mono).family);
     assert_eq!(
         style::resolve_font(&theme, TypographyVariant::Blockquote).style,
-        iced::font::Style::Italic,
+        crate::iced_compat::font::Style::Italic,
     );
 }
 

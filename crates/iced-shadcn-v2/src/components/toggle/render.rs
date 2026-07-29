@@ -1,9 +1,9 @@
 //! Content composition for the toggle component.
 
-use iced::alignment::{Horizontal, Vertical};
-use iced::widget::text::LineHeight;
-use iced::widget::{container, row, text as iced_text};
-use iced::{Element, Length};
+use crate::iced_compat::alignment::{Horizontal, Vertical};
+use crate::iced_compat::widget::text::LineHeight;
+use crate::iced_compat::widget::{container, row, text as iced_text};
+use crate::iced_compat::{Element, Length};
 
 use super::{ToggleContent, ToggleSize};
 use crate::fonts::iced_font;

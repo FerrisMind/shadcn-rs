@@ -4,10 +4,10 @@
 //! layers to its base layer, so neither can express "at least N px wide,
 //! grow with content". This small pass-through widget can.
 
-use iced::advanced::layout::{self, Layout};
-use iced::advanced::widget::{Operation, Tree};
-use iced::advanced::{Clipboard, Shell, Widget, overlay, renderer};
-use iced::{Element, Event, Length, Point, Rectangle, Size, Vector, mouse};
+use crate::iced_compat::advanced::layout::{self, Layout};
+use crate::iced_compat::advanced::widget::{Operation, Tree};
+use crate::iced_compat::advanced::{Clipboard, Shell, Widget, overlay, renderer};
+use crate::iced_compat::{Element, Event, Length, Point, Rectangle, Size, Vector, mouse};
 
 /// Wraps `content` so it is laid out at least `min_width` px wide.
 ///
@@ -31,7 +31,7 @@ struct MinWidth<'a, Message> {
     min_width: f32,
 }
 
-impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Message> {
+impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Renderer> for MinWidth<'_, Message> {
     fn children(&self) -> Vec<Tree> {
         vec![Tree::new(&self.content)]
     }
@@ -50,7 +50,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
     fn layout(
         &mut self,
         tree: &mut Tree,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
         let content = self
@@ -74,7 +74,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
         &mut self,
         tree: &mut Tree,
         layout: Layout<'_>,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         operation: &mut dyn Operation,
     ) {
         self.content.as_widget_mut().operate(
@@ -94,7 +94,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
         event: &Event,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
@@ -120,7 +120,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
         layout: Layout<'_>,
         cursor: mouse::Cursor,
         viewport: &Rectangle,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
     ) -> mouse::Interaction {
         self.content.as_widget().mouse_interaction(
             &tree.children[0],
@@ -137,8 +137,8 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
     fn draw(
         &self,
         tree: &Tree,
-        renderer: &mut iced::Renderer,
-        theme: &iced::Theme,
+        renderer: &mut crate::iced_compat::Renderer,
+        theme: &crate::iced_compat::Theme,
         style: &renderer::Style,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
@@ -162,10 +162,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for MinWidth<'_, Mess
         &'b mut self,
         tree: &'b mut Tree,
         layout: Layout<'b>,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<overlay::Element<'b, Message, iced::Theme, iced::Renderer>> {
+    ) -> Option<overlay::Element<'b, Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>> {
         self.content.as_widget_mut().overlay(
             &mut tree.children[0],
             layout

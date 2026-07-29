@@ -2,7 +2,7 @@
 
 use super::Checkbox;
 use super::types;
-use iced::Element;
+use crate::iced_compat::Element;
 
 #[derive(Debug, Clone)]
 enum Message {

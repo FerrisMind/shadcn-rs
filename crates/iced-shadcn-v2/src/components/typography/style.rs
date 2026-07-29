@@ -1,7 +1,7 @@
 //! Style resolution for typography — thin iced adapter over shared recipes.
 
-use iced::font::Style as FontStyle;
-use iced::{Color, Font};
+use crate::iced_compat::font::Style as FontStyle;
+use crate::iced_compat::{Color, Font};
 
 use super::types::TypographyVariant;
 use crate::fonts::iced_font;

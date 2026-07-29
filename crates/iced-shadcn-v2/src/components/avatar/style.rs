@@ -1,8 +1,8 @@
 //! Semantic style resolution for the avatar component.
 
-use iced::border::Border;
-use iced::widget::container;
-use iced::{Background, Color};
+use crate::iced_compat::border::Border;
+use crate::iced_compat::widget::container;
+use crate::iced_compat::{Background, Color};
 
 use super::geometry;
 use super::types::{AvatarRadius, AvatarSize};

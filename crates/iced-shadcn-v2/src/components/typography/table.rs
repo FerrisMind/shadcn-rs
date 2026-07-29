@@ -2,10 +2,10 @@
 
 use std::fmt;
 
-use iced::alignment::Horizontal;
-use iced::widget::text::{Fragment, IntoFragment, LineHeight};
-use iced::widget::{column, container, row, text as iced_text};
-use iced::{Background, Border, Color, Element, Length, Padding};
+use crate::iced_compat::alignment::Horizontal;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment, LineHeight};
+use crate::iced_compat::widget::{column, container, row, text as iced_text};
+use crate::iced_compat::{Background, Border, Color, Element, Length, Padding};
 
 use super::render::{horizontal_rule, vertical_rule};
 use super::style::{RULE_PX, TABLE_CELL_PADDING_X_PX, TABLE_CELL_PADDING_Y_PX};
@@ -139,7 +139,7 @@ impl<'a, Message> TypographyTable<'a, Message> {
         self.rows.is_empty()
     }
 
-    /// Builds the table as an iced [`Element`].
+    /// Builds the table as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,
@@ -222,7 +222,7 @@ fn table_row<'a, Message: 'a>(
     cells: Vec<Fragment<'a>>,
     columns: usize,
     align_columns: &[Horizontal],
-    font: iced::Font,
+    font: crate::iced_compat::Font,
     size: f32,
     text_color: Color,
     background: Option<Color>,

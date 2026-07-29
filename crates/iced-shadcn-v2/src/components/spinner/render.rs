@@ -3,11 +3,11 @@
 use std::f32::consts::TAU;
 use std::time::Duration;
 
-use iced::alignment::Vertical;
-use iced::widget::canvas;
-use iced::widget::canvas::{LineCap, LineJoin, Path, Stroke, Text};
-use iced::window;
-use iced::{Color, Font, Point, Radians, Rectangle, Renderer, Size, Vector};
+use crate::iced_compat::alignment::Vertical;
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::widget::canvas::{LineCap, LineJoin, Path, Stroke, Text};
+use crate::iced_compat::window;
+use crate::iced_compat::{Color, Font, Point, Radians, Rectangle, Renderer, Size, Vector};
 
 use super::types::{Spinner, SpinnerState, SpinnerVariant};
 
@@ -36,7 +36,7 @@ impl<Message> canvas::Program<Message> for Spinner {
         state: &mut Self::State,
         event: &canvas::Event,
         _bounds: Rectangle,
-        _cursor: iced::mouse::Cursor,
+        _cursor: crate::iced_compat::mouse::Cursor,
     ) -> Option<canvas::Action<Message>> {
         if !self.loading || !self.animated {
             return None;
@@ -64,9 +64,9 @@ impl<Message> canvas::Program<Message> for Spinner {
         &self,
         state: &Self::State,
         renderer: &Renderer,
-        _theme: &iced::Theme,
+        _theme: &crate::iced_compat::Theme,
         bounds: Rectangle,
-        _cursor: iced::mouse::Cursor,
+        _cursor: crate::iced_compat::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
         if !self.loading {
             return Vec::new();
@@ -360,7 +360,7 @@ fn draw_terminal(
         color,
         size: font_size.into(),
         font: Font::MONOSPACE,
-        align_x: iced::widget::text::Alignment::Center,
+        align_x: crate::iced_compat::widget::text::Alignment::Center,
         align_y: Vertical::Center,
         ..Text::default()
     });
@@ -412,7 +412,7 @@ fn draw_text(
         color: paint,
         size: (size * 0.54).max(8.0).into(),
         font: Font::DEFAULT,
-        align_x: iced::widget::text::Alignment::Center,
+        align_x: crate::iced_compat::widget::text::Alignment::Center,
         align_y: Vertical::Center,
         ..Text::default()
     });

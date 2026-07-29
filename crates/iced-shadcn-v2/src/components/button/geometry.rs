@@ -1,6 +1,6 @@
 //! Button dimensions and padding conversion.
 
-use iced::Length;
+use crate::iced_compat::Length;
 use shadcn_common::{ButtonSizeRecipe, ControlSize};
 use twill_core::prelude::{Padding, PaddingValue, Spacing};
 
@@ -8,10 +8,10 @@ use super::error::ButtonBuildError;
 use super::types::ButtonSize;
 use crate::theme::Theme;
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<iced::Padding, ButtonBuildError> {
+pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, ButtonBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
-    Ok(iced::Padding {
+    Ok(crate::iced_compat::Padding {
         top: top.map(padding_value_px).transpose()?.unwrap_or(0.0),
         right: right.map(padding_value_px).transpose()?.unwrap_or(0.0),
         bottom: bottom.map(padding_value_px).transpose()?.unwrap_or(0.0),
@@ -91,13 +91,13 @@ impl ButtonSize {
         self.recipe(theme).text_size_px
     }
 
-    pub(super) fn default_padding(self, theme: &Theme) -> iced::Padding {
+    pub(super) fn default_padding(self, theme: &Theme) -> crate::iced_compat::Padding {
         if self.is_icon() {
-            return iced::Padding::ZERO;
+            return crate::iced_compat::Padding::ZERO;
         }
 
         let recipe = self.recipe(theme);
-        iced::Padding {
+        crate::iced_compat::Padding {
             top: 0.0,
             right: recipe.pad_x_px,
             bottom: 0.0,

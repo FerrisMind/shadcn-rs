@@ -1,8 +1,8 @@
 //! Mapping of kbd surfaces to iced container styles.
 
-use iced::border::Border;
-use iced::widget::container;
-use iced::{Color, Shadow};
+use crate::iced_compat::border::Border;
+use crate::iced_compat::widget::container;
+use crate::iced_compat::{Color, Shadow};
 
 use twill_core::prelude::theme::SemanticColor;
 
@@ -20,7 +20,7 @@ pub(super) fn resolve_container_style(
     container::Style {
         background: background
             .filter(|color| color.a > f32::EPSILON)
-            .map(iced::Background::Color),
+            .map(crate::iced_compat::Background::Color),
         text_color: Some(text),
         border: Border {
             radius: radius_px(theme, effective_radius(theme, radius)).into(),

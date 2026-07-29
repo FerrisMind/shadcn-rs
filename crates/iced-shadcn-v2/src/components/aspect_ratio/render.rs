@@ -1,10 +1,10 @@
 //! Custom layout widget and rendering for [`super::AspectRatio`].
 
-use iced::advanced::layout::{self, Layout};
-use iced::advanced::widget::{Operation, Tree};
-use iced::advanced::{Clipboard, Shell, Widget, overlay, renderer};
-use iced::widget::{container, container as container_widget};
-use iced::{Background, Border, Element, Event, Length, Rectangle, Size, Vector, mouse};
+use crate::iced_compat::advanced::layout::{self, Layout};
+use crate::iced_compat::advanced::widget::{Operation, Tree};
+use crate::iced_compat::advanced::{Clipboard, Shell, Widget, overlay, renderer};
+use crate::iced_compat::widget::{container, container as container_widget};
+use crate::iced_compat::{Background, Border, Element, Event, Length, Rectangle, Size, Vector, mouse};
 
 use super::types::{AspectRatio, MIN_ASPECT_RATIO};
 
@@ -54,7 +54,7 @@ struct AspectRatioWidget<'a, Message> {
     ratio: f32,
 }
 
-impl<Message> Widget<Message, iced::Theme, iced::Renderer> for AspectRatioWidget<'_, Message> {
+impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Renderer> for AspectRatioWidget<'_, Message> {
     fn children(&self) -> Vec<Tree> {
         vec![Tree::new(&self.content)]
     }
@@ -73,7 +73,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for AspectRatioWidget
     fn layout(
         &mut self,
         tree: &mut Tree,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
         let bounds = resolve_bounds(self.ratio, limits);
@@ -90,7 +90,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for AspectRatioWidget
         &mut self,
         tree: &mut Tree,
         layout: Layout<'_>,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         operation: &mut dyn Operation,
     ) {
         self.content.as_widget_mut().operate(
@@ -107,7 +107,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for AspectRatioWidget
         event: &Event,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
@@ -130,7 +130,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for AspectRatioWidget
         layout: Layout<'_>,
         cursor: mouse::Cursor,
         viewport: &Rectangle,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
     ) -> mouse::Interaction {
         self.content.as_widget().mouse_interaction(
             &tree.children[0],
@@ -144,8 +144,8 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for AspectRatioWidget
     fn draw(
         &self,
         tree: &Tree,
-        renderer: &mut iced::Renderer,
-        theme: &iced::Theme,
+        renderer: &mut crate::iced_compat::Renderer,
+        theme: &crate::iced_compat::Theme,
         style: &renderer::Style,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
@@ -166,10 +166,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for AspectRatioWidget
         &'b mut self,
         tree: &'b mut Tree,
         layout: Layout<'b>,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<overlay::Element<'b, Message, iced::Theme, iced::Renderer>> {
+    ) -> Option<overlay::Element<'b, Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>> {
         self.content.as_widget_mut().overlay(
             &mut tree.children[0],
             layout.children().next().expect("aspect-ratio child layout"),

@@ -2,9 +2,9 @@
 
 use std::fmt;
 
-use iced::widget::text::{Fragment, IntoFragment, LineHeight};
-use iced::widget::{column, row, text as iced_text};
-use iced::{Color, Element, Length, Padding};
+use crate::iced_compat::widget::text::{Fragment, IntoFragment, LineHeight};
+use crate::iced_compat::widget::{column, row, text as iced_text};
+use crate::iced_compat::{Color, Element, Length, Padding};
 
 use super::style::{LIST_INDENT_PX, LIST_ITEM_GAP_PX, LIST_MARKER, LIST_MARKER_GAP_PX};
 use super::types::TypographyVariant;
@@ -122,7 +122,7 @@ impl<'a, Message> TypographyList<'a, Message> {
         self.items.is_empty()
     }
 
-    /// Builds the list as an iced [`Element`].
+    /// Builds the list as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,

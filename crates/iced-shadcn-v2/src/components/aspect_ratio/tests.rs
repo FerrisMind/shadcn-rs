@@ -1,8 +1,8 @@
 //! Behavioral tests for the aspect-ratio component.
 
-use iced::advanced::layout;
-use iced::widget::text;
-use iced::{Color, Element, Length, Size};
+use crate::iced_compat::advanced::layout;
+use crate::iced_compat::widget::text;
+use crate::iced_compat::{Color, Element, Length, Size};
 
 use super::render::resolve_bounds;
 use super::*;

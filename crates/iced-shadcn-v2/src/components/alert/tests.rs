@@ -1,7 +1,7 @@
 //! Behavioral tests for the alert component.
 
-use iced::widget::{container, text};
-use iced::{Color, Element, Length, Padding};
+use crate::iced_compat::widget::{container, text};
+use crate::iced_compat::{Color, Element, Length, Padding};
 use shadcn_common::{StyleId, ThemeMode};
 
 use super::geometry;

@@ -1,6 +1,6 @@
 //! Track, thumb, and radius geometry for the switch component.
 
-use iced::{Length, Size};
+use crate::iced_compat::{Length, Size};
 use shadcn_common::{ControlSize, SwitchSizeRecipe};
 
 use super::Switch;

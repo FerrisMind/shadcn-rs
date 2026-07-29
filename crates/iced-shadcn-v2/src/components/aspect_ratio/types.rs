@@ -2,7 +2,7 @@
 
 use std::fmt;
 
-use iced::{Color, Element};
+use crate::iced_compat::{Color, Element};
 
 use crate::theme::Theme;
 
@@ -37,7 +37,7 @@ pub struct AspectRatio<'a, Message> {
     pub(super) radius: f32,
     pub(super) clip: bool,
     pub(super) style_override:
-        Option<Box<dyn Fn(iced::widget::container::Style) -> iced::widget::container::Style + 'a>>,
+        Option<Box<dyn Fn(crate::iced_compat::widget::container::Style) -> crate::iced_compat::widget::container::Style + 'a>>,
 }
 
 impl<Message> fmt::Debug for AspectRatio<'_, Message> {
@@ -116,13 +116,13 @@ impl<'a, Message> AspectRatio<'a, Message> {
     /// `AspectRatio.Root`.
     pub fn style_override(
         mut self,
-        style_override: impl Fn(iced::widget::container::Style) -> iced::widget::container::Style + 'a,
+        style_override: impl Fn(crate::iced_compat::widget::container::Style) -> crate::iced_compat::widget::container::Style + 'a,
     ) -> Self {
         self.style_override = Some(Box::new(style_override));
         self
     }
 
-    /// Builds the aspect-ratio wrapper as an iced [`Element`].
+    /// Builds the aspect-ratio wrapper as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,

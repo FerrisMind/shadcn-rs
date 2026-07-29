@@ -1,6 +1,6 @@
 //! Public configuration types for the separator component.
 
-use iced::{Color, Length};
+use crate::iced_compat::{Color, Length};
 
 use crate::theme::Theme;
 

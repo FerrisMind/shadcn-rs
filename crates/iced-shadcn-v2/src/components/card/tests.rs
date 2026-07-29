@@ -1,6 +1,6 @@
 //! Behavioral tests for the card component.
 
-use iced::{Element, Length};
+use crate::iced_compat::{Element, Length};
 use shadcn_common::StyleId;
 
 use super::geometry::{
@@ -100,7 +100,7 @@ fn root_visual_uses_card_tokens_ring_and_style_shadow() {
 
     assert_eq!(
         visual.background,
-        Some(iced::Background::Color(theme.palette.card))
+        Some(crate::iced_compat::Background::Color(theme.palette.card))
     );
     assert_eq!(visual.text_color, Some(theme.palette.card_foreground));
     assert_eq!(visual.border.width, 1.0);
@@ -162,11 +162,11 @@ fn builder_composes_all_slots_and_iced_overrides() {
             CardHeader::new(&theme)
                 .title(CardTitle::text("Title", &theme))
                 .description(CardDescription::text("Description", &theme))
-                .action(CardAction::new(iced::widget::text("Action")))
+                .action(CardAction::new(crate::iced_compat::widget::text("Action")))
                 .border_bottom(),
         )
         .content(CardContent::with_content(
-            iced::widget::text("Body"),
+            crate::iced_compat::widget::text("Body"),
             &theme,
         ))
         .footer(
@@ -174,9 +174,9 @@ fn builder_composes_all_slots_and_iced_overrides() {
                 .column()
                 .spacing(8.0)
                 .border_top()
-                .push(iced::widget::text("Footer")),
+                .push(crate::iced_compat::widget::text("Footer")),
         )
-        .push(iced::widget::text("Arbitrary child"));
+        .push(crate::iced_compat::widget::text("Arbitrary child"));
 
     let debug = format!("{card:?}");
     assert!(debug.contains("Card"));
@@ -190,7 +190,7 @@ fn public_builders_have_non_empty_debug_output() {
     assert!(format!("{:?}", CardHeader::<()>::new(&theme)).contains("CardHeader"));
     assert!(format!("{:?}", CardContent::<()>::new(&theme)).contains("CardContent"));
     assert!(format!("{:?}", CardFooter::<()>::new(&theme)).contains("CardFooter"));
-    assert!(format!("{:?}", CardAction::<()>::new(iced::widget::text("a"))).contains("CardAction"));
+    assert!(format!("{:?}", CardAction::<()>::new(crate::iced_compat::widget::text("a"))).contains("CardAction"));
     assert!(format!("{:?}", CardTitle::<()>::text("a", &theme)).contains("CardTitle"));
     assert!(format!("{:?}", CardDescription::<()>::text("a", &theme)).contains("CardDescription"));
 }

@@ -4,9 +4,9 @@
 //! transparent, the thumb is painted with the theme `border` token, and hover
 //! and drag emphasise the thumb the way `transition-colors` does on the web.
 
-use iced::border::Border;
-use iced::widget::{container, scrollable};
-use iced::{Background, Color, Shadow, Vector};
+use crate::iced_compat::border::Border;
+use crate::iced_compat::widget::{container, scrollable};
+use crate::iced_compat::{Background, Color, Shadow, Vector};
 
 use crate::theme::Theme;
 

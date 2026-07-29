@@ -1,9 +1,9 @@
 //! Content composition for badges (label, icons, loading spinner).
 
-use iced::alignment::Vertical;
-use iced::widget::text::{Fragment, LineHeight, Rich, Span};
-use iced::widget::{container, hover, row, text as iced_text};
-use iced::{Element, Font, Length, Padding};
+use crate::iced_compat::alignment::Vertical;
+use crate::iced_compat::widget::text::{Fragment, LineHeight, Rich, Span};
+use crate::iced_compat::widget::{container, hover, row, text as iced_text};
+use crate::iced_compat::{Element, Font, Length, Padding};
 
 use shadcn_common::AccentColor;
 
@@ -92,7 +92,7 @@ fn plain_label<'a, Message: 'a>(
     label: Fragment<'a>,
     size_px: f32,
     font: Font,
-    text_color: iced::Color,
+    text_color: crate::iced_compat::Color,
     nudge: bool,
 ) -> Element<'a, Message> {
     maybe_nudge(

@@ -1,6 +1,6 @@
 //! Semantic color resolution for the progress component.
 
-use iced::Color;
+use crate::iced_compat::Color;
 use twill_core::prelude::theme::SemanticColor;
 
 use super::types::{Progress, ProgressVariant};

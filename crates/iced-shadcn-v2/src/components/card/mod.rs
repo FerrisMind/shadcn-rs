@@ -48,9 +48,9 @@ pub use types::{CardBorder, CardFooterAlignment, CardFooterDirection, CardRadius
 
 use std::fmt;
 
-use iced::widget::container;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Color, Element, Font, Length};
+use crate::iced_compat::widget::container;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Color, Element, Font, Length};
 
 use crate::theme::Theme;
 
@@ -212,7 +212,7 @@ impl<'a, Message> Card<'a, Message> {
         self
     }
 
-    /// Builds the card as an iced [`Element`].
+    /// Builds the card as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,
@@ -242,7 +242,7 @@ impl<'a, Message> Card<'a, Message> {
             })
             .collect::<Vec<_>>();
 
-        let body = iced::widget::column(root_children)
+        let body = crate::iced_compat::widget::column(root_children)
             .spacing(spacing)
             .width(Length::Fill);
         let bottom = bottom_padding.unwrap_or_else(|| {
@@ -259,7 +259,7 @@ impl<'a, Message> Card<'a, Message> {
         }
 
         container(body)
-            .padding(iced::Padding {
+            .padding(crate::iced_compat::Padding {
                 top: top_padding.unwrap_or(spacing),
                 right: 0.0,
                 bottom,
@@ -730,7 +730,7 @@ impl<'a, Message> CardAction<'a, Message> {
         self
     }
 
-    /// Builds the action as an iced [`Element`].
+    /// Builds the action as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,

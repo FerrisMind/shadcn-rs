@@ -1,9 +1,9 @@
 //! Content composition and loading-state rendering.
 
-use iced::alignment::{Horizontal, Vertical};
-use iced::widget::text::{Fragment, LineHeight, Rich, Span};
-use iced::widget::{container, hover, row, text as iced_text};
-use iced::{Element, Font, Length};
+use crate::iced_compat::alignment::{Horizontal, Vertical};
+use crate::iced_compat::widget::text::{Fragment, LineHeight, Rich, Span};
+use crate::iced_compat::widget::{container, hover, row, text as iced_text};
+use crate::iced_compat::{Element, Font, Length};
 
 use shadcn_common::AccentColor;
 

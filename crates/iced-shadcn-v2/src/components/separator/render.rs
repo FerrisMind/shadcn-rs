@@ -1,15 +1,15 @@
 //! Widget construction for [`super::Separator`].
 
-use iced::widget::container::{self, Container};
-use iced::widget::{Space, container as container_widget};
-use iced::{Border, Element};
+use crate::iced_compat::widget::container::{self, Container};
+use crate::iced_compat::widget::{Space, container as container_widget};
+use crate::iced_compat::{Border, Element};
 
 use super::types::Separator;
 
 /// Wraps a [`Separator`] into a styled iced container widget.
 ///
 /// Returned as a concrete [`Container`] so callers can keep tweaking the
-/// widget (e.g. padding) before turning it into an [`Element`].
+/// widget (e.g. padding) before turning it into an [`Element`](iced_core::Element).
 pub fn separator<'a, Message: 'a>(separator: Separator) -> Container<'a, Message> {
     let (width, height) = separator.resolved_axes();
     let color = separator.color;

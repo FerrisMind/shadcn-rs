@@ -1,7 +1,7 @@
 //! Style resolution for checkbox using theme tokens.
 
-use iced::widget::checkbox;
-use iced::{Background, Border, Color};
+use crate::iced_compat::widget::checkbox;
+use crate::iced_compat::{Background, Border, Color};
 
 use super::geometry;
 use super::types::{CheckboxSize, CheckboxVariant};

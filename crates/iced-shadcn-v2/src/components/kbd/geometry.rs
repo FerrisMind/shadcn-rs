@@ -39,9 +39,9 @@ pub(super) fn text_size(theme: &Theme) -> f32 {
 }
 
 /// Default padding: horizontal from the style pack, vertical `0`.
-pub(super) fn default_padding(theme: &Theme) -> iced::Padding {
+pub(super) fn default_padding(theme: &Theme) -> crate::iced_compat::Padding {
     let horizontal = horizontal_padding(theme);
-    iced::Padding {
+    crate::iced_compat::Padding {
         top: 0.0,
         right: horizontal,
         bottom: 0.0,
@@ -49,10 +49,10 @@ pub(super) fn default_padding(theme: &Theme) -> iced::Padding {
     }
 }
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<iced::Padding, KbdBuildError> {
+pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, KbdBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
-    Ok(iced::Padding {
+    Ok(crate::iced_compat::Padding {
         top: top.map(padding_value_px).transpose()?.unwrap_or(0.0),
         right: right.map(padding_value_px).transpose()?.unwrap_or(0.0),
         bottom: bottom.map(padding_value_px).transpose()?.unwrap_or(0.0),

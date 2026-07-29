@@ -1,9 +1,9 @@
 //! Alert layout and text rendering.
 
-use iced::alignment::{Horizontal, Vertical};
-use iced::widget::text::LineHeight;
-use iced::widget::{Space, column, container, row, stack, text as iced_text};
-use iced::{Background, Color, Element, Font, Length, Padding};
+use crate::iced_compat::alignment::{Horizontal, Vertical};
+use crate::iced_compat::widget::text::LineHeight;
+use crate::iced_compat::widget::{Space, column, container, row, stack, text as iced_text};
+use crate::iced_compat::{Background, Color, Element, Font, Length, Padding};
 
 use super::geometry;
 use super::style;

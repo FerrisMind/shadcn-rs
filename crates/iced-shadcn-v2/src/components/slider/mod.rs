@@ -46,8 +46,8 @@ pub use types::{SliderOrientation, SliderRadius, SliderState, SliderStatus, Slid
 use std::fmt;
 use std::ops::RangeInclusive;
 
-use iced::widget::canvas;
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::{Color, Element, Length};
 
 use shadcn_common::AccentColor;
 

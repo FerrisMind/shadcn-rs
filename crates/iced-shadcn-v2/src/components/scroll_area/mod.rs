@@ -3,7 +3,7 @@
 //! Port of the shadcn-svelte `ScrollArea` (bits-ui `ScrollArea.Root`): a frame
 //! that clips its content and paints a themed rail and thumb instead of the
 //! platform scrollbar. The web component augments native scrolling to make it
-//! stylable across browsers; on iced, [`mod@iced::widget::scrollable`] already
+//! stylable across browsers; on iced, [`mod@iced::widget::scrollable`](mod@iced_widget::scrollable) already
 //! owns the scrolling, so this builder maps the shadcn geometry
 //! (`.cn-scroll-area-scrollbar`, `.cn-scroll-area-thumb`) and the theme
 //! `border` token onto it.
@@ -52,8 +52,8 @@ pub use types::{ScrollAreaAnchor, ScrollAreaOrientation, ScrollAreaRadius, Scrol
 
 use std::fmt;
 
-use iced::widget::scrollable;
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::scrollable;
+use crate::iced_compat::{Color, Element, Length};
 
 use twill_core::prelude::Padding;
 
@@ -92,7 +92,7 @@ pub struct ScrollArea<'a, Message> {
     horizontal: ScrollAreaScrollbar,
     width: Option<Length>,
     height: Option<Length>,
-    padding: Option<iced::Padding>,
+    padding: Option<crate::iced_compat::Padding>,
     radius: ScrollAreaRadius,
     thumb_radius: ScrollAreaRadius,
     bordered: bool,
@@ -100,7 +100,7 @@ pub struct ScrollArea<'a, Message> {
     track_color: Option<Color>,
     thumb_color: Option<Color>,
     auto_scroll: bool,
-    id: Option<iced::widget::Id>,
+    id: Option<crate::iced_compat::widget::Id>,
     on_scroll: Option<Box<dyn Fn(scrollable::Viewport) -> Message + 'a>>,
     style_override:
         Option<Box<dyn Fn(scrollable::Style, scrollable::Status) -> scrollable::Style + 'a>>,
@@ -444,7 +444,7 @@ impl<'a, Message> ScrollArea<'a, Message> {
     }
 
     /// Names the scroll area so the application can scroll it programmatically
-    /// with [`iced::widget::operation::scroll_to`] and its siblings.
+    /// with [`iced::widget::operation::scroll_to`](iced_core::widget::operation) and its siblings.
     ///
     /// This replaces the `ref` / `viewportRef` bindings of the web component.
     ///
@@ -458,7 +458,7 @@ impl<'a, Message> ScrollArea<'a, Message> {
     /// let area = ScrollArea::<Message>::new(text("Notes"), &theme)
     ///     .id(iced::widget::Id::new("notes"));
     /// ```
-    pub fn id(mut self, id: impl Into<iced::widget::Id>) -> Self {
+    pub fn id(mut self, id: impl Into<crate::iced_compat::widget::Id>) -> Self {
         self.id = Some(id.into());
         self
     }
@@ -511,7 +511,7 @@ impl<'a, Message> ScrollArea<'a, Message> {
     /// Builds the underlying `iced` scrollable widget.
     ///
     /// Use this instead of [`Into::into`] to keep tweaking the widget with the
-    /// iced API before turning it into an [`Element`].
+    /// iced API before turning it into an [`Element`](iced_core::Element).
     ///
     /// ```rust
     /// use iced::widget::text;

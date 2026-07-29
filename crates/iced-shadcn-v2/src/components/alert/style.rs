@@ -1,8 +1,8 @@
 //! Semantic style resolution for the alert component.
 
-use iced::border::Border;
-use iced::widget::container;
-use iced::{Background, Color};
+use crate::iced_compat::border::Border;
+use crate::iced_compat::widget::container;
+use crate::iced_compat::{Background, Color};
 use shadcn_common::StyleId;
 use twill_core::prelude::theme::SemanticColor;
 

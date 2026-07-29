@@ -18,10 +18,10 @@ pub use types::{KbdRadius, KbdSurface};
 
 use std::fmt;
 
-use iced::alignment::Vertical;
-use iced::widget::container;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Element, Length};
+use crate::iced_compat::alignment::Vertical;
+use crate::iced_compat::widget::container;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Element, Length};
 
 use twill_core::prelude::Padding;
 
@@ -61,7 +61,7 @@ pub struct Kbd<'a, Message> {
     width: Length,
     height: Option<Length>,
     min_width: Option<f32>,
-    padding: Option<iced::Padding>,
+    padding: Option<crate::iced_compat::Padding>,
     text_size: Option<f32>,
     icon_start: Option<Element<'a, Message>>,
     icon_end: Option<Element<'a, Message>>,
@@ -215,7 +215,7 @@ impl<'a, Message> Kbd<'a, Message> {
         self
     }
 
-    /// Builds the kbd as an iced [`Element`].
+    /// Builds the kbd as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,
@@ -349,12 +349,12 @@ impl<'a, Message> KbdGroup<'a, Message> {
         self
     }
 
-    /// Builds the group as an iced [`Element`].
+    /// Builds the group as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,
     {
-        iced::widget::row(self.children)
+        crate::iced_compat::widget::row(self.children)
             .spacing(self.spacing)
             .align_y(Vertical::Center)
             .into()

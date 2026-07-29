@@ -1,9 +1,9 @@
 //! Mapping of semantic badge variants to iced styles.
 
-use iced::border::Border;
-use iced::widget::button as button_widget;
-use iced::widget::container;
-use iced::{Color, Shadow};
+use crate::iced_compat::border::Border;
+use crate::iced_compat::widget::button as button_widget;
+use crate::iced_compat::widget::container;
+use crate::iced_compat::{Color, Shadow};
 
 use shadcn_common::AccentColor;
 use twill_core::prelude::theme::SemanticColor;
@@ -59,7 +59,7 @@ pub(super) fn resolve_button_style(
         background: visual
             .background
             .filter(|color| color.a > f32::EPSILON)
-            .map(iced::Background::Color),
+            .map(crate::iced_compat::Background::Color),
         text_color: visual.text,
         border: Border {
             radius: radius_px(theme, effective_radius(theme, radius)).into(),
@@ -80,7 +80,7 @@ fn to_container_style(
         background: visual
             .background
             .filter(|color| color.a > f32::EPSILON)
-            .map(iced::Background::Color),
+            .map(crate::iced_compat::Background::Color),
         text_color: Some(visual.text),
         border: Border {
             radius: radius_px(theme, effective_radius(theme, radius)).into(),

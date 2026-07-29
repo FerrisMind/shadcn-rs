@@ -143,7 +143,7 @@ pub(super) fn normalize_min_px(value: f32) -> f32 {
     }
 }
 
-pub(super) fn normalize_padding(mut padding: iced::Padding) -> iced::Padding {
+pub(super) fn normalize_padding(mut padding: crate::iced_compat::Padding) -> crate::iced_compat::Padding {
     padding.top = normalize_px(padding.top);
     padding.right = normalize_px(padding.right);
     padding.bottom = normalize_px(padding.bottom);

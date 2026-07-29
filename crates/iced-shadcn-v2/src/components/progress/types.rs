@@ -2,8 +2,8 @@
 
 use std::time::Duration;
 
-use iced::widget::canvas;
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::AccentColor;
 
 use crate::theme::Theme;
@@ -304,13 +304,13 @@ impl<'a, Message: 'a> From<Progress<'a>> for Element<'a, Message> {
 #[derive(Debug, Default)]
 #[doc(hidden)]
 pub struct ProgressState {
-    pub(super) start_time: Option<iced::time::Instant>,
+    pub(super) start_time: Option<crate::iced_compat::time::Instant>,
     pub(super) phase: f32,
     pub(super) initialized: bool,
     pub(super) determinate: bool,
     pub(super) target_ratio: f32,
     pub(super) displayed_ratio: f32,
-    pub(super) transition_start: Option<iced::time::Instant>,
+    pub(super) transition_start: Option<crate::iced_compat::time::Instant>,
     pub(super) transition_from: f32,
     pub(super) transition_to: f32,
 }

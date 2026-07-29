@@ -1,8 +1,8 @@
 //! Rendering for checkbox using iced's native checkbox primitive.
 
-use iced::widget::checkbox;
-use iced::widget::text::{LineHeight, Shaping};
-use iced::{Font, Length, Pixels};
+use crate::iced_compat::widget::checkbox;
+use crate::iced_compat::widget::text::{LineHeight, Shaping};
+use crate::iced_compat::{Font, Length, Pixels};
 
 use super::geometry;
 use super::style;
@@ -59,7 +59,7 @@ where
         shaping: Shaping::Basic,
     };
 
-    let mut widget = iced::widget::checkbox(is_checked)
+    let mut widget = crate::iced_compat::widget::checkbox(is_checked)
         .width(width)
         .size(geometry::track_size(size))
         .spacing(spacing)

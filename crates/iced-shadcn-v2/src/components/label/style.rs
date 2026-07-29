@@ -1,6 +1,6 @@
 //! Style resolution for labels — thin iced adapter over shadcn-common recipes.
 
-use iced::Color;
+use crate::iced_compat::Color;
 use shadcn_common::{LabelContext, LabelRecipe};
 
 use crate::theme::Theme;

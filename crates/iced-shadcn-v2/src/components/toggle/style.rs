@@ -4,9 +4,9 @@
 //! `muted` on hover and while pressed on (`aria-pressed:bg-muted`), and the
 //! `outline` variant adds an `input` border (plus a `shadow-xs` on Vega).
 
-use iced::border::Border;
-use iced::widget::button as button_widget;
-use iced::{Color, Shadow, Vector};
+use crate::iced_compat::border::Border;
+use crate::iced_compat::widget::button as button_widget;
+use crate::iced_compat::{Color, Shadow, Vector};
 
 use twill_core::prelude::theme::SemanticColor;
 
@@ -79,7 +79,7 @@ pub(super) fn resolve_toggle_style(
         background: background
             .map(|color| with_alpha(color, opacity))
             .filter(|color| color.a > f32::EPSILON)
-            .map(iced::Background::Color),
+            .map(crate::iced_compat::Background::Color),
         text_color: with_alpha(foreground, opacity),
         border: Border {
             radius: radius_px(theme, effective_toggle_radius(theme, radius)).into(),

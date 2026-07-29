@@ -1,6 +1,6 @@
 //! Scroll-area padding, radius, and scrollbar geometry.
 
-use iced::widget::scrollable;
+use crate::iced_compat::widget::scrollable;
 use shadcn_common::StyleId;
 use twill_core::prelude::{Padding, PaddingValue, Spacing};
 
@@ -13,10 +13,10 @@ use crate::theme::Theme;
 /// Radius that reads as a pill at every rendered size.
 const PILL_RADIUS: f32 = 9999.0;
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<iced::Padding, ScrollAreaBuildError> {
+pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, ScrollAreaBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
-    Ok(iced::Padding {
+    Ok(crate::iced_compat::Padding {
         top: top.map(padding_value_px).transpose()?.unwrap_or(0.0),
         right: right.map(padding_value_px).transpose()?.unwrap_or(0.0),
         bottom: bottom.map(padding_value_px).transpose()?.unwrap_or(0.0),

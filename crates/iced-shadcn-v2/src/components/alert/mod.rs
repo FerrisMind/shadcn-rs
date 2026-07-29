@@ -41,9 +41,9 @@ pub use types::{AlertRadius, AlertVariant};
 
 use std::fmt;
 
-use iced::widget::container;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Color, Element, Font, Length, Padding};
+use crate::iced_compat::widget::container;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Color, Element, Font, Length, Padding};
 
 use crate::theme::Theme;
 
@@ -218,7 +218,7 @@ impl<'a, Message> Alert<'a, Message> {
         self
     }
 
-    /// Builds the alert as an iced [`Element`].
+    /// Builds the alert as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,
@@ -328,7 +328,7 @@ impl<'a, Message> AlertTitle<'a, Message> {
         self
     }
 
-    /// Builds the title as an iced [`Element`].
+    /// Builds the title as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,
@@ -438,7 +438,7 @@ impl<'a, Message> AlertDescription<'a, Message> {
         self
     }
 
-    /// Builds the description as an iced [`Element`].
+    /// Builds the description as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,
@@ -508,7 +508,7 @@ impl<'a, Message> AlertAction<'a, Message> {
         self
     }
 
-    /// Builds the action as an iced [`Element`].
+    /// Builds the action as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,

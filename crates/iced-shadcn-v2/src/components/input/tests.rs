@@ -3,8 +3,8 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use iced::widget::text_input as text_input_widget;
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::text_input as text_input_widget;
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::AccentColor;
 use twill_core::prelude::theme::SemanticColor;
 use twill_core::prelude::{Padding, PaddingValue, PaddingVar, Spacing};
@@ -275,10 +275,10 @@ fn dark_mode_fills_follow_the_pack_alpha() {
         text_input_widget::Status::Active,
     );
 
-    let iced::Background::Color(light_fill) = light.background else {
+    let crate::iced_compat::Background::Color(light_fill) = light.background else {
         panic!("input backgrounds are plain colors");
     };
-    let iced::Background::Color(dark_fill) = dark.background else {
+    let crate::iced_compat::Background::Color(dark_fill) = dark.background else {
         panic!("input backgrounds are plain colors");
     };
     let input = dark_theme.semantic_color(SemanticColor::Input);
@@ -379,7 +379,7 @@ fn states_dimensions_and_style_override_are_configurable() {
     let theme = Theme::light();
     let input = Input::text_fixture(&theme)
         .width(Length::Fixed(240.0))
-        .align_x(iced::alignment::Horizontal::Center)
+        .align_x(crate::iced_compat::alignment::Horizontal::Center)
         .id("email")
         .style_override(|mut style, _| {
             style.value = Color::from_rgb(1.0, 0.0, 1.0);
@@ -388,7 +388,7 @@ fn states_dimensions_and_style_override_are_configurable() {
         .on_input(Message::Changed);
 
     assert_eq!(input.width, Length::Fixed(240.0));
-    assert_eq!(input.align_x, iced::alignment::Horizontal::Center);
+    assert_eq!(input.align_x, crate::iced_compat::alignment::Horizontal::Center);
     assert!(input.id.is_some());
     assert!(input.style_override.is_some());
 

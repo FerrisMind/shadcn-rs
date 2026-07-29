@@ -3,10 +3,10 @@
 use std::f32::consts::TAU;
 use std::time::Duration;
 
-use iced::widget::canvas;
-use iced::widget::canvas::Path;
-use iced::window;
-use iced::{Color, Point, Rectangle, Renderer, Size};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::widget::canvas::Path;
+use crate::iced_compat::window;
+use crate::iced_compat::{Color, Point, Rectangle, Renderer, Size};
 
 use super::geometry::radius_px;
 use super::types::{Skeleton, SkeletonAnimation, SkeletonFill, SkeletonState};
@@ -21,7 +21,7 @@ impl<Message> canvas::Program<Message> for Skeleton<'_> {
         state: &mut Self::State,
         event: &canvas::Event,
         _bounds: Rectangle,
-        _cursor: iced::mouse::Cursor,
+        _cursor: crate::iced_compat::mouse::Cursor,
     ) -> Option<canvas::Action<Message>> {
         if matches!(self.animation, SkeletonAnimation::Static) {
             return None;
@@ -47,9 +47,9 @@ impl<Message> canvas::Program<Message> for Skeleton<'_> {
         &self,
         state: &Self::State,
         renderer: &Renderer,
-        _theme: &iced::Theme,
+        _theme: &crate::iced_compat::Theme,
         bounds: Rectangle,
-        _cursor: iced::mouse::Cursor,
+        _cursor: crate::iced_compat::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
         let size = bounds.size();
         let mut frame = canvas::Frame::new(renderer, size);

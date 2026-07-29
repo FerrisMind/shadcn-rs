@@ -16,10 +16,10 @@ pub use types::LabelContext;
 use std::borrow::Cow;
 use std::fmt;
 
-use iced::widget::button as button_widget;
-use iced::widget::container;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::button as button_widget;
+use crate::iced_compat::widget::container;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Color, Element, Length};
 
 use crate::theme::Theme;
 
@@ -226,7 +226,7 @@ impl<'a, Message> Label<'a, Message> {
         self.for_id.as_deref()
     }
 
-    /// Builds the label as an iced [`Element`].
+    /// Builds the label as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: Clone + 'a,

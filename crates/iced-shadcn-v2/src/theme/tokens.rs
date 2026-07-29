@@ -1,9 +1,9 @@
 //! Theme token resolution for `iced-shadcn-v2`.
 //!
-//! OKLCH tokens are converted to [`iced::Color`] directly via
+//! OKLCH tokens are converted to [`iced::Color`](iced_core::Color) directly via
 //! `twill_core::tokens::ColorValue::to_rgba8` — no `twill-iced` adapter.
 
-use iced::Color;
+use crate::iced_compat::Color;
 use shadcn_common::{
     AccentColor, BaseColor, FontHeading, FontId, IconSet, RadiusId, RadiusScale, ResolvedTheme,
     StyleId, StylePack, ThemeMode,

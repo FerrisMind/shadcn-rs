@@ -5,7 +5,7 @@
 //! thumb keeps the pack's light fill with a `primary` / `ring` / hairline
 //! border. `data-disabled:opacity-50` dims everything.
 
-use iced::Color;
+use crate::iced_compat::Color;
 use shadcn_common::{SliderThumbBorder, SliderThumbFill, SliderTrackSurface};
 use twill_core::prelude::theme::SemanticColor;
 

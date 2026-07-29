@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use iced::{Color, Element, Size};
+use crate::iced_compat::{Color, Element, Size};
 use shadcn_common::{AccentColor, ControlSize, StyleId};
 
 use super::geometry::{self, Metrics};
@@ -361,7 +361,7 @@ fn animation_eases_the_thumb_and_settles_on_the_target() {
     let theme = Theme::light();
     let switch = Switch::<Message>::new(&theme).duration(Duration::from_millis(100));
     let mut state = SwitchState::default();
-    let start = iced::time::Instant::now();
+    let start = crate::iced_compat::time::Instant::now();
 
     // The first frame adopts the current state without animating.
     switch.advance(&mut state, start);
@@ -387,7 +387,7 @@ fn animation_eases_the_thumb_and_settles_on_the_target() {
 fn disabled_animation_snaps_to_the_target() {
     let theme = Theme::light();
     let mut state = SwitchState::default();
-    let now = iced::time::Instant::now();
+    let now = crate::iced_compat::time::Instant::now();
 
     Switch::<Message>::new(&theme)
         .animated(false)

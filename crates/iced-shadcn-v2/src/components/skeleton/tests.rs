@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use iced::{Element, Length};
+use crate::iced_compat::{Element, Length};
 use twill_core::prelude::theme::SemanticColor;
 
 use super::geometry::radius_px;
@@ -65,7 +65,7 @@ fn custom_values_are_normalized() {
 
     assert_eq!(skeleton.duration, Duration::from_millis(1));
     assert_eq!(
-        radius_px(&theme, skeleton.shape, iced::Size::new(40.0, 20.0)),
+        radius_px(&theme, skeleton.shape, crate::iced_compat::Size::new(40.0, 20.0)),
         0.0
     );
 }
@@ -73,7 +73,7 @@ fn custom_values_are_normalized() {
 #[test]
 fn radius_presets_follow_theme_and_shape_bounds() {
     let theme = Theme::light();
-    let size = iced::Size::new(48.0, 20.0);
+    let size = crate::iced_compat::Size::new(48.0, 20.0);
 
     assert_eq!(
         radius_px(&theme, SkeletonShape::Rounded(SkeletonRadius::None), size),
@@ -90,7 +90,7 @@ fn radius_presets_follow_theme_and_shape_bounds() {
 #[test]
 fn custom_color_and_canvas_conversion_are_available() {
     let theme = Theme::dark();
-    let skeleton = Skeleton::new(&theme).custom_color(iced::Color::from_rgb(0.1, 0.2, 0.3));
+    let skeleton = Skeleton::new(&theme).custom_color(crate::iced_compat::Color::from_rgb(0.1, 0.2, 0.3));
     assert!(format!("{skeleton:?}").contains("Skeleton"));
     let _: Element<'_, ()> = skeleton.into();
 }

@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use iced::{Color, Element, Length};
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::{AccentColor, StyleId};
 
 use super::geometry::{default_height, default_radius, display_ratio, normalized_ratio, radius_px};
@@ -166,7 +166,7 @@ fn display_ratio_tracks_live_value_when_idle() {
     // Active transition: the eased `displayed_ratio` drives the animation.
     let animating = ProgressState {
         displayed_ratio: 0.66,
-        transition_start: Some(iced::time::Instant::now()),
+        transition_start: Some(crate::iced_compat::time::Instant::now()),
         ..ProgressState::default()
     };
     assert_eq!(display_ratio(&animating, Some(30.0), 100.0), 0.66);

@@ -3,8 +3,8 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use iced::widget::{container, text};
-use iced::{Background, Color, Element, Length};
+use crate::iced_compat::widget::{container, text};
+use crate::iced_compat::{Background, Color, Element, Length};
 use shadcn_common::StyleId;
 use twill_core::prelude::{Padding, PaddingValue, PaddingVar, Spacing};
 
@@ -141,7 +141,7 @@ fn padding_builder_stores_resolved_padding() {
 
     assert_eq!(
         kbd.padding,
-        Some(iced::Padding {
+        Some(crate::iced_compat::Padding {
             top: 2.0,
             right: 8.0,
             bottom: 2.0,

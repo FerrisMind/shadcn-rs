@@ -33,9 +33,17 @@
 //!
 //! # Feature flags
 //!
+//! - `wgpu` *(default)* — forwards the GPU renderer backend to iced.
+//! - `tiny-skia` *(default)* — forwards the software renderer backend (plus
+//!   the X11/Wayland integrations it needs on Linux).
 //! - `serde` — derives `serde::Serialize` / `serde::Deserialize` for the
 //!   configuration enums (variants, sizes, radii, orientations, states), so
 //!   app settings that reference them can be persisted. Disabled by default.
+//!
+//! The library depends on the granular `iced_core` / `iced_widget` crates
+//! only — not the full `iced` facade with its window/runtime stack — so use
+//! `default-features = false` and pick a single renderer (or none, if the
+//! app depends on `iced` directly) to trim the dependency tree.
 //!
 //! # Panics
 //!
@@ -59,6 +67,7 @@
 pub mod components;
 mod display;
 pub mod fonts;
+pub(crate) mod iced_compat;
 pub mod recipes;
 pub mod theme;
 

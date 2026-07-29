@@ -49,8 +49,8 @@ pub use types::{SwitchRadius, SwitchSize, SwitchState, SwitchStatus, SwitchStyle
 use std::fmt;
 use std::time::Duration;
 
-use iced::widget::canvas;
-use iced::{Color, Element};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::{Color, Element};
 
 use shadcn_common::AccentColor;
 

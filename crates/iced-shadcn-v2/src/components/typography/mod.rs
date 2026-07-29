@@ -22,9 +22,9 @@ pub use types::TypographyVariant;
 
 use std::fmt;
 
-use iced::alignment::Horizontal;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Color, Element, Length};
+use crate::iced_compat::alignment::Horizontal;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Color, Element, Length};
 
 use crate::theme::Theme;
 
@@ -235,7 +235,7 @@ impl<'a, Message> Typography<'a, Message> {
         self
     }
 
-    /// Builds the typography block as an iced [`Element`].
+    /// Builds the typography block as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,

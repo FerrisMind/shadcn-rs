@@ -3,7 +3,7 @@
 //! This is the iced composition counterpart of shadcn-svelte's
 //! `Avatar.Root`, `Avatar.Image`, `Avatar.Fallback`, `Avatar.Badge`,
 //! `Avatar.Group`, and `Avatar.GroupCount`. Images use iced's native
-//! [`iced::widget::image::Handle`] sources (paths, encoded bytes, or decoded
+//! [`iced::widget::image::Handle`](iced_widget::image::Handle) sources (paths, encoded bytes, or decoded
 //! RGBA pixels). A fallback is rendered underneath the image, so it remains
 //! visible when the renderer cannot decode the image handle.
 //!
@@ -36,10 +36,10 @@ pub use types::{AvatarRadius, AvatarSize};
 use std::fmt;
 use std::path::PathBuf;
 
-use iced::widget::container;
-use iced::widget::image as image_widget;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Color, ContentFit, Element, Font, Length};
+use crate::iced_compat::widget::container;
+use crate::iced_compat::widget::image as image_widget;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Color, ContentFit, Element, Font, Length};
 
 use crate::theme::Theme;
 
@@ -341,7 +341,7 @@ impl<'a, Message> AvatarBadge<'a, Message> {
 
     /// Creates a text badge.
     pub fn text(label: impl IntoFragment<'a>, theme: &'a Theme) -> Self {
-        Self::new(iced::widget::text(label), theme)
+        Self::new(crate::iced_compat::widget::text(label), theme)
     }
 
     /// Creates a badge containing an icon-sized element.
@@ -636,7 +636,7 @@ impl<'a, Message> Avatar<'a, Message> {
         render::build_avatar(self)
     }
 
-    /// Builds the avatar as an iced [`Element`].
+    /// Builds the avatar as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,
@@ -778,7 +778,7 @@ impl<'a, Message> AvatarGroup<'a, Message> {
         self
     }
 
-    /// Builds the group as an iced [`Element`].
+    /// Builds the group as an iced [`Element`](iced_core::Element).
     pub fn into_element(self) -> Element<'a, Message>
     where
         Message: 'a,

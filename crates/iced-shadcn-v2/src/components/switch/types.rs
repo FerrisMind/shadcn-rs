@@ -1,6 +1,6 @@
 //! Public configuration, style, and state types for the switch component.
 
-use iced::Color;
+use crate::iced_compat::Color;
 
 /// Preset footprint of a [`super::Switch`].
 ///
@@ -125,7 +125,7 @@ pub struct SwitchState {
     pub(super) initialized: bool,
     pub(super) checked: bool,
     pub(super) displayed: f32,
-    pub(super) transition_start: Option<iced::time::Instant>,
+    pub(super) transition_start: Option<crate::iced_compat::time::Instant>,
     pub(super) transition_from: f32,
     pub(super) transition_to: f32,
 }

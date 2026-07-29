@@ -1,13 +1,13 @@
 //! Layout and rendering for avatar roots, slots, and groups.
 
-use iced::advanced::layout::{self, Layout};
-use iced::advanced::widget::{Operation, Tree};
-use iced::advanced::{Clipboard, Widget, overlay, renderer};
-use iced::alignment::{Horizontal, Vertical};
-use iced::widget::image as image_widget;
-use iced::widget::text::LineHeight;
-use iced::widget::{Space, container, row, stack, text as iced_text};
-use iced::{Element, Event, Font, Length, Point, Rectangle, Size, Vector, mouse};
+use crate::iced_compat::advanced::layout::{self, Layout};
+use crate::iced_compat::advanced::widget::{Operation, Tree};
+use crate::iced_compat::advanced::{Clipboard, Widget, overlay, renderer};
+use crate::iced_compat::alignment::{Horizontal, Vertical};
+use crate::iced_compat::widget::image as image_widget;
+use crate::iced_compat::widget::text::LineHeight;
+use crate::iced_compat::widget::{Space, container, row, stack, text as iced_text};
+use crate::iced_compat::{Element, Event, Font, Length, Point, Rectangle, Size, Vector, mouse};
 
 use super::geometry;
 use super::style;
@@ -103,7 +103,7 @@ where
         .filter_method(filter_method)
         .opacity(opacity)
         .scale(scale)
-        .border_radius(iced::border::Radius::from(radius_px))
+        .border_radius(crate::iced_compat::border::Radius::from(radius_px))
         .into()
 }
 
@@ -140,7 +140,7 @@ where
 
     let mut resolved = style::resolve_fallback_style(theme, radius_px);
     if let Some(background) = background {
-        resolved.background = Some(iced::Background::Color(background));
+        resolved.background = Some(crate::iced_compat::Background::Color(background));
     }
     if let Some(color) = color {
         resolved.text_color = Some(color);
@@ -164,7 +164,7 @@ fn build_text_content<'a, Message>(
     theme: &'a crate::theme::Theme,
     text_size: f32,
     line_height: f32,
-    color: iced::Color,
+    color: crate::iced_compat::Color,
     custom_font: Option<Font>,
 ) -> Element<'a, Message>
 where
@@ -514,7 +514,7 @@ struct OverflowSlot<'a, Message> {
     overflow: f32,
 }
 
-impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, Message> {
+impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Renderer> for OverflowSlot<'_, Message> {
     fn children(&self) -> Vec<Tree> {
         vec![Tree::new(&self.content)]
     }
@@ -530,7 +530,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, 
     fn layout(
         &mut self,
         tree: &mut Tree,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
         let size = limits.resolve(self.width, self.height, Size::ZERO);
@@ -555,7 +555,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, 
         &mut self,
         tree: &mut Tree,
         layout: Layout<'_>,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         operation: &mut dyn Operation,
     ) {
         self.content.as_widget_mut().operate(
@@ -575,9 +575,9 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, 
         event: &Event,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         clipboard: &mut dyn Clipboard,
-        shell: &mut iced::advanced::Shell<'_, Message>,
+        shell: &mut crate::iced_compat::advanced::Shell<'_, Message>,
         viewport: &Rectangle,
     ) {
         self.content.as_widget_mut().update(
@@ -601,7 +601,7 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, 
         layout: Layout<'_>,
         cursor: mouse::Cursor,
         viewport: &Rectangle,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
     ) -> mouse::Interaction {
         self.content.as_widget().mouse_interaction(
             &tree.children[0],
@@ -618,8 +618,8 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, 
     fn draw(
         &self,
         tree: &Tree,
-        renderer: &mut iced::Renderer,
-        theme: &iced::Theme,
+        renderer: &mut crate::iced_compat::Renderer,
+        theme: &crate::iced_compat::Theme,
         style: &renderer::Style,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
@@ -643,10 +643,10 @@ impl<Message> Widget<Message, iced::Theme, iced::Renderer> for OverflowSlot<'_, 
         &'b mut self,
         tree: &'b mut Tree,
         layout: Layout<'b>,
-        renderer: &iced::Renderer,
+        renderer: &crate::iced_compat::Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<overlay::Element<'b, Message, iced::Theme, iced::Renderer>> {
+    ) -> Option<overlay::Element<'b, Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>> {
         self.content.as_widget_mut().overlay(
             &mut tree.children[0],
             layout

@@ -3,8 +3,8 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
-use iced::widget::{button as button_widget, container, text};
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::{button as button_widget, container, text};
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::{AccentColor, StyleId};
 use twill_core::prelude::{Padding, PaddingValue, PaddingVar, Spacing};
 
@@ -108,11 +108,11 @@ fn interactive_hover_softens_default_fill() {
     );
 
     let active_bg = match active.background {
-        Some(iced::Background::Color(color)) => color,
+        Some(crate::iced_compat::Background::Color(color)) => color,
         _ => panic!("expected solid fill"),
     };
     let hovered_bg = match hovered.background {
-        Some(iced::Background::Color(color)) => color,
+        Some(crate::iced_compat::Background::Color(color)) => color,
         _ => panic!("expected solid fill"),
     };
 
@@ -151,7 +151,7 @@ fn padding_builder_stores_resolved_padding() {
 
     assert_eq!(
         badge.padding,
-        Some(iced::Padding {
+        Some(crate::iced_compat::Padding {
             top: 2.0,
             right: 8.0,
             bottom: 2.0,

@@ -1,8 +1,8 @@
 //! Semantic card style resolution.
 
-use iced::border::{Border, Radius};
-use iced::widget::container;
-use iced::{Background, Color, Shadow, Vector};
+use crate::iced_compat::border::{Border, Radius};
+use crate::iced_compat::widget::container;
+use crate::iced_compat::{Background, Color, Shadow, Vector};
 use shadcn_common::StyleId;
 
 use super::geometry;

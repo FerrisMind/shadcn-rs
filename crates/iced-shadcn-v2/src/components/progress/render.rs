@@ -3,11 +3,11 @@
 use std::f32::consts::TAU;
 use std::time::Duration;
 
-use iced::border::Radius;
-use iced::widget::canvas;
-use iced::widget::canvas::Path;
-use iced::window;
-use iced::{Point, Rectangle, Renderer, Size};
+use crate::iced_compat::border::Radius;
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::widget::canvas::Path;
+use crate::iced_compat::window;
+use crate::iced_compat::{Point, Rectangle, Renderer, Size};
 
 use super::geometry::{display_ratio, normalized_ratio};
 use super::style::resolve_visual;
@@ -23,7 +23,7 @@ impl<Message> canvas::Program<Message> for Progress<'_> {
         state: &mut Self::State,
         event: &canvas::Event,
         _bounds: Rectangle,
-        _cursor: iced::mouse::Cursor,
+        _cursor: crate::iced_compat::mouse::Cursor,
     ) -> Option<canvas::Action<Message>> {
         let canvas::Event::Window(window::Event::RedrawRequested(now)) = event else {
             return None;
@@ -116,9 +116,9 @@ impl<Message> canvas::Program<Message> for Progress<'_> {
         &self,
         state: &Self::State,
         renderer: &Renderer,
-        _theme: &iced::Theme,
+        _theme: &crate::iced_compat::Theme,
         bounds: Rectangle,
-        _cursor: iced::mouse::Cursor,
+        _cursor: crate::iced_compat::mouse::Cursor,
     ) -> Vec<canvas::Geometry> {
         let size = bounds.size();
         if !size.width.is_finite()

@@ -1,6 +1,6 @@
 //! Adapters from [`shadcn_common::recipes`] onto iced types.
 
-use iced::font::Weight;
+use crate::iced_compat::font::Weight;
 use shadcn_common::{ComponentRadius, FontWeight};
 
 use crate::theme::Theme;

@@ -1,9 +1,9 @@
 //! iced adapter over backend-agnostic font faces from [`shadcn_common::fonts`].
 //!
 //! Font bytes and [`ALL_FACES`] live in `shadcn-common` (feature `fonts`);
-//! this module only maps [`FontId`] to an [`iced::Font`].
+//! this module only maps [`FontId`] to an [`iced::Font`](iced_core::Font).
 
-use iced::Font;
+use crate::iced_compat::Font;
 use shadcn_common::FontId;
 
 pub use shadcn_common::fonts::{

@@ -1,8 +1,8 @@
 //! Behavioral tests for the scroll-area component.
 
-use iced::widget::scrollable::{self, Anchor, Direction};
-use iced::widget::text;
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::scrollable::{self, Anchor, Direction};
+use crate::iced_compat::widget::text;
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::StyleId;
 use twill_core::prelude::{Padding, PaddingValue, PaddingVar, Spacing};
 
@@ -47,7 +47,7 @@ fn builder_updates_semantic_fields() {
         .track_color(theme.palette.muted)
         .thumb_color(theme.palette.primary)
         .auto_scroll(true)
-        .id(iced::widget::Id::new("notes"))
+        .id(crate::iced_compat::widget::Id::new("notes"))
         .on_scroll(|_viewport| Message::Scrolled);
 
     assert_eq!(area.orientation, ScrollAreaOrientation::Both);
@@ -219,7 +219,7 @@ fn padding_maps_all_four_sides() {
 
     assert_eq!(
         area.padding,
-        Some(iced::Padding {
+        Some(crate::iced_compat::Padding {
             top: 4.0,
             right: 8.0,
             bottom: 12.0,
@@ -317,7 +317,7 @@ fn default_style_paints_a_transparent_rail_with_a_border_thumb() {
     assert!(style.vertical_rail.background.is_none());
     assert_eq!(
         style.vertical_rail.scroller.background,
-        iced::Background::Color(theme.palette.border)
+        crate::iced_compat::Background::Color(theme.palette.border)
     );
     assert!(style.gap.is_none());
     assert!(style.container.background.is_none());
@@ -341,7 +341,7 @@ fn bordered_frame_paints_a_hairline_with_the_border_token() {
     assert_eq!(style.container.border.color, theme.palette.border);
     assert_eq!(
         style.container.background,
-        Some(iced::Background::Color(theme.palette.card))
+        Some(crate::iced_compat::Background::Color(theme.palette.card))
     );
 }
 
@@ -395,11 +395,11 @@ fn a_disabled_axis_keeps_its_thumb_invisible() {
 
     assert_eq!(
         style.horizontal_rail.scroller.background,
-        iced::Background::Color(Color::TRANSPARENT)
+        crate::iced_compat::Background::Color(Color::TRANSPARENT)
     );
     assert_ne!(
         style.vertical_rail.scroller.background,
-        iced::Background::Color(Color::TRANSPARENT)
+        crate::iced_compat::Background::Color(Color::TRANSPARENT)
     );
 }
 
@@ -417,11 +417,11 @@ fn thumb_and_track_overrides_beat_the_theme_tokens() {
 
     assert_eq!(
         style.vertical_rail.background,
-        Some(iced::Background::Color(theme.palette.muted))
+        Some(crate::iced_compat::Background::Color(theme.palette.muted))
     );
     assert_eq!(
         style.vertical_rail.scroller.background,
-        iced::Background::Color(theme.palette.primary)
+        crate::iced_compat::Background::Color(theme.palette.primary)
     );
 }
 
@@ -459,7 +459,7 @@ fn every_status_resolves_in_light_and_dark_themes() {
 fn style_override_runs_after_internal_resolution() {
     let theme = Theme::light();
     let area = ScrollArea::<Message>::new(text("Notes"), &theme).style_override(|mut style, _| {
-        style.gap = Some(iced::Background::Color(Color::BLACK));
+        style.gap = Some(crate::iced_compat::Background::Color(Color::BLACK));
         style
     });
 

@@ -1,7 +1,7 @@
 //! Behavioral tests for the avatar component.
 
-use iced::widget::text;
-use iced::{Color, Element, Length};
+use crate::iced_compat::widget::text;
+use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::{StyleId, ThemeMode};
 
 use super::geometry;
@@ -149,12 +149,12 @@ fn semantic_styles_follow_light_and_dark_theme_tokens() {
         assert_eq!(root.border.color, theme.palette.border);
         assert_eq!(
             fallback.background,
-            Some(iced::Background::Color(theme.palette.muted))
+            Some(crate::iced_compat::Background::Color(theme.palette.muted))
         );
         assert_eq!(fallback.text_color, Some(theme.palette.muted_foreground));
         assert_eq!(
             badge.background,
-            Some(iced::Background::Color(theme.palette.primary))
+            Some(crate::iced_compat::Background::Color(theme.palette.primary))
         );
         assert_eq!(badge.text_color, Some(theme.palette.primary_foreground));
         assert_eq!(count.text_color, Some(theme.palette.muted_foreground));
@@ -203,5 +203,5 @@ fn group_item_rings_keep_the_avatar_shape() {
     ));
 
     let square = style::resolve_group_ring_style(&theme, 2.0);
-    assert_eq!(square.border.radius, iced::border::Radius::from(2.0));
+    assert_eq!(square.border.radius, crate::iced_compat::border::Radius::from(2.0));
 }

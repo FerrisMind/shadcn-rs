@@ -1,11 +1,11 @@
 //! Content composition for labels (text, icons, click wrapper).
 
-use iced::alignment::Vertical;
-use iced::widget::button as button_widget;
-use iced::widget::button as iced_button;
-use iced::widget::text::{Fragment, LineHeight};
-use iced::widget::{container, row, text as iced_text};
-use iced::{Color, Element, Font, Length, Padding};
+use crate::iced_compat::alignment::Vertical;
+use crate::iced_compat::widget::button as button_widget;
+use crate::iced_compat::widget::button as iced_button;
+use crate::iced_compat::widget::text::{Fragment, LineHeight};
+use crate::iced_compat::widget::{container, row, text as iced_text};
+use crate::iced_compat::{Color, Element, Font, Length, Padding};
 use shadcn_common::{LabelRecipe, TypeRecipe};
 
 use super::style::SIDECAR_PX;
@@ -173,8 +173,8 @@ fn transparent_button_style(
     button_widget::Style {
         background: None,
         text_color,
-        border: iced::Border::default(),
-        shadow: iced::Shadow::default(),
+        border: crate::iced_compat::Border::default(),
+        shadow: crate::iced_compat::Shadow::default(),
         snap: false,
     }
 }

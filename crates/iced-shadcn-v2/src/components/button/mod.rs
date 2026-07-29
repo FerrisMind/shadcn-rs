@@ -17,10 +17,10 @@ pub use types::{ButtonRadius, ButtonSize, ButtonVariant};
 
 use std::fmt;
 
-use iced::widget::button as button_widget;
-use iced::widget::button as iced_button;
-use iced::widget::text::{Fragment, IntoFragment};
-use iced::{Element, Length};
+use crate::iced_compat::widget::button as button_widget;
+use crate::iced_compat::widget::button as iced_button;
+use crate::iced_compat::widget::text::{Fragment, IntoFragment};
+use crate::iced_compat::{Element, Length};
 
 use shadcn_common::AccentColor;
 use twill_core::prelude::Padding;
@@ -73,7 +73,7 @@ pub struct Button<'a, Message> {
     color: Option<AccentColor>,
     width: Length,
     height: Option<Length>,
-    padding: Option<iced::Padding>,
+    padding: Option<crate::iced_compat::Padding>,
     full_width: bool,
     loading: bool,
     disabled: bool,
