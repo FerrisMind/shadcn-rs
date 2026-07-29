@@ -340,6 +340,11 @@ impl StylePack {
         crate::recipes::progress_recipe(self.id)
     }
 
+    /// `.cn-slider*` track, range, and thumb tokens for this pack.
+    pub const fn slider(self) -> crate::recipes::SliderRecipe {
+        crate::recipes::slider_recipe(self.id)
+    }
+
     /// `.cn-switch` border, ring, and default radius for this pack.
     pub const fn switch(self) -> crate::recipes::SwitchRecipe {
         crate::recipes::switch_recipe(self.id)
@@ -351,5 +356,18 @@ impl StylePack {
         size: crate::recipes::ControlSize,
     ) -> crate::recipes::SwitchSizeRecipe {
         crate::recipes::switch_size(self.id, size)
+    }
+
+    /// Base `.cn-toggle` typography, radius, and shadow for this pack.
+    pub const fn toggle(self) -> crate::recipes::ToggleRecipe {
+        crate::recipes::toggle_recipe(self.id)
+    }
+
+    /// `.cn-toggle-size-*` geometry for this pack.
+    pub const fn toggle_size(
+        self,
+        size: crate::recipes::ControlSize,
+    ) -> crate::recipes::ToggleSizeRecipe {
+        crate::recipes::toggle_size(self.id, size)
     }
 }

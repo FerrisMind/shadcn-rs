@@ -10,7 +10,9 @@ mod kbd;
 mod label;
 mod progress;
 mod skeleton;
+mod slider;
 mod switch;
+mod toggle;
 
 pub use badge::{BadgeRecipe, badge_recipe};
 pub use button::{ButtonSizeRecipe, ButtonTypeRecipe, ControlSize, button_size, button_type};
@@ -18,7 +20,11 @@ pub use kbd::{KbdRecipe, kbd_recipe};
 pub use label::{LabelContext, LabelRecipe, label_recipe};
 pub use progress::{ProgressRecipe, progress_recipe};
 pub use skeleton::{SkeletonRecipe, skeleton_default_radius, skeleton_recipe};
+pub use slider::{
+    SliderRecipe, SliderThumbBorder, SliderThumbFill, SliderTrackSurface, slider_recipe,
+};
 pub use switch::{SwitchRecipe, SwitchSizeRecipe, switch_recipe, switch_size};
+pub use toggle::{ToggleRecipe, ToggleSizeRecipe, toggle_recipe, toggle_size};
 
 /// Backend-agnostic font weight matching CSS `font-normal` / `font-medium` / ….
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
