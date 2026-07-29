@@ -11,6 +11,7 @@
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ToggleVariant {
     /// Transparent control that fills with `muted` on hover / when pressed on.
     #[default]
@@ -33,6 +34,7 @@ pub enum ToggleVariant {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ToggleSize {
     /// The pack's `sm` footprint.
     Sm,
@@ -53,6 +55,7 @@ pub enum ToggleSize {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ToggleRadius {
     /// No corner radius.
     None,

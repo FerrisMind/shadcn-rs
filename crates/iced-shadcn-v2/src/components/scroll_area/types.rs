@@ -15,6 +15,7 @@
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ScrollAreaOrientation {
     /// Only the vertical scrollbar is mounted (`orientation="vertical"`).
     #[default]
@@ -67,6 +68,7 @@ impl ScrollAreaOrientation {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ScrollAreaRadius {
     /// The active style-pack radius of the slot this preset is applied to.
     #[default]
@@ -100,6 +102,7 @@ pub enum ScrollAreaRadius {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ScrollAreaAnchor {
     /// Content stays anchored to the top (or leading) edge.
     #[default]

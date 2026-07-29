@@ -13,6 +13,7 @@
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum AlertVariant {
     /// A regular informational or success callout.
     #[default]
@@ -28,6 +29,7 @@ pub enum AlertVariant {
 /// needs to match a surrounding surface exactly.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum AlertRadius {
     /// Use the active style-pack geometry.
     #[default]

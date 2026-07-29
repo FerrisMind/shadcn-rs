@@ -3,6 +3,7 @@
 /// Card density, matching shadcn-svelte `Card.Root`'s `size` prop.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardSize {
     /// The style-pack default card spacing.
     #[default]
@@ -18,6 +19,7 @@ pub enum CardSize {
 /// resolved against the active theme's radius scale.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardRadius {
     /// Use the active style-pack card radius.
     #[default]
@@ -44,6 +46,7 @@ pub enum CardRadius {
 /// border by default, while Nova and Lyra give the footer a top border.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardBorder {
     /// Use the active style-pack default.
     #[default]
@@ -57,6 +60,7 @@ pub enum CardBorder {
 /// Footer layout direction.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardFooterDirection {
     /// Place children in a horizontal row.
     #[default]
@@ -68,6 +72,7 @@ pub enum CardFooterDirection {
 /// Horizontal footer child alignment, matching common footer utility classes.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CardFooterAlignment {
     /// Pack children from the leading edge.
     #[default]

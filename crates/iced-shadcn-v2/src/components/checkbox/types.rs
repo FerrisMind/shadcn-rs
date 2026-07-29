@@ -8,6 +8,7 @@
 /// assert_eq!(CheckboxState::default(), CheckboxState::Unchecked);
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CheckboxState {
     /// Not checked.
     #[default]
@@ -38,6 +39,7 @@ impl CheckboxState {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CheckboxVariant {
     /// Surface style (elevated, rounded).
     #[default]
@@ -57,6 +59,7 @@ pub enum CheckboxVariant {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CheckboxSize {
     /// Small size (20 px).
     Sm,

@@ -18,6 +18,7 @@ use crate::theme::Theme;
 /// );
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SeparatorOrientation {
     /// A horizontal rule spanning the available width (`h-px w-full`).
     #[default]

@@ -14,6 +14,7 @@
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KbdSurface {
     /// Regular content surface (`bg-muted text-muted-foreground`).
     #[default]
@@ -40,6 +41,7 @@ pub enum KbdSurface {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KbdRadius {
     /// No corner radius.
     None,

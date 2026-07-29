@@ -11,6 +11,7 @@ use iced::Color;
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SliderOrientation {
     /// Values grow from the leading to the trailing edge.
     #[default]
@@ -45,6 +46,7 @@ impl SliderOrientation {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SliderRadius {
     /// Square corners.
     None,

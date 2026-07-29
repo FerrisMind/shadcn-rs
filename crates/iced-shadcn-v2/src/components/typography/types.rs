@@ -10,6 +10,7 @@ use shadcn_common::{FontWeight, TypeRecipe};
 /// ([`super::TypographyList`] / [`super::TypographyTable`]) because they are
 /// not single text blocks.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[non_exhaustive]
 pub enum TypographyVariant {
     /// `text-4xl font-extrabold tracking-tight` (36 px / 40 px).

@@ -15,6 +15,7 @@ use crate::theme::Theme;
 /// exact CSS-like height.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ProgressSize {
     /// 2 px (`h-0.5`).
     Xs,
@@ -34,6 +35,7 @@ pub enum ProgressSize {
 /// Visual treatment of a [`Progress`] bar.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ProgressVariant {
     /// The default shadcn-svelte `bg-muted` track and `bg-primary` indicator.
     Default,
@@ -50,6 +52,7 @@ pub enum ProgressVariant {
 /// Axis along which a [`Progress`] bar fills.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ProgressOrientation {
     /// Fill from left to right.
     #[default]
@@ -61,6 +64,7 @@ pub enum ProgressOrientation {
 /// Corner-radius preset for a [`Progress`] track and indicator.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ProgressRadius {
     /// Square corners.
     None,

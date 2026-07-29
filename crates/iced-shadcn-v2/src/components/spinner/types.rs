@@ -9,6 +9,7 @@ use crate::theme::Theme;
 
 /// Animation style of a [`Spinner`].
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[non_exhaustive]
 pub enum SpinnerVariant {
     /// Eight-spoke legacy Lucide spinner.
@@ -54,6 +55,7 @@ pub enum SpinnerVariant {
 /// assert_ne!(size, SpinnerSize::Default);
 /// ```
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[non_exhaustive]
 pub enum SpinnerSize {
     /// 12 px (`size-3`).

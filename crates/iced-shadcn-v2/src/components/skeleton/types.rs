@@ -28,6 +28,7 @@ fn default_radius_for_theme(theme: &Theme) -> SkeletonRadius {
 /// placeholder.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SkeletonAnimation {
     /// Opacity pulse matching Tailwind's two-second pulse timing.
     #[default]
@@ -42,6 +43,7 @@ pub enum SkeletonAnimation {
 /// maximum usable radius at render time.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SkeletonRadius {
     /// Square corners.
     None,
@@ -61,6 +63,7 @@ pub enum SkeletonRadius {
 /// Shape of a [`Skeleton`] placeholder.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SkeletonShape {
     /// A rectangle with the selected radius.
     Rounded(SkeletonRadius),

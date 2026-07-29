@@ -16,6 +16,7 @@ use iced::Color;
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SwitchSize {
     /// The pack's `sm` footprint.
     Sm,
@@ -38,6 +39,7 @@ pub enum SwitchSize {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum SwitchRadius {
     /// Square corners.
     None,

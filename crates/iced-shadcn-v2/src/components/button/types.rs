@@ -9,6 +9,7 @@
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ButtonVariant {
     /// Filled button using the theme primary color.
     #[default]
@@ -43,6 +44,7 @@ pub enum ButtonVariant {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ButtonSize {
     /// `h-6` text button (`xs`).
     Xs,
@@ -83,6 +85,7 @@ impl ButtonSize {
 /// ```
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ButtonRadius {
     /// No corner radius.
     None,

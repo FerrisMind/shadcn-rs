@@ -7,6 +7,7 @@
 /// `size-*` classes that can be applied to the web component.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum AvatarSize {
     /// 24px (`size-6`).
     Sm,
@@ -38,6 +39,7 @@ impl AvatarSize {
 /// while `Custom` is useful for matching a surrounding surface exactly.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum AvatarRadius {
     /// The source component's default `rounded-full` shape.
     #[default]
