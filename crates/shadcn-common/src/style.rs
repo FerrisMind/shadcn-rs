@@ -339,4 +339,17 @@ impl StylePack {
     pub const fn progress(self) -> crate::recipes::ProgressRecipe {
         crate::recipes::progress_recipe(self.id)
     }
+
+    /// `.cn-switch` border, ring, and default radius for this pack.
+    pub const fn switch(self) -> crate::recipes::SwitchRecipe {
+        crate::recipes::switch_recipe(self.id)
+    }
+
+    /// `.cn-switch` / `.cn-switch-thumb` geometry for this pack.
+    pub const fn switch_size(
+        self,
+        size: crate::recipes::ControlSize,
+    ) -> crate::recipes::SwitchSizeRecipe {
+        crate::recipes::switch_size(self.id, size)
+    }
 }

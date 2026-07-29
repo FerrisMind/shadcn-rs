@@ -73,19 +73,14 @@ const fn typography(style: StyleId, context: LabelContext) -> TypeRecipe {
             line_height_px: 12.0,
         },
         // Vega / Nova / Maia / Luma / Rhea: `text-sm leading-none font-medium`.
-        (
-            StyleId::Vega
-            | StyleId::Nova
-            | StyleId::Maia
-            | StyleId::Luma
-            | StyleId::Rhea,
-            _,
-        ) => TypeRecipe {
-            size_px: 14.0,
-            weight: FontWeight::Medium,
-            uppercase: false,
-            tracking_em: 0.0,
-            line_height_px: 14.0,
-        },
+        (StyleId::Vega | StyleId::Nova | StyleId::Maia | StyleId::Luma | StyleId::Rhea, _) => {
+            TypeRecipe {
+                size_px: 14.0,
+                weight: FontWeight::Medium,
+                uppercase: false,
+                tracking_em: 0.0,
+                line_height_px: 14.0,
+            }
+        }
     }
 }

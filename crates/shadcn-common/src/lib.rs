@@ -21,9 +21,9 @@ pub use icons::{IconName, IconSet};
 pub use radius::{RadiusId, RadiusScale};
 pub use recipes::{
     BadgeRecipe, ButtonSizeRecipe, ButtonTypeRecipe, ComponentRadius, ControlSize, FontWeight,
-    KbdRecipe, LabelContext, LabelRecipe, ProgressRecipe, SkeletonRecipe, TypeRecipe,
-    badge_recipe, button_size, button_type, kbd_recipe, label_recipe, progress_recipe,
-    skeleton_default_radius, skeleton_recipe,
+    KbdRecipe, LabelContext, LabelRecipe, ProgressRecipe, SkeletonRecipe, SwitchRecipe,
+    SwitchSizeRecipe, TypeRecipe, badge_recipe, button_size, button_type, kbd_recipe, label_recipe,
+    progress_recipe, skeleton_default_radius, skeleton_recipe, switch_recipe, switch_size,
 };
 pub use style::{StyleId, StylePack};
 pub use theme::{ResolvedTheme, SemanticThemeTable};
