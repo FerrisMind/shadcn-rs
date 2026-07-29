@@ -46,9 +46,9 @@
 20. ~~**`toggle-group`** — переиспользует `toggle` (+ single/multiple selection state)~~ ✅
 21. ~~**`radio-group`** — с нуля сама радио-кнопка, переиспользует `label`~~ ✅
 22. ~~**`input-group`** — переиспользует `input`, `button`, `textarea` (addon-слоты)~~ ✅
-23. **`breadcrumb`** — с нуля (простой layout: link + separator-иконка)
-24. **`pagination`** — переиспользует варианты `button`
-25. **`item`** — с нуля (универсальная строка: media/content/actions)
+23. ~~**`breadcrumb`** — с нуля (простой layout: link + separator-иконка)~~ ✅
+24. ~~**`pagination`** — переиспользует варианты `button`~~ ✅
+25. ~~**`item`** — с нуля (универсальная строка: media/content/actions)~~ ✅
 26. **`empty`** — переиспользует `item`-подобный layout + typography
 27. **`field`** — переиспользует `label`, `input`, `checkbox` и т.д. (форменная обвязка + ошибки)
 28. **`table`** — с нуля (Row/Cell/Header на базе grid/column)
@@ -99,8 +99,8 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 
 button ✅, spinner ✅, separator ✅, skeleton, label ✅, badge ✅, kbd ✅, typography ✅,
 aspect-ratio, progress, input ✅, textarea, checkbox ✅, switch ✅, toggle ✅, slider,
-avatar ✅, card ✅, alert ✅, scroll-area ✅, radio-group ✅, breadcrumb, item, table, tabs,
-collapsible, native-select, resizable, tooltip, popover, dialog, sonner,
+avatar ✅, card ✅, alert ✅, scroll-area ✅, radio-group ✅, breadcrumb ✅, item ✅, table, tabs,
+collapsible ✅, pagination ✅, native-select, resizable, tooltip, popover, dialog, sonner,
 carousel, calendar, chart, command, overlay/menu-примитивы.
 
 ### Переиспользуют готовые
