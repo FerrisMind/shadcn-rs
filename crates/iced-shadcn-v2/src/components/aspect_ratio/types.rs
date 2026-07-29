@@ -99,12 +99,12 @@ impl<'a, Message> AspectRatio<'a, Message> {
         self
     }
 
-    /// Marks content for overflow clipping when a styled wrapper is used.
+    /// Clips child content that overflows the wrapper bounds.
     ///
-    /// Mirrors `overflow-hidden` on the web primitive's outer container. The
-    /// flag is carried for API parity; clipping takes effect once iced exposes
-    /// container clipping on the wrapper applied by [`Self::background`],
-    /// [`Self::muted`], [`Self::radius`], or [`Self::style_override`].
+    /// Mirrors `overflow-hidden` on the web primitive's outer container.
+    /// Clipping is rectangular (the wrapper's layout bounds); rounded-corner
+    /// clipping is not supported by iced's container yet, so [`Self::radius`]
+    /// only rounds the painted background.
     pub fn clip(mut self, clip: bool) -> Self {
         self.clip = clip;
         self

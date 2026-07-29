@@ -30,6 +30,7 @@ pub fn aspect_ratio<'a, Message: 'a>(config: AspectRatio<'a, Message>) -> Elemen
 
     container_widget(inner)
         .width(Length::Fill)
+        .clip(config.clip)
         .style(move |_iced_theme| {
             let mut resolved = container::Style {
                 background: background.map(Background::Color),
