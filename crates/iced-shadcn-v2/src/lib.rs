@@ -48,6 +48,8 @@ pub use components::button;
 pub use components::card;
 /// Backwards-compatible access to the checkbox component.
 pub use components::checkbox;
+/// Backwards-compatible access to the input component.
+pub use components::input;
 /// Backwards-compatible access to the kbd component.
 pub use components::kbd;
 /// Backwards-compatible access to the label component.
@@ -84,6 +86,7 @@ pub use components::card::{
 pub use components::checkbox::{
     Checkbox, CheckboxConfig, CheckboxSize, CheckboxState, CheckboxVariant,
 };
+pub use components::input::{Input, InputBuildError, InputRadius, InputSize, input};
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
 pub use components::progress::{

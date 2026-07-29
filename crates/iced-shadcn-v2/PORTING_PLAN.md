@@ -29,7 +29,7 @@
 6. ~~**`typography`** — с нуля (это не компонент, а набор текстовых стилей/хелперов)~~ ✅
 7. **`aspect-ratio`** — с нуля (в iced — просто layout-обёртка)
 8. **`progress`** — с нуля (в iced есть `progress_bar` — обернуть и стилизовать)
-9. **`input`** — с нуля (обёртка над `text_input` — критичный примитив)
+9. ~~**`input`** — с нуля (обёртка над `text_input` — критичный примитив)~~ ✅
 10. **`textarea`** — с нуля (обёртка над `text_editor`)
 11. ~~**`checkbox`** — с нуля~~ ✅
 12. ~~**`switch`** — с нуля (checkbox-подобная логика + анимация)~~ ✅
@@ -98,7 +98,7 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 ### С нуля (собственные примитивы)
 
 button ✅, spinner ✅, separator ✅, skeleton, label ✅, badge ✅, kbd ✅, typography ✅,
-aspect-ratio, progress, input, textarea, checkbox ✅, switch ✅, toggle ✅, slider,
+aspect-ratio, progress, input ✅, textarea, checkbox ✅, switch ✅, toggle ✅, slider,
 avatar, card ✅, alert ✅, scroll-area ✅, radio-group, breadcrumb, item, table, tabs,
 collapsible, native-select, resizable, tooltip, popover, dialog, sonner,
 carousel, calendar, chart, command, overlay/menu-примитивы.

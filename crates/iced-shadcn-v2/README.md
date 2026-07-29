@@ -22,6 +22,7 @@ with native `iced` types.
   - `components::spinner` — canvas-based loading indicator.
   - `components::progress` — theme-aware determinate and indeterminate progress bar.
   - `components::checkbox` — controlled checked, unchecked, and indeterminate input.
+  - `components::input` — controlled text field over iced `text_input` with `.cn-input` styling.
 - `theme` — `shadcn-common` theme adapter for iced:
   - `theme::palette` — semantic colors and OKLCH-to-iced conversion.
   - `theme::tokens` — theme mode, style, base, accent, radius, and semantic APIs.
@@ -124,6 +125,7 @@ cargo run -p iced-shadcn-v2 --example skeleton
 cargo run -p iced-shadcn-v2 --example spinner
 cargo run -p iced-shadcn-v2 --example progress
 cargo run -p iced-shadcn-v2 --example checkbox
+cargo run -p iced-shadcn-v2 --example input
 cargo run -p iced-shadcn-v2 --example scroll_area
 ```
 

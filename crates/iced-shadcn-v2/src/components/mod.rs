@@ -9,6 +9,7 @@ pub mod badge;
 pub mod button;
 pub mod card;
 pub mod checkbox;
+pub mod input;
 pub mod kbd;
 pub mod label;
 pub mod progress;

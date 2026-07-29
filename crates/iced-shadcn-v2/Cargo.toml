@@ -80,6 +80,10 @@ name = "checkbox"
 path = "examples/checkbox/main.rs"
 
 [[example]]
+name = "input"
+path = "examples/input/main.rs"
+
+[[example]]
 name = "switch"
 path = "examples/switch/main.rs"
 
