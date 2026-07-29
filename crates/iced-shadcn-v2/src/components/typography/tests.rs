@@ -6,6 +6,7 @@ use crate::iced_compat::{Color, Element, Length};
 use shadcn_common::{FontWeight, StyleId};
 
 use super::style;
+use super::table::column_count;
 use super::*;
 use crate::theme::Theme;
 
@@ -200,6 +201,13 @@ fn table_builder_tracks_rows() {
     assert!(!table.is_empty());
 
     let _: Element<'_, Message> = table.into();
+}
+
+#[test]
+fn table_columns_include_body_cells_beyond_the_header() {
+    assert_eq!(column_count(Some(2), [3, 1]), 3);
+    assert_eq!(column_count(None, [0, 4]), 4);
+    assert_eq!(column_count(Some(0), []), 1);
 }
 
 #[test]

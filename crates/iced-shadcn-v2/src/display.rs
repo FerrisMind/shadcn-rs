@@ -206,7 +206,10 @@ mod tests {
     fn display_matches_shadcn_kebab_tokens() {
         assert_eq!(ButtonVariant::Destructive.to_string(), "destructive");
         assert_eq!(ButtonSize::IconSm.to_string(), "icon-sm");
-        assert_eq!(CardFooterAlignment::SpaceBetween.to_string(), "space-between");
+        assert_eq!(
+            CardFooterAlignment::SpaceBetween.to_string(),
+            "space-between"
+        );
         assert_eq!(KbdSurface::InputGroup.to_string(), "input-group");
         assert_eq!(SpinnerVariant::TextShimmer.to_string(), "text-shimmer");
         assert_eq!(TypographyVariant::InlineCode.to_string(), "inline-code");

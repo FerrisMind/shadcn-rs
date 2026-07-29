@@ -163,12 +163,7 @@ impl<'a, Message> TypographyTable<'a, Message> {
         bold_font.weight = iced_font_weight(FontWeight::Bold);
         let size = TypographyVariant::P.type_recipe().size_px;
 
-        let columns = header
-            .as_ref()
-            .map(Vec::len)
-            .or_else(|| rows.iter().map(Vec::len).max())
-            .unwrap_or(0)
-            .max(1);
+        let columns = column_count(header.as_ref().map(Vec::len), rows.iter().map(Vec::len));
 
         let mut lines: Vec<Element<'a, Message>> = Vec::new();
 
@@ -215,6 +210,18 @@ impl<'a, Message> TypographyTable<'a, Message> {
             })
             .into()
     }
+}
+
+pub(super) fn column_count(
+    header_len: Option<usize>,
+    row_lengths: impl IntoIterator<Item = usize>,
+) -> usize {
+    header_len
+        .into_iter()
+        .chain(row_lengths)
+        .max()
+        .unwrap_or(0)
+        .max(1)
 }
 
 #[allow(clippy::too_many_arguments)]
