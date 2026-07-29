@@ -96,6 +96,25 @@ fn ranges_are_validated_instead_of_dividing_by_zero() {
 }
 
 #[test]
+fn unrepresentable_range_widths_fall_back_to_the_default_range() {
+    let theme = Theme::light();
+
+    // Finite bounds whose span overflows to infinity.
+    let overflowing = Slider::<Message>::new(&theme).range(-f32::MAX..=f32::MAX);
+    assert_eq!((overflowing.min, overflowing.max), (0.0, 100.0));
+
+    // Empty range that cannot be widened: `f32::MAX + 1.0 == f32::MAX`.
+    let saturated = Slider::<Message>::new(&theme).range(f32::MAX..=f32::MAX);
+    assert_eq!((saturated.min, saturated.max), (0.0, 100.0));
+
+    let negative_saturated = Slider::<Message>::new(&theme).range(-f32::MAX..=-f32::MAX);
+    assert_eq!(
+        (negative_saturated.min, negative_saturated.max),
+        (0.0, 100.0)
+    );
+}
+
+#[test]
 fn non_finite_values_fall_back_to_the_lower_bound() {
     let theme = Theme::light();
 

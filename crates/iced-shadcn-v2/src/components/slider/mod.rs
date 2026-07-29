@@ -222,7 +222,10 @@ impl<'a, Message> Slider<'a, Message> {
     /// Sets the inclusive value range.
     ///
     /// A reversed range is swapped and an empty one is widened by `1.0`, so the
-    /// slider always has a usable travel instead of dividing by zero.
+    /// slider always has a usable travel instead of dividing by zero. Ranges
+    /// whose width cannot be represented as a finite `f32` (e.g.
+    /// `-f32::MAX..=f32::MAX`) or that cannot be widened (e.g.
+    /// `f32::MAX..=f32::MAX`) fall back to the default `0.0..=100.0`.
     ///
     /// ```rust
     /// use iced_shadcn_v2::{Slider, Theme};
@@ -242,8 +245,19 @@ impl<'a, Message> Slider<'a, Message> {
             (end, start)
         };
 
+        // Both bounds can be finite while their span is not: the width of
+        // `-f32::MAX..=f32::MAX` overflows to infinity, and near `f32::MAX`
+        // the `min + 1.0` widening is absorbed by f32 precision. Either way
+        // the geometry cannot work with the span, so reject it entirely.
+        let width = max - min;
+        if !width.is_finite() || (width.abs() <= f32::EPSILON && min + 1.0 == min) {
+            self.min = DEFAULT_MIN;
+            self.max = DEFAULT_MAX;
+            return self;
+        }
+
         self.min = min;
-        self.max = if (max - min).abs() <= f32::EPSILON {
+        self.max = if width.abs() <= f32::EPSILON {
             min + 1.0
         } else {
             max
