@@ -2,7 +2,8 @@
 
 use std::time::Duration;
 
-use crate::iced_compat::{Color, Element, Length};
+use crate::iced_compat::widget::canvas;
+use crate::iced_compat::{Color, Element, Length, Rectangle, mouse, time, window};
 use shadcn_common::{AccentColor, StyleId};
 
 use super::geometry::{default_height, default_radius, display_ratio, normalized_ratio, radius_px};
@@ -170,4 +171,24 @@ fn display_ratio_tracks_live_value_when_idle() {
         ..ProgressState::default()
     };
     assert_eq!(display_ratio(&animating, Some(30.0), 100.0), 0.66);
+}
+
+#[test]
+fn settled_determinate_progress_does_not_schedule_redraws() {
+    let theme = Theme::light();
+    let progress = Progress::new(&theme).value(50.0).animated(true);
+    let mut state = ProgressState::default();
+    let now = time::Instant::now();
+    let event = canvas::Event::Window(window::Event::RedrawRequested(now));
+
+    let action = <Progress<'_> as canvas::Program<()>>::update(
+        &progress,
+        &mut state,
+        &event,
+        Rectangle::with_size(crate::iced_compat::Size::new(100.0, 6.0)),
+        mouse::Cursor::Unavailable,
+    );
+
+    assert!(action.is_none());
+    assert!(state.transition_start.is_none());
 }

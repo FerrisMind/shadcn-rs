@@ -102,14 +102,18 @@ impl<Message> canvas::Program<Message> for Progress<'_> {
                 (elapsed.as_secs_f32() / self.indeterminate_duration.as_secs_f32()).rem_euclid(1.0);
         }
 
-        // While animated, keep the redraw loop alive so a value that changes
-        // while the bar is otherwise idle is picked up on the next frame. A
-        // canvas program only observes `value` changes from inside `update`,
-        // which runs on `RedrawRequested`; without this self-driven loop a
-        // determinate bar stops requesting frames once settled and never sees
-        // the new value (this mirrors the spinner's animation loop). Non-
-        // animated bars returned early above and stay purely event-driven.
-        Some(canvas::Action::request_redraw_at(*now + FRAME_INTERVAL))
+        // An indeterminate bar is continuously animated. A determinate bar
+        // only needs another frame while its value transition is in flight;
+        // once settled, the next application-driven redraw observes any new
+        // controlled value without a self-sustaining timer.
+        if determinate {
+            state
+                .transition_start
+                .is_some()
+                .then(|| canvas::Action::request_redraw_at(*now + FRAME_INTERVAL))
+        } else {
+            Some(canvas::Action::request_redraw_at(*now + FRAME_INTERVAL))
+        }
     }
 
     fn draw(
