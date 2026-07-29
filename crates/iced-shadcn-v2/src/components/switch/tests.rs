@@ -428,6 +428,30 @@ fn disabled_animation_snaps_to_the_target() {
 }
 
 #[test]
+fn disabling_animation_mid_transition_snaps_to_the_target() {
+    let theme = Theme::light();
+    let mut state = SwitchState::default();
+    let start = crate::iced_compat::time::Instant::now();
+
+    Switch::<Message>::new(&theme).advance(&mut state, start);
+
+    // Start an animated transition towards `checked = true`.
+    let animated = Switch::<Message>::new(&theme)
+        .checked(true)
+        .duration(Duration::from_millis(100));
+    animated.advance(&mut state, start);
+    assert!(state.transition_start.is_some());
+
+    // The next view disables animation while `checked` stays the same: the
+    // stale transition must be dropped and the thumb snapped to the target.
+    let snapped = Switch::<Message>::new(&theme).checked(true).animated(false);
+    snapped.advance(&mut state, start + Duration::from_millis(10));
+
+    assert!(state.transition_start.is_none());
+    assert_eq!(snapped.position(&state), 1.0);
+}
+
+#[test]
 fn position_at_rest_is_derived_from_the_controlled_state() {
     let theme = Theme::light();
     let state = SwitchState::default();

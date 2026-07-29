@@ -191,6 +191,13 @@ impl<Message> Switch<'_, Message> {
             }
         }
 
+        // Disabling animation mid-transition snaps to the target on the next
+        // frame instead of letting the stale transition keep easing the thumb.
+        if !self.animated && state.transition_start.is_some() {
+            state.displayed = target;
+            state.transition_start = None;
+        }
+
         let Some(start) = state.transition_start else {
             return;
         };
