@@ -3,7 +3,7 @@
 use std::time::Duration;
 
 use crate::iced_compat::widget::canvas;
-use crate::iced_compat::{Color, Length, Size};
+use crate::iced_compat::{Color, Element, Length, Size};
 
 use crate::theme::Theme;
 
@@ -130,8 +130,11 @@ impl Spinner {
     }
 
     /// Sets the externally-driven progress (used when not animated).
+    ///
+    /// Non-finite values (`NaN`, `±inf`) are normalized to `0.0` so a bad
+    /// division upstream (e.g. `done / 0`) cannot poison the geometry.
     pub fn progress(mut self, progress: f32) -> Self {
-        self.progress = progress;
+        self.progress = if progress.is_finite() { progress } else { 0.0 };
         self
     }
 
@@ -207,6 +210,12 @@ pub fn spinner<Message>(spinner: Spinner) -> canvas::Canvas<Spinner, Message> {
     canvas::Canvas::new(spinner)
         .width(Length::Fixed(size.width))
         .height(Length::Fixed(size.height))
+}
+
+impl<'a, Message: 'a> From<Spinner> for Element<'a, Message> {
+    fn from(config: Spinner) -> Self {
+        spinner(config).into()
+    }
 }
 
 /// Internal animation state of a [`Spinner`] canvas program.

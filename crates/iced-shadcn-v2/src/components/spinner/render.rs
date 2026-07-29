@@ -388,7 +388,10 @@ fn draw_text(
     phase: f32,
     animation: TextAnimation,
 ) {
-    let mut content = text.to_string();
+    // `canvas::Text` owns a `String`, so one allocation per frame is
+    // unavoidable; reserving for the dot suffix avoids a second one.
+    let mut content = String::with_capacity(text.len() + 3);
+    content.push_str(text);
     let mut paint = color;
 
     match animation {
@@ -401,8 +404,11 @@ fn draw_text(
             paint = mix_colors(apply_opacity(color, 0.55), color, mix);
         }
         TextAnimation::LoadingDots => {
-            let dots = ((phase * 3.0).floor() as i32).clamp(0, 3) as usize;
-            content.push_str(&".".repeat(dots));
+            // Four equal time slots so the cycle reaches "Loading...":
+            // phase ∈ [0, 1) ⇒ floor(phase * 4) ∈ {0, 1, 2, 3}.
+            const DOT_FRAMES: [&str; 4] = ["", ".", "..", "..."];
+            let dots = ((phase * 4.0).floor() as usize).min(3);
+            content.push_str(DOT_FRAMES[dots]);
         }
     }
 
