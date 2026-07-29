@@ -18,6 +18,7 @@ use crate::components::collapsible::{
     CollapsibleAlignment, CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement,
     CollapsibleOrientation, CollapsibleState,
 };
+use crate::components::field::{FieldLegendVariant, FieldOrientation};
 use crate::components::input::{InputRadius, InputSize};
 use crate::components::input_group::{
     InputGroupAddonAlign, InputGroupButtonSize, InputGroupRadius, InputGroupTextareaResize,
@@ -34,6 +35,10 @@ use crate::components::skeleton::{SkeletonAnimation, SkeletonFill, SkeletonRadiu
 use crate::components::slider::{SliderOrientation, SliderRadius};
 use crate::components::spinner::{SpinnerSize, SpinnerVariant};
 use crate::components::switch::{SwitchRadius, SwitchSize};
+use crate::components::tabs::{
+    TabsActivationMode, TabsHover, TabsJustify, TabsListLoop, TabsListVariant, TabsOrientation,
+    TabsSize, TabsWrap,
+};
 use crate::components::toggle::{ToggleRadius, ToggleSize, ToggleVariant};
 use crate::components::toggle_group::{ToggleGroupOrientation, ToggleGroupType};
 use crate::components::typography::TypographyVariant;
@@ -110,6 +115,10 @@ impl_display! {
     CollapsibleEasing {
         Linear => "linear", EaseOut => "ease-out", EaseInOut => "ease-in-out",
     }
+    FieldOrientation {
+        Vertical => "vertical", Horizontal => "horizontal", Responsive => "responsive",
+    }
+    FieldLegendVariant { Legend => "legend", Label => "label" }
     InputSize { Sm => "sm", Default => "default", Lg => "lg" }
     InputRadius {
         None => "none", Small => "small", Medium => "medium",
@@ -165,6 +174,14 @@ impl_display! {
     }
     ToggleGroupType { Single => "single", Multiple => "multiple" }
     ToggleGroupOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    TabsActivationMode { Automatic => "automatic", Manual => "manual" }
+    TabsHover { None => "none", Subtle => "subtle", Soft => "soft" }
+    TabsJustify { Start => "start", Center => "center", End => "end" }
+    TabsListLoop { Enabled => "enabled", Disabled => "disabled" }
+    TabsListVariant { Default => "default", Line => "line" }
+    TabsOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    TabsSize { Sm => "sm", Default => "default", Lg => "lg" }
+    TabsWrap { NoWrap => "no-wrap", Wrap => "wrap", WrapReverse => "wrap-reverse" }
     TypographyVariant {
         H1 => "h1", H2 => "h2", H3 => "h3", H4 => "h4", P => "p",
         Blockquote => "blockquote", InlineCode => "inline-code",

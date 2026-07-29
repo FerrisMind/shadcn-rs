@@ -22,6 +22,8 @@ with native `iced` types.
   - `components::checkbox` — controlled checked, unchecked, and indeterminate input.
   - `components::collapsible` — controlled disclosure with trigger, content, and
     chevron indicator (height/width transition).
+  - `components::field` — composable field roots, groups, labels, descriptions,
+    separators, validation errors, and responsive layout support.
   - `components::input` — controlled text field over iced `text_input` with `.cn-input` styling.
   - `components::input_group` — composable input/textarea groups with inline and block addons.
   - `components::item` — media/content/actions row, item group, and separators.
@@ -37,6 +39,10 @@ with native `iced` types.
   - `components::slider` — single- and multi-thumb canvas slider with steps.
   - `components::spinner` — canvas-based loading indicator.
   - `components::switch` — controlled on/off toggle with animated thumb.
+  - `components::table` — responsive compositional table with typed slots,
+    spanning cells, alignment, hover, selected rows, and horizontal overflow.
+  - `components::tabs` — controlled tab list/triggers/content with orientation,
+    line variant, keyboard activation, and wrap options.
   - `components::toggle` — pressed/unpressed toggle button with variants.
   - `components::toggle_group` — controlled single/multiple toggle selection
     with orientation, spacing, and item composition.
@@ -48,9 +54,10 @@ with native `iced` types.
 - `fonts` — font-face exports and the iced font adapter.
 
 The root `alert`, `aspect_ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `card`, `checkbox`,
-`collapsible`, `input`, `input_group`, `item`, `kbd`, `label`, `pagination`, `progress`,
-`radio_group`, `scroll_area`, `separator`, `skeleton`, `slider`, `spinner`, `switch`, `toggle`,
-`toggle_group`, and `typography` modules are compatibility re-exports of `components`, so existing
+`collapsible`, `field`, `input`, `input_group`, `item`, `kbd`, `label`, `pagination`, `progress`,
+`radio_group`, `scroll_area`, `separator`, `skeleton`, `slider`, `spinner`, `switch`, `table`,
+`tabs`, `toggle`, `toggle_group`, and `typography` modules are compatibility re-exports of
+`components`, so existing
 v2 imports remain valid while new code can use the feature-oriented
 `iced_shadcn_v2::components::*` paths.
 
@@ -145,6 +152,7 @@ cargo run -p iced-shadcn-v2 --example button
 cargo run -p iced-shadcn-v2 --example card
 cargo run -p iced-shadcn-v2 --example checkbox
 cargo run -p iced-shadcn-v2 --example collapsible
+cargo run -p iced-shadcn-v2 --example field
 cargo run -p iced-shadcn-v2 --example input
 cargo run -p iced-shadcn-v2 --example input_group
 cargo run -p iced-shadcn-v2 --example item
@@ -159,6 +167,8 @@ cargo run -p iced-shadcn-v2 --example skeleton
 cargo run -p iced-shadcn-v2 --example slider
 cargo run -p iced-shadcn-v2 --example spinner
 cargo run -p iced-shadcn-v2 --example switch
+cargo run -p iced-shadcn-v2 --example table
+cargo run -p iced-shadcn-v2 --example tabs
 cargo run -p iced-shadcn-v2 --example toggle
 cargo run -p iced-shadcn-v2 --example toggle_group
 cargo run -p iced-shadcn-v2 --example typography

@@ -93,6 +93,8 @@ pub use components::card;
 pub use components::checkbox;
 /// Backwards-compatible access to the collapsible component.
 pub use components::collapsible;
+/// Backwards-compatible access to the field component.
+pub use components::field;
 /// Backwards-compatible access to the input component.
 pub use components::input;
 /// Backwards-compatible access to the input-group component.
@@ -121,6 +123,10 @@ pub use components::slider;
 pub use components::spinner;
 /// Backwards-compatible access to the switch component.
 pub use components::switch;
+/// Backwards-compatible access to the table component.
+pub use components::table;
+/// Backwards-compatible access to the tabs component.
+pub use components::tabs;
 /// Backwards-compatible access to the toggle component.
 pub use components::toggle;
 /// Backwards-compatible access to the toggle-group component.
@@ -156,6 +162,11 @@ pub use components::collapsible::{
     Collapsible, CollapsibleAlignment, CollapsibleBuildError, CollapsibleContent,
     CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement, CollapsibleOrientation,
     CollapsibleState, CollapsibleTrigger, collapsible,
+};
+pub use components::field::{
+    Field, FieldContent, FieldDescription, FieldError, FieldErrorItem, FieldGroup, FieldLabel,
+    FieldLegend, FieldLegendVariant, FieldOrientation, FieldSeparator, FieldSet, FieldTitle,
+    DEFAULT_FIELD_RESPONSIVE_BREAKPOINT,
 };
 pub use components::input::{Input, InputBuildError, InputRadius, InputSize, input};
 pub use components::input_group::{
@@ -198,6 +209,15 @@ pub use components::slider::{
 pub use components::spinner::{Spinner, SpinnerSize, SpinnerVariant, spinner};
 pub use components::switch::{
     Switch, SwitchRadius, SwitchSize, SwitchState, SwitchStatus, SwitchStyle, switch,
+};
+pub use components::table::{
+    Table, TableBody, TableCaption, TableCell, TableCellAlignment, TableFooter, TableHead,
+    TableHeader, TableRow, TableRowCell, TableSection,
+};
+pub use components::tabs::{
+    Tabs, TabsActivationMode, TabsContent, TabsDirection, TabsHover, TabsJustify, TabsList,
+    TabsListLoop, TabsListVariant, TabsOrientation, TabsSize, TabsTrigger, TabsWrap, tabs,
+    tabs_content, tabs_trigger,
 };
 pub use components::toggle::{Toggle, ToggleRadius, ToggleSize, ToggleVariant};
 pub use components::toggle_group::{
