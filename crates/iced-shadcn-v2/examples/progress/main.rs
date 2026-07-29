@@ -9,8 +9,8 @@ use iced::widget::{column, container, row, scrollable, slider, text};
 use iced::{Alignment, Background, Color, Element, Length, Task};
 
 use iced_shadcn_v2::{
-    fonts, iced_font, AccentColor, Button, ButtonVariant, FontId, Progress, ProgressOrientation,
-    ProgressVariant, StyleId, Theme, ThemeMode,
+    AccentColor, Button, ButtonVariant, FontId, Progress, ProgressOrientation, ProgressVariant,
+    StyleId, Theme, ThemeMode, fonts, iced_font,
 };
 
 pub fn main() -> iced::Result {

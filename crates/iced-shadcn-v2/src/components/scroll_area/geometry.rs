@@ -13,7 +13,9 @@ use crate::theme::Theme;
 /// Radius that reads as a pill at every rendered size.
 const PILL_RADIUS: f32 = 9999.0;
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, ScrollAreaBuildError> {
+pub(super) fn resolve_padding(
+    padding: Padding,
+) -> Result<crate::iced_compat::Padding, ScrollAreaBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
     Ok(crate::iced_compat::Padding {

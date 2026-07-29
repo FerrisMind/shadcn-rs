@@ -388,7 +388,10 @@ fn states_dimensions_and_style_override_are_configurable() {
         .on_input(Message::Changed);
 
     assert_eq!(input.width, Length::Fixed(240.0));
-    assert_eq!(input.align_x, crate::iced_compat::alignment::Horizontal::Center);
+    assert_eq!(
+        input.align_x,
+        crate::iced_compat::alignment::Horizontal::Center
+    );
     assert!(input.id.is_some());
     assert!(input.style_override.is_some());
 

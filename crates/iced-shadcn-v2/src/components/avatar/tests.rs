@@ -203,5 +203,8 @@ fn group_item_rings_keep_the_avatar_shape() {
     ));
 
     let square = style::resolve_group_ring_style(&theme, 2.0);
-    assert_eq!(square.border.radius, crate::iced_compat::border::Radius::from(2.0));
+    assert_eq!(
+        square.border.radius,
+        crate::iced_compat::border::Radius::from(2.0)
+    );
 }

@@ -190,7 +190,13 @@ fn public_builders_have_non_empty_debug_output() {
     assert!(format!("{:?}", CardHeader::<()>::new(&theme)).contains("CardHeader"));
     assert!(format!("{:?}", CardContent::<()>::new(&theme)).contains("CardContent"));
     assert!(format!("{:?}", CardFooter::<()>::new(&theme)).contains("CardFooter"));
-    assert!(format!("{:?}", CardAction::<()>::new(crate::iced_compat::widget::text("a"))).contains("CardAction"));
+    assert!(
+        format!(
+            "{:?}",
+            CardAction::<()>::new(crate::iced_compat::widget::text("a"))
+        )
+        .contains("CardAction")
+    );
     assert!(format!("{:?}", CardTitle::<()>::text("a", &theme)).contains("CardTitle"));
     assert!(format!("{:?}", CardDescription::<()>::text("a", &theme)).contains("CardDescription"));
 }

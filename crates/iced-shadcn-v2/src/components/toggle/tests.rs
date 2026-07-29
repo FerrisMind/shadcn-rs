@@ -77,7 +77,10 @@ fn builder_updates_semantic_fields() {
     assert!(toggle.disabled);
     assert_eq!(toggle.width, Length::Fixed(120.0));
     assert_eq!(toggle.height, Some(Length::Fixed(48.0)));
-    assert_eq!(toggle.padding, Some(crate::iced_compat::Padding::from([0, 16])));
+    assert_eq!(
+        toggle.padding,
+        Some(crate::iced_compat::Padding::from([0, 16]))
+    );
     assert!(toggle.full_width);
 }
 

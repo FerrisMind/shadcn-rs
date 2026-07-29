@@ -8,7 +8,9 @@ use super::error::ButtonBuildError;
 use super::types::ButtonSize;
 use crate::theme::Theme;
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, ButtonBuildError> {
+pub(super) fn resolve_padding(
+    padding: Padding,
+) -> Result<crate::iced_compat::Padding, ButtonBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
     Ok(crate::iced_compat::Padding {

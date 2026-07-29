@@ -5,7 +5,9 @@ use twill_core::prelude::{Padding, PaddingValue, Spacing};
 use super::error::BadgeBuildError;
 use crate::theme::Theme;
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, BadgeBuildError> {
+pub(super) fn resolve_padding(
+    padding: Padding,
+) -> Result<crate::iced_compat::Padding, BadgeBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
     Ok(crate::iced_compat::Padding {

@@ -36,8 +36,14 @@ pub struct AspectRatio<'a, Message> {
     pub(super) background: Option<Color>,
     pub(super) radius: f32,
     pub(super) clip: bool,
-    pub(super) style_override:
-        Option<Box<dyn Fn(crate::iced_compat::widget::container::Style) -> crate::iced_compat::widget::container::Style + 'a>>,
+    pub(super) style_override: Option<
+        Box<
+            dyn Fn(
+                    crate::iced_compat::widget::container::Style,
+                ) -> crate::iced_compat::widget::container::Style
+                + 'a,
+        >,
+    >,
 }
 
 impl<Message> fmt::Debug for AspectRatio<'_, Message> {
@@ -116,7 +122,10 @@ impl<'a, Message> AspectRatio<'a, Message> {
     /// `AspectRatio.Root`.
     pub fn style_override(
         mut self,
-        style_override: impl Fn(crate::iced_compat::widget::container::Style) -> crate::iced_compat::widget::container::Style + 'a,
+        style_override: impl Fn(
+            crate::iced_compat::widget::container::Style,
+        ) -> crate::iced_compat::widget::container::Style
+        + 'a,
     ) -> Self {
         self.style_override = Some(Box::new(style_override));
         self

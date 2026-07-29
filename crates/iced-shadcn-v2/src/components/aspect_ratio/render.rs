@@ -4,7 +4,9 @@ use crate::iced_compat::advanced::layout::{self, Layout};
 use crate::iced_compat::advanced::widget::{Operation, Tree};
 use crate::iced_compat::advanced::{Clipboard, Shell, Widget, overlay, renderer};
 use crate::iced_compat::widget::{container, container as container_widget};
-use crate::iced_compat::{Background, Border, Element, Event, Length, Rectangle, Size, Vector, mouse};
+use crate::iced_compat::{
+    Background, Border, Element, Event, Length, Rectangle, Size, Vector, mouse,
+};
 
 use super::types::{AspectRatio, MIN_ASPECT_RATIO};
 
@@ -55,7 +57,9 @@ struct AspectRatioWidget<'a, Message> {
     ratio: f32,
 }
 
-impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Renderer> for AspectRatioWidget<'_, Message> {
+impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>
+    for AspectRatioWidget<'_, Message>
+{
     fn children(&self) -> Vec<Tree> {
         vec![Tree::new(&self.content)]
     }
@@ -170,7 +174,9 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
         renderer: &crate::iced_compat::Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<overlay::Element<'b, Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>> {
+    ) -> Option<
+        overlay::Element<'b, Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>,
+    > {
         self.content.as_widget_mut().overlay(
             &mut tree.children[0],
             layout.children().next().expect("aspect-ratio child layout"),

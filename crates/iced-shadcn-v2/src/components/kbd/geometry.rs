@@ -49,7 +49,9 @@ pub(super) fn default_padding(theme: &Theme) -> crate::iced_compat::Padding {
     }
 }
 
-pub(super) fn resolve_padding(padding: Padding) -> Result<crate::iced_compat::Padding, KbdBuildError> {
+pub(super) fn resolve_padding(
+    padding: Padding,
+) -> Result<crate::iced_compat::Padding, KbdBuildError> {
     let (top, right, bottom, left) = padding.sides();
 
     Ok(crate::iced_compat::Padding {

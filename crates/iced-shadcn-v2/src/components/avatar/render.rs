@@ -514,7 +514,9 @@ struct OverflowSlot<'a, Message> {
     overflow: f32,
 }
 
-impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Renderer> for OverflowSlot<'_, Message> {
+impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>
+    for OverflowSlot<'_, Message>
+{
     fn children(&self) -> Vec<Tree> {
         vec![Tree::new(&self.content)]
     }
@@ -646,7 +648,9 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
         renderer: &crate::iced_compat::Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<overlay::Element<'b, Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>> {
+    ) -> Option<
+        overlay::Element<'b, Message, crate::iced_compat::Theme, crate::iced_compat::Renderer>,
+    > {
         self.content.as_widget_mut().overlay(
             &mut tree.children[0],
             layout
