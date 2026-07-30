@@ -5,6 +5,7 @@
 
 pub mod accordion;
 pub mod alert;
+pub mod alert_dialog;
 pub mod aspect_ratio;
 pub mod avatar;
 pub mod badge;
@@ -14,7 +15,10 @@ pub mod button_group;
 pub mod card;
 pub mod checkbox;
 pub mod collapsible;
+pub mod context_menu;
 pub mod dialog;
+pub mod drawer;
+pub mod dropdown_menu;
 pub mod empty;
 pub mod field;
 pub mod hover_card;
@@ -33,6 +37,7 @@ pub mod resizable;
 pub mod scroll_area;
 pub mod select;
 pub mod separator;
+pub mod sheet;
 pub mod skeleton;
 pub mod slider;
 pub mod sonner;

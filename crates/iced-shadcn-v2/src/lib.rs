@@ -68,6 +68,7 @@
 
 pub mod components;
 mod display;
+pub(crate) mod floating_surface;
 pub mod fonts;
 pub(crate) mod iced_compat;
 pub mod recipes;
@@ -77,6 +78,8 @@ pub mod theme;
 pub use components::accordion;
 /// Backwards-compatible access to the alert component.
 pub use components::alert;
+/// Backwards-compatible access to the alert-dialog component.
+pub use components::alert_dialog;
 /// Backwards-compatible access to the aspect-ratio component.
 pub use components::aspect_ratio;
 /// Backwards-compatible access to the avatar component.
@@ -95,8 +98,14 @@ pub use components::card;
 pub use components::checkbox;
 /// Backwards-compatible access to the collapsible component.
 pub use components::collapsible;
+/// Backwards-compatible access to the context-menu component.
+pub use components::context_menu;
 /// Backwards-compatible access to the dialog component.
 pub use components::dialog;
+/// Backwards-compatible access to the drawer component.
+pub use components::drawer;
+/// Backwards-compatible access to the dropdown-menu component.
+pub use components::dropdown_menu;
 /// Backwards-compatible access to the empty-state component.
 pub use components::empty;
 /// Backwards-compatible access to the field component.
@@ -133,11 +142,13 @@ pub use components::scroll_area;
 pub use components::select;
 /// Backwards-compatible access to the separator component.
 pub use components::separator;
+/// Backwards-compatible access to the sheet component.
+pub use components::sheet;
 /// Backwards-compatible access to the skeleton component.
 pub use components::skeleton;
 /// Backwards-compatible access to the slider component.
 pub use components::slider;
-/// Backwards-compatible access to the sonner (toast) component.
+/// Backwards-compatible access to the sonner toast component.
 pub use components::sonner;
 /// Backwards-compatible access to the spinner component.
 pub use components::spinner;
@@ -163,6 +174,10 @@ pub use components::accordion::{
 };
 pub use components::alert::{
     Alert, AlertAction, AlertDescription, AlertRadius, AlertTitle, AlertVariant,
+};
+pub use components::alert_dialog::{
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogDescription, AlertDialogFooter,
+    AlertDialogHeader, AlertDialogMedia, AlertDialogSize, AlertDialogStyle, AlertDialogTitle,
 };
 pub use components::aspect_ratio::{AspectRatio, MIN_ASPECT_RATIO, aspect_ratio};
 pub use components::avatar::{
@@ -190,8 +205,21 @@ pub use components::collapsible::{
     CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement, CollapsibleOrientation,
     CollapsibleState, CollapsibleTrigger, collapsible,
 };
+pub use components::context_menu::{
+    ContextMenu, ContextMenuCheckboxItem, ContextMenuContentStyle, ContextMenuItem,
+    ContextMenuItemVariant, ContextMenuLabel, ContextMenuRadioItem, ContextMenuSub, context_menu,
+};
 pub use components::dialog::{
     Dialog, DialogDescription, DialogFooter, DialogHeader, DialogStyle, DialogTitle,
+};
+pub use components::drawer::{
+    Drawer, DrawerBody, DrawerDescription, DrawerDirection, DrawerFooter, DrawerHeader,
+    DrawerStyle, DrawerTitle,
+};
+pub use components::dropdown_menu::{
+    DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContentStyle, DropdownMenuItem,
+    DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSub,
+    dropdown_menu,
 };
 pub use components::empty::{
     Empty, EmptyBorderStyle, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia,
@@ -254,6 +282,9 @@ pub use components::select::{
     SelectStatus, SelectTriggerStyle, SelectType, select,
 };
 pub use components::separator::{Separator, SeparatorOrientation, separator};
+pub use components::sheet::{
+    Sheet, SheetBody, SheetDescription, SheetFooter, SheetHeader, SheetSide, SheetStyle, SheetTitle,
+};
 pub use components::skeleton::{
     Skeleton, SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape,
 };
@@ -261,9 +292,10 @@ pub use components::slider::{
     Slider, SliderOrientation, SliderRadius, SliderState, SliderStatus, SliderStyle, slider,
 };
 pub use components::sonner::{
-    SonnerToast, ToastAction, ToastOptions, ToastPosition, ToastType, Toaster, dismiss_all_toasts,
-    dismiss_toast, toast, toast_error, toast_immediate, toast_info, toast_loading, toast_success,
-    toast_warning,
+    SonnerToast, Toast, ToastAction, ToastCallback, ToastId, ToastOptions, ToastPosition,
+    ToastPromise, ToastStyle, ToastType, Toaster, active_toast_count, dismiss_all_toasts,
+    dismiss_toast, toast, toast_error, toast_immediate, toast_info, toast_loading, toast_promise,
+    toast_success, toast_warning, toast_with_id, update_toast,
 };
 pub use components::spinner::{Spinner, SpinnerSize, SpinnerVariant, spinner};
 pub use components::switch::{
@@ -290,8 +322,8 @@ pub use theme::{Palette, Theme};
 
 pub use shadcn_common::{
     AccentColor, BaseColor, ComponentRadius, ControlSize, FloatingPadding, FloatingSticky,
-    FontHeading, FontId, FontPack, FontWeight, RadiusId, RadiusScale, ResolvedTheme, SelectMode,
-    StyleId, StylePack, ThemeMode, TypeRecipe,
+    FontHeading, FontId, FontPack, FontWeight, MenuActivateKind, MenuItemVariant, RadiusId,
+    RadiusScale, ResolvedTheme, SelectMode, StyleId, StylePack, ThemeMode, TypeRecipe,
 };
 
 /// Semantic color slots resolved by [`Theme::semantic_color`].

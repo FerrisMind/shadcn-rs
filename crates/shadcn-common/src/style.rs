@@ -360,6 +360,20 @@ impl StylePack {
         crate::recipes::select_recipe(self.id)
     }
 
+    /// `.cn-dropdown-menu-*` content and item tokens for this pack.
+    pub const fn dropdown_menu(self) -> crate::recipes::DropdownMenuRecipe {
+        crate::recipes::dropdown_menu_recipe(self.id)
+    }
+
+    /// `.cn-context-menu-*` content and item tokens for this pack.
+    ///
+    /// The shadcn-svelte context-menu shares its `.cn-menu-target` surface with
+    /// the dropdown-menu, so this resolves to the same recipe; the method exists
+    /// so call sites read `style.context_menu()` and a future split stays local.
+    pub const fn context_menu(self) -> crate::recipes::ContextMenuRecipe {
+        crate::recipes::context_menu_recipe(self.id)
+    }
+
     /// `.cn-switch` border, ring, and default radius for this pack.
     pub const fn switch(self) -> crate::recipes::SwitchRecipe {
         crate::recipes::switch_recipe(self.id)

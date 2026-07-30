@@ -4,9 +4,13 @@
 //! share the same StyleId tables. Backends map [`FontWeight`] / [`ComponentRadius`]
 //! onto their native font and radius APIs.
 
+mod alert_dialog;
 mod badge;
 mod button;
+mod context_menu;
 mod dialog;
+mod drawer;
+mod dropdown_menu;
 mod hover_card;
 mod kbd;
 mod label;
@@ -15,14 +19,22 @@ mod popover;
 mod progress;
 mod radio_group;
 mod select;
+mod sheet;
 mod skeleton;
 mod slider;
 mod switch;
 mod toggle;
 mod tooltip;
 
+pub use alert_dialog::{AlertDialogRecipe, alert_dialog_recipe};
 pub use badge::{BadgeRecipe, badge_recipe};
 pub use button::{ButtonSizeRecipe, ButtonTypeRecipe, ControlSize, button_size, button_type};
+pub use context_menu::{
+    CONTEXT_MENU_ANIMATION_MS, CONTEXT_MENU_CONTENT_MAX_HEIGHT_PX,
+    CONTEXT_MENU_DESTRUCTIVE_FOCUS_ALPHA, CONTEXT_MENU_DESTRUCTIVE_FOCUS_ALPHA_DARK,
+    CONTEXT_MENU_DISABLED_OPACITY, CONTEXT_MENU_FLIP_SLACK_PX, CONTEXT_MENU_SIDE_OFFSET_PX,
+    CONTEXT_MENU_SLIDE_PX, CONTEXT_MENU_ZOOM_FROM, ContextMenuRecipe, context_menu_recipe,
+};
 pub use dialog::{
     DIALOG_ANIMATION_MS, DIALOG_CLOSE_ICON_PX, DIALOG_CLOSE_SIZE_PX, DIALOG_MARGIN_PX,
     DIALOG_ZOOM_FROM, DialogRecipe, dialog_recipe,
@@ -123,3 +135,22 @@ impl TypeRecipe {
         self.size_px * self.tracking_em
     }
 }
+pub use drawer::{
+    DRAWER_ANIMATION_MS, DRAWER_EDGE_INSET_PX, DRAWER_HANDLE_HEIGHT_COMPACT_PX,
+    DRAWER_HANDLE_HEIGHT_PX, DRAWER_HANDLE_MARGIN_TOP_PX, DRAWER_HANDLE_WIDTH_PX,
+    DRAWER_MAX_HEIGHT_FRACTION, DRAWER_MAX_WIDTH_PX, DRAWER_SIDE_WIDTH_FRACTION, DrawerCornerMask,
+    DrawerDirection, DrawerPanelMetrics, DrawerRecipe, drawer_corner_mask, drawer_panel_metrics,
+    drawer_recipe,
+};
+pub use dropdown_menu::{
+    DROPDOWN_MENU_ANIMATION_MS, DROPDOWN_MENU_CONTENT_MAX_HEIGHT_PX,
+    DROPDOWN_MENU_DESTRUCTIVE_FOCUS_ALPHA, DROPDOWN_MENU_DESTRUCTIVE_FOCUS_ALPHA_DARK,
+    DROPDOWN_MENU_DISABLED_OPACITY, DROPDOWN_MENU_SIDE_OFFSET_PX, DROPDOWN_MENU_SLIDE_PX,
+    DROPDOWN_MENU_ZOOM_FROM, DropdownMenuRecipe, MenuActivateKind, MenuItemVariant,
+    dropdown_menu_recipe,
+};
+pub use sheet::{
+    SHEET_ANIMATION_MS, SHEET_CLOSE_ICON_PX, SHEET_CLOSE_SIZE_PX, SHEET_MAX_WIDTH_PX,
+    SHEET_SIDE_WIDTH_FRACTION, SHEET_SLIDE_PX, SheetPanelMetrics, SheetRecipe, SheetSide,
+    sheet_panel_metrics, sheet_recipe,
+};
