@@ -15,9 +15,7 @@ use crate::iced_compat::{
 };
 
 use super::state::{has_changed, reset_changed, with_toasts, with_toasts_mut};
-use super::style::{
-    self, MAX_VISIBLE_TOASTS, STACK_SCALE_STEP, TOAST_PADDING, TOAST_WIDTH, UNMOUNT_DELAY_MS,
-};
+use super::style::{self, MAX_VISIBLE_TOASTS, TOAST_PADDING, TOAST_WIDTH, UNMOUNT_DELAY_MS};
 use super::types::{RawToast, ToastPosition, ToastType};
 use crate::fonts::iced_font;
 use crate::theme::Theme as ShadcnTheme;
@@ -98,9 +96,7 @@ impl<Message> Widget<Message, Theme, Renderer> for ToasterWidget<'_, Message> {
                 }
 
                 // Drive auto-close timers.
-                let now_ms = now
-                    .elapsed()
-                    .as_millis() as u64;
+                let now_ms = now.elapsed().as_millis() as u64;
 
                 let mut changed = false;
                 with_toasts_mut(|toasts| {
@@ -137,8 +133,8 @@ impl<Message> Widget<Message, Theme, Renderer> for ToasterWidget<'_, Message> {
                 }
 
                 // Schedule next frame if there are active toasts.
-                let active = with_toasts(|toasts| toasts.iter().any(|t| !t.dismissed))
-                    .unwrap_or(false);
+                let active =
+                    with_toasts(|toasts| toasts.iter().any(|t| !t.dismissed)).unwrap_or(false);
                 if active {
                     shell.request_redraw_at(*now + FRAME_INTERVAL);
                 }
@@ -211,7 +207,7 @@ struct ToasterOverlay<'a> {
     viewport: Rectangle,
 }
 
-impl overlay::Overlay<Message, Theme, Renderer> for ToasterOverlay<'_> {
+impl<Message> overlay::Overlay<Message, Theme, Renderer> for ToasterOverlay<'_> {
     fn layout(&mut self, _renderer: &Renderer, bounds: Size) -> layout::Node {
         layout::Node::new(bounds)
     }
@@ -315,8 +311,14 @@ impl overlay::Overlay<Message, Theme, Renderer> for ToasterOverlay<'_> {
                 .collect();
 
             for toast in visible.iter() {
-                let toast_bounds =
-                    compute_toast_bounds(bounds, toast, &visible, self.position, self.gap, self.offset);
+                let toast_bounds = compute_toast_bounds(
+                    bounds,
+                    toast,
+                    &visible,
+                    self.position,
+                    self.gap,
+                    self.offset,
+                );
 
                 let style = if toast.invert || self.invert {
                     style::inverted_toast_style(is_dark)
@@ -484,7 +486,10 @@ impl overlay::Overlay<Message, Theme, Renderer> for ToasterOverlay<'_> {
                         .unwrap_or(0.0);
 
                     let btn_bounds = Rectangle {
-                        x: toast_bounds.x + toast_bounds.width - TOAST_PADDING - action_width - btn_width,
+                        x: toast_bounds.x + toast_bounds.width
+                            - TOAST_PADDING
+                            - action_width
+                            - btn_width,
                         y: toast_bounds.y + toast_bounds.height - TOAST_PADDING - btn_height,
                         width: btn_width,
                         height: btn_height,
@@ -528,19 +533,19 @@ fn draw_text(
     color: crate::iced_compat::Color,
     font: crate::iced_compat::Font,
 ) {
-    use crate::iced_compat::advanced::text::Text;
+    use iced_core::text::Renderer as TextRenderer;
 
-    let text = Text {
+    let text = iced_core::Text {
         content,
         bounds: crate::iced_compat::Size::new(f32::INFINITY, f32::INFINITY),
         size: crate::iced_compat::Pixels(size),
-        line_height: crate::iced_compat::widget::text::LineHeight::Absolute(
+        line_height: crate::iced_core::widget::text::LineHeight::Absolute(
             crate::iced_compat::Pixels(size * 1.2),
         ),
         font,
         horizontal_alignment: crate::iced_compat::alignment::Horizontal::Left,
         vertical_alignment: crate::iced_compat::alignment::Vertical::Top,
-        shaping: crate::iced_compat::widget::text::Shaping::Advanced,
+        shaping: crate::iced_core::widget::text::Shaping::Advanced,
     };
 
     let bounds = Rectangle {
@@ -566,7 +571,10 @@ fn compute_toast_bounds(
     gap: f32,
     offset: f32,
 ) -> Rectangle {
-    let index = all_visible.iter().position(|t| t.id == toast.id).unwrap_or(0);
+    let index = all_visible
+        .iter()
+        .position(|t| t.id == toast.id)
+        .unwrap_or(0);
     let count = all_visible.len();
 
     let toast_height = estimate_toast_height(toast);

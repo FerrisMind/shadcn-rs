@@ -334,6 +334,7 @@ pub struct Toaster<'a, Message> {
     invert: bool,
     close_button: bool,
     expand: bool,
+    _marker: std::marker::PhantomData<Message>,
 }
 
 impl<Message> fmt::Debug for Toaster<'_, Message> {
@@ -370,6 +371,7 @@ impl<'a, Message> Toaster<'a, Message> {
             invert: false,
             close_button: false,
             expand: false,
+            _marker: std::marker::PhantomData,
         }
     }
 
