@@ -772,46 +772,42 @@ impl<'a, Message> Accordion<'a, Message> {
             return None;
         }
 
-        let enabled: Vec<String> = self
-            .items
-            .iter()
-            .enumerate()
-            .filter_map(|(index, item)| {
-                if item.disabled {
-                    return None;
+        let current_index = current.and_then(|value| {
+            self.items.iter().enumerate().position(|(index, item)| {
+                let trigger_enabled = item
+                    .trigger
+                    .as_ref()
+                    .is_some_and(|trigger| !trigger.disabled);
+                if item.disabled || !trigger_enabled {
+                    return false;
                 }
 
-                let trigger = item.trigger.as_ref()?;
-                if trigger.disabled {
-                    return None;
-                }
-
-                Some(
-                    item.value
-                        .clone()
-                        .unwrap_or_else(|| format!("item-{}", index + 1)),
-                )
+                item.value.as_deref() == Some(value)
+                    || (item.value.is_none() && value == format!("item-{}", index + 1))
             })
-            .collect();
+        });
 
-        let last = enabled.len().checked_sub(1)?;
-        let current = current.and_then(|value| enabled.iter().position(|item| item == value));
+        let index = shadcn_common::step_index(
+            &self.items,
+            current_index,
+            if forward { 1 } else { -1 },
+            matches!(self.loop_navigation, AccordionLoop::Enabled),
+            |item| {
+                !item.disabled
+                    && item
+                        .trigger
+                        .as_ref()
+                        .is_some_and(|trigger| !trigger.disabled)
+            },
+        )
+        .or(current_index)?;
 
-        let index = match (current, forward) {
-            (None, true) => 0,
-            (None, false) => last,
-            (Some(index), true) if index < last => index + 1,
-            (Some(index), false) if index > 0 => index - 1,
-            (Some(index), forward) => {
-                if self.loop_navigation == AccordionLoop::Enabled {
-                    if forward { 0 } else { last }
-                } else {
-                    index
-                }
-            }
-        };
-
-        Some(enabled[index].clone())
+        Some(
+            self.items[index]
+                .value
+                .clone()
+                .unwrap_or_else(|| format!("item-{}", index + 1)),
+        )
     }
 
     /// Sets the keyboard navigation orientation.

@@ -13,6 +13,7 @@ use crate::iced_compat::{
 };
 use crate::theme::Theme;
 use iced_core::keyboard;
+use shadcn_common::{Direction, NavAction, NavKey, Orientation, resolve_nav_action};
 
 use super::geometry::{self, TabsMetrics};
 use super::style;
@@ -608,15 +609,13 @@ where
                 }
                 Event::Keyboard(keyboard::Event::KeyPressed { key, .. }) if state.focused => {
                     let current = state.focused_index.or(active_index);
-                    if let Some(next_index) = self.next_index(key.clone(), current) {
+                    let action = nav_action(key, self.orientation);
+                    if let Some(next_index) = self.next_index(action, current) {
                         state.focused_index = Some(next_index);
                         state.focus_visible = true;
 
-                        let activate = match key {
-                            keyboard::Key::Named(keyboard::key::Named::Enter)
-                            | keyboard::Key::Named(keyboard::key::Named::Space) => true,
-                            _ => matches!(self.activation_mode, TabsActivationMode::Automatic),
-                        };
+                        let activate = matches!(action, Some(NavAction::Activate))
+                            || matches!(self.activation_mode, TabsActivationMode::Automatic);
                         if activate && let Some(callback) = self.on_value_change.as_ref() {
                             shell.publish(callback(self.items[next_index].value.clone()));
                         }
@@ -814,46 +813,26 @@ impl<'a, Message: Clone + 'a> TabsListWidget<'a, Message> {
         self.metrics.gap * count.saturating_sub(1) as f32
     }
 
-    fn next_index(&self, key: keyboard::Key, current: Option<usize>) -> Option<usize> {
-        let delta = match key {
-            keyboard::Key::Named(keyboard::key::Named::ArrowRight)
-                if !self.orientation.is_vertical() =>
-            {
-                Some(1)
-            }
-            keyboard::Key::Named(keyboard::key::Named::ArrowLeft)
-                if !self.orientation.is_vertical() =>
-            {
-                Some(-1)
-            }
-            keyboard::Key::Named(keyboard::key::Named::ArrowDown)
-                if self.orientation.is_vertical() =>
-            {
-                Some(1)
-            }
-            keyboard::Key::Named(keyboard::key::Named::ArrowUp)
-                if self.orientation.is_vertical() =>
-            {
-                Some(-1)
-            }
-            _ => None,
-        };
-
-        match key {
-            keyboard::Key::Named(keyboard::key::Named::Home) => first_enabled_index(&self.items),
-            keyboard::Key::Named(keyboard::key::Named::End) => last_enabled_index(&self.items),
-            keyboard::Key::Named(keyboard::key::Named::Enter)
-            | keyboard::Key::Named(keyboard::key::Named::Space) => current,
-            _ => delta.and_then(|delta| {
-                current.and_then(|current| {
-                    next_enabled_index(
-                        &self.items,
-                        current,
-                        delta,
-                        matches!(self.list_loop, TabsListLoop::Enabled),
-                    )
-                })
+    fn next_index(&self, action: Option<NavAction>, current: Option<usize>) -> Option<usize> {
+        match action {
+            Some(NavAction::First) => first_enabled_index(&self.items),
+            Some(NavAction::Last) => last_enabled_index(&self.items),
+            Some(NavAction::Activate) => current,
+            Some(NavAction::Next | NavAction::Previous) => current.and_then(|current| {
+                let delta = if matches!(action, Some(NavAction::Next)) {
+                    1
+                } else {
+                    -1
+                };
+                next_enabled_index(
+                    &self.items,
+                    current,
+                    delta,
+                    matches!(self.list_loop, TabsListLoop::Enabled),
+                )
             }),
+            None => None,
+            Some(_) => None,
         }
     }
 }
@@ -880,42 +859,44 @@ pub(crate) fn resolve_active_index(items: &[TabsTriggerMeta], active: &str) -> O
     items
         .iter()
         .position(|item| item.value == active && !item.disabled)
-        .or_else(|| items.iter().position(|item| !item.disabled))
+        .or_else(|| first_enabled_index(items))
 }
 
 pub(crate) fn first_enabled_index(items: &[TabsTriggerMeta]) -> Option<usize> {
-    items.iter().position(|item| !item.disabled)
+    shadcn_common::first_enabled_index(items, |item| !item.disabled)
 }
 
 fn last_enabled_index(items: &[TabsTriggerMeta]) -> Option<usize> {
-    items.iter().rposition(|item| !item.disabled)
+    shadcn_common::last_enabled_index(items, |item| !item.disabled)
 }
 
 pub(crate) fn next_enabled_index(
     items: &[TabsTriggerMeta],
     start: usize,
-    delta: i32,
+    delta: isize,
     looping: bool,
 ) -> Option<usize> {
-    if items.is_empty() {
-        return None;
-    }
+    shadcn_common::step_index(items, Some(start), delta, looping, |item| !item.disabled)
+}
 
-    let mut index = start as i32;
-    for _ in 0..items.len() {
-        index += delta;
-        if index < 0 || index >= items.len() as i32 {
-            if looping {
-                index = if delta > 0 { 0 } else { items.len() as i32 - 1 };
-            } else {
-                return None;
-            }
-        }
+fn nav_action(key: &keyboard::Key, orientation: TabsOrientation) -> Option<NavAction> {
+    let key = match key {
+        keyboard::Key::Named(keyboard::key::Named::ArrowLeft) => NavKey::ArrowLeft,
+        keyboard::Key::Named(keyboard::key::Named::ArrowRight) => NavKey::ArrowRight,
+        keyboard::Key::Named(keyboard::key::Named::ArrowUp) => NavKey::ArrowUp,
+        keyboard::Key::Named(keyboard::key::Named::ArrowDown) => NavKey::ArrowDown,
+        keyboard::Key::Named(keyboard::key::Named::Home) => NavKey::Home,
+        keyboard::Key::Named(keyboard::key::Named::End) => NavKey::End,
+        keyboard::Key::Named(keyboard::key::Named::Enter) => NavKey::Enter,
+        keyboard::Key::Named(keyboard::key::Named::Space) => NavKey::Space,
+        _ => return None,
+    };
 
-        let candidate = index as usize;
-        if !items[candidate].disabled {
-            return Some(candidate);
-        }
-    }
-    None
+    let orientation = if orientation.is_vertical() {
+        Orientation::Vertical
+    } else {
+        Orientation::Horizontal
+    };
+
+    resolve_nav_action(key, orientation, Direction::Ltr)
 }

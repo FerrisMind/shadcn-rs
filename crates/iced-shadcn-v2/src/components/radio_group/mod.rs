@@ -558,30 +558,22 @@ impl<'a, Message> RadioGroup<'a, Message> {
             return None;
         }
 
-        let enabled: Vec<&RadioGroupItem<'a, Message>> =
-            self.items.iter().filter(|item| !item.disabled).collect();
-        let last = enabled.len().checked_sub(1)?;
+        let current_index = self.value.as_deref().and_then(|value| {
+            self.items
+                .iter()
+                .position(|item| !item.disabled && item.value == value)
+        });
 
-        let current = self
-            .value
-            .as_deref()
-            .and_then(|value| enabled.iter().position(|item| item.value == value));
+        let index = shadcn_common::step_index(
+            &self.items,
+            current_index,
+            if forward { 1 } else { -1 },
+            self.loop_navigation,
+            |item| !item.disabled,
+        )
+        .or(current_index)?;
 
-        let index = match (current, forward) {
-            (None, true) => 0,
-            (None, false) => last,
-            (Some(index), true) if index < last => index + 1,
-            (Some(index), false) if index > 0 => index - 1,
-            (Some(index), forward) => {
-                if self.loop_navigation {
-                    if forward { 0 } else { last }
-                } else {
-                    index
-                }
-            }
-        };
-
-        Some(enabled[index].value.as_str())
+        Some(self.items[index].value.as_str())
     }
 
     /// Sets the group width.
