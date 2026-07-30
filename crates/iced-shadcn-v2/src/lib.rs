@@ -111,8 +111,6 @@ pub use components::item;
 pub use components::kbd;
 /// Backwards-compatible access to the label component.
 pub use components::label;
-/// Backwards-compatible access to the native-select component.
-pub use components::native_select;
 /// Backwards-compatible access to the pagination component.
 pub use components::pagination;
 /// Backwards-compatible access to the progress component.
@@ -141,6 +139,8 @@ pub use components::tabs;
 pub use components::toggle;
 /// Backwards-compatible access to the toggle-group component.
 pub use components::toggle_group;
+/// Backwards-compatible access to the tooltip component.
+pub use components::tooltip;
 /// Backwards-compatible access to the typography component.
 pub use components::typography;
 
@@ -205,10 +205,6 @@ pub use components::item::{
 };
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
-pub use components::native_select::{
-    NativeSelect, NativeSelectItem, NativeSelectOptGroup, NativeSelectOption, NativeSelectRadius,
-    NativeSelectSize,
-};
 pub use components::pagination::{
     Pagination, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext,
     PaginationPrevious, pagination,
@@ -254,6 +250,7 @@ pub use components::toggle_group::{
     ToggleGroup, ToggleGroupItem, ToggleGroupMode, ToggleGroupOrientation, ToggleGroupRadius,
     ToggleGroupSelection, ToggleGroupSize, ToggleGroupType, ToggleGroupValue, ToggleGroupVariant,
 };
+pub use components::tooltip::{Tooltip, TooltipAlign, TooltipSide, TooltipStyle};
 pub use components::typography::{Typography, TypographyList, TypographyTable, TypographyVariant};
 pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};

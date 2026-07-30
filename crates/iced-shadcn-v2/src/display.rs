@@ -42,6 +42,7 @@ use crate::components::tabs::{
 };
 use crate::components::toggle::{ToggleRadius, ToggleSize, ToggleVariant};
 use crate::components::toggle_group::{ToggleGroupOrientation, ToggleGroupType};
+use crate::components::tooltip::{TooltipAlign, TooltipSide};
 use crate::components::typography::TypographyVariant;
 
 /// Implements [`fmt::Display`] for unit-variant enums with fixed token text.
@@ -183,6 +184,8 @@ impl_display! {
     }
     ToggleGroupType { Single => "single", Multiple => "multiple" }
     ToggleGroupOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    TooltipSide { Top => "top", Right => "right", Bottom => "bottom", Left => "left" }
+    TooltipAlign { Start => "start", Center => "center", End => "end" }
     TabsActivationMode { Automatic => "automatic", Manual => "manual" }
     TabsHover { None => "none", Subtle => "subtle", Soft => "soft" }
     TabsJustify { Start => "start", Center => "center", End => "end" }
@@ -290,6 +293,8 @@ mod tests {
         assert_eq!(SpinnerVariant::TextShimmer.to_string(), "text-shimmer");
         assert_eq!(ToggleGroupType::Multiple.to_string(), "multiple");
         assert_eq!(ToggleGroupOrientation::Vertical.to_string(), "vertical");
+        assert_eq!(TooltipSide::Bottom.to_string(), "bottom");
+        assert_eq!(TooltipAlign::Start.to_string(), "start");
         assert_eq!(TypographyVariant::InlineCode.to_string(), "inline-code");
     }
 

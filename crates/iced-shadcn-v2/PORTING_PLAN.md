@@ -55,7 +55,6 @@
 29. ~~**`tabs`** — с нуля (trigger переиспользует стили `button`/`toggle`)~~ ✅
 30. ~~**`collapsible`** — с нуля (state + анимация высоты)~~ ✅
 31. ~~**`accordion`** — переиспользует логику `collapsible` (+ single/multiple)~~ ✅
-32. ~~**`native-select`** — в iced отображается на `pick_list` — обёртка с нуля~~ ✅
 33. ~~**`input-otp`** — переиспользует `input`-логику (посимвольные слоты, фокус-менеджмент)~~ ✅
 34. **`resizable`** — в iced отображается на `pane_grid` — обёртка с нуля ✅
 
@@ -100,7 +99,7 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 button ✅, spinner ✅, separator ✅, skeleton, label ✅, badge ✅, kbd ✅, typography ✅,
 aspect-ratio, progress, input ✅, textarea, checkbox ✅, switch ✅, toggle ✅, slider,
 avatar ✅, card ✅, alert ✅, scroll-area ✅, radio-group ✅, breadcrumb ✅, item ✅, table ✅, tabs ✅,
-collapsible ✅, accordion ✅, pagination ✅, field ✅, empty ✅, native-select ✅, resizable, tooltip, popover, dialog, sonner,
+collapsible ✅, accordion ✅, pagination ✅, field ✅, empty ✅, resizable, tooltip, popover, dialog, sonner,
 carousel, calendar, chart, command, overlay/menu-примитивы.
 
 ### Переиспользуют готовые

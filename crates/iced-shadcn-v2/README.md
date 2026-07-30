@@ -33,8 +33,6 @@ with native `iced` types.
   - `components::item` — media/content/actions row, item group, and separators.
   - `components::kbd` — keyboard-shortcut chip and grouped key sequences.
   - `components::label` — form label with style-pack typography and `for` / click.
-  - `components::native_select` — controlled select with placeholders, groups,
-    disabled options, keyboard navigation, and style-pack recipes.
   - `components::pagination` — controlled page window with prev/next and ellipsis.
   - `components::progress` — theme-aware determinate and indeterminate progress bar.
   - `components::radio_group` — controlled single-value radio selection with
@@ -62,7 +60,7 @@ with native `iced` types.
 The root `accordion`, `alert`, `aspect_ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `card`, `checkbox`,
 `collapsible`, `field`, `input`, `input_group`, `item`, `kbd`, `label`, `pagination`, `progress`,
 `radio_group`, `scroll_area`, `separator`, `skeleton`, `slider`, `spinner`, `switch`, `table`,
-`tabs`, `toggle`, `toggle_group`, `typography`, and `native_select` modules are compatibility re-exports of
+  `tabs`, `toggle`, `toggle_group`, and `typography` modules are compatibility re-exports of
 `components`, so existing
 v2 imports remain valid while new code can use the feature-oriented
 `iced_shadcn_v2::components::*` paths.
@@ -166,7 +164,6 @@ cargo run -p iced-shadcn-v2 --example input_otp
 cargo run -p iced-shadcn-v2 --example item
 cargo run -p iced-shadcn-v2 --example kbd
 cargo run -p iced-shadcn-v2 --example label
-cargo run -p iced-shadcn-v2 --example native_select
 cargo run -p iced-shadcn-v2 --example pagination
 cargo run -p iced-shadcn-v2 --example progress
 cargo run -p iced-shadcn-v2 --example radio_group

@@ -11,7 +11,7 @@
 
 pub(crate) use iced_core::{
     Background, Border, Color, ContentFit, Event, Font, Length, Padding, Pixels, Point, Radians,
-    Rectangle, Shadow, Size, Theme, Vector,
+    Rectangle, Shadow, Size, Theme, Transformation, Vector,
 };
 
 pub(crate) use iced_core::{alignment, border, font, mouse, time, touch, window};
