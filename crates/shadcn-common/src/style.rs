@@ -350,6 +350,11 @@ impl StylePack {
         crate::recipes::radio_group_recipe(self.id)
     }
 
+    /// `.cn-native-select` field and icon tokens for this pack.
+    pub const fn native_select(self) -> crate::recipes::NativeSelectRecipe {
+        crate::recipes::native_select_recipe(self.id)
+    }
+
     /// `.cn-switch` border, ring, and default radius for this pack.
     pub const fn switch(self) -> crate::recipes::SwitchRecipe {
         crate::recipes::switch_recipe(self.id)

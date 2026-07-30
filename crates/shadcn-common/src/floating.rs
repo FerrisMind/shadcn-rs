@@ -19,7 +19,7 @@
 
 /// Side of the anchor on which the floating element is placed.
 ///
-/// Matches the `side` prop of bits-ui floating content components.
+/// Matches the `side` prop of the shadcn-svelte floating content components.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum FloatingSide {
     /// Above the anchor.
@@ -62,7 +62,7 @@ impl FloatingSide {
 
 /// Alignment of the floating element along the anchor edge.
 ///
-/// Matches the `align` prop of bits-ui floating content components.
+/// Matches the `align` prop of the shadcn-svelte floating content components.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum FloatingAlign {
     /// Aligned with the start of the anchor edge.
@@ -83,6 +83,126 @@ impl FloatingAlign {
             Self::End => "end",
         }
     }
+}
+
+/// Per-side collision padding used by floating placement.
+///
+/// Mirrors bits-ui / floating-ui `collisionPadding`: callers can provide one
+/// uniform value or distinct values per edge.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FloatingPadding {
+    /// Top boundary inset.
+    pub top: f32,
+    /// Right boundary inset.
+    pub right: f32,
+    /// Bottom boundary inset.
+    pub bottom: f32,
+    /// Left boundary inset.
+    pub left: f32,
+}
+
+impl FloatingPadding {
+    /// Creates padding with all sides set to the same value.
+    pub const fn all(value: f32) -> Self {
+        Self {
+            top: value,
+            right: value,
+            bottom: value,
+            left: value,
+        }
+    }
+
+    /// Creates padding from horizontal and vertical values.
+    ///
+    /// `horizontal` applies to left and right; `vertical` applies to top and
+    /// bottom.
+    pub const fn symmetric(horizontal: f32, vertical: f32) -> Self {
+        Self {
+            top: vertical,
+            right: horizontal,
+            bottom: vertical,
+            left: horizontal,
+        }
+    }
+
+    const fn main_side(self, side: FloatingSide) -> f32 {
+        match side {
+            FloatingSide::Top => self.top,
+            FloatingSide::Right => self.right,
+            FloatingSide::Bottom => self.bottom,
+            FloatingSide::Left => self.left,
+        }
+    }
+
+    const fn cross_start(self, side: FloatingSide) -> f32 {
+        if side.is_horizontal() {
+            self.top
+        } else {
+            self.left
+        }
+    }
+
+    const fn cross_end(self, side: FloatingSide) -> f32 {
+        if side.is_horizontal() {
+            self.bottom
+        } else {
+            self.right
+        }
+    }
+}
+
+impl Default for FloatingPadding {
+    fn default() -> Self {
+        Self::all(8.0)
+    }
+}
+
+impl From<f32> for FloatingPadding {
+    fn from(value: f32) -> Self {
+        Self::all(value)
+    }
+}
+
+impl From<[f32; 4]> for FloatingPadding {
+    fn from(value: [f32; 4]) -> Self {
+        let [top, right, bottom, left] = value;
+        Self {
+            top,
+            right,
+            bottom,
+            left,
+        }
+    }
+}
+
+/// Positioning strategy contract (absolute/fixed), mirroring floating-ui.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum FloatingStrategy {
+    /// Position relative to an offset parent.
+    #[default]
+    Absolute,
+    /// Position relative to the viewport.
+    Fixed,
+}
+
+/// Cross-axis shifting mode when collisions are handled.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum FloatingSticky {
+    /// Shift just enough to keep the element in view.
+    #[default]
+    Partial,
+    /// Keep the element pinned to the clipping edge.
+    Always,
+}
+
+/// Position update policy contract for runtime adapters.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum FloatingUpdateStrategy {
+    /// Update when geometry changes.
+    #[default]
+    Optimized,
+    /// Update every frame.
+    Always,
 }
 
 /// Axis-aligned rectangle in logical pixels.
@@ -130,7 +250,7 @@ impl FloatingRect {
     }
 }
 
-/// Positioning options mirroring the bits-ui floating content props.
+/// Positioning options mirroring the shadcn-svelte floating content props.
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[must_use = "the config does nothing unless passed to compute_floating"]
 pub struct FloatingConfig {
@@ -145,16 +265,25 @@ pub struct FloatingConfig {
     /// Flip to the opposite side / shift into view on overflow
     /// (`avoidCollisions`).
     pub avoid_collisions: bool,
-    /// Minimum distance kept from the boundary edges (`collisionPadding`).
-    pub collision_padding: f32,
+    /// Minimum distance kept from boundary edges (`collisionPadding`).
+    pub collision_padding: FloatingPadding,
     /// Minimum distance kept between the arrow anchor and the floating
     /// element corners (`arrowPadding`).
     pub arrow_padding: f32,
+    /// Positioning strategy (`absolute` / `fixed`).
+    pub strategy: FloatingStrategy,
+    /// Shift behavior while avoiding collisions (`sticky`).
+    pub sticky: FloatingSticky,
+    /// Whether consumers should hide when the anchor is detached from
+    /// the clipping boundary (`hideWhenDetached`).
+    pub hide_when_detached: bool,
+    /// Runtime position update strategy (`optimized` / `always`).
+    pub update_position_strategy: FloatingUpdateStrategy,
 }
 
 impl Default for FloatingConfig {
-    /// bits-ui defaults: top/center, no offsets, collisions avoided with an
-    /// 8 px boundary padding.
+    /// shadcn-svelte defaults: top/center, no offsets, collisions avoided
+    /// with an 8 px boundary padding.
     fn default() -> Self {
         Self {
             side: FloatingSide::Top,
@@ -162,8 +291,12 @@ impl Default for FloatingConfig {
             side_offset: 0.0,
             align_offset: 0.0,
             avoid_collisions: true,
-            collision_padding: 8.0,
+            collision_padding: FloatingPadding::all(8.0),
             arrow_padding: 0.0,
+            strategy: FloatingStrategy::Absolute,
+            sticky: FloatingSticky::Partial,
+            hide_when_detached: false,
+            update_position_strategy: FloatingUpdateStrategy::Optimized,
         }
     }
 }
@@ -200,14 +333,38 @@ impl FloatingConfig {
     }
 
     /// Sets the minimum distance kept from the boundary edges.
-    pub const fn collision_padding(mut self, padding: f32) -> Self {
-        self.collision_padding = padding;
+    pub fn collision_padding(mut self, padding: impl Into<FloatingPadding>) -> Self {
+        self.collision_padding = padding.into();
         self
     }
 
     /// Sets the minimum distance between arrow and floating corners.
     pub const fn arrow_padding(mut self, padding: f32) -> Self {
         self.arrow_padding = padding;
+        self
+    }
+
+    /// Sets the positioning strategy contract.
+    pub const fn strategy(mut self, strategy: FloatingStrategy) -> Self {
+        self.strategy = strategy;
+        self
+    }
+
+    /// Sets shift behavior used by collision handling.
+    pub const fn sticky(mut self, sticky: FloatingSticky) -> Self {
+        self.sticky = sticky;
+        self
+    }
+
+    /// Sets whether consumers should hide when detached from the boundary.
+    pub const fn hide_when_detached(mut self, hide: bool) -> Self {
+        self.hide_when_detached = hide;
+        self
+    }
+
+    /// Sets runtime update strategy contract for adapters.
+    pub const fn update_position_strategy(mut self, strategy: FloatingUpdateStrategy) -> Self {
+        self.update_position_strategy = strategy;
         self
     }
 }
@@ -226,6 +383,10 @@ pub struct FloatingPlacement {
     /// the floating element origin: an `x` offset for top/bottom sides, a
     /// `y` offset for left/right sides.
     pub arrow: f32,
+    /// Whether the anchor lies outside the clipping boundary.
+    pub detached: bool,
+    /// Whether the floating element should be hidden for detached anchors.
+    pub hidden: bool,
 }
 
 /// Computes the position of a floating element of `width` × `height` around
@@ -243,6 +404,8 @@ pub fn compute_floating(
     boundary: FloatingRect,
     config: &FloatingConfig,
 ) -> FloatingPlacement {
+    let width = width.max(0.0);
+    let height = height.max(0.0);
     let side = if config.avoid_collisions {
         resolve_side(anchor, width, height, boundary, config)
     } else {
@@ -253,7 +416,15 @@ pub fn compute_floating(
     let mut cross = cross_axis_position(anchor, width, height, side, config);
 
     if config.avoid_collisions {
-        cross = shift_into_boundary(cross, width, height, side, boundary, config.collision_padding);
+        cross = shift_into_boundary(
+            cross,
+            width,
+            height,
+            side,
+            boundary,
+            config.collision_padding,
+            config.sticky,
+        );
     }
 
     let (x, y) = if side.is_horizontal() {
@@ -263,8 +434,17 @@ pub fn compute_floating(
     };
 
     let arrow = arrow_offset(anchor, x, y, width, height, side, config.arrow_padding);
+    let detached = !rects_intersect(anchor, boundary);
+    let hidden = config.hide_when_detached && detached;
 
-    FloatingPlacement { x, y, side, arrow }
+    FloatingPlacement {
+        x,
+        y,
+        side,
+        arrow,
+        detached,
+        hidden,
+    }
 }
 
 /// Space available for the floating element on `side` of the anchor.
@@ -272,7 +452,7 @@ fn available_space(
     anchor: FloatingRect,
     side: FloatingSide,
     boundary: FloatingRect,
-    padding: f32,
+    padding: FloatingPadding,
     side_offset: f32,
 ) -> f32 {
     let space = match side {
@@ -282,7 +462,7 @@ fn available_space(
         FloatingSide::Right => boundary.right() - anchor.right(),
     };
 
-    space - padding - side_offset
+    space - padding.main_side(side) - side_offset
 }
 
 /// Picks the preferred side or its opposite, whichever has more room when
@@ -374,7 +554,8 @@ fn shift_into_boundary(
     height: f32,
     side: FloatingSide,
     boundary: FloatingRect,
-    padding: f32,
+    padding: FloatingPadding,
+    sticky: FloatingSticky,
 ) -> f32 {
     let (start, end, extent) = if side.is_horizontal() {
         (boundary.y, boundary.bottom(), height)
@@ -382,15 +563,28 @@ fn shift_into_boundary(
         (boundary.x, boundary.right(), width)
     };
 
-    let min = start + padding;
-    let max = end - padding - extent;
+    let min = start + padding.cross_start(side);
+    let max = end - padding.cross_end(side) - extent;
 
     if max < min {
         // The element cannot fit with padding; center it in the boundary.
         start + (end - start - extent) / 2.0
     } else {
-        cross.clamp(min, max)
+        match sticky {
+            FloatingSticky::Partial => cross.clamp(min, max),
+            FloatingSticky::Always => {
+                if cross < min {
+                    min
+                } else {
+                    max
+                }
+            }
+        }
     }
+}
+
+fn rects_intersect(a: FloatingRect, b: FloatingRect) -> bool {
+    a.x < b.right() && a.right() > b.x && a.y < b.bottom() && a.bottom() > b.y
 }
 
 /// Projects the anchor center onto the floating edge facing it, clamped so
@@ -501,6 +695,37 @@ mod tests {
         let placement = compute_floating(anchor, 200.0, 24.0, BOUNDARY, &config);
 
         assert!(placement.arrow >= 12.0);
+    }
+
+    #[test]
+    fn supports_per_side_collision_padding() {
+        let anchor = FloatingRect::new(4.0, 280.0, 40.0, 40.0);
+        let config = FloatingConfig::default().collision_padding([4.0, 10.0, 4.0, 24.0]);
+        let placement = compute_floating(anchor, 200.0, 24.0, BOUNDARY, &config);
+
+        assert_eq!(placement.x, 24.0);
+    }
+
+    #[test]
+    fn hide_when_detached_marks_hidden_placement() {
+        let anchor = FloatingRect::new(-100.0, -100.0, 20.0, 20.0);
+        let config = FloatingConfig::default().hide_when_detached(true);
+        let placement = compute_floating(anchor, 120.0, 24.0, BOUNDARY, &config);
+
+        assert!(placement.detached);
+        assert!(placement.hidden);
+    }
+
+    #[test]
+    fn sticky_always_pins_cross_axis_to_edge() {
+        let anchor = FloatingRect::new(780.0, 300.0, 40.0, 40.0);
+        let config = FloatingConfig::default()
+            .sticky(FloatingSticky::Always)
+            .side(FloatingSide::Top);
+        let placement = compute_floating(anchor, 120.0, 24.0, BOUNDARY, &config);
+
+        // top/bottom placements use X as cross-axis; sticky "always" pins to max edge.
+        assert_eq!(placement.x, 672.0);
     }
 
     #[test]

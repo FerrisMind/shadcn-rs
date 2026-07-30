@@ -8,6 +8,7 @@ mod badge;
 mod button;
 mod kbd;
 mod label;
+mod native_select;
 mod progress;
 mod radio_group;
 mod skeleton;
@@ -20,6 +21,12 @@ pub use badge::{BadgeRecipe, badge_recipe};
 pub use button::{ButtonSizeRecipe, ButtonTypeRecipe, ControlSize, button_size, button_type};
 pub use kbd::{KbdRecipe, kbd_recipe};
 pub use label::{LabelContext, LabelRecipe, label_recipe};
+pub use native_select::{
+    NATIVE_SELECT_DISABLED_OPACITY, NATIVE_SELECT_MENU_GROUP_INDENT_PX,
+    NATIVE_SELECT_MENU_ITEM_PAD_X_PX, NATIVE_SELECT_MENU_ITEM_PAD_Y_PX,
+    NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NATIVE_SELECT_MENU_PAD_PX, NativeSelectRecipe,
+    native_select_recipe,
+};
 pub use progress::{ProgressRecipe, progress_recipe};
 pub use radio_group::{RadioCheckedFill, RadioGroupRecipe, RadioSurface, radio_group_recipe};
 pub use skeleton::{SkeletonRecipe, skeleton_default_radius, skeleton_recipe};
