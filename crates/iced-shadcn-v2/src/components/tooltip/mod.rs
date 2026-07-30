@@ -1,6 +1,6 @@
 //! Builder-first tooltip component.
 //!
-//! Port of the shadcn-svelte tooltip (bits-ui `Tooltip.Root` / `Trigger` /
+//! Port of the shadcn-svelte tooltip (`Tooltip.Root` / `Trigger` /
 //! `Content` + arrow) as a single iced builder: the trigger element is
 //! wrapped by a custom widget that opens a floating bubble on hover. The
 //! public API lives in this module; positioning math is shared through
@@ -19,7 +19,7 @@ pub use types::{TooltipAlign, TooltipSide};
 
 use std::fmt;
 
-use shadcn_common::{FloatingConfig, TOOLTIP_ANIMATION_MS};
+use shadcn_common::{FloatingConfig, FloatingPadding, FloatingSticky, TOOLTIP_ANIMATION_MS};
 
 use crate::iced_compat::widget::text::{Fragment, IntoFragment, LineHeight};
 use crate::iced_compat::widget::{container, text};
@@ -75,7 +75,9 @@ pub struct Tooltip<'a, Message> {
     on_open_change: Option<Box<dyn Fn(bool) -> Message + 'a>>,
     arrow: bool,
     avoid_collisions: bool,
-    collision_padding: f32,
+    collision_padding: FloatingPadding,
+    sticky: FloatingSticky,
+    hide_when_detached: bool,
     arrow_padding: Option<f32>,
     max_width: Option<f32>,
     style_override: Option<Box<dyn Fn(TooltipStyle) -> TooltipStyle + 'a>>,
@@ -110,6 +112,8 @@ impl<Message> fmt::Debug for Tooltip<'_, Message> {
             .field("arrow", &self.arrow)
             .field("avoid_collisions", &self.avoid_collisions)
             .field("collision_padding", &self.collision_padding)
+            .field("sticky", &self.sticky)
+            .field("hide_when_detached", &self.hide_when_detached)
             .field("arrow_padding", &self.arrow_padding)
             .field("max_width", &self.max_width)
             .field("style_override", &self.style_override.is_some())
@@ -172,6 +176,8 @@ impl<'a, Message> Tooltip<'a, Message> {
             arrow: true,
             avoid_collisions: defaults.avoid_collisions,
             collision_padding: defaults.collision_padding,
+            sticky: defaults.sticky,
+            hide_when_detached: defaults.hide_when_detached,
             arrow_padding: None,
             max_width: None,
             style_override: None,
@@ -264,8 +270,22 @@ impl<'a, Message> Tooltip<'a, Message> {
 
     /// Sets the minimum distance kept from the window edges
     /// (`collisionPadding`).
-    pub fn collision_padding(mut self, padding: f32) -> Self {
-        self.collision_padding = padding;
+    pub fn collision_padding(mut self, padding: impl Into<FloatingPadding>) -> Self {
+        self.collision_padding = padding.into();
+        self
+    }
+
+    /// Sets the cross-axis shift behavior while avoiding collisions
+    /// (`sticky`).
+    pub fn sticky(mut self, sticky: FloatingSticky) -> Self {
+        self.sticky = sticky;
+        self
+    }
+
+    /// Hides the bubble when the trigger is scrolled outside the window
+    /// (`hideWhenDetached`).
+    pub fn hide_when_detached(mut self, hide: bool) -> Self {
+        self.hide_when_detached = hide;
         self
     }
 
@@ -308,7 +328,9 @@ where
         let inner: Element<'a, Message> = match tooltip.content {
             TooltipContent::Label(label) => text(label)
                 .size(recipe.typography.size_px)
-                .line_height(LineHeight::Absolute(Pixels(recipe.typography.line_height_px)))
+                .line_height(LineHeight::Absolute(Pixels(
+                    recipe.typography.line_height_px,
+                )))
                 .font(iced_font(tooltip.theme.font_pack().sans))
                 .into(),
             TooltipContent::Element(element) => element,
@@ -336,6 +358,8 @@ where
             .align_offset(tooltip.align_offset)
             .avoid_collisions(tooltip.avoid_collisions)
             .collision_padding(tooltip.collision_padding)
+            .sticky(tooltip.sticky)
+            .hide_when_detached(tooltip.hide_when_detached)
             .arrow_padding(arrow_padding);
 
         Element::new(render::TooltipWidget {

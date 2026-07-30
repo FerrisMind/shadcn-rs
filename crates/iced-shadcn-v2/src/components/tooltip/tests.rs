@@ -1,8 +1,8 @@
 //! Behavioral tests for the tooltip component.
 
 use shadcn_common::{
-    FloatingAlign, FloatingConfig, FloatingRect, FloatingSide, StyleId, compute_floating,
-    tooltip_recipe,
+    FloatingAlign, FloatingConfig, FloatingPadding, FloatingRect, FloatingSide, FloatingSticky,
+    StyleId, compute_floating, tooltip_recipe,
 };
 
 use super::style;
@@ -41,6 +41,8 @@ fn builder_updates_semantic_fields() {
         .arrow(false)
         .avoid_collisions(false)
         .collision_padding(16.0)
+        .sticky(FloatingSticky::Always)
+        .hide_when_detached(true)
         .arrow_padding(4.0)
         .max_width(200.0);
 
@@ -57,7 +59,9 @@ fn builder_updates_semantic_fields() {
     assert!(tooltip.on_open_change.is_some());
     assert!(!tooltip.arrow);
     assert!(!tooltip.avoid_collisions);
-    assert_eq!(tooltip.collision_padding, 16.0);
+    assert_eq!(tooltip.collision_padding, FloatingPadding::all(16.0));
+    assert_eq!(tooltip.sticky, FloatingSticky::Always);
+    assert!(tooltip.hide_when_detached);
     assert_eq!(tooltip.arrow_padding, Some(4.0));
     assert_eq!(tooltip.max_width, Some(200.0));
     assert!(std::ptr::eq(tooltip.theme, &theme));
@@ -87,11 +91,10 @@ fn text_and_generic_tooltips_convert_to_elements() {
     let _: Element<'_, Message> =
         Tooltip::text(container("Hover"), "Add to library", &theme).into();
 
-    let _: Element<'_, Message> =
-        Tooltip::new(container("Hover"), container("Custom"), &theme)
-            .open(true)
-            .on_open_change(Message::OpenChanged)
-            .into();
+    let _: Element<'_, Message> = Tooltip::new(container("Hover"), container("Custom"), &theme)
+        .open(true)
+        .on_open_change(Message::OpenChanged)
+        .into();
 
     let _ = Message::Pressed;
     assert!(Message::OpenChanged(true).is_open());
@@ -117,9 +120,8 @@ fn style_override_patches_resolved_style() {
             ..style
         });
 
-    let resolved = (tooltip.style_override.as_ref().expect("override set"))(
-        style::resolve_style(&theme),
-    );
+    let resolved =
+        (tooltip.style_override.as_ref().expect("override set"))(style::resolve_style(&theme));
     assert_eq!(resolved.radius, 0.0);
 }
 
