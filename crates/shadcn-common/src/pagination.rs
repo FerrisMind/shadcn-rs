@@ -1,11 +1,18 @@
-//! Pagination range math ported from Zag `@zag-js/pagination`.
+//! Pagination range math for shadcn backends.
 //!
-//! Pure page-windowing for backends; rendering and a11y stay in iced/egui.
+//! Port of the bits-ui `getPageItems` algorithm used by shadcn-svelte.
+//! Rendering stays in iced/egui adapters.
 
-/// Default sibling pages around the current page.
+use std::collections::BTreeSet;
+use std::fmt;
+
+/// Default sibling pages around the current page (`siblingCount`).
 pub const DEFAULT_SIBLING_COUNT: usize = 1;
 
 /// Default boundary pages kept at each edge.
+///
+/// Reserved for APIs that expose Zag-style `boundaryCount`; the bits-ui
+/// window used by [`page_items`] always keeps the first and last page.
 pub const DEFAULT_BOUNDARY_COUNT: usize = 1;
 
 /// One slot in a computed pagination range.
@@ -35,6 +42,15 @@ impl PaginationItem {
     }
 }
 
+impl fmt::Display for PaginationItem {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Page(page) => write!(formatter, "{page}"),
+            Self::Ellipsis => formatter.write_str("ellipsis"),
+        }
+    }
+}
+
 /// Inputs for [`page_items`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct PageContext {
@@ -44,12 +60,12 @@ pub struct PageContext {
     pub total_pages: usize,
     /// Pages shown on each side of the current page.
     pub sibling_count: usize,
-    /// Pages always shown at the start and end.
+    /// Kept for API stability; bits-ui always anchors first/last pages.
     pub boundary_count: usize,
 }
 
 impl PageContext {
-    /// Builds a context with Zag defaults for sibling/boundary counts.
+    /// Builds a context with shadcn defaults for sibling/boundary counts.
     #[must_use]
     pub const fn new(page: usize, total_pages: usize) -> Self {
         Self {
@@ -67,7 +83,7 @@ impl PageContext {
         self
     }
 
-    /// Sets boundary count.
+    /// Sets boundary count (currently unused by the bits-ui window).
     #[must_use]
     pub const fn boundary_count(mut self, boundary_count: usize) -> Self {
         self.boundary_count = boundary_count;
@@ -86,101 +102,54 @@ pub fn total_pages(count: usize, per_page: usize) -> usize {
 
 /// Computes the visible page/ellipsis sequence for `ctx`.
 ///
-/// Port of Zag `getRange` + `transform`. Empty `total_pages` yields an empty
-/// list; a single page yields `[Page(1)]`.
+/// First and last pages are always visible, `sibling_count` pages surround the
+/// current page, and non-adjacent runs are separated by
+/// [`PaginationItem::Ellipsis`]. `page` is clamped into `1..=total_pages`, and
+/// a zero `total_pages` is treated as one.
 #[must_use]
 pub fn page_items(ctx: PageContext) -> Vec<PaginationItem> {
-    let total = ctx.total_pages;
-    if total == 0 {
-        return Vec::new();
-    }
-    if total == 1 {
-        return vec![PaginationItem::Page(1)];
-    }
-
+    let total = ctx.total_pages.max(1);
     let page = ctx.page.clamp(1, total);
-    let sibling = ctx.sibling_count;
-    let boundary = ctx.boundary_count.max(1);
+    let sibling_count = ctx.sibling_count;
 
-    let left_sibling = page.saturating_sub(sibling).max(1);
-    let right_sibling = page.saturating_add(sibling).min(total);
-    let total_page_numbers = (sibling * 2 + 3 + boundary * 2).min(total);
+    let mut visible = BTreeSet::new();
+    visible.insert(1);
+    visible.insert(total);
 
-    if total <= total_page_numbers {
-        return range_pages(1, total);
-    }
+    let first_with_siblings = 3usize.saturating_add(sibling_count);
+    let last_with_siblings = total.saturating_sub(2).saturating_sub(sibling_count);
 
-    let item_count = total_page_numbers.saturating_sub(1 + boundary);
-    let show_left = left_sibling > 1 + boundary + 1 && left_sibling.abs_diff(1) > boundary + 1;
-    let show_right =
-        right_sibling < total.saturating_sub(boundary + 1) && total.abs_diff(right_sibling) > boundary + 1;
-
-    let mut pages: Vec<PageSlot> = Vec::with_capacity(total_page_numbers);
-
-    if !show_left && show_right {
-        pages.extend(range_slots(1, item_count));
-        pages.push(PageSlot::Ellipsis);
-        pages.extend(range_slots(total.saturating_sub(boundary) + 1, total));
-    } else if show_left && !show_right {
-        pages.extend(range_slots(1, boundary));
-        pages.push(PageSlot::Ellipsis);
-        pages.extend(range_slots(total.saturating_sub(item_count) + 1, total));
-    } else if show_left && show_right {
-        pages.extend(range_slots(1, boundary));
-        pages.push(PageSlot::Ellipsis);
-        pages.extend(range_slots(left_sibling, right_sibling));
-        pages.push(PageSlot::Ellipsis);
-        pages.extend(range_slots(total.saturating_sub(boundary) + 1, total));
+    if first_with_siblings > last_with_siblings {
+        visible.extend(2..total);
+    } else if page < first_with_siblings {
+        visible.extend(2..=first_with_siblings.min(total));
+    } else if page > last_with_siblings {
+        visible.extend(last_with_siblings.max(2)..=total.saturating_sub(1));
     } else {
-        pages.extend(range_slots(1, total));
+        let start = page.saturating_sub(sibling_count).max(2);
+        let end = page
+            .saturating_add(sibling_count)
+            .min(total.saturating_sub(1));
+        visible.extend(start..=end);
     }
 
-    collapse_single_page_ellipsis(&mut pages, total);
-    pages
-        .into_iter()
-        .map(|slot| match slot {
-            PageSlot::Page(value) => PaginationItem::Page(value),
-            PageSlot::Ellipsis => PaginationItem::Ellipsis,
-        })
-        .collect()
-}
-
-#[derive(Clone, Copy)]
-enum PageSlot {
-    Page(usize),
-    Ellipsis,
-}
-
-fn range_pages(start: usize, end: usize) -> Vec<PaginationItem> {
-    (start..=end).map(PaginationItem::Page).collect()
-}
-
-fn range_slots(start: usize, end: usize) -> impl Iterator<Item = PageSlot> {
-    (start..=end).map(PageSlot::Page)
-}
-
-fn collapse_single_page_ellipsis(pages: &mut [PageSlot], total: usize) {
-    for index in 0..pages.len() {
-        if !matches!(pages[index], PageSlot::Ellipsis) {
-            continue;
+    let mut items = Vec::with_capacity(visible.len() + 2);
+    let mut previous = 0usize;
+    for page in visible {
+        if page - previous > 1 {
+            items.push(PaginationItem::Ellipsis);
         }
-        let prev = match pages.get(index.wrapping_sub(1)) {
-            Some(PageSlot::Page(value)) => *value,
-            _ => 0,
-        };
-        let next = match pages.get(index + 1) {
-            Some(PageSlot::Page(value)) => *value,
-            _ => total.saturating_add(1),
-        };
-        if next.saturating_sub(prev) == 2 {
-            pages[index] = PageSlot::Page(prev + 1);
-        }
+        items.push(PaginationItem::Page(page));
+        previous = page;
     }
+
+    items
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use PaginationItem::{Ellipsis, Page};
 
     #[test]
     fn total_pages_matches_bits_ui_defaults() {
@@ -193,37 +162,74 @@ mod tests {
     fn page_items_shows_full_range_when_small() {
         assert_eq!(
             page_items(PageContext::new(1, 5)),
-            [
-                PaginationItem::Page(1),
-                PaginationItem::Page(2),
-                PaginationItem::Page(3),
-                PaginationItem::Page(4),
-                PaginationItem::Page(5),
-            ]
+            [Page(1), Page(2), Page(3), Page(4), Page(5)]
         );
+        assert_eq!(page_items(PageContext::new(1, 1)), [Page(1)]);
     }
 
     #[test]
-    fn page_items_inserts_ellipsis_windows() {
+    fn page_items_matches_bits_ui_windows() {
+        assert_eq!(
+            page_items(PageContext::new(1, 10)),
+            [Page(1), Page(2), Page(3), Page(4), Ellipsis, Page(10)]
+        );
         assert_eq!(
             page_items(PageContext::new(5, 10)),
             [
-                PaginationItem::Page(1),
-                PaginationItem::Ellipsis,
-                PaginationItem::Page(4),
-                PaginationItem::Page(5),
-                PaginationItem::Page(6),
-                PaginationItem::Ellipsis,
-                PaginationItem::Page(10),
+                Page(1),
+                Ellipsis,
+                Page(4),
+                Page(5),
+                Page(6),
+                Ellipsis,
+                Page(10)
             ]
+        );
+        assert_eq!(
+            page_items(PageContext::new(10, 10)),
+            [Page(1), Ellipsis, Page(7), Page(8), Page(9), Page(10)]
         );
     }
 
     #[test]
     fn page_items_respects_sibling_count() {
-        let items = page_items(PageContext::new(10, 20).sibling_count(2));
-        assert!(items.contains(&PaginationItem::Page(8)));
-        assert!(items.contains(&PaginationItem::Page(12)));
-        assert!(items.contains(&PaginationItem::Ellipsis));
+        assert_eq!(
+            page_items(PageContext::new(10, 20).sibling_count(2)),
+            [
+                Page(1),
+                Ellipsis,
+                Page(8),
+                Page(9),
+                Page(10),
+                Page(11),
+                Page(12),
+                Ellipsis,
+                Page(20),
+            ]
+        );
+    }
+
+    #[test]
+    fn page_items_normalizes_degenerate_inputs() {
+        assert_eq!(page_items(PageContext::new(7, 0)), [Page(1)]);
+        assert_eq!(
+            page_items(PageContext::new(0, 3)),
+            [Page(1), Page(2), Page(3)]
+        );
+        assert_eq!(
+            page_items(PageContext::new(99, 10).sibling_count(usize::MAX)),
+            [
+                Page(1),
+                Page(2),
+                Page(3),
+                Page(4),
+                Page(5),
+                Page(6),
+                Page(7),
+                Page(8),
+                Page(9),
+                Page(10),
+            ]
+        );
     }
 }

@@ -86,6 +86,7 @@ where
                     on_press: (!disabled).then(|| emit(target)).flatten(),
                 })),
                 PaginationItem::Ellipsis => children.push(build_ellipsis(theme, link_size)),
+                _ => {}
             }
         }
     }

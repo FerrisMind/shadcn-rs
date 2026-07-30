@@ -25,7 +25,6 @@ use crate::components::input_group::{
 };
 use crate::components::input_otp::{InputOtpPattern, InputOtpRadius};
 use crate::components::kbd::{KbdRadius, KbdSurface};
-use crate::components::pagination::PaginationItem;
 use crate::components::progress::{
     ProgressOrientation, ProgressRadius, ProgressSize, ProgressVariant,
 };
@@ -242,15 +241,6 @@ impl_display_custom_px! {
     SwitchRadius {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
-    }
-}
-
-impl fmt::Display for PaginationItem {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Page(page) => write!(formatter, "{page}"),
-            Self::Ellipsis => formatter.write_str("ellipsis"),
-        }
     }
 }
 
