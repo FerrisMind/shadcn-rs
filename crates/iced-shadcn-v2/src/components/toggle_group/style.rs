@@ -18,7 +18,7 @@ pub(super) fn resolve_group_style(
     // outer frame here and inserts one-pixel separators between item widgets.
     let merged = geometry::merged_borders(variant, spacing);
     let radius = if merged {
-        geometry::radius_px(theme, geometry::default_radius(theme))
+        geometry::default_radius_px(theme)
     } else {
         0.0
     };

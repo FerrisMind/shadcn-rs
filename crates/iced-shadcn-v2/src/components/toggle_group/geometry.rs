@@ -1,6 +1,7 @@
 //! Layout and radius normalization for the toggle group.
 
 use crate::components::toggle::{ToggleRadius, ToggleVariant};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// The web component expresses `spacing` in style-pack spacing units. Keep a
@@ -28,25 +29,21 @@ pub(super) fn merged_borders(variant: ToggleVariant, spacing: f32) -> bool {
     variant == ToggleVariant::Outline && spacing <= f32::EPSILON
 }
 
+pub(super) fn default_radius_px(theme: &Theme) -> f32 {
+    component_radius_px(theme, theme.style.toggle().default_radius)
+}
+
 pub(super) fn default_radius(theme: &Theme) -> ToggleRadius {
     match theme.style.toggle().default_radius {
         shadcn_common::ComponentRadius::None => ToggleRadius::None,
         shadcn_common::ComponentRadius::Sm => ToggleRadius::Small,
         shadcn_common::ComponentRadius::Md => ToggleRadius::Medium,
-        shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-            ToggleRadius::Large
-        }
+        shadcn_common::ComponentRadius::Lg
+        | shadcn_common::ComponentRadius::Xl
+        | shadcn_common::ComponentRadius::S2xl
+        | shadcn_common::ComponentRadius::S3xl
+        | shadcn_common::ComponentRadius::S4xl => ToggleRadius::Large,
         shadcn_common::ComponentRadius::Full => ToggleRadius::Full,
         _ => ToggleRadius::Medium,
-    }
-}
-
-pub(super) fn radius_px(theme: &Theme, radius: ToggleRadius) -> f32 {
-    match radius {
-        ToggleRadius::None => 0.0,
-        ToggleRadius::Small => theme.style.twill_radius_sm.px_value(),
-        ToggleRadius::Medium => theme.style.twill_radius_md.px_value(),
-        ToggleRadius::Large => theme.style.twill_radius_lg.px_value(),
-        ToggleRadius::Full => 9999.0,
     }
 }

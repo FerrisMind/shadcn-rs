@@ -13,9 +13,11 @@ fn default_radius_for_theme(theme: &Theme) -> SkeletonRadius {
         shadcn_common::ComponentRadius::None => SkeletonRadius::None,
         shadcn_common::ComponentRadius::Sm => SkeletonRadius::Small,
         shadcn_common::ComponentRadius::Md => SkeletonRadius::Medium,
-        shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-            SkeletonRadius::Large
-        }
+        shadcn_common::ComponentRadius::Lg
+        | shadcn_common::ComponentRadius::Xl
+        | shadcn_common::ComponentRadius::S2xl
+        | shadcn_common::ComponentRadius::S3xl
+        | shadcn_common::ComponentRadius::S4xl => SkeletonRadius::Large,
         shadcn_common::ComponentRadius::Full => SkeletonRadius::Full,
         _ => SkeletonRadius::Medium,
     }

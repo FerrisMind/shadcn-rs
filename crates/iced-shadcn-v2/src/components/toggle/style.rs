@@ -11,6 +11,7 @@ use crate::iced_compat::{Color, Shadow, Vector};
 use twill_core::prelude::theme::SemanticColor;
 
 use super::{ToggleRadius, ToggleVariant};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// Alpha applied to a disabled toggle (`disabled:opacity-50`).
@@ -82,7 +83,7 @@ pub(super) fn resolve_toggle_style(
             .map(crate::iced_compat::Background::Color),
         text_color: with_alpha(foreground, opacity),
         border: Border {
-            radius: radius_px(theme, effective_toggle_radius(theme, radius)).into(),
+            radius: resolve_radius_px(theme, radius).into(),
             width: border_width,
             color: with_alpha(border_color, opacity),
         },
@@ -91,19 +92,10 @@ pub(super) fn resolve_toggle_style(
     }
 }
 
-fn effective_toggle_radius(theme: &Theme, radius: Option<ToggleRadius>) -> ToggleRadius {
+fn resolve_radius_px(theme: &Theme, radius: Option<ToggleRadius>) -> f32 {
     match radius {
-        Some(radius) => radius,
-        None => match theme.style.toggle().default_radius {
-            shadcn_common::ComponentRadius::None => ToggleRadius::None,
-            shadcn_common::ComponentRadius::Sm => ToggleRadius::Small,
-            shadcn_common::ComponentRadius::Md => ToggleRadius::Medium,
-            shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-                ToggleRadius::Large
-            }
-            shadcn_common::ComponentRadius::Full => ToggleRadius::Full,
-            _ => ToggleRadius::Medium,
-        },
+        Some(radius) => radius_px(theme, radius),
+        None => component_radius_px(theme, theme.style.toggle().default_radius),
     }
 }
 

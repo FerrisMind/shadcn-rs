@@ -21,13 +21,23 @@ pub fn iced_font_weight(weight: FontWeight) -> Weight {
     }
 }
 
-/// Resolves a [`ComponentRadius`] intent against the theme’s twill radius slots.
+/// Resolves a [`ComponentRadius`] intent against the theme.
+///
+/// - `Sm` / `Md` / `Lg` → style-pack twill slots (pack-specific remapping).
+/// - `Xl` / `S2xl` / `S3xl` / `S4xl` → shadcn `RadiusScale`
+///   (`calc(var(--radius) + 4/8/12/16px)`), **not** raw Tailwind 12/16/24/32.
 pub fn component_radius_px(theme: &Theme, radius: ComponentRadius) -> f32 {
+    let scale = theme.style.radius;
+
     match radius {
         ComponentRadius::None => 0.0,
         ComponentRadius::Sm => theme.style.twill_radius_sm.px_value(),
         ComponentRadius::Md => theme.style.twill_radius_md.px_value(),
-        ComponentRadius::Lg | ComponentRadius::Xl => theme.style.twill_radius_lg.px_value(),
+        ComponentRadius::Lg => theme.style.twill_radius_lg.px_value(),
+        ComponentRadius::Xl => scale.xl_px,
+        ComponentRadius::S2xl => scale.xxl_px,
+        ComponentRadius::S3xl => scale.xxxl_px,
+        ComponentRadius::S4xl => scale.xxxxl_px,
         ComponentRadius::Full => 9999.0,
         _ => theme.style.twill_radius_md.px_value(),
     }

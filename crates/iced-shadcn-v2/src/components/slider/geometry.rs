@@ -4,6 +4,7 @@ use crate::iced_compat::{Length, Point, Rectangle, Size};
 
 use super::Slider;
 use super::types::{SliderOrientation, SliderRadius};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// Resolved pixel geometry of one slider instance.
@@ -223,20 +224,24 @@ pub(super) fn thumb_at<Message>(
 }
 
 pub(super) fn default_track_radius(theme: &Theme) -> SliderRadius {
-    component_radius(theme.style.slider().track_radius)
+    pack_radius(theme, theme.style.slider().track_radius)
 }
 
 pub(super) fn default_thumb_radius(theme: &Theme) -> SliderRadius {
-    component_radius(theme.style.slider().thumb_radius)
+    pack_radius(theme, theme.style.slider().thumb_radius)
 }
 
-fn component_radius(radius: shadcn_common::ComponentRadius) -> SliderRadius {
+fn pack_radius(theme: &Theme, radius: shadcn_common::ComponentRadius) -> SliderRadius {
     match radius {
         shadcn_common::ComponentRadius::None => SliderRadius::None,
         shadcn_common::ComponentRadius::Sm => SliderRadius::Small,
         shadcn_common::ComponentRadius::Md => SliderRadius::Medium,
-        shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-            SliderRadius::Large
+        shadcn_common::ComponentRadius::Lg => SliderRadius::Large,
+        shadcn_common::ComponentRadius::Xl
+        | shadcn_common::ComponentRadius::S2xl
+        | shadcn_common::ComponentRadius::S3xl
+        | shadcn_common::ComponentRadius::S4xl => {
+            SliderRadius::Custom(component_radius_px(theme, radius))
         }
         shadcn_common::ComponentRadius::Full => SliderRadius::Full,
         _ => SliderRadius::Medium,

@@ -287,10 +287,9 @@ fn accent_color_recolors_the_open_border() {
 }
 
 #[test]
-fn pill_packs_keep_the_field_pill_shaped() {
-    // Maia's trigger is `rounded-4xl` — a pill on a 36px control. The
-    // dropdown is not asserted here: it uses the stock iced menu styling,
-    // mirroring the OS-rendered popup of the web component.
+fn maia_field_uses_rounded_4xl() {
+    // Maia's trigger is `rounded-4xl` → `--radius-4xl` = base + 16
+    // (default base 0.625rem → 26px), not a true `rounded-full` pill.
     let maia = Theme::light().with_style(StyleId::Maia);
     let field = style::resolve_field_style(
         &maia,
@@ -302,7 +301,7 @@ fn pill_packs_keep_the_field_pill_shaped() {
         NativeSelectStatus::Active,
     );
 
-    assert_eq!(field.radius, 9999.0);
+    assert_eq!(field.radius, 26.0);
 
     // Lyra stays square.
     let lyra = Theme::light().with_style(StyleId::Lyra);

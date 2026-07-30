@@ -11,10 +11,11 @@ use crate::iced_compat::border::Border;
 use crate::iced_compat::widget::text_input;
 use crate::iced_compat::{Background, Color};
 
-use shadcn_common::{AccentColor, StyleId};
+use shadcn_common::{AccentColor, ComponentRadius, StyleId};
 use twill_core::prelude::theme::SemanticColor;
 
 use super::types::InputRadius;
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// `disabled:opacity-50` from the base `cn-input` class.
@@ -32,7 +33,7 @@ struct PackRecipe {
     /// Value / placeholder text size (`md:text-sm` → 14, `md:text-xs` → 12).
     text_size_px: f32,
     /// Corner treatment when the builder does not override it.
-    default_radius: InputRadius,
+    default_radius: ComponentRadius,
     /// `bg-input/N` alpha in light mode (0 = `bg-transparent`).
     fill_alpha_light: f32,
     /// `dark:bg-input/N` alpha.
@@ -48,7 +49,7 @@ struct PackRecipe {
 const VEGA: PackRecipe = PackRecipe {
     pad_x_px: 10.0,
     text_size_px: 14.0,
-    default_radius: InputRadius::Small,
+    default_radius: ComponentRadius::Md,
     fill_alpha_light: 0.0,
     fill_alpha_dark: 0.3,
     bordered: true,
@@ -60,22 +61,21 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
         StyleId::Vega => VEGA,
         // `h-8 rounded-lg px-2.5 disabled:bg-input/50`
         StyleId::Nova => PackRecipe {
-            default_radius: InputRadius::Medium,
+            default_radius: ComponentRadius::Lg,
             disabled_fill: true,
             ..VEGA
         },
-        // `bg-input/30 h-9 rounded-4xl px-3` — 32px corners on a 36px control
-        // render as a pill.
+        // `bg-input/30 h-9 rounded-4xl px-3`
         StyleId::Maia => PackRecipe {
             pad_x_px: 12.0,
-            default_radius: InputRadius::Full,
+            default_radius: ComponentRadius::S4xl,
             fill_alpha_light: 0.3,
             ..VEGA
         },
         // `h-8 rounded-none px-2.5 text-xs disabled:bg-input/50`
         StyleId::Lyra => PackRecipe {
             text_size_px: 12.0,
-            default_radius: InputRadius::None,
+            default_radius: ComponentRadius::None,
             disabled_fill: true,
             ..VEGA
         },
@@ -83,14 +83,14 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
         StyleId::Mira => PackRecipe {
             pad_x_px: 8.0,
             text_size_px: 12.0,
-            default_radius: InputRadius::Medium,
+            default_radius: ComponentRadius::Md,
             fill_alpha_light: 0.2,
             ..VEGA
         },
-        // `bg-input/50 h-9 rounded-3xl border-transparent px-3` — pill.
+        // `bg-input/50 h-9 rounded-3xl border-transparent px-3`
         StyleId::Luma => PackRecipe {
             pad_x_px: 12.0,
-            default_radius: InputRadius::Full,
+            default_radius: ComponentRadius::S3xl,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
             bordered: false,
@@ -101,14 +101,13 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
         // resolve_underline_color; the text_input itself gets a transparent
         // border so it draws no box.
         StyleId::Sera => PackRecipe {
-            default_radius: InputRadius::None,
+            default_radius: ComponentRadius::None,
             fill_alpha_dark: 0.0,
             ..VEGA
         },
-        // `bg-input/50 h-8 rounded-2xl border-transparent px-2.5` — 16px
-        // corners on a 32px control, i.e. `twill_radius_lg`.
+        // `bg-input/50 h-8 rounded-2xl border-transparent px-2.5`
         StyleId::Rhea => PackRecipe {
-            default_radius: InputRadius::Large,
+            default_radius: ComponentRadius::S2xl,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
             bordered: false,
@@ -242,7 +241,7 @@ pub(super) fn resolve_input_style(
     text_input::Style {
         background: Background::Color(background),
         border: Border {
-            radius: radius_px(theme, radius.unwrap_or(pack.default_radius)).into(),
+            radius: resolve_radius_px(theme, radius, pack.default_radius).into(),
             width: if uses_underline_only(theme) { 0.0 } else { 1.0 },
             color: if uses_underline_only(theme) {
                 Color::TRANSPARENT
@@ -270,6 +269,17 @@ fn primary_color(theme: &Theme, color: Option<AccentColor>) -> Color {
     match color {
         None => theme.palette.primary,
         Some(accent) => theme.color_with_accent(accent, SemanticColor::Primary),
+    }
+}
+
+fn resolve_radius_px(
+    theme: &Theme,
+    radius: Option<InputRadius>,
+    pack_default: ComponentRadius,
+) -> f32 {
+    match radius {
+        Some(radius) => radius_px(theme, radius),
+        None => component_radius_px(theme, pack_default),
     }
 }
 

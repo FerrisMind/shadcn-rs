@@ -3,6 +3,7 @@
 use shadcn_common::RadioGroupRecipe;
 
 use super::types::{RadioGroupRadius, RadioGroupSize};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// `RadioGroupSize::Sm` next to `Default` is `size-3.5` next to `size-4`.
@@ -83,14 +84,22 @@ fn scale(recipe: RadioGroupRecipe, size: RadioGroupSize) -> f32 {
     }
 }
 
-/// Radius preset of the active style pack (`rounded-full` everywhere today).
+/// Radius preset of the active style pack.
 pub(super) fn default_radius(theme: &Theme) -> RadioGroupRadius {
-    match theme.style.radio_group().radius {
+    pack_radius(theme, theme.style.radio_group().radius)
+}
+
+fn pack_radius(theme: &Theme, radius: shadcn_common::ComponentRadius) -> RadioGroupRadius {
+    match radius {
         shadcn_common::ComponentRadius::None => RadioGroupRadius::None,
         shadcn_common::ComponentRadius::Sm => RadioGroupRadius::Small,
         shadcn_common::ComponentRadius::Md => RadioGroupRadius::Medium,
-        shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-            RadioGroupRadius::Large
+        shadcn_common::ComponentRadius::Lg => RadioGroupRadius::Large,
+        shadcn_common::ComponentRadius::Xl
+        | shadcn_common::ComponentRadius::S2xl
+        | shadcn_common::ComponentRadius::S3xl
+        | shadcn_common::ComponentRadius::S4xl => {
+            RadioGroupRadius::Custom(component_radius_px(theme, radius))
         }
         shadcn_common::ComponentRadius::Full => RadioGroupRadius::Full,
         _ => RadioGroupRadius::Full,

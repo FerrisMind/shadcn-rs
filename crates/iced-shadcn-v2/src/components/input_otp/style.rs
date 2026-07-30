@@ -9,10 +9,11 @@
 
 use crate::iced_compat::Color;
 
-use shadcn_common::{AccentColor, StyleId};
+use shadcn_common::{AccentColor, ComponentRadius, StyleId};
 use twill_core::prelude::theme::SemanticColor;
 
 use super::types::{InputOtpRadius, InputOtpStatus, InputOtpStyle};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// `has-disabled:opacity-50` from the base `cn-input-otp` class.
@@ -40,7 +41,7 @@ pub(super) struct PackRecipe {
     /// `dark:bg-input/N` alpha.
     pub(super) fill_alpha_dark: f32,
     /// Corner treatment when the builder does not override it.
-    pub(super) default_radius: InputOtpRadius,
+    pub(super) default_radius: ComponentRadius,
     /// Sera's `border-b-input`-only slots (no box border, no ring).
     pub(super) underline_only: bool,
     /// Gap between slots inside one group (`gap-1` on Sera, 0 elsewhere).
@@ -55,7 +56,7 @@ const VEGA: PackRecipe = PackRecipe {
     ring_alpha: 0.5,
     fill_alpha_light: 0.0,
     fill_alpha_dark: 0.3,
-    default_radius: InputOtpRadius::Small,
+    default_radius: ComponentRadius::Md,
     underline_only: false,
     slot_gap: 0.0,
 };
@@ -67,13 +68,13 @@ pub(super) fn pack_recipe(style: StyleId) -> PackRecipe {
         // `dark:bg-input/30 size-8 text-sm rounded-*-lg ring-3 ring-ring/50`
         StyleId::Nova => PackRecipe {
             slot_size_px: 32.0,
-            default_radius: InputOtpRadius::Medium,
+            default_radius: ComponentRadius::Lg,
             ..VEGA
         },
-        // `bg-input/30 size-9 text-sm rounded-*-4xl ring-[3px] ring-ring/50`
+        // `bg-input/30 size-9 text-sm rounded-*-4xl`
         StyleId::Maia => PackRecipe {
             fill_alpha_light: 0.3,
-            default_radius: InputOtpRadius::Full,
+            default_radius: ComponentRadius::S4xl,
             ..VEGA
         },
         // `dark:bg-input/30 size-8 text-xs rounded-none ring-1 ring-ring/50`
@@ -81,7 +82,7 @@ pub(super) fn pack_recipe(style: StyleId) -> PackRecipe {
             slot_size_px: 32.0,
             text_size_px: 12.0,
             ring_width: 1.0,
-            default_radius: InputOtpRadius::None,
+            default_radius: ComponentRadius::None,
             ..VEGA
         },
         // `bg-input/20 dark:bg-input/30 size-7 text-xs rounded-*-md ring-2 ring-ring/30`
@@ -91,7 +92,7 @@ pub(super) fn pack_recipe(style: StyleId) -> PackRecipe {
             ring_width: 2.0,
             ring_alpha: 0.3,
             fill_alpha_light: 0.2,
-            default_radius: InputOtpRadius::Medium,
+            default_radius: ComponentRadius::Md,
             ..VEGA
         },
         // `bg-input/50 size-9 text-sm rounded-*-3xl ring-3 ring-ring/30`
@@ -99,7 +100,7 @@ pub(super) fn pack_recipe(style: StyleId) -> PackRecipe {
             ring_alpha: 0.3,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
-            default_radius: InputOtpRadius::Full,
+            default_radius: ComponentRadius::S3xl,
             ..VEGA
         },
         // `border-b-input size-10 bg-transparent text-sm rounded-none` with
@@ -108,7 +109,7 @@ pub(super) fn pack_recipe(style: StyleId) -> PackRecipe {
             slot_size_px: 40.0,
             ring_width: 0.0,
             fill_alpha_dark: 0.0,
-            default_radius: InputOtpRadius::None,
+            default_radius: ComponentRadius::None,
             underline_only: true,
             slot_gap: 4.0,
             ..VEGA
@@ -119,7 +120,7 @@ pub(super) fn pack_recipe(style: StyleId) -> PackRecipe {
             ring_alpha: 0.3,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
-            default_radius: InputOtpRadius::Large,
+            default_radius: ComponentRadius::S2xl,
             ..VEGA
         },
     }
@@ -173,7 +174,7 @@ pub(super) fn resolve_style(
         ring_width: pack.ring_width,
         caret: foreground,
         separator: foreground,
-        radius: radius_px(theme, radius.unwrap_or(pack.default_radius)),
+        radius: resolve_radius_px(theme, radius, pack.default_radius),
         underline_only: pack.underline_only,
     };
 
@@ -197,6 +198,17 @@ fn ring_color(theme: &Theme, color: Option<AccentColor>) -> Color {
         // per-control accent recolors the active treatment with the accent
         // primary, mirroring `Input::color`.
         Some(accent) => theme.color_with_accent(accent, SemanticColor::Primary),
+    }
+}
+
+fn resolve_radius_px(
+    theme: &Theme,
+    radius: Option<InputOtpRadius>,
+    pack_default: ComponentRadius,
+) -> f32 {
+    match radius {
+        Some(radius) => radius_px(theme, radius),
+        None => component_radius_px(theme, pack_default),
     }
 }
 

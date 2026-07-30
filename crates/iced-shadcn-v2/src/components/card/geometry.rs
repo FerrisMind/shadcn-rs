@@ -61,10 +61,10 @@ pub(super) fn radius_px(theme: &Theme, radius: CardRadius) -> f32 {
             StyleId::Lyra | StyleId::Sera => 0.0,
             // rounded-lg
             StyleId::Mira => scale.lg_px,
-            // rounded-4xl
-            StyleId::Luma => scale.base_rem.mul_add(16.0, 16.0),
+            // rounded-4xl → `--radius-4xl` = base + 16
+            StyleId::Luma => scale.xxxxl_px,
             // min(var(--radius-4xl), 24px)
-            StyleId::Rhea => scale.base_rem.mul_add(16.0, 16.0).min(24.0),
+            StyleId::Rhea => scale.xxxxl_px.min(24.0),
         },
         CardRadius::None => 0.0,
         CardRadius::Small => scale.sm_px,

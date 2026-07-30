@@ -5,6 +5,7 @@ use shadcn_common::{ControlSize, SwitchSizeRecipe};
 
 use super::Switch;
 use super::types::{SwitchRadius, SwitchSize};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// Resolved pixel geometry of one switch instance.
@@ -89,12 +90,20 @@ fn custom_scale(theme: &Theme, size: SwitchSize) -> f32 {
 }
 
 pub(super) fn default_radius(theme: &Theme) -> SwitchRadius {
-    match theme.style.switch().default_radius {
+    pack_radius(theme, theme.style.switch().default_radius)
+}
+
+fn pack_radius(theme: &Theme, radius: shadcn_common::ComponentRadius) -> SwitchRadius {
+    match radius {
         shadcn_common::ComponentRadius::None => SwitchRadius::None,
         shadcn_common::ComponentRadius::Sm => SwitchRadius::Small,
         shadcn_common::ComponentRadius::Md => SwitchRadius::Medium,
-        shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-            SwitchRadius::Large
+        shadcn_common::ComponentRadius::Lg => SwitchRadius::Large,
+        shadcn_common::ComponentRadius::Xl
+        | shadcn_common::ComponentRadius::S2xl
+        | shadcn_common::ComponentRadius::S3xl
+        | shadcn_common::ComponentRadius::S4xl => {
+            SwitchRadius::Custom(component_radius_px(theme, radius))
         }
         shadcn_common::ComponentRadius::Full => SwitchRadius::Full,
         _ => SwitchRadius::Medium,

@@ -8,6 +8,7 @@ use shadcn_common::AccentColor;
 use twill_core::prelude::theme::SemanticColor;
 
 use super::{ButtonRadius, ButtonVariant};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// Resolved visual state of a button: everything iced needs for one status.
@@ -50,7 +51,7 @@ pub(super) fn resolve_button_style(
             .map(crate::iced_compat::Background::Color),
         text_color: visual.text,
         border: Border {
-            radius: radius_px(theme, effective_button_radius(theme, radius)).into(),
+            radius: resolve_radius_px(theme, radius).into(),
             width: visual.border_width,
             color: visual.border_color,
         },
@@ -312,22 +313,13 @@ fn current_text_for_state(current: Color, fallback: Color) -> Color {
 
 /// Default button corner radius in px for the active style pack.
 pub(super) fn default_radius_px(theme: &Theme) -> f32 {
-    radius_px(theme, effective_button_radius(theme, None))
+    component_radius_px(theme, theme.style.button_type().default_radius)
 }
 
-fn effective_button_radius(theme: &Theme, radius: Option<ButtonRadius>) -> ButtonRadius {
+fn resolve_radius_px(theme: &Theme, radius: Option<ButtonRadius>) -> f32 {
     match radius {
-        Some(radius) => radius,
-        None => match theme.style.button_type().default_radius {
-            shadcn_common::ComponentRadius::None => ButtonRadius::None,
-            shadcn_common::ComponentRadius::Sm => ButtonRadius::Small,
-            shadcn_common::ComponentRadius::Md => ButtonRadius::Medium,
-            shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-                ButtonRadius::Large
-            }
-            shadcn_common::ComponentRadius::Full => ButtonRadius::Full,
-            _ => ButtonRadius::Medium,
-        },
+        Some(radius) => radius_px(theme, radius),
+        None => default_radius_px(theme),
     }
 }
 

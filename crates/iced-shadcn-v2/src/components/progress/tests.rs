@@ -33,12 +33,12 @@ fn style_pack_progress_geometry_matches_source_css() {
     let expected = [
         (StyleId::Vega, 6.0, ProgressRadius::Full),
         (StyleId::Nova, 4.0, ProgressRadius::Full),
-        (StyleId::Maia, 12.0, ProgressRadius::Full),
+        (StyleId::Maia, 12.0, ProgressRadius::Custom(26.0)),
         (StyleId::Lyra, 4.0, ProgressRadius::None),
         (StyleId::Mira, 4.0, ProgressRadius::Medium),
         (StyleId::Luma, 12.0, ProgressRadius::Full),
         (StyleId::Sera, 2.0, ProgressRadius::None),
-        (StyleId::Rhea, 8.0, ProgressRadius::Large),
+        (StyleId::Rhea, 8.0, ProgressRadius::Custom(18.0)),
     ];
 
     for (style, height, radius) in expected {

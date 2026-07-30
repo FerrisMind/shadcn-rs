@@ -9,6 +9,7 @@ use shadcn_common::AccentColor;
 use twill_core::prelude::theme::SemanticColor;
 
 use super::{BadgeRadius, BadgeVariant};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// Resolved visual state of a badge.
@@ -62,7 +63,7 @@ pub(super) fn resolve_button_style(
             .map(crate::iced_compat::Background::Color),
         text_color: visual.text,
         border: Border {
-            radius: radius_px(theme, effective_radius(theme, radius)).into(),
+            radius: resolve_radius_px(theme, radius).into(),
             width: visual.border_width,
             color: visual.border_color,
         },
@@ -83,7 +84,7 @@ fn to_container_style(
             .map(crate::iced_compat::Background::Color),
         text_color: Some(visual.text),
         border: Border {
-            radius: radius_px(theme, effective_radius(theme, radius)).into(),
+            radius: resolve_radius_px(theme, radius).into(),
             width: visual.border_width,
             color: visual.border_color,
         },
@@ -309,6 +310,7 @@ fn with_alpha(mut color: Color, alpha: f32) -> Color {
 }
 
 /// Unset radius → style-pack badge default from shadcn-common.
+#[cfg(test)]
 pub(super) fn effective_radius(theme: &Theme, radius: Option<BadgeRadius>) -> BadgeRadius {
     match radius {
         Some(radius) => radius,
@@ -316,12 +318,21 @@ pub(super) fn effective_radius(theme: &Theme, radius: Option<BadgeRadius>) -> Ba
             shadcn_common::ComponentRadius::None => BadgeRadius::None,
             shadcn_common::ComponentRadius::Sm => BadgeRadius::Small,
             shadcn_common::ComponentRadius::Md => BadgeRadius::Medium,
-            shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-                BadgeRadius::Large
-            }
+            shadcn_common::ComponentRadius::Lg
+            | shadcn_common::ComponentRadius::Xl
+            | shadcn_common::ComponentRadius::S2xl
+            | shadcn_common::ComponentRadius::S3xl
+            | shadcn_common::ComponentRadius::S4xl => BadgeRadius::Large,
             shadcn_common::ComponentRadius::Full => BadgeRadius::Full,
             _ => BadgeRadius::Full,
         },
+    }
+}
+
+fn resolve_radius_px(theme: &Theme, radius: Option<BadgeRadius>) -> f32 {
+    match radius {
+        Some(radius) => radius_px(theme, radius),
+        None => component_radius_px(theme, theme.style.badge().default_radius),
     }
 }
 

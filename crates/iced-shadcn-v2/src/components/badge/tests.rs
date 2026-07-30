@@ -227,7 +227,7 @@ fn locked_style_packs_default_to_no_radius() {
     assert_eq!(style::effective_radius(&lyra, None), BadgeRadius::None);
 
     let vega = Theme::light().with_style(StyleId::Vega);
-    assert_eq!(style::effective_radius(&vega, None), BadgeRadius::Full);
+    assert_eq!(style::effective_radius(&vega, None), BadgeRadius::Large);
 }
 
 #[test]

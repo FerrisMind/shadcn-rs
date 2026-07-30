@@ -4,10 +4,11 @@ use crate::iced_compat::border::Border;
 use crate::iced_compat::widget::{container, text_editor};
 use crate::iced_compat::{Background, Color, Padding, Shadow, Vector};
 
-use shadcn_common::StyleId;
+use shadcn_common::{ComponentRadius, StyleId};
 use twill_core::prelude::theme::SemanticColor;
 
 use super::types::{InputGroupAddonAlign, InputGroupRadius, InputGroupTextareaProps};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// Metrics that differ between shadcn-svelte style packs.
@@ -22,7 +23,7 @@ struct PackRecipe {
     text_size_px: f32,
     fill_alpha_light: f32,
     fill_alpha_dark: f32,
-    default_radius: InputGroupRadius,
+    default_radius: ComponentRadius,
     bordered: bool,
     disabled_fill: bool,
     focus_ring_px: f32,
@@ -39,7 +40,7 @@ const VEGA: PackRecipe = PackRecipe {
     text_size_px: 14.0,
     fill_alpha_light: 0.0,
     fill_alpha_dark: 0.3,
-    default_radius: InputGroupRadius::Small,
+    default_radius: ComponentRadius::Md,
     bordered: true,
     disabled_fill: false,
     focus_ring_px: 3.0,
@@ -51,7 +52,7 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
         StyleId::Vega => VEGA,
         StyleId::Nova => PackRecipe {
             disabled_fill: true,
-            default_radius: InputGroupRadius::Medium,
+            default_radius: ComponentRadius::Lg,
             ..VEGA
         },
         StyleId::Maia => PackRecipe {
@@ -62,13 +63,13 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
             addon_block_end_bottom_px: 12.0,
             fill_alpha_light: 0.3,
             fill_alpha_dark: 0.3,
-            default_radius: InputGroupRadius::Full,
+            default_radius: ComponentRadius::S4xl,
             shadow: false,
             ..VEGA
         },
         StyleId::Lyra => PackRecipe {
             text_size_px: 12.0,
-            default_radius: InputGroupRadius::None,
+            default_radius: ComponentRadius::None,
             disabled_fill: true,
             focus_ring_px: 1.0,
             shadow: false,
@@ -84,7 +85,7 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
             text_size_px: 12.0,
             fill_alpha_light: 0.2,
             fill_alpha_dark: 0.3,
-            default_radius: InputGroupRadius::Medium,
+            default_radius: ComponentRadius::Md,
             focus_ring_px: 2.0,
             shadow: false,
             ..VEGA
@@ -97,7 +98,7 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
             addon_block_end_bottom_px: 14.0,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
-            default_radius: InputGroupRadius::Full,
+            default_radius: ComponentRadius::S4xl,
             bordered: false,
             shadow: false,
             ..VEGA
@@ -110,7 +111,7 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
             addon_block_end_bottom_px: 14.0,
             fill_alpha_light: 0.0,
             fill_alpha_dark: 0.0,
-            default_radius: InputGroupRadius::None,
+            default_radius: ComponentRadius::None,
             focus_ring_px: 0.0,
             shadow: false,
             ..VEGA
@@ -120,7 +121,7 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
             addon_block_px: 10.0,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
-            default_radius: InputGroupRadius::Large,
+            default_radius: ComponentRadius::S2xl,
             bordered: false,
             shadow: false,
             ..VEGA
@@ -209,7 +210,7 @@ pub(super) fn resolve_group_style(
         background: Some(Background::Color(background)),
         text_color: Some(text_color),
         border: Border {
-            radius: radius_px(theme, radius.unwrap_or(pack.default_radius)).into(),
+            radius: resolve_radius_px(theme, radius, pack.default_radius).into(),
             width: 1.0,
             color: border_color,
         },
@@ -370,6 +371,17 @@ pub(super) fn radius_px(theme: &Theme, radius: InputGroupRadius) -> f32 {
         InputGroupRadius::Medium => theme.style.twill_radius_md.px_value(),
         InputGroupRadius::Large => theme.style.twill_radius_lg.px_value(),
         InputGroupRadius::Full => 9999.0,
+    }
+}
+
+fn resolve_radius_px(
+    theme: &Theme,
+    radius: Option<InputGroupRadius>,
+    pack_default: ComponentRadius,
+) -> f32 {
+    match radius {
+        Some(radius) => radius_px(theme, radius),
+        None => component_radius_px(theme, pack_default),
     }
 }
 

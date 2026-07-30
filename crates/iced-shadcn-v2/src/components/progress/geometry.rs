@@ -4,6 +4,7 @@ use crate::iced_compat::Length;
 
 use super::Progress;
 use super::types::{ProgressOrientation, ProgressRadius, ProgressSize, ProgressState};
+use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 pub(super) fn resolved_dimensions(
@@ -30,12 +31,20 @@ pub(super) fn default_height(theme: &Theme) -> f32 {
 }
 
 pub(super) fn default_radius(theme: &Theme) -> ProgressRadius {
-    match theme.style.progress().default_radius {
+    pack_radius(theme, theme.style.progress().default_radius)
+}
+
+fn pack_radius(theme: &Theme, radius: shadcn_common::ComponentRadius) -> ProgressRadius {
+    match radius {
         shadcn_common::ComponentRadius::None => ProgressRadius::None,
         shadcn_common::ComponentRadius::Sm => ProgressRadius::Small,
         shadcn_common::ComponentRadius::Md => ProgressRadius::Medium,
-        shadcn_common::ComponentRadius::Lg | shadcn_common::ComponentRadius::Xl => {
-            ProgressRadius::Large
+        shadcn_common::ComponentRadius::Lg => ProgressRadius::Large,
+        shadcn_common::ComponentRadius::Xl
+        | shadcn_common::ComponentRadius::S2xl
+        | shadcn_common::ComponentRadius::S3xl
+        | shadcn_common::ComponentRadius::S4xl => {
+            ProgressRadius::Custom(component_radius_px(theme, radius))
         }
         shadcn_common::ComponentRadius::Full => ProgressRadius::Full,
         _ => ProgressRadius::Medium,
