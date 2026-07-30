@@ -22,11 +22,16 @@ include = [
 
 [dependencies]
 twill-core = { workspace = true }
+## Optional, only for the `serde` feature.
+serde = { version = "1", features = ["derive"], optional = true }
 
 [features]
 default = []
 ## Bundle TTF font faces (Geist, Inter, Instrument Serif, JetBrains Mono).
 fonts = []
+## Derive `serde::Serialize`/`Deserialize` for the shared toast vocabulary.
+## iced-shadcn-v2 forwards its own `serde` feature here.
+serde = ["dep:serde"]
 
 [dev-dependencies]
 
