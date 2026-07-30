@@ -289,7 +289,10 @@ mod tests {
             "space-between"
         );
         assert_eq!(KbdSurface::InputGroup.to_string(), "input-group");
-        assert_eq!(InputOtpPattern::DigitsAndChars.to_string(), "digits-and-chars");
+        assert_eq!(
+            InputOtpPattern::DigitsAndChars.to_string(),
+            "digits-and-chars"
+        );
         assert_eq!(SpinnerVariant::TextShimmer.to_string(), "text-shimmer");
         assert_eq!(ToggleGroupType::Multiple.to_string(), "multiple");
         assert_eq!(ToggleGroupOrientation::Vertical.to_string(), "vertical");

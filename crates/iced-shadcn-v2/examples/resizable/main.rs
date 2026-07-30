@@ -12,8 +12,8 @@ use iced::{Alignment, Background, Border, Element, Length, Task};
 
 use iced_shadcn_v2::{
     AccentColor, BaseColor, FontHeading, FontId, FontPack, RadiusId, ResizableDirection,
-    ResizableHandle, ResizableLayout, ResizablePane, ResizablePaneGroup, ResizableRadius,
-    StyleId, Theme, ThemeMode, fonts, iced_font,
+    ResizableHandle, ResizableLayout, ResizablePane, ResizablePaneGroup, ResizableRadius, StyleId,
+    Theme, ThemeMode, fonts, iced_font,
 };
 
 pub fn main() -> iced::Result {
@@ -131,9 +131,25 @@ impl Example {
         let palette = theme.palette;
 
         let controls = column![
-            section_label("Theme (shadcn-common)", palette.muted_foreground, theme.font_pack()),
-            control_select("Style", &STYLES, Some(Labelled(theme.style_id())), Message::Style, theme),
-            control_select("Base", &BASES, Some(Labelled(theme.base())), Message::Base, theme),
+            section_label(
+                "Theme (shadcn-common)",
+                palette.muted_foreground,
+                theme.font_pack()
+            ),
+            control_select(
+                "Style",
+                &STYLES,
+                Some(Labelled(theme.style_id())),
+                Message::Style,
+                theme
+            ),
+            control_select(
+                "Base",
+                &BASES,
+                Some(Labelled(theme.base())),
+                Message::Base,
+                theme
+            ),
             control_select(
                 "Accent",
                 &ACCENTS,
@@ -141,7 +157,13 @@ impl Example {
                 Message::Accent,
                 theme,
             ),
-            control_select("Mode", &MODES, Some(Labelled(theme.mode())), Message::Mode, theme),
+            control_select(
+                "Mode",
+                &MODES,
+                Some(Labelled(theme.mode())),
+                Message::Mode,
+                theme
+            ),
             control_select(
                 "Heading",
                 &HEADINGS,
@@ -149,7 +171,13 @@ impl Example {
                 Message::Heading,
                 theme,
             ),
-            control_select("Font", &FONTS, Some(Labelled(theme.font_id())), Message::Font, theme),
+            control_select(
+                "Font",
+                &FONTS,
+                Some(Labelled(theme.font_id())),
+                Message::Font,
+                theme
+            ),
             control_select(
                 "Radius",
                 &RADII,
@@ -281,16 +309,17 @@ fn example_group<'a>(
     .into()
 }
 
-fn nested_example<'a>(theme: &'a Theme, sizes: &[f32], inner_sizes: &[f32]) -> Element<'a, Message> {
+fn nested_example<'a>(
+    theme: &'a Theme,
+    sizes: &[f32],
+    inner_sizes: &[f32],
+) -> Element<'a, Message> {
     let inner = ResizablePaneGroup::new(theme)
         .direction(ResizableDirection::Vertical)
         .sizes_slice(inner_sizes)
         .pane(ResizablePane::new(pane_cell("Two", theme)).default_size(25.0))
         .handle(ResizableHandle::new())
-        .pane(
-            ResizablePane::new(pane_cell("Three", theme))
-                .default_size(75.0),
-        )
+        .pane(ResizablePane::new(pane_cell("Three", theme)).default_size(75.0))
         .width(Length::Fill)
         .height(Length::Fill)
         .on_layout_change(Message::NestedInnerLayout);
@@ -302,10 +331,7 @@ fn nested_example<'a>(theme: &'a Theme, sizes: &[f32], inner_sizes: &[f32]) -> E
         .height(Length::Fixed(200.0))
         .bordered(true)
         .radius(ResizableRadius::Large)
-        .pane(
-            ResizablePane::new(pane_cell("One", theme))
-                .default_size(50.0),
-        )
+        .pane(ResizablePane::new(pane_cell("One", theme)).default_size(50.0))
         .handle(ResizableHandle::new())
         .pane(
             ResizablePane::new(
@@ -397,7 +423,11 @@ fn error_text(message: String, theme: &Theme) -> Element<'_, Message> {
         .into()
 }
 
-fn section_label<'a>(label: &'static str, color: iced::Color, pack: FontPack) -> Element<'a, Message> {
+fn section_label<'a>(
+    label: &'static str,
+    color: iced::Color,
+    pack: FontPack,
+) -> Element<'a, Message> {
     text(label)
         .size(18)
         .font(iced_font(pack.heading))

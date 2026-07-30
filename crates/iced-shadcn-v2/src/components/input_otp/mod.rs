@@ -316,10 +316,7 @@ impl<'a, Message> InputOtp<'a, Message> {
 
     /// Rewrites clipboard text before it is matched against the pattern
     /// (web `pasteTransformer`, e.g. stripping dashes from `123-456`).
-    pub fn paste_transformer(
-        mut self,
-        paste_transformer: impl Fn(String) -> String + 'a,
-    ) -> Self {
+    pub fn paste_transformer(mut self, paste_transformer: impl Fn(String) -> String + 'a) -> Self {
         self.paste_transformer = Some(Box::new(paste_transformer));
         self
     }

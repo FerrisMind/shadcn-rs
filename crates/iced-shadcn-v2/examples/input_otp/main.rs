@@ -209,7 +209,10 @@ impl Example {
                 .pattern(InputOtpPattern::DigitsAndChars)
                 .on_input(Message::PatternChanged)
                 .into_element(),
-            hint_line("Digits and letters only (REGEXP_ONLY_DIGITS_AND_CHARS).", theme),
+            hint_line(
+                "Digits and letters only (REGEXP_ONLY_DIGITS_AND_CHARS).",
+                theme
+            ),
         ]
         .spacing(8);
 
@@ -236,7 +239,10 @@ impl Example {
                 if pin_invalid {
                     "Your one-time password must be at least 6 characters.".to_owned()
                 } else {
-                    format!("Valid! Press Enter to submit (submitted: {}).", self.submitted)
+                    format!(
+                        "Valid! Press Enter to submit (submitted: {}).",
+                        self.submitted
+                    )
                 },
                 theme,
             ),
@@ -244,7 +250,9 @@ impl Example {
         .spacing(8);
 
         let states = row![
-            InputOtp::<Message>::new(theme).value("123456").disabled(true),
+            InputOtp::<Message>::new(theme)
+                .value("123456")
+                .disabled(true),
             InputOtp::<Message>::new(theme)
                 .value("42")
                 .max_length(4)
@@ -264,18 +272,36 @@ impl Example {
                 .size(title_px)
                 .font(iced_font(theme.font_pack().heading))
                 .color(p.foreground),
-            text("Click a field and type; Backspace deletes, Ctrl+V pastes, Ctrl+Backspace clears.")
-                .size(14)
-                .font(iced_font(theme.font_pack().sans))
-                .color(p.muted_foreground),
+            text(
+                "Click a field and type; Backspace deletes, Ctrl+V pastes, Ctrl+Backspace clears."
+            )
+            .size(14)
+            .font(iced_font(theme.font_pack().sans))
+            .color(p.muted_foreground),
             controls,
-            section_label("Demo (groups 3 + 3, onComplete)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Demo (groups 3 + 3, onComplete)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             demo,
-            section_label("Pattern (single group)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Pattern (single group)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             pattern,
-            section_label("Separators (2 + 2 + 2, digits)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Separators (2 + 2 + 2, digits)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             separated,
-            section_label("Form (invalid until 6 digits, Enter submits)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Form (invalid until 6 digits, Enter submits)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             form,
             section_label(
                 "States (disabled · read-only with accent + pill radius)",

@@ -63,7 +63,7 @@
 Сначала пишется **общий overlay/portal-примитив** (позиционирование, click-outside,
 Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — его потребители:
 
-35. **`tooltip`** — с нуля на overlay (самый простой потребитель, есть база в iced)
+35. ~~**`tooltip`** — с нуля на overlay (самый простой потребитель, есть база в iced)~~ ✅
 36. **`popover`** — с нуля на overlay (**фундамент**: от него зависят select, combobox, date-picker)
 37. **`hover-card`** — переиспользует `popover` (hover-триггер вместо клика)
 38. **`dialog`** — с нуля на overlay (модальность + backdrop + фокус-ловушка)
@@ -99,7 +99,7 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 button ✅, spinner ✅, separator ✅, skeleton, label ✅, badge ✅, kbd ✅, typography ✅,
 aspect-ratio, progress, input ✅, textarea, checkbox ✅, switch ✅, toggle ✅, slider,
 avatar ✅, card ✅, alert ✅, scroll-area ✅, radio-group ✅, breadcrumb ✅, item ✅, table ✅, tabs ✅,
-collapsible ✅, accordion ✅, pagination ✅, field ✅, empty ✅, resizable, tooltip, popover, dialog, sonner,
+collapsible ✅, accordion ✅, pagination ✅, field ✅, empty ✅, resizable, tooltip ✅, popover, dialog, sonner,
 carousel, calendar, chart, command, overlay/menu-примитивы.
 
 ### Переиспользуют готовые

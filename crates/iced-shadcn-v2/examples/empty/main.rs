@@ -11,9 +11,9 @@ use iced::widget::{column, container, pick_list, row, scrollable, text};
 use iced::{Alignment, Background, Border, Color, Element, Length, Task};
 
 use iced_shadcn_v2::{
-    fonts, iced_font, AccentColor, BaseColor, Button, ButtonSize, ButtonVariant, Empty,
-    EmptyBorderStyle, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle,
-    FontHeading, FontId, FontPack, RadiusId, Spinner, SpinnerSize, StyleId, Theme, ThemeMode,
+    AccentColor, BaseColor, Button, ButtonSize, ButtonVariant, Empty, EmptyBorderStyle,
+    EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle, FontHeading, FontId,
+    FontPack, RadiusId, Spinner, SpinnerSize, StyleId, Theme, ThemeMode, fonts, iced_font,
 };
 
 pub fn main() -> iced::Result {

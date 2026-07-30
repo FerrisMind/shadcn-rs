@@ -8,13 +8,9 @@ use crate::iced_compat::{
     Element, Event, Length, Point, Rectangle, Size, Vector, mouse, touch, window,
 };
 
-use super::geometry::{
-    self, HANDLE_LAYOUT_PX, hit_bounds, pane_area_px, resize_pair,
-};
+use super::geometry::{self, HANDLE_LAYOUT_PX, hit_bounds, pane_area_px, resize_pair};
 use super::style::{self, HandleStyle};
-use super::types::{
-    HandleConfig, PaneConstraints, ResizableDirection, ResizableLayout,
-};
+use super::types::{HandleConfig, PaneConstraints, ResizableDirection, ResizableLayout};
 use super::{ResizableBuildError, ResizablePaneGroup};
 use crate::theme::Theme;
 
@@ -90,8 +86,7 @@ type ParsedSlots<'a, Message> = (
 
 fn parse_slots<'a, Message>(
     slots: Vec<super::ResizableSlot<'a, Message>>,
-) -> Result<ParsedSlots<'a, Message>, ResizableBuildError>
-{
+) -> Result<ParsedSlots<'a, Message>, ResizableBuildError> {
     if slots.is_empty() {
         return Err(ResizableBuildError::EmptyPaneGroup);
     }
@@ -99,11 +94,9 @@ fn parse_slots<'a, Message>(
     if slots.len() == 1 {
         let only = slots.into_iter().next().expect("length checked");
         return match only {
-            super::ResizableSlot::Pane(pane) => Ok((
-                vec![pane.content],
-                vec![pane.constraints],
-                Vec::new(),
-            )),
+            super::ResizableSlot::Pane(pane) => {
+                Ok((vec![pane.content], vec![pane.constraints], Vec::new()))
+            }
             super::ResizableSlot::Handle(_) => Err(ResizableBuildError::InvalidSlotSequence),
         };
     }
@@ -165,10 +158,7 @@ impl<'a, Message> ResizablePaneGroupWidget<'a, Message> {
         style::resolve_handle_style(self.theme)
     }
 
-    fn layout_children(
-        &self,
-        size: Size,
-    ) -> (Vec<Rectangle>, Vec<Rectangle>, f32) {
+    fn layout_children(&self, size: Size) -> (Vec<Rectangle>, Vec<Rectangle>, f32) {
         let handle_count = self.handles.len();
         let axis = if self.direction.is_horizontal() {
             size.width
@@ -400,13 +390,7 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
                         };
 
                         let mut next = self.sizes.clone();
-                        if resize_pair(
-                            &mut next,
-                            &self.constraints,
-                            index,
-                            delta,
-                            pane_area,
-                        ) {
+                        if resize_pair(&mut next, &self.constraints, index, delta, pane_area) {
                             self.sizes = next.clone();
                             self.publish_layout(shell, next);
                         }

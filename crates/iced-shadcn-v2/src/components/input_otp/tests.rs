@@ -123,7 +123,10 @@ fn typing_fills_slots_and_respects_pattern_and_capacity() {
         Some("123".to_owned())
     );
     // Rejected characters leave the value untouched.
-    assert_eq!(render::append_text("12", "x", InputOtpPattern::Digits, 6), None);
+    assert_eq!(
+        render::append_text("12", "x", InputOtpPattern::Digits, 6),
+        None
+    );
     // A full value rejects further input.
     assert_eq!(
         render::append_text("123456", "7", InputOtpPattern::Digits, 6),
@@ -153,7 +156,10 @@ fn paste_appends_to_partial_values_and_replaces_full_ones() {
         Some("654321".to_owned())
     );
     // Pasting nothing usable changes nothing.
-    assert_eq!(render::apply_paste("12", "ab", InputOtpPattern::Digits, 6), None);
+    assert_eq!(
+        render::apply_paste("12", "ab", InputOtpPattern::Digits, 6),
+        None
+    );
     assert_eq!(
         render::apply_paste("123456", "123456", InputOtpPattern::Digits, 6),
         None
@@ -268,8 +274,8 @@ fn style_resolution_covers_all_packs_and_states() {
 
                 if invalid {
                     // `aria-invalid` recolors the resting border.
-                    let destructive =
-                        theme.semantic_color(twill_core::prelude::theme::SemanticColor::Destructive);
+                    let destructive = theme
+                        .semantic_color(twill_core::prelude::theme::SemanticColor::Destructive);
                     assert_eq!(resolved.slot_border.r, destructive.r);
                 }
                 if disabled {

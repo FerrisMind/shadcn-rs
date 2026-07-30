@@ -35,9 +35,8 @@ impl fmt::Display for ResizableBuildError {
                 formatter,
                 "padding variable `{name}` is not supported by iced-shadcn-v2::Resizable"
             ),
-            Self::UnsupportedPaddingAuto => formatter.write_str(
-                "padding value `auto` is not supported by iced-shadcn-v2::Resizable",
-            ),
+            Self::UnsupportedPaddingAuto => formatter
+                .write_str("padding value `auto` is not supported by iced-shadcn-v2::Resizable"),
             Self::EmptyPaneGroup => {
                 formatter.write_str("a resizable pane group requires at least one pane")
             }

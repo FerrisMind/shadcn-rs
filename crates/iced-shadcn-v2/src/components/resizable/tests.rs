@@ -103,7 +103,13 @@ fn resize_pair_respects_min_size() {
     ];
 
     let mut sizes = vec![30.0, 70.0];
-    assert!(geometry::resize_pair(&mut sizes, &constraints, 0, -500.0, 400.0));
+    assert!(geometry::resize_pair(
+        &mut sizes,
+        &constraints,
+        0,
+        -500.0,
+        400.0
+    ));
     assert!(sizes[0] >= 20.0);
     assert!(sizes[1] >= 30.0);
 }
@@ -126,7 +132,13 @@ fn resize_pair_respects_opposite_min_and_preserves_total() {
     ];
 
     let mut sizes = vec![30.0, 70.0];
-    assert!(geometry::resize_pair(&mut sizes, &constraints, 0, 500.0, 400.0));
+    assert!(geometry::resize_pair(
+        &mut sizes,
+        &constraints,
+        0,
+        500.0,
+        400.0
+    ));
     assert!((sizes[0] - 70.0).abs() < 0.01);
     assert!((sizes[1] - 30.0).abs() < 0.01);
 
