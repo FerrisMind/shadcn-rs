@@ -1,10 +1,12 @@
 //! Native-select recipes from `.cn-native-select` / `.cn-native-select-icon`
 //! across style packs.
 //!
-//! The web component wraps a platform `<select>`: the trigger field is fully
-//! styled by the pack while the dropdown itself is OS-rendered. Backends that
-//! draw their own dropdown (iced, egui) share the menu constants below so the
-//! popup looks the same on both.
+//! The web component styles only the trigger `<select>` field; the dropdown
+//! itself is OS-rendered and never receives design-system tokens. Canvas
+//! backends (iced, egui) mirror that split: the recipe below covers the
+//! field only, while the dropdown uses the backend's stock menu styling.
+//! The menu constants describe the shared geometry of that stock dropdown
+//! (row rhythm, group indent, scroll cap) so both backends behave alike.
 
 use crate::style::StyleId;
 
@@ -13,21 +15,17 @@ use super::ComponentRadius;
 /// `has-[select:disabled]:opacity-50` on the wrapper.
 pub const NATIVE_SELECT_DISABLED_OPACITY: f32 = 0.5;
 
-/// Vertical padding of one dropdown row (matches the `py-1.5` rhythm of the
-/// shadcn select item).
+/// Vertical padding of one dropdown row.
 pub const NATIVE_SELECT_MENU_ITEM_PAD_Y_PX: f32 = 6.0;
 
-/// Horizontal padding of one dropdown row (`px-2`).
+/// Horizontal padding of one dropdown row.
 pub const NATIVE_SELECT_MENU_ITEM_PAD_X_PX: f32 = 8.0;
 
 /// Extra indentation of options nested inside an opt-group, mirroring the
 /// native `<optgroup>` indent.
 pub const NATIVE_SELECT_MENU_GROUP_INDENT_PX: f32 = 12.0;
 
-/// Inner padding of the dropdown surface (`p-1`).
-pub const NATIVE_SELECT_MENU_PAD_PX: f32 = 4.0;
-
-/// Maximum dropdown height before it scrolls (`max-h-72`).
+/// Maximum dropdown height before it scrolls.
 pub const NATIVE_SELECT_MENU_MAX_HEIGHT_PX: f32 = 288.0;
 
 /// Status-independent `.cn-native-select` numbers of one style pack.
@@ -58,9 +56,10 @@ pub struct NativeSelectRecipe {
     /// when the pack has no hover wash).
     pub hover_fill_alpha_dark: f32,
     /// Whether the resting border is painted (`border-input` vs
-    /// `border-transparent`). Sera's underline-only border degrades to a
-    /// full hairline box on canvas backends.
+    /// `border-transparent`).
     pub bordered: bool,
+    /// Sera's `border-b-input`: only the bottom hairline is painted.
+    pub underline_only: bool,
     /// Chevron icon edge (`size-4` → 16).
     pub icon_size_px: f32,
     /// Chevron icon edge of the `sm` slot (`size-3` on Mira).
@@ -73,9 +72,11 @@ pub struct NativeSelectRecipe {
 pub const fn native_select_recipe(style: StyleId) -> NativeSelectRecipe {
     match style {
         StyleId::Vega => VEGA,
-        // `h-8 rounded-lg pl-2.5 pr-8 text-sm`, sm: `rounded-[min(--radius-md,10px)]`
+        // `h-8 rounded-lg pl-2.5 pr-8 text-sm`, sm: `rounded-[min(--radius-md,10px)]`;
+        // web resolves to 10px — the twill md slot (8px) is the closest token
+        // and matches the input component.
         StyleId::Nova => NativeSelectRecipe {
-            radius: ComponentRadius::Lg,
+            radius: ComponentRadius::Md,
             radius_sm: ComponentRadius::Md,
             ..VEGA
         },
@@ -122,17 +123,18 @@ pub const fn native_select_recipe(style: StyleId) -> NativeSelectRecipe {
             bordered: false,
             ..VEGA
         },
-        // Underline-only `border-b-input pl-0 pr-8 h-10`; canvas backends
-        // restore the left padding and paint a full hairline box, icon at
-        // `right-0` sized `size-3.5`.
+        // Underline-only `border-b-input pl-0 pr-8 h-10`, icon at `right-0`
+        // sized `size-3.5`.
         StyleId::Sera => NativeSelectRecipe {
+            pad_left_px: 0.0,
             radius: ComponentRadius::None,
             radius_sm: ComponentRadius::None,
             fill_alpha_dark: 0.0,
             hover_fill_alpha_dark: 0.0,
+            underline_only: true,
             icon_size_px: 14.0,
             icon_size_sm_px: 14.0,
-            icon_right_px: 4.0,
+            icon_right_px: 0.0,
             ..VEGA
         },
         // `bg-input/50 h-8 rounded-2xl border-transparent pl-2.5 pr-8`.
@@ -162,6 +164,7 @@ const VEGA: NativeSelectRecipe = NativeSelectRecipe {
     fill_alpha_dark: 0.3,
     hover_fill_alpha_dark: 0.5,
     bordered: true,
+    underline_only: false,
     icon_size_px: 16.0,
     icon_size_sm_px: 16.0,
     icon_right_px: 10.0,

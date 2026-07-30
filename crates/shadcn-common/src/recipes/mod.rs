@@ -24,8 +24,7 @@ pub use label::{LabelContext, LabelRecipe, label_recipe};
 pub use native_select::{
     NATIVE_SELECT_DISABLED_OPACITY, NATIVE_SELECT_MENU_GROUP_INDENT_PX,
     NATIVE_SELECT_MENU_ITEM_PAD_X_PX, NATIVE_SELECT_MENU_ITEM_PAD_Y_PX,
-    NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NATIVE_SELECT_MENU_PAD_PX, NativeSelectRecipe,
-    native_select_recipe,
+    NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NativeSelectRecipe, native_select_recipe,
 };
 pub use progress::{ProgressRecipe, progress_recipe};
 pub use radio_group::{RadioCheckedFill, RadioGroupRecipe, RadioSurface, radio_group_recipe};
