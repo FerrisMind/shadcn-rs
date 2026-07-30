@@ -30,6 +30,13 @@ pub struct PopoverShadow {
 }
 
 impl PopoverShadow {
+    /// Tailwind `shadow-xs`: `0 1px 2px 0 rgb(0 0 0 / 0.05)`.
+    pub const XS: Self = Self {
+        offset_y_px: 1.0,
+        blur_px: 2.0,
+        alpha: 0.05,
+    };
+
     /// Tailwind `shadow-md`: `0 4px 6px -1px rgb(0 0 0 / 0.1)`.
     pub const MD: Self = Self {
         offset_y_px: 4.0,

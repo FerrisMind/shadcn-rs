@@ -10,8 +10,8 @@ use iced_core::keyboard;
 use iced_core::text::{self as core_text, Renderer as _, Text};
 
 use shadcn_common::{
-    Direction, DropdownMenuRecipe, MenuItemVariant, NavAction, NavKey, Orientation,
-    resolve_nav_action,
+    Direction, DropdownMenuRecipe, MENU_SUB_SIDE_OFFSET_PX, MenuItemVariant, NavAction, NavKey,
+    Orientation, resolve_nav_action,
 };
 
 use crate::iced_compat::advanced::renderer::Renderer as _;
@@ -463,9 +463,10 @@ where
             let sub_height =
                 fitted_menu_height(menu_height(&sub.entries, self.recipe), sub_available);
             let sub_width = self.width.max(self.recipe.sub_content_min_width_px);
-            let mut sub_x = origin.x + self.width + self.side_offset;
+            let sub_gap = MENU_SUB_SIDE_OFFSET_PX;
+            let mut sub_x = origin.x + self.width + sub_gap;
             if sub_x + sub_width > bounds.width {
-                sub_x = (origin.x - self.side_offset - sub_width).max(0.0);
+                sub_x = (origin.x - sub_gap - sub_width).max(0.0);
             }
             let sub_origin = Point::new(sub_x, origin.y + row_y);
             children.push(layout::Node::new(Size::new(sub_width, sub_height)).move_to(sub_origin));
@@ -479,9 +480,9 @@ where
                 let nested_height =
                     fitted_menu_height(menu_height(&nested.entries, self.recipe), nested_available);
                 let nested_width = sub_width.max(self.recipe.sub_content_min_width_px);
-                let mut nested_x = sub_origin.x + sub_width + self.side_offset;
+                let mut nested_x = sub_origin.x + sub_width + sub_gap;
                 if nested_x + nested_width > bounds.width {
-                    nested_x = (sub_origin.x - self.side_offset - nested_width).max(0.0);
+                    nested_x = (sub_origin.x - sub_gap - nested_width).max(0.0);
                 }
                 children.push(
                     layout::Node::new(Size::new(nested_width, nested_height))

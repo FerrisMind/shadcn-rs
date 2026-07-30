@@ -19,6 +19,14 @@ pub const DROPDOWN_MENU_ZOOM_FROM: f32 = 0.95;
 /// Default `sideOffset` of the shadcn-svelte dropdown-menu content.
 pub const DROPDOWN_MENU_SIDE_OFFSET_PX: f32 = 4.0;
 
+/// Gap between a parent menu panel and its `SubContent` (`sideOffset`).
+///
+/// bits-ui `menu-sub-content.svelte` does not set `sideOffset`; it falls through
+/// to `floating-layer-content.svelte` which defaults to `0`. shadcn-svelte
+/// `*-sub-content.svelte` wrappers also leave it unset. Do **not** reuse the
+/// root content `sideOffset` (4 / 8) for this gap.
+pub const MENU_SUB_SIDE_OFFSET_PX: f32 = 0.0;
+
 /// `data-disabled:opacity-50` on items / the disabled root.
 pub const DROPDOWN_MENU_DISABLED_OPACITY: f32 = 0.5;
 
@@ -346,6 +354,13 @@ const fn text_sm(weight: FontWeight) -> TypeRecipe {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn sub_content_side_offset_matches_bits_ui_floating_default() {
+        // menu-sub-content.svelte leaves sideOffset unset → floating-layer = 0.
+        assert_eq!(MENU_SUB_SIDE_OFFSET_PX, 0.0);
+        assert_ne!(MENU_SUB_SIDE_OFFSET_PX, DROPDOWN_MENU_SIDE_OFFSET_PX);
+    }
 
     #[test]
     fn every_pack_resolves_a_recipe() {
