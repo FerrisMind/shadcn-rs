@@ -9,7 +9,7 @@ pub const fn skeleton_default_radius(style: StyleId) -> ComponentRadius {
     match style {
         StyleId::Lyra | StyleId::Sera => ComponentRadius::None,
         StyleId::Maia => ComponentRadius::Xl, // rounded-xl
-        StyleId::Luma | StyleId::Rhea => ComponentRadius::Xl, // rounded-2xl ≈ xl slot
+        StyleId::Luma | StyleId::Rhea => ComponentRadius::S2xl, // rounded-2xl
         StyleId::Vega | StyleId::Nova | StyleId::Mira => ComponentRadius::Md,
     }
 }

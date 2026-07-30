@@ -27,7 +27,7 @@ pub const fn progress_recipe(style: StyleId) -> ProgressRecipe {
         },
         StyleId::Maia => ProgressRecipe {
             height_px: 12.0,
-            default_radius: ComponentRadius::Full,
+            default_radius: ComponentRadius::S4xl, // rounded-4xl
         },
         StyleId::Lyra => ProgressRecipe {
             height_px: 4.0,
@@ -47,7 +47,7 @@ pub const fn progress_recipe(style: StyleId) -> ProgressRecipe {
         },
         StyleId::Rhea => ProgressRecipe {
             height_px: 8.0,
-            default_radius: ComponentRadius::Xl,
+            default_radius: ComponentRadius::S2xl,
         },
     }
 }

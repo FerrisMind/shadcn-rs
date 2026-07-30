@@ -46,11 +46,11 @@ pub const fn tooltip_recipe(style: StyleId) -> TooltipRecipe {
             ..base_recipe()
         },
         StyleId::Luma | StyleId::Rhea => TooltipRecipe {
-            radius: ComponentRadius::Xl,
+            radius: ComponentRadius::Xl, // rounded-xl
             ..base_recipe()
         },
         StyleId::Maia => TooltipRecipe {
-            radius: ComponentRadius::Xl,
+            radius: ComponentRadius::S2xl, // rounded-2xl
             ..base_recipe()
         },
         StyleId::Vega | StyleId::Nova | StyleId::Mira => base_recipe(),

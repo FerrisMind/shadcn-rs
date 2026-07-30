@@ -87,7 +87,7 @@ pub const fn toggle_recipe(style: StyleId) -> ToggleRecipe {
         // `rounded-4xl text-sm font-medium`.
         StyleId::Maia => ToggleRecipe {
             typography: text_sm_medium(),
-            default_radius: ComponentRadius::Full,
+            default_radius: ComponentRadius::S4xl,
             outline_shadow: false,
             gap_px: 4.0,
         },
@@ -106,9 +106,10 @@ pub const fn toggle_recipe(style: StyleId) -> ToggleRecipe {
             gap_px: 4.0,
         },
         // `rounded-3xl text-sm font-medium`.
+        // Soft panel: `rounded-3xl text-sm font-medium`.
         StyleId::Luma => ToggleRecipe {
             typography: text_sm_medium(),
-            default_radius: ComponentRadius::Full,
+            default_radius: ComponentRadius::S3xl,
             outline_shadow: false,
             gap_px: 4.0,
         },
@@ -128,7 +129,7 @@ pub const fn toggle_recipe(style: StyleId) -> ToggleRecipe {
         // `rounded-2xl text-sm font-medium`.
         StyleId::Rhea => ToggleRecipe {
             typography: text_sm_medium(),
-            default_radius: ComponentRadius::Xl,
+            default_radius: ComponentRadius::S2xl,
             outline_shadow: false,
             gap_px: 4.0,
         },

@@ -44,6 +44,13 @@ impl PopoverShadow {
         alpha: 0.10,
     };
 
+    /// Tailwind `shadow-xl`: `0 20px 25px -5px rgb(0 0 0 / 0.1)`.
+    pub const XL: Self = Self {
+        offset_y_px: 20.0,
+        blur_px: 25.0,
+        alpha: 0.10,
+    };
+
     /// Tailwind `shadow-2xl`: `0 25px 50px -12px rgb(0 0 0 / 0.25)`.
     pub const XXL: Self = Self {
         offset_y_px: 25.0,
@@ -117,7 +124,7 @@ pub const fn popover_recipe(style: StyleId) -> PopoverRecipe {
             ..base
         },
         StyleId::Maia => PopoverRecipe {
-            radius: ComponentRadius::Xl,
+            radius: ComponentRadius::S2xl, // rounded-2xl
             ring_alpha: 0.05,
             ring_alpha_dark: 0.05,
             shadow: PopoverShadow::XXL,
@@ -125,7 +132,7 @@ pub const fn popover_recipe(style: StyleId) -> PopoverRecipe {
             ..base
         },
         StyleId::Luma | StyleId::Rhea => PopoverRecipe {
-            radius: ComponentRadius::Xl,
+            radius: ComponentRadius::S3xl,
             ring_alpha: 0.05,
             ring_alpha_dark: 0.10,
             shadow: PopoverShadow::LG,

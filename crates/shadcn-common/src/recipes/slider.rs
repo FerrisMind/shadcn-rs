@@ -119,7 +119,7 @@ const MIN_LENGTH_PX: f32 = 160.0;
 /// use shadcn_common::{ComponentRadius, StyleId, slider_recipe};
 ///
 /// assert_eq!(slider_recipe(StyleId::Lyra).track_radius, ComponentRadius::None);
-/// assert_eq!(slider_recipe(StyleId::Rhea).thumb_radius, ComponentRadius::Xl);
+/// assert_eq!(slider_recipe(StyleId::Rhea).thumb_radius, ComponentRadius::S2xl);
 /// ```
 pub const fn slider_recipe(style: StyleId) -> SliderRecipe {
     match style {
@@ -156,15 +156,15 @@ pub const fn slider_recipe(style: StyleId) -> SliderRecipe {
             ring_opacity: 0.5,
             min_length_px: MIN_LENGTH_PX,
         },
-        // track `h-3 rounded-4xl`; thumb `size-4 border-primary`, `hover:ring-4`.
+        // track `h-3 rounded-4xl`; thumb `size-4 rounded-4xl border-primary`, `hover:ring-4`.
         StyleId::Maia => SliderRecipe {
             track_thickness_px: 12.0,
-            track_radius: ComponentRadius::Full,
+            track_radius: ComponentRadius::S4xl,
             track_surface: SliderTrackSurface::Muted,
             track_opacity: 1.0,
             thumb_length_px: 16.0,
             thumb_thickness_px: 16.0,
-            thumb_radius: ComponentRadius::Full,
+            thumb_radius: ComponentRadius::S4xl,
             thumb_fill: SliderThumbFill::Surface,
             thumb_border: SliderThumbBorder::Primary,
             thumb_border_px: 1.0,
@@ -242,12 +242,12 @@ pub const fn slider_recipe(style: StyleId) -> SliderRecipe {
         // `ring-1 ring-black/10` hairline, `hover:ring-4 ring/30`.
         StyleId::Rhea => SliderRecipe {
             track_thickness_px: 4.0,
-            track_radius: ComponentRadius::Xl,
+            track_radius: ComponentRadius::S2xl,
             track_surface: SliderTrackSurface::Input,
             track_opacity: 0.9,
             thumb_length_px: 16.0,
             thumb_thickness_px: 16.0,
-            thumb_radius: ComponentRadius::Xl,
+            thumb_radius: ComponentRadius::S2xl,
             thumb_fill: SliderThumbFill::Surface,
             thumb_border: SliderThumbBorder::Subtle,
             thumb_border_px: 1.0,

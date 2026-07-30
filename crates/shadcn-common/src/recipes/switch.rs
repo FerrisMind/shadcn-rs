@@ -77,7 +77,7 @@ impl SwitchSizeRecipe {
 ///
 /// assert_eq!(
 ///     switch_recipe(StyleId::Rhea).default_radius,
-///     ComponentRadius::Xl,
+///     ComponentRadius::S2xl,
 /// );
 /// ```
 pub const fn switch_recipe(style: StyleId) -> SwitchRecipe {
@@ -126,7 +126,7 @@ pub const fn switch_recipe(style: StyleId) -> SwitchRecipe {
         },
         // `rounded-2xl border-2 focus-visible:ring-3 ring/30`
         StyleId::Rhea => SwitchRecipe {
-            default_radius: ComponentRadius::Xl,
+            default_radius: ComponentRadius::S2xl,
             border_width_px: 2.0,
             ring_width_px: 3.0,
             ring_opacity: 0.3,

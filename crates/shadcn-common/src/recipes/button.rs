@@ -99,7 +99,7 @@ pub const fn button_type(style: StyleId) -> ButtonTypeRecipe {
             },
             default_radius: ComponentRadius::Lg,
         },
-        StyleId::Maia | StyleId::Luma => ButtonTypeRecipe {
+        StyleId::Maia => ButtonTypeRecipe {
             typography: TypeRecipe {
                 size_px: 14.0,
                 weight: FontWeight::Medium,
@@ -107,7 +107,17 @@ pub const fn button_type(style: StyleId) -> ButtonTypeRecipe {
                 tracking_em: 0.0,
                 line_height_px: 20.0,
             },
-            default_radius: ComponentRadius::Full,
+            default_radius: ComponentRadius::S4xl, // rounded-4xl
+        },
+        StyleId::Luma => ButtonTypeRecipe {
+            typography: TypeRecipe {
+                size_px: 14.0,
+                weight: FontWeight::Medium,
+                uppercase: false,
+                tracking_em: 0.0,
+                line_height_px: 20.0,
+            },
+            default_radius: ComponentRadius::S4xl, // rounded-4xl
         },
         StyleId::Rhea => ButtonTypeRecipe {
             typography: TypeRecipe {
@@ -117,7 +127,7 @@ pub const fn button_type(style: StyleId) -> ButtonTypeRecipe {
                 tracking_em: 0.0,
                 line_height_px: 20.0,
             },
-            default_radius: ComponentRadius::Xl, // rounded-2xl
+            default_radius: ComponentRadius::S2xl, // rounded-2xl
         },
         StyleId::Vega => ButtonTypeRecipe {
             typography: TypeRecipe {

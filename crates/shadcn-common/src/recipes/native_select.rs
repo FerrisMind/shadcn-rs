@@ -72,19 +72,18 @@ pub struct NativeSelectRecipe {
 pub const fn native_select_recipe(style: StyleId) -> NativeSelectRecipe {
     match style {
         StyleId::Vega => VEGA,
-        // `h-8 rounded-lg pl-2.5 pr-8 text-sm`, sm: `rounded-[min(--radius-md,10px)]`;
-        // web resolves to 10px — the twill md slot (8px) is the closest token
-        // and matches the input component.
+        // `h-8 rounded-lg pl-2.5 pr-8 text-sm`; sm:
+        // `rounded-[min(--radius-md,10px)]` → twill md slot.
         StyleId::Nova => NativeSelectRecipe {
-            radius: ComponentRadius::Md,
+            radius: ComponentRadius::Lg,
             radius_sm: ComponentRadius::Md,
             ..VEGA
         },
-        // `bg-input/30 h-9 rounded-4xl pl-3 pr-8` — pill, icon at `right-3.5`.
+        // `bg-input/30 h-9 rounded-4xl pl-3 pr-8`, icon at `right-3.5`.
         StyleId::Maia => NativeSelectRecipe {
             pad_left_px: 12.0,
-            radius: ComponentRadius::Full,
-            radius_sm: ComponentRadius::Full,
+            radius: ComponentRadius::S4xl,
+            radius_sm: ComponentRadius::S4xl,
             fill_alpha_light: 0.3,
             fill_alpha_dark: 0.3,
             hover_fill_alpha_dark: 0.3,
@@ -113,10 +112,11 @@ pub const fn native_select_recipe(style: StyleId) -> NativeSelectRecipe {
             ..VEGA
         },
         // `bg-input/50 h-9 rounded-3xl border-transparent pl-3 pr-8` — pill.
+        // Soft panel: `bg-input/50 h-9 rounded-3xl border-transparent`.
         StyleId::Luma => NativeSelectRecipe {
             pad_left_px: 12.0,
-            radius: ComponentRadius::Full,
-            radius_sm: ComponentRadius::Full,
+            radius: ComponentRadius::S3xl,
+            radius_sm: ComponentRadius::S3xl,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
             hover_fill_alpha_dark: 0.5,
@@ -139,8 +139,8 @@ pub const fn native_select_recipe(style: StyleId) -> NativeSelectRecipe {
         },
         // `bg-input/50 h-8 rounded-2xl border-transparent pl-2.5 pr-8`.
         StyleId::Rhea => NativeSelectRecipe {
-            radius: ComponentRadius::Xl,
-            radius_sm: ComponentRadius::Xl,
+            radius: ComponentRadius::S2xl,
+            radius_sm: ComponentRadius::S2xl,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
             hover_fill_alpha_dark: 0.5,

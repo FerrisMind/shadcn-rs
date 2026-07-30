@@ -53,7 +53,7 @@ fn badge_sera_has_no_fixed_height() {
 
     let vega = badge_recipe(StyleId::Vega);
     assert_eq!(vega.height_px, Some(20.0));
-    assert_eq!(vega.default_radius, ComponentRadius::Full);
+    assert_eq!(vega.default_radius, ComponentRadius::S4xl);
 }
 
 #[test]

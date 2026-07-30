@@ -72,7 +72,7 @@ pub const fn hover_card_recipe(style: StyleId) -> HoverCardRecipe {
         },
         StyleId::Maia => HoverCardRecipe {
             width_px: 288.0,
-            radius: ComponentRadius::Xl,
+            radius: ComponentRadius::S2xl, // rounded-2xl
             ring_alpha: 0.05,
             ring_alpha_dark: 0.05,
             shadow: PopoverShadow::XXL,
@@ -80,7 +80,7 @@ pub const fn hover_card_recipe(style: StyleId) -> HoverCardRecipe {
         },
         StyleId::Luma | StyleId::Rhea => HoverCardRecipe {
             width_px: 288.0,
-            radius: ComponentRadius::Xl,
+            radius: ComponentRadius::S3xl,
             ring_alpha: 0.05,
             ring_alpha_dark: 0.10,
             shadow: PopoverShadow::LG,

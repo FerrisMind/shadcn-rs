@@ -78,7 +78,7 @@ pub const fn badge_recipe(style: StyleId) -> BadgeRecipe {
             pad_x_px: 8.0,
             pad_x_icon_px: 6.0,
             icon_px: 12.0,
-            default_radius: ComponentRadius::Xl, // rounded-2xl
+            default_radius: ComponentRadius::S2xl, // rounded-2xl
         },
         StyleId::Luma => BadgeRecipe {
             height_px: Some(20.0),
@@ -93,7 +93,7 @@ pub const fn badge_recipe(style: StyleId) -> BadgeRecipe {
             pad_x_px: 8.0,
             pad_x_icon_px: 6.0,
             icon_px: 12.0,
-            default_radius: ComponentRadius::Full, // rounded-3xl ≈ pill for h-5
+            default_radius: ComponentRadius::S3xl, // rounded-3xl
         },
         StyleId::Vega | StyleId::Nova | StyleId::Maia => BadgeRecipe {
             height_px: Some(20.0),
@@ -108,7 +108,7 @@ pub const fn badge_recipe(style: StyleId) -> BadgeRecipe {
             pad_x_px: 8.0,
             pad_x_icon_px: 6.0,
             icon_px: 12.0,
-            default_radius: ComponentRadius::Full, // rounded-4xl
+            default_radius: ComponentRadius::S4xl, // rounded-4xl
         },
     }
 }

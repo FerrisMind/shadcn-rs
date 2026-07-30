@@ -190,11 +190,10 @@ pub const fn radio_group_recipe(style: StyleId) -> RadioGroupRecipe {
             label_gap_px: LABEL_GAP_PX,
             disabled_opacity: DISABLED_OPACITY,
         },
-        // `bg-input/90 border-transparent rounded-2xl` — on a 16 px box that
-        // still reads as a circle — plus a `dark:size-2.5` dot.
+        // `bg-input/90 border-transparent rounded-2xl` plus a `dark:size-2.5` dot.
         StyleId::Rhea => RadioGroupRecipe {
             indicator_px: 16.0,
-            radius: ComponentRadius::Full,
+            radius: ComponentRadius::S2xl,
             dot_px: 8.0,
             dark_dot_px: 10.0,
             border_width_px: 1.0,

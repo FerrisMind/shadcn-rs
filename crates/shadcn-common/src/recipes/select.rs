@@ -96,9 +96,9 @@ pub struct SelectRecipe {
     /// Label vertical padding (`py-1.5` → 6).
     pub label_pad_y_px: f32,
 
-    /// Separator vertical margin (`my-1` → 4).
+    /// Separator vertical margin (`my-1` → 4). Equals [`Self::content_pad_px`].
     pub separator_margin_y_px: f32,
-    /// Separator horizontal inset (`-mx-1` → 4, cancelled by content pad).
+    /// Separator horizontal bleed (`-mx-1` → 4). Equals [`Self::content_pad_px`].
     pub separator_margin_x_px: f32,
 
     /// Scroll-button vertical padding (`py-1` → 4).
@@ -126,12 +126,12 @@ pub const fn select_recipe(style: StyleId) -> SelectRecipe {
         StyleId::Maia => SelectRecipe {
             trigger_pad_left_px: 12.0,
             trigger_pad_right_px: 12.0,
-            trigger_radius: ComponentRadius::Full,
-            trigger_radius_sm: ComponentRadius::Full,
+            trigger_radius: ComponentRadius::S4xl,
+            trigger_radius_sm: ComponentRadius::S4xl,
             fill_alpha_light: 0.3,
             fill_alpha_dark: 0.3,
             hover_fill_alpha_dark: 0.5,
-            content_radius: ComponentRadius::Xl,
+            content_radius: ComponentRadius::S2xl,
             content_ring_alpha: 0.05,
             content_ring_alpha_dark: 0.05,
             content_shadow: PopoverShadow::XXL,
@@ -140,16 +140,20 @@ pub const fn select_recipe(style: StyleId) -> SelectRecipe {
             item_radius: ComponentRadius::Xl,
             ..VEGA
         },
-        // `rounded-none text-xs`; content square; items `py-2 text-xs`.
+        // `rounded-none text-xs`; content square, no group pad; items `py-2`.
+        // Separator is bare `h-px` (no `my-*`) so gaps match the 0 content pad.
         StyleId::Lyra => SelectRecipe {
             trigger_text_size_px: 12.0,
             trigger_text_size_sm_px: 12.0,
             trigger_radius: ComponentRadius::None,
             trigger_radius_sm: ComponentRadius::None,
             content_radius: ComponentRadius::None,
+            content_pad_px: 0.0,
             item_pad_y_px: 8.0,
             item_radius: ComponentRadius::None,
             item_typography: text_xs(FontWeight::Normal),
+            separator_margin_y_px: 0.0,
+            separator_margin_x_px: 0.0,
             ..VEGA
         },
         // Compact: `bg-input/20 h-7 text-xs`, content `min-w-32 rounded-lg`,
@@ -171,28 +175,31 @@ pub const fn select_recipe(style: StyleId) -> SelectRecipe {
             label_typography: text_xs(FontWeight::Normal),
             ..VEGA
         },
-        // Soft pill: `bg-input/50 rounded-3xl border-transparent`; content
-        // `rounded-3xl shadow-lg`; items `rounded-2xl font-medium`.
+        // Soft panel: trigger `rounded-3xl` on h-9; content `rounded-3xl`;
+        // group `p-1.5`; items `rounded-2xl font-medium`.
         StyleId::Luma => SelectRecipe {
             trigger_pad_left_px: 12.0,
             trigger_pad_right_px: 12.0,
-            trigger_radius: ComponentRadius::Full,
-            trigger_radius_sm: ComponentRadius::Full,
+            trigger_radius: ComponentRadius::S3xl,
+            trigger_radius_sm: ComponentRadius::S3xl,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
             hover_fill_alpha_dark: 0.5,
             bordered: false,
-            content_radius: ComponentRadius::Full,
+            content_radius: ComponentRadius::S3xl,
+            content_pad_px: 6.0,
             content_ring_alpha: 0.05,
             content_ring_alpha_dark: 0.10,
             content_shadow: PopoverShadow::LG,
             item_pad_y_px: 8.0,
             item_pad_left_px: 12.0,
-            item_radius: ComponentRadius::Xl,
+            item_radius: ComponentRadius::S2xl,
             item_typography: text_sm(FontWeight::Medium),
+            separator_margin_y_px: 6.0,
+            separator_margin_x_px: 6.0,
             ..VEGA
         },
-        // Underline-only trigger; square content; items `py-2 pl-3`.
+        // Underline-only trigger; square content; group `p-1.5`; items `py-2 pl-3`.
         StyleId::Sera => SelectRecipe {
             trigger_pad_left_px: 0.0,
             trigger_pad_right_px: 0.0,
@@ -204,10 +211,13 @@ pub const fn select_recipe(style: StyleId) -> SelectRecipe {
             icon_size_px: 14.0,
             icon_size_sm_px: 14.0,
             content_radius: ComponentRadius::None,
+            content_pad_px: 6.0,
             item_pad_y_px: 8.0,
             item_pad_left_px: 12.0,
             item_radius: ComponentRadius::None,
             item_indicator_size_px: 14.0,
+            separator_margin_y_px: 6.0,
+            separator_margin_x_px: 6.0,
             ..VEGA
         },
         // Soft rounded: `bg-input/50 rounded-2xl border-transparent`; content
@@ -215,13 +225,13 @@ pub const fn select_recipe(style: StyleId) -> SelectRecipe {
         StyleId::Rhea => SelectRecipe {
             trigger_pad_left_px: 12.0,
             trigger_pad_right_px: 12.0,
-            trigger_radius: ComponentRadius::Xl,
-            trigger_radius_sm: ComponentRadius::Xl,
+            trigger_radius: ComponentRadius::S2xl,
+            trigger_radius_sm: ComponentRadius::S2xl,
             fill_alpha_light: 0.5,
             fill_alpha_dark: 0.5,
             hover_fill_alpha_dark: 0.5,
             bordered: false,
-            content_radius: ComponentRadius::Xl,
+            content_radius: ComponentRadius::S2xl,
             content_ring_alpha: 0.05,
             content_ring_alpha_dark: 0.10,
             content_shadow: PopoverShadow::LG,
@@ -307,6 +317,31 @@ mod tests {
             let recipe = select_recipe(style);
             assert!(recipe.content_min_width_px > 0.0);
             assert!(recipe.item_pad_right_px >= recipe.item_indicator_size_px);
+        }
+    }
+
+    #[test]
+    fn separator_margins_match_content_pad() {
+        // shadcn: separator `my-*` / `-mx-*` equals group `p-*`.
+        for style in [
+            StyleId::Vega,
+            StyleId::Nova,
+            StyleId::Maia,
+            StyleId::Lyra,
+            StyleId::Mira,
+            StyleId::Luma,
+            StyleId::Sera,
+            StyleId::Rhea,
+        ] {
+            let recipe = select_recipe(style);
+            assert_eq!(
+                recipe.separator_margin_y_px, recipe.content_pad_px,
+                "{style:?} separator my must match content pad"
+            );
+            assert_eq!(
+                recipe.separator_margin_x_px, recipe.content_pad_px,
+                "{style:?} separator -mx must match content pad"
+            );
         }
     }
 
