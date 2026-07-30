@@ -13,9 +13,8 @@ use iced::{Alignment, Background, Border, Color, Element, Length, Task};
 
 use iced_shadcn_v2::{
     AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogDescription, AlertDialogFooter,
-    AlertDialogHeader, AlertDialogSize, AlertDialogTitle, BaseColor, Button,
-    ButtonVariant, FontHeading, FontId, FontPack, RadiusId, StyleId, Theme, ThemeMode, fonts,
-    iced_font,
+    AlertDialogHeader, AlertDialogSize, AlertDialogTitle, BaseColor, Button, ButtonVariant,
+    FontHeading, FontId, FontPack, RadiusId, StyleId, Theme, ThemeMode, fonts, iced_font,
 };
 
 pub fn main() -> iced::Result {
