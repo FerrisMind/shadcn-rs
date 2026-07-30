@@ -1,6 +1,6 @@
 //! Configuration types used by the tooltip component.
 
-use shadcn_common::{FloatingAlign, FloatingSide};
+use shadcn_common::{FloatingAlign, FloatingSide, TransitionValue};
 
 use crate::iced_compat::time::Instant;
 
@@ -88,16 +88,10 @@ impl From<TooltipAlign> for FloatingAlign {
 /// Hover / open-transition state stored in the widget tree.
 #[derive(Debug, Clone, Copy, Default)]
 pub(super) struct TooltipState {
-    /// Whether the state has seen its first frame.
-    pub(super) initialized: bool,
     /// Current logical open target (after delay and overrides).
     pub(super) open: bool,
-    /// Progress currently painted, in `0.0..=1.0`.
-    pub(super) displayed: f32,
-    /// Progress the running transition started from.
-    pub(super) transition_from: f32,
-    /// Start instant of the running open/close transition.
-    pub(super) transition_start: Option<Instant>,
+    /// Backend-agnostic open/close transition state.
+    pub(super) transition: TransitionValue,
     /// Instant the cursor entered the trigger, for the open delay.
     pub(super) hover_started: Option<Instant>,
 }
@@ -105,6 +99,13 @@ pub(super) struct TooltipState {
 impl TooltipState {
     /// Whether the overlay should currently be mounted.
     pub(super) fn is_visible(&self) -> bool {
-        self.open || self.displayed > 0.0 || self.transition_start.is_some()
+        self.open || self.transition.current() > 0.0 || self.transition.is_running()
+    }
+
+    /// Progress currently painted by the overlay.
+    pub(super) fn progress(&self) -> f32 {
+        self.transition
+            .displayed(f32::from(u8::from(self.open)))
+            .clamp(0.0, 1.0)
     }
 }

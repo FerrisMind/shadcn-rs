@@ -394,13 +394,13 @@ fn animation_eases_the_thumb_and_settles_on_the_target() {
     // The first frame adopts the current state without animating.
     switch.advance(&mut state, start);
     assert_eq!(switch.position(&state), 0.0);
-    assert!(state.transition_start.is_none());
+    assert!(!state.transition.is_running());
 
     let checked = Switch::<Message>::new(&theme)
         .checked(true)
         .duration(Duration::from_millis(100));
     checked.advance(&mut state, start);
-    assert!(state.transition_start.is_some());
+    assert!(state.transition.is_running());
 
     checked.advance(&mut state, start + Duration::from_millis(50));
     let midway = checked.position(&state);
@@ -408,7 +408,7 @@ fn animation_eases_the_thumb_and_settles_on_the_target() {
 
     checked.advance(&mut state, start + Duration::from_millis(150));
     assert_eq!(checked.position(&state), 1.0);
-    assert!(state.transition_start.is_none());
+    assert!(!state.transition.is_running());
 }
 
 #[test]
@@ -423,7 +423,7 @@ fn disabled_animation_snaps_to_the_target() {
     let checked = Switch::<Message>::new(&theme).checked(true).animated(false);
     checked.advance(&mut state, now);
 
-    assert!(state.transition_start.is_none());
+    assert!(!state.transition.is_running());
     assert_eq!(checked.position(&state), 1.0);
 }
 
@@ -440,14 +440,14 @@ fn disabling_animation_mid_transition_snaps_to_the_target() {
         .checked(true)
         .duration(Duration::from_millis(100));
     animated.advance(&mut state, start);
-    assert!(state.transition_start.is_some());
+    assert!(state.transition.is_running());
 
     // The next view disables animation while `checked` stays the same: the
     // stale transition must be dropped and the thumb snapped to the target.
     let snapped = Switch::<Message>::new(&theme).checked(true).animated(false);
     snapped.advance(&mut state, start + Duration::from_millis(10));
 
-    assert!(state.transition_start.is_none());
+    assert!(!state.transition.is_running());
     assert_eq!(snapped.position(&state), 1.0);
 }
 

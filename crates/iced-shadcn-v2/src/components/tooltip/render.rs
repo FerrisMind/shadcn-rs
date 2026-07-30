@@ -7,7 +7,7 @@
 //! `fade-in-0 zoom-in-95 slide-in-from-*-2` entrance of the web component.
 
 use shadcn_common::{
-    FloatingConfig, FloatingRect, FloatingSide, TOOLTIP_SLIDE_PX, TOOLTIP_ZOOM_FROM,
+    Easing, FloatingConfig, FloatingRect, FloatingSide, TOOLTIP_SLIDE_PX, TOOLTIP_ZOOM_FROM,
     compute_floating,
 };
 
@@ -106,12 +106,9 @@ impl<Message> TooltipWidget<'_, Message> {
             None => !self.disabled && hovered && delay_satisfied,
         };
 
-        if !state.initialized {
-            state.initialized = true;
+        if !state.transition.is_initialized() {
             state.open = target;
-            state.displayed = f32::from(u8::from(target));
-            state.transition_from = state.displayed;
-            state.transition_start = None;
+            state.transition.reset(f32::from(u8::from(target)));
             return;
         }
 
@@ -122,13 +119,13 @@ impl<Message> TooltipWidget<'_, Message> {
                 shell.publish(on_open_change(target));
             }
 
-            if self.animated {
-                state.transition_from = state.displayed;
-                state.transition_start = Some(now);
-            } else {
-                state.displayed = f32::from(u8::from(target));
-                state.transition_start = None;
-            }
+            state.transition.advance(
+                f32::from(u8::from(target)),
+                self.animated,
+                self.duration,
+                Easing::EaseInOut,
+                now,
+            );
 
             shell.invalidate_layout();
             shell.request_redraw();
@@ -139,31 +136,16 @@ impl<Message> TooltipWidget<'_, Message> {
     fn advance(&self, state: &mut TooltipState, now: Instant, shell: &mut Shell<'_, Message>) {
         let target = f32::from(u8::from(state.open));
 
-        if !self.animated && state.transition_start.is_some() {
-            state.displayed = target;
-            state.transition_start = None;
-        }
+        let was_running = state.transition.is_running();
+        state
+            .transition
+            .advance(target, self.animated, self.duration, Easing::EaseInOut, now);
 
-        let Some(start) = state.transition_start else {
-            return;
-        };
-
-        let progress = (now.saturating_duration_since(start).as_secs_f32()
-            / self.duration.as_secs_f32().max(f32::EPSILON))
-        .clamp(0.0, 1.0);
-        let eased = progress * progress * (3.0 - 2.0 * progress);
-        state.displayed = state.transition_from + (target - state.transition_from) * eased;
-
-        if progress >= 1.0 {
-            state.displayed = target;
-            state.transition_start = None;
-
-            if !state.open {
-                // The overlay unmounts once the exit animation ends.
-                shell.invalidate_layout();
-            }
-        } else {
+        if state.transition.is_running() {
             shell.request_redraw_at(now + FRAME_INTERVAL);
+        } else if was_running && !state.open {
+            // The overlay unmounts once the exit animation ends.
+            shell.invalidate_layout();
         }
     }
 }
@@ -342,7 +324,7 @@ impl<Message> Widget<Message, Theme, Renderer> for TooltipWidget<'_, Message> {
                 config,
                 style,
                 arrow,
-                progress: state.displayed.clamp(0.0, 1.0),
+                progress: state.progress(),
             }))
         });
 

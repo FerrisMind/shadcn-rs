@@ -1,6 +1,7 @@
 //! Public configuration, style, and state types for the switch component.
 
 use crate::iced_compat::Color;
+use shadcn_common::TransitionValue;
 
 /// Preset footprint of a [`super::Switch`].
 ///
@@ -122,10 +123,5 @@ pub struct SwitchStyle {
 #[derive(Debug, Default)]
 #[doc(hidden)]
 pub struct SwitchState {
-    pub(super) initialized: bool,
-    pub(super) checked: bool,
-    pub(super) displayed: f32,
-    pub(super) transition_start: Option<crate::iced_compat::time::Instant>,
-    pub(super) transition_from: f32,
-    pub(super) transition_to: f32,
+    pub(super) transition: TransitionValue,
 }

@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use crate::iced_compat::widget::canvas;
 use crate::iced_compat::{Color, Element, Length};
-use shadcn_common::AccentColor;
+use shadcn_common::{AccentColor, TransitionValue};
 
 use crate::theme::Theme;
 
@@ -314,10 +314,7 @@ pub struct ProgressState {
     pub(super) initialized: bool,
     pub(super) determinate: bool,
     pub(super) target_ratio: f32,
-    pub(super) displayed_ratio: f32,
-    pub(super) transition_start: Option<crate::iced_compat::time::Instant>,
-    pub(super) transition_from: f32,
-    pub(super) transition_to: f32,
+    pub(super) transition: TransitionValue,
 }
 
 fn sanitize_value(value: f32) -> f32 {

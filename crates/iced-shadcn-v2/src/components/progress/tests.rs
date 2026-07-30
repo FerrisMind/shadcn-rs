@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use crate::iced_compat::widget::canvas;
 use crate::iced_compat::{Color, Element, Length, Rectangle, mouse, time, window};
-use shadcn_common::{AccentColor, StyleId};
+use shadcn_common::{AccentColor, Easing, StyleId};
 
 use super::geometry::{default_height, default_radius, display_ratio, normalized_ratio, radius_px};
 use super::style::resolve_visual;
@@ -156,20 +156,18 @@ fn public_debug_is_non_empty() {
 fn display_ratio_tracks_live_value_when_idle() {
     // No active transition: the painted ratio must follow `value`/`max`
     // immediately, so moving a slider updates a resting bar instead of it
-    // staying frozen on a stale `displayed_ratio`.
-    let idle = ProgressState {
-        displayed_ratio: 0.66,
-        ..ProgressState::default()
-    };
+    // staying frozen on a stale transition value.
+    let idle = ProgressState::default();
     assert_eq!(display_ratio(&idle, Some(30.0), 100.0), 0.30);
     assert_eq!(display_ratio(&idle, Some(90.0), 100.0), 0.90);
 
-    // Active transition: the eased `displayed_ratio` drives the animation.
-    let animating = ProgressState {
-        displayed_ratio: 0.66,
-        transition_start: Some(crate::iced_compat::time::Instant::now()),
-        ..ProgressState::default()
-    };
+    // Active transition: the shared scalar value drives the animation.
+    let now = crate::iced_compat::time::Instant::now();
+    let mut animating = ProgressState::default();
+    animating.transition.reset(0.66);
+    animating
+        .transition
+        .advance(0.9, true, Duration::from_millis(100), Easing::Linear, now);
     assert_eq!(display_ratio(&animating, Some(30.0), 100.0), 0.66);
 }
 
@@ -190,5 +188,5 @@ fn settled_determinate_progress_does_not_schedule_redraws() {
     );
 
     assert!(action.is_none());
-    assert!(state.transition_start.is_none());
+    assert!(!state.transition.is_running());
 }

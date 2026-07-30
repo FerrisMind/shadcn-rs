@@ -13,6 +13,7 @@ use crate::iced_compat::widget::{Space, column, container, row, text as iced_tex
 use crate::iced_compat::{
     Color, Element, Event, Length, Point, Rectangle, Size, Vector, alignment, mouse, time, window,
 };
+use shadcn_common::{Easing, TransitionValue};
 
 use crate::components::button::{Button, ButtonSize};
 use crate::fonts::iced_font;
@@ -38,62 +39,20 @@ pub(super) struct Animation {
 /// Eased progress of one open/close transition, stored in the widget tree.
 #[derive(Debug, Default)]
 pub(super) struct Transition {
-    initialized: bool,
-    open: bool,
-    displayed: f32,
-    from: f32,
-    to: f32,
-    start: Option<time::Instant>,
+    value: TransitionValue,
 }
 
 impl Transition {
     /// Advances the transition toward `open` for the frame drawn at `now`.
     pub(super) fn advance(&mut self, open: bool, animation: Animation, now: time::Instant) {
         let target = f32::from(u8::from(open));
-
-        if !self.initialized {
-            self.initialized = true;
-            self.open = open;
-            self.displayed = target;
-            self.from = target;
-            self.to = target;
-            self.start = None;
-            return;
-        }
-
-        if self.open != open {
-            self.open = open;
-
-            if animation.animated {
-                self.from = self.displayed;
-                self.to = target;
-                self.start = Some(now);
-            } else {
-                self.displayed = target;
-                self.start = None;
-            }
-        }
-
-        // Disabling the animation mid-transition snaps to the target on the
-        // next frame instead of letting a stale transition keep easing.
-        if !animation.animated && self.start.is_some() {
-            self.displayed = target;
-            self.start = None;
-        }
-
-        let Some(start) = self.start else {
-            return;
-        };
-
-        let elapsed = (now.saturating_duration_since(start).as_secs_f32()
-            / animation.duration.as_secs_f32())
-        .clamp(0.0, 1.0);
-        self.displayed = self.from + (self.to - self.from) * animation.easing.apply(elapsed);
-
-        if elapsed >= 1.0 {
-            self.displayed = target;
-            self.start = None;
-        }
+        self.value.advance(
+            target,
+            animation.animated,
+            animation.duration,
+            common_easing(animation.easing),
+            now,
+        );
     }
 
     /// Reveal fraction in `0.0..=1.0`.
@@ -102,15 +61,21 @@ impl Transition {
     /// derived from `open` directly, so a panel whose state changed while no
     /// frames were requested still paints correctly.
     pub(super) fn progress(&self, open: bool) -> f32 {
-        if self.start.is_some() {
-            self.displayed.clamp(0.0, 1.0)
-        } else {
-            f32::from(u8::from(open))
-        }
+        self.value
+            .displayed(f32::from(u8::from(open)))
+            .clamp(0.0, 1.0)
     }
 
     pub(super) const fn is_running(&self) -> bool {
-        self.start.is_some()
+        self.value.is_running()
+    }
+}
+
+fn common_easing(easing: CollapsibleEasing) -> Easing {
+    match easing {
+        CollapsibleEasing::Linear => Easing::Linear,
+        CollapsibleEasing::EaseOut => Easing::EaseOut,
+        CollapsibleEasing::EaseInOut => Easing::EaseInOut,
     }
 }
 

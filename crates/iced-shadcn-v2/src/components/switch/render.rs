@@ -5,6 +5,7 @@ use std::time::Duration;
 use crate::iced_compat::widget::canvas;
 use crate::iced_compat::widget::canvas::{Path, Stroke};
 use crate::iced_compat::{Point, Rectangle, Renderer, Size, mouse, touch, window};
+use shadcn_common::Easing;
 
 use super::Switch;
 use super::geometry;
@@ -47,8 +48,9 @@ impl<Message> canvas::Program<Message> for Switch<'_, Message> {
                 self.advance(state, *now);
 
                 state
-                    .transition_start
-                    .map(|_| canvas::Action::request_redraw_at(*now + FRAME_INTERVAL))
+                    .transition
+                    .is_running()
+                    .then(|| canvas::Action::request_redraw_at(*now + FRAME_INTERVAL))
             }
             _ => None,
         }
@@ -167,52 +169,9 @@ impl<Message> Switch<'_, Message> {
     /// Advances the thumb transition for the frame drawn at `now`.
     pub(super) fn advance(&self, state: &mut SwitchState, now: crate::iced_compat::time::Instant) {
         let target = f32::from(u8::from(self.checked));
-
-        if !state.initialized {
-            state.initialized = true;
-            state.checked = self.checked;
-            state.displayed = target;
-            state.transition_from = target;
-            state.transition_to = target;
-            state.transition_start = None;
-            return;
-        }
-
-        if state.checked != self.checked {
-            state.checked = self.checked;
-
-            if self.animated {
-                state.transition_from = state.displayed;
-                state.transition_to = target;
-                state.transition_start = Some(now);
-            } else {
-                state.displayed = target;
-                state.transition_start = None;
-            }
-        }
-
-        // Disabling animation mid-transition snaps to the target on the next
-        // frame instead of letting the stale transition keep easing the thumb.
-        if !self.animated && state.transition_start.is_some() {
-            state.displayed = target;
-            state.transition_start = None;
-        }
-
-        let Some(start) = state.transition_start else {
-            return;
-        };
-
-        let progress = (now.saturating_duration_since(start).as_secs_f32()
-            / self.duration.as_secs_f32())
-        .clamp(0.0, 1.0);
-        let eased = progress * progress * (3.0 - 2.0 * progress);
-        state.displayed =
-            state.transition_from + (state.transition_to - state.transition_from) * eased;
-
-        if progress >= 1.0 {
-            state.displayed = target;
-            state.transition_start = None;
-        }
+        state
+            .transition
+            .advance(target, self.animated, self.duration, Easing::EaseInOut, now);
     }
 
     /// Thumb position the canvas paints, in `0.0..=1.0`.
@@ -221,11 +180,10 @@ impl<Message> Switch<'_, Message> {
     /// position is derived from `checked` directly, so a switch that changes
     /// while no frames are requested still paints the correct state.
     pub(super) fn position(&self, state: &SwitchState) -> f32 {
-        if state.transition_start.is_some() {
-            state.displayed.clamp(0.0, 1.0)
-        } else {
-            f32::from(u8::from(self.checked))
-        }
+        state
+            .transition
+            .displayed(f32::from(u8::from(self.checked)))
+            .clamp(0.0, 1.0)
     }
 }
 

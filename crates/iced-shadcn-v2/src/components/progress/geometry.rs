@@ -69,14 +69,14 @@ pub(super) fn normalized_ratio(value: Option<f32>, max: f32) -> f32 {
 
 /// Ratio the canvas should paint for a determinate bar.
 ///
-/// While a value transition is running, the eased `displayed_ratio` drives the
+/// While a value transition is running, the shared scalar transition drives the
 /// animation. At rest the ratio is derived straight from `value`/`max`, so a
 /// value that changes while the bar is idle (and therefore not pumping redraws
 /// into [`super::render`]'s `update`) is reflected immediately instead of
 /// leaving the bar stuck on the last animated ratio.
 pub(super) fn display_ratio(state: &ProgressState, value: Option<f32>, max: f32) -> f32 {
-    if state.transition_start.is_some() {
-        state.displayed_ratio.clamp(0.0, 1.0)
+    if state.transition.is_running() {
+        state.transition.current().clamp(0.0, 1.0)
     } else {
         normalized_ratio(value, max)
     }

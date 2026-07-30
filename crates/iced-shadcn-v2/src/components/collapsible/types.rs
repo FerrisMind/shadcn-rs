@@ -171,6 +171,7 @@ pub enum CollapsibleEasing {
 
 impl CollapsibleEasing {
     /// Maps linear time in `0.0..=1.0` onto eased progress in `0.0..=1.0`.
+    #[cfg(test)]
     pub(super) fn apply(self, time: f32) -> f32 {
         let time = if time.is_finite() {
             time.clamp(0.0, 1.0)

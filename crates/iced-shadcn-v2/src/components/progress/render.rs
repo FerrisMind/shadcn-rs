@@ -8,6 +8,7 @@ use crate::iced_compat::widget::canvas;
 use crate::iced_compat::widget::canvas::Path;
 use crate::iced_compat::window;
 use crate::iced_compat::{Point, Rectangle, Renderer, Size};
+use shadcn_common::Easing;
 
 use super::geometry::{display_ratio, normalized_ratio};
 use super::style::resolve_visual;
@@ -36,10 +37,7 @@ impl<Message> canvas::Program<Message> for Progress<'_> {
             state.initialized = true;
             state.determinate = determinate;
             state.target_ratio = target_ratio;
-            state.displayed_ratio = target_ratio;
-            state.transition_from = target_ratio;
-            state.transition_to = target_ratio;
-            state.transition_start = None;
+            state.transition.reset(target_ratio);
             state.start_time = if !determinate && self.animated {
                 Some(*now)
             } else {
@@ -49,7 +47,6 @@ impl<Message> canvas::Program<Message> for Progress<'_> {
             || (determinate && (state.target_ratio - target_ratio).abs() > f32::EPSILON)
         {
             let was_determinate = state.determinate;
-            let previous_ratio = state.displayed_ratio;
 
             state.determinate = determinate;
             state.target_ratio = target_ratio;
@@ -60,41 +57,38 @@ impl<Message> canvas::Program<Message> for Progress<'_> {
             };
 
             if determinate {
-                state.transition_from = if was_determinate { previous_ratio } else { 0.0 };
-                state.transition_to = target_ratio;
-                state.transition_start = if self.animated { Some(*now) } else { None };
-                if !self.animated {
-                    state.displayed_ratio = target_ratio;
+                if !was_determinate {
+                    state.transition.reset(0.0);
                 }
             } else {
-                state.displayed_ratio = 0.0;
-                state.transition_start = None;
+                state.transition.reset(0.0);
             }
         }
 
         if !self.animated {
-            state.transition_start = None;
+            state.start_time = None;
             if determinate {
-                state.displayed_ratio = target_ratio;
+                state.transition.advance(
+                    target_ratio,
+                    false,
+                    self.transition_duration,
+                    Easing::EaseInOut,
+                    *now,
+                );
+            } else {
+                state.transition.reset(0.0);
             }
             return None;
         }
 
         if determinate {
-            // Advance an in-flight value transition, if one is running.
-            if let Some(start) = state.transition_start {
-                let elapsed = now.saturating_duration_since(start);
-                let progress = (elapsed.as_secs_f32() / self.transition_duration.as_secs_f32())
-                    .clamp(0.0, 1.0);
-                let eased = progress * progress * (3.0 - 2.0 * progress);
-                state.displayed_ratio =
-                    state.transition_from + (state.transition_to - state.transition_from) * eased;
-
-                if progress >= 1.0 {
-                    state.displayed_ratio = target_ratio;
-                    state.transition_start = None;
-                }
-            }
+            state.transition.advance(
+                target_ratio,
+                true,
+                self.transition_duration,
+                Easing::EaseInOut,
+                *now,
+            );
         } else {
             let start = state.start_time.get_or_insert(*now);
             let elapsed = now.saturating_duration_since(*start);
@@ -108,8 +102,8 @@ impl<Message> canvas::Program<Message> for Progress<'_> {
         // controlled value without a self-sustaining timer.
         if determinate {
             state
-                .transition_start
-                .is_some()
+                .transition
+                .is_running()
                 .then(|| canvas::Action::request_redraw_at(*now + FRAME_INTERVAL))
         } else {
             Some(canvas::Action::request_redraw_at(*now + FRAME_INTERVAL))
