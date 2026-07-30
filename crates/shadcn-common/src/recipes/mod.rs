@@ -14,6 +14,7 @@ mod skeleton;
 mod slider;
 mod switch;
 mod toggle;
+mod tooltip;
 
 pub use badge::{BadgeRecipe, badge_recipe};
 pub use button::{ButtonSizeRecipe, ButtonTypeRecipe, ControlSize, button_size, button_type};
@@ -27,6 +28,9 @@ pub use slider::{
 };
 pub use switch::{SwitchRecipe, SwitchSizeRecipe, switch_recipe, switch_size};
 pub use toggle::{ToggleRecipe, ToggleSizeRecipe, toggle_recipe, toggle_size};
+pub use tooltip::{
+    TOOLTIP_ANIMATION_MS, TOOLTIP_SLIDE_PX, TOOLTIP_ZOOM_FROM, TooltipRecipe, tooltip_recipe,
+};
 
 /// Backend-agnostic font weight matching CSS `font-normal` / `font-medium` / ….
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
