@@ -300,17 +300,23 @@ impl Example {
 
         let controlled = column![
             row![
+                // External control: the popover trigger must not toggle the
+                // same state from its own on_press, otherwise the click
+                // opens (onOpenChange) and immediately closes (on_press).
+                Button::text(
+                    if self.controlled_open {
+                        "Force close"
+                    } else {
+                        "Force open"
+                    },
+                    theme,
+                )
+                .variant(ButtonVariant::Default)
+                .on_press(Message::ToggleControlled),
                 Popover::text(
-                    Button::text(
-                        if self.controlled_open {
-                            "Force close"
-                        } else {
-                            "Force open"
-                        },
-                        theme,
-                    )
-                    .variant(ButtonVariant::Default)
-                    .on_press(Message::ToggleControlled),
+                    Button::text("Controlled trigger", theme)
+                        .variant(ButtonVariant::Outline)
+                        .on_press(Message::Pressed),
                     "Controlled by app state",
                     theme,
                 )
