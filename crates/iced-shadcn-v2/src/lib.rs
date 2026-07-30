@@ -95,10 +95,14 @@ pub use components::card;
 pub use components::checkbox;
 /// Backwards-compatible access to the collapsible component.
 pub use components::collapsible;
+/// Backwards-compatible access to the dialog component.
+pub use components::dialog;
 /// Backwards-compatible access to the empty-state component.
 pub use components::empty;
 /// Backwards-compatible access to the field component.
 pub use components::field;
+/// Backwards-compatible access to the hover-card component.
+pub use components::hover_card;
 /// Backwards-compatible access to the input component.
 pub use components::input;
 /// Backwards-compatible access to the input-group component.
@@ -125,12 +129,16 @@ pub use components::radio_group;
 pub use components::resizable;
 /// Backwards-compatible access to the scroll-area component.
 pub use components::scroll_area;
+/// Backwards-compatible access to the select component.
+pub use components::select;
 /// Backwards-compatible access to the separator component.
 pub use components::separator;
 /// Backwards-compatible access to the skeleton component.
 pub use components::skeleton;
 /// Backwards-compatible access to the slider component.
 pub use components::slider;
+/// Backwards-compatible access to the sonner (toast) component.
+pub use components::sonner;
 /// Backwards-compatible access to the spinner component.
 pub use components::spinner;
 /// Backwards-compatible access to the switch component.
@@ -182,6 +190,9 @@ pub use components::collapsible::{
     CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement, CollapsibleOrientation,
     CollapsibleState, CollapsibleTrigger, collapsible,
 };
+pub use components::dialog::{
+    Dialog, DialogDescription, DialogFooter, DialogHeader, DialogStyle, DialogTitle,
+};
 pub use components::empty::{
     Empty, EmptyBorderStyle, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia,
     EmptyMediaVariant, EmptyRadius, EmptyTitle,
@@ -191,6 +202,7 @@ pub use components::field::{
     FieldErrorItem, FieldGroup, FieldLabel, FieldLegend, FieldLegendVariant, FieldOrientation,
     FieldSeparator, FieldSet, FieldTitle,
 };
+pub use components::hover_card::{HoverCard, HoverCardAlign, HoverCardSide, HoverCardStyle};
 pub use components::input::{Input, InputBuildError, InputRadius, InputSize, input};
 pub use components::input_group::{
     InputGroup, InputGroupAddon, InputGroupAddonAlign, InputGroupAddonProps, InputGroupButton,
@@ -237,12 +249,21 @@ pub use components::scroll_area::{
     ScrollArea, ScrollAreaAnchor, ScrollAreaBuildError, ScrollAreaOrientation, ScrollAreaRadius,
     ScrollAreaScrollbar,
 };
+pub use components::select::{
+    Select, SelectContentStyle, SelectGroup, SelectItem, SelectRadius, SelectSelection, SelectSize,
+    SelectStatus, SelectTriggerStyle, SelectType, select,
+};
 pub use components::separator::{Separator, SeparatorOrientation, separator};
 pub use components::skeleton::{
     Skeleton, SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape,
 };
 pub use components::slider::{
     Slider, SliderOrientation, SliderRadius, SliderState, SliderStatus, SliderStyle, slider,
+};
+pub use components::sonner::{
+    SonnerToast, ToastAction, ToastOptions, ToastPosition, ToastType, Toaster, dismiss_all_toasts,
+    dismiss_toast, toast, toast_error, toast_immediate, toast_info, toast_loading, toast_success,
+    toast_warning,
 };
 pub use components::spinner::{Spinner, SpinnerSize, SpinnerVariant, spinner};
 pub use components::switch::{
@@ -269,8 +290,8 @@ pub use theme::{Palette, Theme};
 
 pub use shadcn_common::{
     AccentColor, BaseColor, ComponentRadius, ControlSize, FloatingPadding, FloatingSticky,
-    FontHeading, FontId, FontPack, FontWeight, RadiusId, RadiusScale, ResolvedTheme, StyleId,
-    StylePack, ThemeMode, TypeRecipe,
+    FontHeading, FontId, FontPack, FontWeight, RadiusId, RadiusScale, ResolvedTheme, SelectMode,
+    StyleId, StylePack, ThemeMode, TypeRecipe,
 };
 
 /// Semantic color slots resolved by [`Theme::semantic_color`].

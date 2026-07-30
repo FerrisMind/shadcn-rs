@@ -20,6 +20,7 @@ pub mod pagination;
 pub mod presence;
 pub mod radius;
 pub mod recipes;
+pub mod select_value;
 pub mod selection;
 pub mod style;
 pub mod theme;
@@ -52,18 +53,27 @@ pub use pagination::{
 pub use presence::{Presence, PresenceEvent, PresenceState};
 pub use radius::{RadiusId, RadiusScale};
 pub use recipes::{
-    BadgeRecipe, ButtonSizeRecipe, ButtonTypeRecipe, ComponentRadius, ControlSize, FontWeight,
+    BadgeRecipe, ButtonSizeRecipe, ButtonTypeRecipe, ComponentRadius, ControlSize,
+    DIALOG_ANIMATION_MS, DIALOG_CLOSE_ICON_PX, DIALOG_CLOSE_SIZE_PX, DIALOG_MARGIN_PX,
+    DIALOG_ZOOM_FROM, DialogRecipe, FontWeight, HOVER_CARD_ANIMATION_MS, HOVER_CARD_CLOSE_DELAY_MS,
+    HOVER_CARD_OPEN_DELAY_MS, HOVER_CARD_SLIDE_PX, HOVER_CARD_ZOOM_FROM, HoverCardRecipe,
     KbdRecipe, LabelContext, LabelRecipe, NATIVE_SELECT_DISABLED_OPACITY,
     NATIVE_SELECT_MENU_GROUP_INDENT_PX, NATIVE_SELECT_MENU_ITEM_PAD_X_PX,
     NATIVE_SELECT_MENU_ITEM_PAD_Y_PX, NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NativeSelectRecipe,
     POPOVER_ANIMATION_MS, POPOVER_SLIDE_PX, POPOVER_WIDTH_PX, POPOVER_ZOOM_FROM, PopoverRecipe,
     PopoverShadow, ProgressRecipe, RadioCheckedFill, RadioGroupRecipe, RadioSurface,
-    SkeletonRecipe, SliderRecipe, SliderThumbBorder, SliderThumbFill, SliderTrackSurface,
-    SwitchRecipe, SwitchSizeRecipe, TOOLTIP_ANIMATION_MS, TOOLTIP_SLIDE_PX, TOOLTIP_ZOOM_FROM,
-    ToggleRecipe, ToggleSizeRecipe, TooltipRecipe, TypeRecipe, badge_recipe, button_size,
-    button_type, kbd_recipe, label_recipe, native_select_recipe, popover_recipe, progress_recipe,
-    radio_group_recipe, skeleton_default_radius, skeleton_recipe, slider_recipe, switch_recipe,
-    switch_size, toggle_recipe, toggle_size, tooltip_recipe,
+    SELECT_ANIMATION_MS, SELECT_CONTENT_MAX_HEIGHT_PX, SELECT_DISABLED_OPACITY,
+    SELECT_SIDE_OFFSET_PX, SELECT_SLIDE_PX, SELECT_ZOOM_FROM, SelectRecipe, SkeletonRecipe,
+    SliderRecipe, SliderThumbBorder, SliderThumbFill, SliderTrackSurface, SwitchRecipe,
+    SwitchSizeRecipe, TOOLTIP_ANIMATION_MS, TOOLTIP_SLIDE_PX, TOOLTIP_ZOOM_FROM, ToggleRecipe,
+    ToggleSizeRecipe, TooltipRecipe, TypeRecipe, badge_recipe, button_size, button_type,
+    dialog_recipe, hover_card_recipe, kbd_recipe, label_recipe, native_select_recipe,
+    popover_recipe, progress_recipe, radio_group_recipe, select_recipe, skeleton_default_radius,
+    skeleton_recipe, slider_recipe, switch_recipe, switch_size, toggle_recipe, toggle_size,
+    tooltip_recipe,
+};
+pub use select_value::{
+    SelectMode, multiple_selection_label, next_multiple_values, next_single_value,
 };
 pub use selection::{Selection, SelectionMode};
 pub use style::{StyleId, StylePack};
@@ -72,6 +82,6 @@ pub use transition::{Easing, TransitionValue};
 pub use typography::{FontHeading, FontId, FontPack};
 pub use value_mapping::{
     ValueRange, closest_index, decrement, finite_or_zero, fraction, increment, max_value_at_index,
-    min_value_at_index, modulo, round_to_step_precision, set_value_at_index, snap, snap_value_to_step,
-    snapped_fraction, transform_value, value_at_fraction, value_ranges, wrap,
+    min_value_at_index, modulo, round_to_step_precision, set_value_at_index, snap,
+    snap_value_to_step, snapped_fraction, transform_value, value_at_fraction, value_ranges, wrap,
 };

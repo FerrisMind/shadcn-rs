@@ -6,12 +6,15 @@
 
 mod badge;
 mod button;
+mod dialog;
+mod hover_card;
 mod kbd;
 mod label;
 mod native_select;
 mod popover;
 mod progress;
 mod radio_group;
+mod select;
 mod skeleton;
 mod slider;
 mod switch;
@@ -20,6 +23,14 @@ mod tooltip;
 
 pub use badge::{BadgeRecipe, badge_recipe};
 pub use button::{ButtonSizeRecipe, ButtonTypeRecipe, ControlSize, button_size, button_type};
+pub use dialog::{
+    DIALOG_ANIMATION_MS, DIALOG_CLOSE_ICON_PX, DIALOG_CLOSE_SIZE_PX, DIALOG_MARGIN_PX,
+    DIALOG_ZOOM_FROM, DialogRecipe, dialog_recipe,
+};
+pub use hover_card::{
+    HOVER_CARD_ANIMATION_MS, HOVER_CARD_CLOSE_DELAY_MS, HOVER_CARD_OPEN_DELAY_MS,
+    HOVER_CARD_SLIDE_PX, HOVER_CARD_ZOOM_FROM, HoverCardRecipe, hover_card_recipe,
+};
 pub use kbd::{KbdRecipe, kbd_recipe};
 pub use label::{LabelContext, LabelRecipe, label_recipe};
 pub use native_select::{
@@ -33,6 +44,10 @@ pub use popover::{
 };
 pub use progress::{ProgressRecipe, progress_recipe};
 pub use radio_group::{RadioCheckedFill, RadioGroupRecipe, RadioSurface, radio_group_recipe};
+pub use select::{
+    SELECT_ANIMATION_MS, SELECT_CONTENT_MAX_HEIGHT_PX, SELECT_DISABLED_OPACITY,
+    SELECT_SIDE_OFFSET_PX, SELECT_SLIDE_PX, SELECT_ZOOM_FROM, SelectRecipe, select_recipe,
+};
 pub use skeleton::{SkeletonRecipe, skeleton_default_radius, skeleton_recipe};
 pub use slider::{
     SliderRecipe, SliderThumbBorder, SliderThumbFill, SliderTrackSurface, slider_recipe,

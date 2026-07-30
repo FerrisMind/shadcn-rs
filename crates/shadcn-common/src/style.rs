@@ -355,6 +355,11 @@ impl StylePack {
         crate::recipes::native_select_recipe(self.id)
     }
 
+    /// `.cn-select-*` trigger, content, and item tokens for this pack.
+    pub const fn select(self) -> crate::recipes::SelectRecipe {
+        crate::recipes::select_recipe(self.id)
+    }
+
     /// `.cn-switch` border, ring, and default radius for this pack.
     pub const fn switch(self) -> crate::recipes::SwitchRecipe {
         crate::recipes::switch_recipe(self.id)
