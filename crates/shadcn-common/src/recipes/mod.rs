@@ -90,9 +90,17 @@ pub enum ComponentRadius {
     Md,
     /// `rounded-lg`.
     Lg,
-    /// `rounded-xl`.
+    /// `rounded-xl` / `--radius-xl` = `calc(var(--radius) + 4px)`.
     Xl,
-    /// Pill / `rounded-full` / `rounded-4xl` treated as fully rounded.
+    /// `rounded-2xl` / `--radius-2xl` = `calc(var(--radius) + 8px)`.
+    ///
+    /// Named `S2xl` (not `2xl`) because Rust identifiers cannot start with a digit.
+    S2xl,
+    /// `rounded-3xl` / `--radius-3xl` = `calc(var(--radius) + 12px)` — soft panels.
+    S3xl,
+    /// `rounded-4xl` / `--radius-4xl` = `calc(var(--radius) + 16px)` — large soft surfaces.
+    S4xl,
+    /// Pill / `rounded-full` treated as fully rounded.
     Full,
 }
 

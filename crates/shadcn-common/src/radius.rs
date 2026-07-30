@@ -108,6 +108,9 @@ impl RadiusId {
 }
 
 /// Pixel radius scale derived from a rem base (1rem = 16px).
+///
+/// Matches shadcn-svelte `app.css` `@theme` tokens:
+/// `--radius-sm/md/lg/xl/2xl/3xl/4xl` as `calc(var(--radius) ± Npx)`.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct RadiusScale {
     pub base_rem: f32,
@@ -115,7 +118,12 @@ pub struct RadiusScale {
     pub md_px: f32,
     pub lg_px: f32,
     pub xl_px: f32,
+    /// `--radius-2xl` = base + 8.
     pub xxl_px: f32,
+    /// `--radius-3xl` = base + 12.
+    pub xxxl_px: f32,
+    /// `--radius-4xl` = base + 16.
+    pub xxxxl_px: f32,
 }
 
 impl RadiusScale {
@@ -128,6 +136,8 @@ impl RadiusScale {
             lg_px: base_px,
             xl_px: base_px + 4.0,
             xxl_px: base_px + 8.0,
+            xxxl_px: base_px + 12.0,
+            xxxxl_px: base_px + 16.0,
         }
     }
 
@@ -139,6 +149,8 @@ impl RadiusScale {
             lg_px: 0.0,
             xl_px: 0.0,
             xxl_px: 0.0,
+            xxxl_px: 0.0,
+            xxxxl_px: 0.0,
         }
     }
 
