@@ -165,12 +165,8 @@ pub(super) fn create_typed_toast<Message: Send + Sync + 'static>(
                 on_click: Some(cb),
             };
             Box::new(move || -> Option<()> {
-                // The callback produces a Message, but we can't store it
-                // in the global state without knowing the type. Instead, we
-                // store the callback and the Toaster widget will handle it.
-                // This is a placeholder; the real handling is in the
-                // Toaster's update method.
-                (action_copy.on_click.as_ref())(&action_copy)?;
+                let cb = action_copy.on_click.as_deref()?;
+                cb(&action_copy)?;
                 Some(())
             }) as Box<dyn Fn() -> Option<()> + Send + Sync>
         })
@@ -184,7 +180,8 @@ pub(super) fn create_typed_toast<Message: Send + Sync + 'static>(
                 on_click: Some(cb),
             };
             Box::new(move || -> Option<()> {
-                (cancel_copy.on_click.as_ref())(&cancel_copy)?;
+                let cb = cancel_copy.on_click.as_deref()?;
+                cb(&cancel_copy)?;
                 Some(())
             }) as Box<dyn Fn() -> Option<()> + Send + Sync>
         })

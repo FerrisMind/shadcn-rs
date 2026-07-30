@@ -343,7 +343,7 @@ impl<Message> overlay::Overlay<Message, Theme, Renderer> for ToasterOverlay<'_> 
 
                 let content_x = toast_bounds.x + TOAST_PADDING;
                 let content_y = toast_bounds.y + TOAST_PADDING;
-                let content_width = toast_bounds.width - TOAST_PADDING * 2.0;
+                let _content_width = toast_bounds.width - TOAST_PADDING * 2.0;
                 let mut text_x = content_x;
 
                 // Draw icon based on toast type.
@@ -555,11 +555,7 @@ fn draw_text(
         height: f32::INFINITY,
     };
 
-    renderer.fill_text(
-        text,
-        bounds,
-        color,
-    );
+    renderer.fill_text(text, bounds, color);
 }
 
 /// Computes the bounding rectangle for a toast.
