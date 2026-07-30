@@ -3,6 +3,7 @@
 //! Each component owns its public builder API and keeps implementation details
 //!—geometry, rendering, styles, errors, and tests—inside its own submodule.
 
+pub mod accordion;
 pub mod alert;
 pub mod aspect_ratio;
 pub mod avatar;
@@ -13,15 +14,19 @@ pub mod button_group;
 pub mod card;
 pub mod checkbox;
 pub mod collapsible;
+pub mod empty;
 pub mod field;
 pub mod input;
 pub mod input_group;
+pub mod input_otp;
 pub mod item;
 pub mod kbd;
 pub mod label;
+pub mod native_select;
 pub mod pagination;
 pub mod progress;
 pub mod radio_group;
+pub mod resizable;
 pub mod scroll_area;
 pub mod separator;
 pub mod skeleton;

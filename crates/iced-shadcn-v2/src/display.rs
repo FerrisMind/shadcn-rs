@@ -23,6 +23,7 @@ use crate::components::input::{InputRadius, InputSize};
 use crate::components::input_group::{
     InputGroupAddonAlign, InputGroupButtonSize, InputGroupRadius, InputGroupTextareaResize,
 };
+use crate::components::input_otp::{InputOtpPattern, InputOtpRadius};
 use crate::components::kbd::{KbdRadius, KbdSurface};
 use crate::components::pagination::PaginationItem;
 use crate::components::progress::{
@@ -137,6 +138,14 @@ impl_display! {
     }
     InputGroupTextareaResize {
         None => "none", Vertical => "vertical", Horizontal => "horizontal", Both => "both",
+    }
+    InputOtpPattern {
+        Any => "any", Digits => "digits", Chars => "chars",
+        DigitsAndChars => "digits-and-chars",
+    }
+    InputOtpRadius {
+        None => "none", Small => "small", Medium => "medium",
+        Large => "large", Full => "full",
     }
     KbdSurface {
         Default => "default", Tooltip => "tooltip", InputGroup => "input-group",
@@ -277,6 +286,7 @@ mod tests {
             "space-between"
         );
         assert_eq!(KbdSurface::InputGroup.to_string(), "input-group");
+        assert_eq!(InputOtpPattern::DigitsAndChars.to_string(), "digits-and-chars");
         assert_eq!(SpinnerVariant::TextShimmer.to_string(), "text-shimmer");
         assert_eq!(ToggleGroupType::Multiple.to_string(), "multiple");
         assert_eq!(ToggleGroupOrientation::Vertical.to_string(), "vertical");

@@ -73,6 +73,8 @@ pub(crate) mod iced_compat;
 pub mod recipes;
 pub mod theme;
 
+/// Backwards-compatible access to the accordion component.
+pub use components::accordion;
 /// Backwards-compatible access to the alert component.
 pub use components::alert;
 /// Backwards-compatible access to the aspect-ratio component.
@@ -93,24 +95,32 @@ pub use components::card;
 pub use components::checkbox;
 /// Backwards-compatible access to the collapsible component.
 pub use components::collapsible;
+/// Backwards-compatible access to the empty-state component.
+pub use components::empty;
 /// Backwards-compatible access to the field component.
 pub use components::field;
 /// Backwards-compatible access to the input component.
 pub use components::input;
 /// Backwards-compatible access to the input-group component.
 pub use components::input_group;
+/// Backwards-compatible access to the input-otp component.
+pub use components::input_otp;
 /// Backwards-compatible access to the item component.
 pub use components::item;
 /// Backwards-compatible access to the kbd component.
 pub use components::kbd;
 /// Backwards-compatible access to the label component.
 pub use components::label;
+/// Backwards-compatible access to the native-select component.
+pub use components::native_select;
 /// Backwards-compatible access to the pagination component.
 pub use components::pagination;
 /// Backwards-compatible access to the progress component.
 pub use components::progress;
 /// Backwards-compatible access to the radio-group component.
 pub use components::radio_group;
+/// Backwards-compatible access to the resizable component.
+pub use components::resizable;
 /// Backwards-compatible access to the scroll-area component.
 pub use components::scroll_area;
 /// Backwards-compatible access to the separator component.
@@ -134,6 +144,11 @@ pub use components::toggle_group;
 /// Backwards-compatible access to the typography component.
 pub use components::typography;
 
+pub use components::accordion::{
+    Accordion, AccordionBuildError, AccordionContent, AccordionHeaderLevel, AccordionItem,
+    AccordionLoop, AccordionMode, AccordionOrientation, AccordionSelection, AccordionTrigger,
+    AccordionType, AccordionValue, accordion,
+};
 pub use components::alert::{
     Alert, AlertAction, AlertDescription, AlertRadius, AlertTitle, AlertVariant,
 };
@@ -163,6 +178,10 @@ pub use components::collapsible::{
     CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement, CollapsibleOrientation,
     CollapsibleState, CollapsibleTrigger, collapsible,
 };
+pub use components::empty::{
+    Empty, EmptyBorderStyle, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia,
+    EmptyMediaVariant, EmptyRadius, EmptyTitle,
+};
 pub use components::field::{
     DEFAULT_FIELD_RESPONSIVE_BREAKPOINT, Field, FieldContent, FieldDescription, FieldError,
     FieldErrorItem, FieldGroup, FieldLabel, FieldLegend, FieldLegendVariant, FieldOrientation,
@@ -177,12 +196,19 @@ pub use components::input_group::{
     input_group_control, input_group_input, input_group_text, input_group_textarea,
     input_group_textarea_apply_action,
 };
+pub use components::input_otp::{
+    InputOtp, InputOtpPattern, InputOtpRadius, InputOtpStatus, InputOtpStyle, input_otp,
+};
 pub use components::item::{
     Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemGroup, ItemHeader, ItemMedia,
     ItemMediaVariant, ItemRadius, ItemSeparator, ItemSize, ItemTitle, ItemVariant,
 };
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
+pub use components::native_select::{
+    NativeSelect, NativeSelectItem, NativeSelectOptGroup, NativeSelectOption, NativeSelectRadius,
+    NativeSelectSize,
+};
 pub use components::pagination::{
     Pagination, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext,
     PaginationPrevious, pagination,
@@ -194,6 +220,10 @@ pub use components::progress::{
 pub use components::radio_group::{
     RadioGroup, RadioGroupItem, RadioGroupOrientation, RadioGroupRadius, RadioGroupSize,
     RadioGroupStatus, RadioGroupStyle, radio_group,
+};
+pub use components::resizable::{
+    ResizableBuildError, ResizableDirection, ResizableHandle, ResizableLayout, ResizablePane,
+    ResizablePaneGroup, ResizableRadius, resizable_pane_group,
 };
 pub use components::scroll_area::{
     ScrollArea, ScrollAreaAnchor, ScrollAreaBuildError, ScrollAreaOrientation, ScrollAreaRadius,

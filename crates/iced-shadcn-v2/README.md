@@ -10,6 +10,8 @@ with native `iced` types.
 
 - `components` — component implementations grouped by feature:
   - `components::alert` — callout with variants, icon, typed text, and action slots.
+  - `components::accordion` — controlled single/multiple disclosure with items,
+    custom trigger/content slots, disabled states, and navigation helpers.
   - `components::aspect_ratio` — layout wrapper that preserves a width-to-height ratio.
   - `components::avatar` — image/fallback roots, badges, overlapping groups, and counts.
   - `components::badge` — status label with shadcn variants, icons, and as-link.
@@ -26,9 +28,13 @@ with native `iced` types.
     separators, validation errors, and responsive layout support.
   - `components::input` — controlled text field over iced `text_input` with `.cn-input` styling.
   - `components::input_group` — composable input/textarea groups with inline and block addons.
+  - `components::input_otp` — one-time-password slots with focus, keyboard
+    editing, paste, pattern filters, groups, and a blinking fake caret.
   - `components::item` — media/content/actions row, item group, and separators.
   - `components::kbd` — keyboard-shortcut chip and grouped key sequences.
   - `components::label` — form label with style-pack typography and `for` / click.
+  - `components::native_select` — controlled select with placeholders, groups,
+    disabled options, keyboard navigation, and style-pack recipes.
   - `components::pagination` — controlled page window with prev/next and ellipsis.
   - `components::progress` — theme-aware determinate and indeterminate progress bar.
   - `components::radio_group` — controlled single-value radio selection with
@@ -53,10 +59,10 @@ with native `iced` types.
   - `theme::typography` — body, heading, and font-pack selection APIs.
 - `fonts` — font-face exports and the iced font adapter.
 
-The root `alert`, `aspect_ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `card`, `checkbox`,
+The root `accordion`, `alert`, `aspect_ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `card`, `checkbox`,
 `collapsible`, `field`, `input`, `input_group`, `item`, `kbd`, `label`, `pagination`, `progress`,
 `radio_group`, `scroll_area`, `separator`, `skeleton`, `slider`, `spinner`, `switch`, `table`,
-`tabs`, `toggle`, `toggle_group`, and `typography` modules are compatibility re-exports of
+`tabs`, `toggle`, `toggle_group`, `typography`, and `native_select` modules are compatibility re-exports of
 `components`, so existing
 v2 imports remain valid while new code can use the feature-oriented
 `iced_shadcn_v2::components::*` paths.
@@ -144,6 +150,7 @@ iced `button::Style` (colors, border, shadow) after our resolver runs.
 
 ```bash
 cargo run -p iced-shadcn-v2 --example alert
+cargo run -p iced-shadcn-v2 --example accordion
 cargo run -p iced-shadcn-v2 --example aspect_ratio
 cargo run -p iced-shadcn-v2 --example avatar
 cargo run -p iced-shadcn-v2 --example badge
@@ -155,9 +162,11 @@ cargo run -p iced-shadcn-v2 --example collapsible
 cargo run -p iced-shadcn-v2 --example field
 cargo run -p iced-shadcn-v2 --example input
 cargo run -p iced-shadcn-v2 --example input_group
+cargo run -p iced-shadcn-v2 --example input_otp
 cargo run -p iced-shadcn-v2 --example item
 cargo run -p iced-shadcn-v2 --example kbd
 cargo run -p iced-shadcn-v2 --example label
+cargo run -p iced-shadcn-v2 --example native_select
 cargo run -p iced-shadcn-v2 --example pagination
 cargo run -p iced-shadcn-v2 --example progress
 cargo run -p iced-shadcn-v2 --example radio_group
