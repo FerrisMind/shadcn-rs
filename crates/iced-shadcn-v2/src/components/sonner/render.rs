@@ -536,18 +536,20 @@ fn draw_text(
     use iced_core::text::Renderer as TextRenderer;
 
     let text = iced_core::Text {
-        content,
+        content: content.to_string(),
         bounds: crate::iced_compat::Size::new(f32::INFINITY, f32::INFINITY),
         size: crate::iced_compat::Pixels(size),
-        line_height: crate::iced_core::widget::text::LineHeight::Absolute(
-            crate::iced_compat::Pixels(size * 1.2),
-        ),
+        line_height: iced_core::widget::text::LineHeight::Absolute(crate::iced_compat::Pixels(
+            size * 1.2,
+        )),
         font,
-        horizontal_alignment: crate::iced_compat::alignment::Horizontal::Left,
-        vertical_alignment: crate::iced_compat::alignment::Vertical::Top,
-        shaping: crate::iced_core::widget::text::Shaping::Advanced,
+        align_x: crate::iced_compat::alignment::Horizontal::Left.into(),
+        align_y: crate::iced_compat::alignment::Vertical::Top.into(),
+        shaping: iced_core::widget::text::Shaping::Advanced,
+        wrapping: iced_core::widget::text::Wrapping::None,
     };
 
+    let position = Point::new(x, y);
     let bounds = Rectangle {
         x,
         y,
@@ -555,7 +557,7 @@ fn draw_text(
         height: f32::INFINITY,
     };
 
-    renderer.fill_text(text, bounds, color);
+    renderer.fill_text(text, position, color, bounds);
 }
 
 /// Computes the bounding rectangle for a toast.

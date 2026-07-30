@@ -131,7 +131,7 @@ pub(crate) fn inverted_toast_style(is_dark: bool) -> ToastStyle {
 }
 
 /// Default toast style (normal-bg / normal-text / normal-border).
-fn default_toast_style(theme: &Theme, is_dark: bool) -> ToastStyle {
+fn default_toast_style(_theme: &Theme, is_dark: bool) -> ToastStyle {
     let (bg, text, border) = if is_dark {
         (
             Color::BLACK,
