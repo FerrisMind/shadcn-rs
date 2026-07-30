@@ -588,21 +588,17 @@ impl<Message> overlay::Overlay<Message, Theme, Renderer> for DialogOverlay<'_, '
             * Transformation::translate(-origin.x, -origin.y);
 
         renderer.with_transformation(transform, |renderer| {
-            renderer.fill_quad(
-                renderer::Quad {
-                    bounds: surface_bounds,
-                    border: Border {
-                        color: self.style.border_color.scale_alpha(progress),
-                        width: self.style.border_width,
-                        radius: self.style.radius.into(),
-                    },
-                    shadow: crate::iced_compat::Shadow {
-                        color: self.style.shadow.color.scale_alpha(progress),
-                        ..self.style.shadow
-                    },
-                    ..renderer::Quad::default()
-                },
+            crate::floating_surface::fill_floating_surface(
+                renderer,
+                surface_bounds,
                 self.style.background.scale_alpha(progress),
+                self.style.border_color.scale_alpha(progress),
+                self.style.border_width,
+                self.style.radius,
+                crate::iced_compat::Shadow {
+                    color: self.style.shadow.color.scale_alpha(progress),
+                    ..self.style.shadow
+                },
             );
 
             let defaults = renderer::Style {

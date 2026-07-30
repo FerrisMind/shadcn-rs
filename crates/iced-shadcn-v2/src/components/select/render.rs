@@ -707,18 +707,14 @@ impl<Message> overlay::Overlay<Message, IcedTheme, Renderer> for MenuOverlay<'_,
     ) {
         let bounds = layout.bounds();
 
-        renderer.fill_quad(
-            renderer::Quad {
-                bounds,
-                border: Border {
-                    color: self.style.border_color,
-                    width: self.style.border_width,
-                    radius: self.style.radius.into(),
-                },
-                shadow: self.style.shadow,
-                ..renderer::Quad::default()
-            },
-            Background::Color(self.style.background),
+        crate::floating_surface::fill_floating_surface(
+            renderer,
+            bounds,
+            self.style.background,
+            self.style.border_color,
+            self.style.border_width,
+            self.style.radius,
+            self.style.shadow,
         );
 
         self.list.draw(
