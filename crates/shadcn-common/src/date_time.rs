@@ -434,6 +434,129 @@ pub fn parse_like_reference(input: &str, reference: DateValue) -> Result<DateVal
     }
 }
 
+/// Days in the month of `date`.
+#[must_use]
+pub const fn days_in_month_of(date: DateParts) -> u8 {
+    days_in_month(date.year, date.month)
+}
+
+/// First day of the month containing `date`.
+#[must_use]
+pub const fn start_of_month(date: DateParts) -> DateParts {
+    DateParts {
+        year: date.year,
+        month: date.month,
+        day: 1,
+    }
+}
+
+/// Adds `days` (may be negative) using proleptic Gregorian rules.
+#[must_use]
+pub fn add_days(date: DateParts, days: i32) -> DateParts {
+    let mut ordinal = date_to_ordinal(date) + i64::from(days);
+    // Guard extreme underflows so callers get a clamped epoch day.
+    if ordinal < 1 {
+        ordinal = 1;
+    }
+    ordinal_to_date(ordinal)
+}
+
+/// Adds `months` (may be negative), clamping the day into the target month.
+#[must_use]
+pub fn add_months(date: DateParts, months: i32) -> DateParts {
+    let total = i32::from(date.month) - 1 + months;
+    let year = date.year + total.div_euclid(12);
+    let month = u8::try_from(total.rem_euclid(12) + 1).unwrap_or(1);
+    let max_day = days_in_month(year, month).max(1);
+    DateParts {
+        year,
+        month,
+        day: date.day.min(max_day),
+    }
+}
+
+/// Weekday of `date` where `0 = Sunday` … `6 = Saturday` (Sakamoto).
+#[must_use]
+pub const fn weekday_sunday(date: DateParts) -> u8 {
+    let mut year = date.year;
+    let month = date.month as usize;
+    let day = date.day as i32;
+    if month < 3 {
+        year -= 1;
+    }
+    let t = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+    let value = (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) % 7;
+    if value < 0 { (value + 7) as u8 } else { value as u8 }
+}
+
+/// Start of the week containing `date`.
+///
+/// `first_day_of_week` uses `0 = Sunday` … `6 = Saturday`.
+#[must_use]
+pub fn start_of_week(date: DateParts, first_day_of_week: u8) -> DateParts {
+    let first = first_day_of_week % 7;
+    let current = weekday_sunday(date);
+    let delta = i32::from((current + 7 - first) % 7);
+    add_days(date, -delta)
+}
+
+/// Seven days starting at [`start_of_week`] for `date`.
+#[must_use]
+pub fn days_in_week(date: DateParts, first_day_of_week: u8) -> [DateParts; 7] {
+    let start = start_of_week(date, first_day_of_week);
+    std::array::from_fn(|index| add_days(start, index as i32))
+}
+
+/// Month calendar grid: weeks of seven days covering `date`'s month.
+///
+/// Leading/trailing days from adjacent months are included so every row is a
+/// full week starting on `first_day_of_week`.
+#[must_use]
+pub fn month_days(date: DateParts, first_day_of_week: u8) -> Vec<[DateParts; 7]> {
+    let start = start_of_week(start_of_month(date), first_day_of_week);
+    let month_end = DateParts {
+        year: date.year,
+        month: date.month,
+        day: days_in_month(date.year, date.month).max(1),
+    };
+    let mut weeks = Vec::with_capacity(6);
+    let mut cursor = start;
+    loop {
+        let week = std::array::from_fn(|index| add_days(cursor, index as i32));
+        weeks.push(week);
+        let last = week[6];
+        if last >= month_end {
+            break;
+        }
+        cursor = add_days(cursor, 7);
+        if weeks.len() >= 6 {
+            break;
+        }
+    }
+    weeks
+}
+
+/// Clamps a calendar date into an optional `[min, max]` range.
+#[must_use]
+pub fn clamp_date_parts(
+    date: DateParts,
+    min: Option<DateParts>,
+    max: Option<DateParts>,
+) -> DateParts {
+    let mut current = date;
+    if let Some(minimum) = min
+        && current < minimum
+    {
+        current = minimum;
+    }
+    if let Some(maximum) = max
+        && current > maximum
+    {
+        current = maximum;
+    }
+    current
+}
+
 const fn is_leap_year(year: i32) -> bool {
     (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
 }
@@ -445,6 +568,47 @@ const fn days_in_month(year: i32, month: u8) -> u8 {
         2 if is_leap_year(year) => 29,
         2 => 28,
         _ => 0,
+    }
+}
+
+fn date_to_ordinal(date: DateParts) -> i64 {
+    let mut days = 0_i64;
+    let year = i64::from(date.year);
+    for y in 1..year {
+        days += if is_leap_year(y as i32) { 366 } else { 365 };
+    }
+    for month in 1..date.month {
+        days += i64::from(days_in_month(date.year, month));
+    }
+    days + i64::from(date.day)
+}
+
+fn ordinal_to_date(mut ordinal: i64) -> DateParts {
+    let mut year = 1_i32;
+    loop {
+        let year_days = if is_leap_year(year) { 366 } else { 365 };
+        if ordinal <= year_days {
+            break;
+        }
+        ordinal -= year_days;
+        year += 1;
+        if year > 999_999 {
+            break;
+        }
+    }
+    let mut month = 1_u8;
+    while month <= 12 {
+        let month_days = i64::from(days_in_month(year, month));
+        if ordinal <= month_days {
+            break;
+        }
+        ordinal -= month_days;
+        month += 1;
+    }
+    DateParts {
+        year,
+        month,
+        day: ordinal.clamp(1, 31) as u8,
     }
 }
 
@@ -513,5 +677,19 @@ mod tests {
         )
         .expect("reference parse");
         assert!(matches!(as_datetime, DateValue::DateTime(_)));
+    }
+
+    #[test]
+    fn calendar_navigation_helpers() {
+        let date = DateParts::new(2024, 1, 31).expect("valid");
+        assert_eq!(add_months(date, 1).day, 29);
+        assert_eq!(add_days(date, 1).month, 2);
+
+        let week = start_of_week(DateParts::new(2024, 7, 30).expect("valid"), 1);
+        assert_eq!(weekday_sunday(week), 1);
+
+        let grid = month_days(DateParts::new(2024, 7, 15).expect("valid"), 0);
+        assert!(!grid.is_empty());
+        assert_eq!(grid[0].len(), 7);
     }
 }
