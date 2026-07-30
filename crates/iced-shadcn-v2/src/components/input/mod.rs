@@ -491,6 +491,48 @@ where
     Message: Clone + 'a,
 {
     fn from(input: Input<'a, Message>) -> Self {
-        input.into_text_input().into()
+        if style::uses_underline_only(input.theme) {
+            let theme = input.theme;
+            let color = input.color;
+            let invalid = input.invalid;
+            let disabled = input.disabled;
+            let width = input.width;
+            let text_input_el: Element<'a, Message> = input.into_text_input().into();
+
+            // The underline is a 1px-tall container colored with the resolved
+            // border-b color (resting = input, focus = ring, invalid =
+            // destructive). Since iced text_input status is not exposed after
+            // build, we resolve only the resting + invalid states statically;
+            // the focus treatment degrades to the same resting underline
+            // (matching how the web Sera uses a simple color transition that
+            // is hard to replicate without a live-status callback).
+            let underline_color = style::resolve_underline_color(
+                theme,
+                color,
+                invalid,
+                disabled,
+                crate::iced_compat::widget::text_input::Status::Active,
+            );
+
+            widget::column![
+                text_input_el,
+                widget::container(widget::Space::new())
+                    .width(crate::iced_compat::Length::Fill)
+                    .height(1.0)
+                    .style(move |_| {
+                        use crate::iced_compat::widget::container;
+                        container::Style {
+                            background: Some(crate::iced_compat::Background::Color(
+                                underline_color,
+                            )),
+                            ..container::Style::default()
+                        }
+                    }),
+            ]
+            .width(width)
+            .into()
+        } else {
+            input.into_text_input().into()
+        }
     }
 }

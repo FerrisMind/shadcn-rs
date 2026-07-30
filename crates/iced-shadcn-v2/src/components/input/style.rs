@@ -96,9 +96,10 @@ fn pack_recipe(style: StyleId) -> PackRecipe {
             bordered: false,
             ..VEGA
         },
-        // Web Sera is underline-only (`border-b-input`, `px-0`); iced borders
-        // wrap all four sides, so the underline becomes a hairline box and the
-        // horizontal padding is restored to keep text off the border.
+        // Web Sera is underline-only (`border-b-input`, `px-0`); the
+        // underline is drawn by the From<Input> for Element wrapper via
+        // resolve_underline_color; the text_input itself gets a transparent
+        // border so it draws no box.
         StyleId::Sera => PackRecipe {
             default_radius: InputRadius::None,
             fill_alpha_dark: 0.0,
@@ -137,6 +138,50 @@ pub(super) fn group_slot_pad_x(theme: &Theme) -> f32 {
 /// `md:text-sm` / `md:text-xs` of the active pack.
 pub(super) fn pack_text_size(theme: &Theme) -> f32 {
     pack_recipe(theme.style_id()).text_size_px
+}
+
+/// Sera-style underline-only: the `border-b-input` rule paints only the
+/// bottom hairline. iced's `text_input::Style` always draws a full box
+/// border, so the strategy is: give text_input a transparent border, then
+/// draw the bottom line in the From<Input> for Element wrapper.
+pub(super) fn uses_underline_only(theme: &Theme) -> bool {
+    matches!(theme.style_id(), StyleId::Sera)
+}
+
+/// The semantic border color for the underline (or full border elsewhere).
+///
+/// Exposed so the wrapper can paint the bottom hairline with the same
+/// resolved color (ring when focused, destructive when invalid, etc.)
+/// without duplicating the resolution logic.
+pub(super) fn resolve_underline_color(
+    theme: &Theme,
+    color: Option<AccentColor>,
+    invalid: bool,
+    disabled: bool,
+    status: text_input::Status,
+) -> Color {
+    let input = theme.semantic_color(SemanticColor::Input);
+    let mut border_color = input;
+
+    if matches!(status, text_input::Status::Focused { .. }) {
+        border_color = ring_color(theme, color);
+    }
+
+    if invalid {
+        let destructive = theme.semantic_color(SemanticColor::Destructive);
+        border_color = if theme.is_dark() {
+            with_alpha(destructive, destructive.a * DARK_INVALID_BORDER_ALPHA)
+        } else {
+            destructive
+        };
+    }
+
+    let disabled = disabled && status == text_input::Status::Disabled;
+    if disabled {
+        border_color = with_alpha(border_color, border_color.a * DISABLED_OPACITY);
+    }
+
+    border_color
 }
 
 pub(super) fn resolve_input_style(
@@ -198,8 +243,12 @@ pub(super) fn resolve_input_style(
         background: Background::Color(background),
         border: Border {
             radius: radius_px(theme, radius.unwrap_or(pack.default_radius)).into(),
-            width: 1.0,
-            color: border_color,
+            width: if uses_underline_only(theme) { 0.0 } else { 1.0 },
+            color: if uses_underline_only(theme) {
+                Color::TRANSPARENT
+            } else {
+                border_color
+            },
         },
         icon,
         placeholder,
