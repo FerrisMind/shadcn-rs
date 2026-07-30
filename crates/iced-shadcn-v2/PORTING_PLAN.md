@@ -73,9 +73,9 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 42. **Меню-примитив** (общий) → далее три потребителя:
     - ~~**`dropdown-menu`** — с нуля на popover + menu-примитив~~ ✅
     - **`context-menu`** — переиспользует внутренности `dropdown-menu` (правый клик)
-    - **`menubar`** — переиспользует `dropdown-menu` (горизонтальная полоса триггеров)
+    - ~~**`menubar`** — переиспользует `dropdown-menu` (горизонтальная полоса триггеров)~~ ✅
 43. ~~**`select`** — переиспользует `popover` + список item'ов~~ ✅
-44. **`navigation-menu`** — переиспользует popover/menu-логику
+44. ~~**`navigation-menu`** — переиспользует popover/menu-логику~~ ✅
 45. ~~**`sonner`** (toast) — с нуля на overlay (в вебе внешняя либа svelte-sonner; у нас — очередь + стек + таймеры)~~ ✅
 
 ## Фаза 4 — тяжёлые композиты (финал)
@@ -100,7 +100,7 @@ button ✅, spinner ✅, separator ✅, skeleton, label ✅, badge ✅, kbd ✅,
 aspect-ratio, progress, input ✅, textarea, checkbox ✅, switch ✅, toggle ✅, slider,
 avatar ✅, card ✅, alert ✅, scroll-area ✅, radio-group ✅, breadcrumb ✅, item ✅, table ✅, tabs ✅,
 collapsible ✅, accordion ✅, pagination ✅, field ✅, empty ✅, resizable, tooltip ✅, popover, dialog ✅, sonner ✅,
-carousel, calendar, chart, command, overlay ✅, dropdown-menu ✅.
+carousel, calendar, chart, command, overlay ✅, dropdown-menu ✅, navigation-menu ✅, menubar ✅.
 
 ### Переиспользуют готовые
 
@@ -124,7 +124,7 @@ carousel, calendar, chart, command, overlay ✅, dropdown-menu ✅.
 | `popover` | hover-card, select, combobox, date-picker, dropdown-menu |
 | `dialog` | alert-dialog, sheet ✅, command |
 | `sheet` ✅ | drawer ✅, sidebar |
-| `dropdown-menu` ✅ | context-menu, menubar |
+| `dropdown-menu` ✅ | context-menu, menubar ✅ |
 | `calendar` | range-calendar, date-picker |
 | `table` | data-table |
 | `command` | combobox |
