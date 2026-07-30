@@ -111,6 +111,8 @@ pub use components::item;
 pub use components::kbd;
 /// Backwards-compatible access to the label component.
 pub use components::label;
+/// Backwards-compatible access to the native-select component.
+pub use components::native_select;
 /// Backwards-compatible access to the pagination component.
 pub use components::pagination;
 /// Backwards-compatible access to the progress component.
@@ -205,6 +207,10 @@ pub use components::item::{
 };
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
+pub use components::native_select::{
+    NativeSelect, NativeSelectGroup, NativeSelectMenuStyle, NativeSelectOption, NativeSelectRadius,
+    NativeSelectSize, NativeSelectStatus, NativeSelectStyle, native_select,
+};
 pub use components::pagination::{
     Pagination, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext,
     PaginationPrevious, pagination,
@@ -256,8 +262,9 @@ pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};
 
 pub use shadcn_common::{
-    AccentColor, BaseColor, ComponentRadius, ControlSize, FontHeading, FontId, FontPack,
-    FontWeight, RadiusId, RadiusScale, ResolvedTheme, StyleId, StylePack, ThemeMode, TypeRecipe,
+    AccentColor, BaseColor, ComponentRadius, ControlSize, FloatingPadding, FloatingSticky,
+    FontHeading, FontId, FontPack, FontWeight, RadiusId, RadiusScale, ResolvedTheme, StyleId,
+    StylePack, ThemeMode, TypeRecipe,
 };
 
 /// Semantic color slots resolved by [`Theme::semantic_color`].

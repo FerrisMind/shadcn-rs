@@ -22,6 +22,7 @@ pub mod input_otp;
 pub mod item;
 pub mod kbd;
 pub mod label;
+pub mod native_select;
 pub mod pagination;
 pub mod progress;
 pub mod radio_group;
