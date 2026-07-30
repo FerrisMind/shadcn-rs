@@ -131,16 +131,12 @@ pub(super) fn thumb_center(
 
 /// Fraction of the range a value occupies, clamped to `0.0..=1.0`.
 pub(super) fn fraction(value: f32, min: f32, max: f32) -> f32 {
-    if !value.is_finite() || !(max - min).is_finite() || (max - min).abs() <= f32::EPSILON {
-        return 0.0;
-    }
-
-    ((value - min) / (max - min)).clamp(0.0, 1.0)
+    shadcn_common::fraction(value, min, max)
 }
 
 /// Fraction of a controlled value after applying the configured step grid.
 pub(super) fn snapped_fraction(value: f32, min: f32, max: f32, step: f32) -> f32 {
-    fraction(snap(value, min, max, step), min, max)
+    shadcn_common::snapped_fraction(value, min, max, step)
 }
 
 /// Value a cursor position maps to, snapped to `step` and clamped to the range.
@@ -165,23 +161,15 @@ pub(super) fn value_at<Message>(
         }
     };
 
-    let value = slider.min + (slider.max - slider.min) * raw.clamp(0.0, 1.0);
-
-    snap(value, slider.min, slider.max, slider.step)
+    shadcn_common::value_at_fraction(raw, slider.min, slider.max, slider.step)
 }
 
 /// Rounds `value` onto the step grid anchored at `min`.
 ///
 /// A non-positive or non-finite step keeps the slider continuous.
+#[cfg(test)]
 pub(super) fn snap(value: f32, min: f32, max: f32, step: f32) -> f32 {
-    let clamped = value.clamp(min, max);
-
-    if !step.is_finite() || step <= 0.0 {
-        return clamped;
-    }
-
-    let steps = ((clamped - min) / step).round();
-    (min + steps * step).clamp(min, max)
+    shadcn_common::snap(value, min, max, step)
 }
 
 /// Index of the thumb closest to `cursor` along the slider axis.
@@ -199,23 +187,7 @@ pub(super) fn closest_thumb<Message>(
     }
 
     let target = value_at(slider, track, metrics, cursor);
-    let mut best = 0;
-    let mut best_distance = f32::INFINITY;
-
-    for (index, value) in slider.values.iter().copied().enumerate() {
-        let distance = (value - target).abs();
-
-        let closer = distance < best_distance - f32::EPSILON;
-        let tie_breaks_towards_cursor = (distance - best_distance).abs() <= f32::EPSILON
-            && ((target > value && index > best) || (target < value && index < best));
-
-        if closer || tie_breaks_towards_cursor {
-            best = index;
-            best_distance = distance;
-        }
-    }
-
-    Some(best)
+    shadcn_common::closest_index(&slider.values, target)
 }
 
 /// Index of the thumb under `cursor`, if any.
