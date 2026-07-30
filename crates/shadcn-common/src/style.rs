@@ -374,6 +374,11 @@ impl StylePack {
         crate::recipes::context_menu_recipe(self.id)
     }
 
+    /// `.cn-menubar-*` bar, trigger, and content tokens for this pack.
+    pub const fn menubar(self) -> crate::recipes::MenubarRecipe {
+        crate::recipes::menubar_recipe(self.id)
+    }
+
     /// `.cn-switch` border, ring, and default radius for this pack.
     pub const fn switch(self) -> crate::recipes::SwitchRecipe {
         crate::recipes::switch_recipe(self.id)

@@ -16,6 +16,7 @@ pub mod floating;
 pub mod fonts;
 pub mod icons;
 pub mod interaction_keys;
+pub mod navigation_menu;
 pub mod pagination;
 pub mod presence;
 pub mod radius;
@@ -47,6 +48,11 @@ pub use floating::{
 };
 pub use icons::{IconName, IconSet};
 pub use interaction_keys::{Direction, NavAction, NavKey, Orientation, resolve_nav_action};
+pub use navigation_menu::{
+    NavRect, NavigationMenuAlign, NavigationMenuSide, NavigationMenuTiming, indicator_diamond,
+    motion_duration_ms, motion_offset_x, place_content as place_navigation_menu_content,
+    place_viewport as place_navigation_menu_viewport,
+};
 pub use pagination::{
     DEFAULT_BOUNDARY_COUNT, DEFAULT_SIBLING_COUNT, PageContext, PaginationItem, page_items,
     total_pages,
@@ -69,24 +75,37 @@ pub use recipes::{
     DROPDOWN_MENU_ZOOM_FROM, DialogRecipe, DrawerCornerMask, DrawerDirection, DrawerPanelMetrics,
     DrawerRecipe, DropdownMenuRecipe, FontWeight, HOVER_CARD_ANIMATION_MS,
     HOVER_CARD_CLOSE_DELAY_MS, HOVER_CARD_OPEN_DELAY_MS, HOVER_CARD_SLIDE_PX, HOVER_CARD_ZOOM_FROM,
-    HoverCardRecipe, KbdRecipe, LabelContext, LabelRecipe, MenuActivateKind, MenuItemVariant,
-    NATIVE_SELECT_DISABLED_OPACITY, NATIVE_SELECT_MENU_GROUP_INDENT_PX,
-    NATIVE_SELECT_MENU_ITEM_PAD_X_PX, NATIVE_SELECT_MENU_ITEM_PAD_Y_PX,
-    NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NativeSelectRecipe, POPOVER_ANIMATION_MS, POPOVER_SLIDE_PX,
-    POPOVER_WIDTH_PX, POPOVER_ZOOM_FROM, PopoverRecipe, PopoverShadow, ProgressRecipe,
-    RadioCheckedFill, RadioGroupRecipe, RadioSurface, SELECT_ANIMATION_MS,
-    SELECT_CONTENT_MAX_HEIGHT_PX, SELECT_DISABLED_OPACITY, SELECT_SIDE_OFFSET_PX, SELECT_SLIDE_PX,
-    SELECT_ZOOM_FROM, SHEET_ANIMATION_MS, SHEET_CLOSE_ICON_PX, SHEET_CLOSE_SIZE_PX,
-    SHEET_MAX_WIDTH_PX, SHEET_SIDE_WIDTH_FRACTION, SHEET_SLIDE_PX, SelectRecipe, SheetPanelMetrics,
-    SheetRecipe, SheetSide, SkeletonRecipe, SliderRecipe, SliderThumbBorder, SliderThumbFill,
+    HoverCardRecipe, KbdRecipe, LabelContext, LabelRecipe, MENU_SUB_SIDE_OFFSET_PX,
+    MENUBAR_ALIGN_OFFSET_PX, MENUBAR_ANIMATION_MS, MENUBAR_CONTENT_MAX_HEIGHT_PX,
+    MENUBAR_DESTRUCTIVE_FOCUS_ALPHA, MENUBAR_DESTRUCTIVE_FOCUS_ALPHA_DARK,
+    MENUBAR_DISABLED_OPACITY, MENUBAR_SIDE_OFFSET_PX, MENUBAR_SLIDE_PX, MENUBAR_ZOOM_FROM,
+    MenuActivateKind, MenuItemVariant, MenubarRecipe, NATIVE_SELECT_DISABLED_OPACITY,
+    NATIVE_SELECT_MENU_GROUP_INDENT_PX, NATIVE_SELECT_MENU_ITEM_PAD_X_PX,
+    NATIVE_SELECT_MENU_ITEM_PAD_Y_PX, NATIVE_SELECT_MENU_MAX_HEIGHT_PX,
+    NAVIGATION_MENU_CHEVRON_ROTATE_MS, NAVIGATION_MENU_CHEVRON_SIZE_PX,
+    NAVIGATION_MENU_CLOSE_DELAY_MS, NAVIGATION_MENU_CONTENT_ANIM_MS,
+    NAVIGATION_MENU_CONTENT_ZOOM_FROM, NAVIGATION_MENU_DELAY_DURATION_MS,
+    NAVIGATION_MENU_DISABLED_OPACITY, NAVIGATION_MENU_FAST_DELAY_MS,
+    NAVIGATION_MENU_INDICATOR_ANIM_MS, NAVIGATION_MENU_MOTION_ANIM_MS,
+    NAVIGATION_MENU_MOTION_DISTANCE_CONTENT_PX, NAVIGATION_MENU_MOTION_DISTANCE_VIEWPORT_PX,
+    NAVIGATION_MENU_OPEN_MUTED_ALPHA, NAVIGATION_MENU_SIDE_OFFSET_PX,
+    NAVIGATION_MENU_SKIP_DELAY_DURATION_MS, NAVIGATION_MENU_VIEWPORT_ANIM_MS,
+    NAVIGATION_MENU_VIEWPORT_PAD_PX, NAVIGATION_MENU_VIEWPORT_ZOOM_FROM, NativeSelectRecipe,
+    NavigationMenuRecipe, POPOVER_ANIMATION_MS, POPOVER_SLIDE_PX, POPOVER_WIDTH_PX,
+    POPOVER_ZOOM_FROM, PopoverRecipe, PopoverShadow, ProgressRecipe, RadioCheckedFill,
+    RadioGroupRecipe, RadioSurface, SELECT_ANIMATION_MS, SELECT_CONTENT_MAX_HEIGHT_PX,
+    SELECT_DISABLED_OPACITY, SELECT_SIDE_OFFSET_PX, SELECT_SLIDE_PX, SELECT_ZOOM_FROM,
+    SHEET_ANIMATION_MS, SHEET_CLOSE_ICON_PX, SHEET_CLOSE_SIZE_PX, SHEET_MAX_WIDTH_PX,
+    SHEET_SIDE_WIDTH_FRACTION, SHEET_SLIDE_PX, SelectRecipe, SheetPanelMetrics, SheetRecipe,
+    SheetSide, SkeletonRecipe, SliderRecipe, SliderThumbBorder, SliderThumbFill,
     SliderTrackSurface, SwitchRecipe, SwitchSizeRecipe, TOOLTIP_ANIMATION_MS, TOOLTIP_SLIDE_PX,
     TOOLTIP_ZOOM_FROM, ToggleRecipe, ToggleSizeRecipe, TooltipRecipe, TypeRecipe,
     alert_dialog_recipe, badge_recipe, button_size, button_type, context_menu_recipe,
     dialog_recipe, drawer_corner_mask, drawer_panel_metrics, drawer_recipe, dropdown_menu_recipe,
-    hover_card_recipe, kbd_recipe, label_recipe, native_select_recipe, popover_recipe,
-    progress_recipe, radio_group_recipe, select_recipe, sheet_panel_metrics, sheet_recipe,
-    skeleton_default_radius, skeleton_recipe, slider_recipe, switch_recipe, switch_size,
-    toggle_recipe, toggle_size, tooltip_recipe,
+    hover_card_recipe, kbd_recipe, label_recipe, menubar_recipe, native_select_recipe,
+    navigation_menu_recipe, popover_recipe, progress_recipe, radio_group_recipe, select_recipe,
+    sheet_panel_metrics, sheet_recipe, skeleton_default_radius, skeleton_recipe, slider_recipe,
+    switch_recipe, switch_size, toggle_recipe, toggle_size, tooltip_recipe,
 };
 pub use select_value::{
     SelectMode, multiple_selection_label, next_multiple_values, next_single_value,

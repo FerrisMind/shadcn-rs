@@ -124,8 +124,12 @@ pub use components::item;
 pub use components::kbd;
 /// Backwards-compatible access to the label component.
 pub use components::label;
+/// Backwards-compatible access to the menubar component.
+pub use components::menubar;
 /// Backwards-compatible access to the native-select component.
 pub use components::native_select;
+/// Backwards-compatible access to the navigation-menu component.
+pub use components::navigation_menu;
 /// Backwards-compatible access to the pagination component.
 pub use components::pagination;
 /// Backwards-compatible access to the popover component.
@@ -249,9 +253,21 @@ pub use components::item::{
 };
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
+pub use components::menubar::{
+    Menubar, MenubarBarStyle, MenubarCheckboxItem, MenubarContentStyle, MenubarItem,
+    MenubarItemVariant, MenubarLabel, MenubarMenu, MenubarRadioItem, MenubarSub, menubar,
+};
 pub use components::native_select::{
     NativeSelect, NativeSelectGroup, NativeSelectOption, NativeSelectRadius, NativeSelectSize,
     NativeSelectStatus, NativeSelectStyle, native_select,
+};
+pub use components::navigation_menu::{
+    NavigationMenu, NavigationMenuAlign, NavigationMenuContent, NavigationMenuContentProps,
+    NavigationMenuItem, NavigationMenuJustify, NavigationMenuLinkProps, NavigationMenuLinkVariant,
+    NavigationMenuListProps, NavigationMenuOrientation, NavigationMenuProps, NavigationMenuSide,
+    NavigationMenuSize, NavigationMenuTiming, NavigationMenuTriggerBuilder,
+    NavigationMenuTriggerContent, NavigationMenuViewportStyle, NavigationMenuWrap, navigation_menu,
+    navigation_menu_content, navigation_menu_link, navigation_menu_trigger_style,
 };
 pub use components::pagination::{
     Pagination, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext,
