@@ -41,6 +41,8 @@ with native `iced` types.
   - `components::separator` — horizontal/vertical rule.
   - `components::skeleton` — theme-aware pulse and static placeholders.
   - `components::slider` — single- and multi-thumb canvas slider with steps.
+  - `components::sonner` — stacked toast notifications with typed actions,
+    cancel buttons, promise updates, positions, timers, and theme-aware surfaces.
   - `components::spinner` — canvas-based loading indicator.
   - `components::switch` — controlled on/off toggle with animated thumb.
   - `components::table` — responsive compositional table with typed slots,
@@ -59,7 +61,7 @@ with native `iced` types.
 
 The root `accordion`, `alert`, `aspect_ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `card`, `checkbox`,
 `collapsible`, `field`, `input`, `input_group`, `item`, `kbd`, `label`, `pagination`, `progress`,
-`radio_group`, `scroll_area`, `separator`, `skeleton`, `slider`, `spinner`, `switch`, `table`,
+`radio_group`, `scroll_area`, `separator`, `skeleton`, `slider`, `sonner`, `spinner`, `switch`, `table`,
   `tabs`, `toggle`, `toggle_group`, and `typography` modules are compatibility re-exports of
 `components`, so existing
 v2 imports remain valid while new code can use the feature-oriented
@@ -171,6 +173,7 @@ cargo run -p iced-shadcn-v2 --example scroll_area
 cargo run -p iced-shadcn-v2 --example separator
 cargo run -p iced-shadcn-v2 --example skeleton
 cargo run -p iced-shadcn-v2 --example slider
+cargo run -p iced-shadcn-v2 --example sonner
 cargo run -p iced-shadcn-v2 --example spinner
 cargo run -p iced-shadcn-v2 --example switch
 cargo run -p iced-shadcn-v2 --example table
@@ -178,6 +181,34 @@ cargo run -p iced-shadcn-v2 --example tabs
 cargo run -p iced-shadcn-v2 --example toggle
 cargo run -p iced-shadcn-v2 --example toggle_group
 cargo run -p iced-shadcn-v2 --example typography
+```
+
+Sonner is mounted once in the root stack. Show or update toasts from an update
+handler, then keep the toaster in the view:
+
+```rust,no_run
+use iced::widget::{button, stack, text};
+use iced::{Element, Task};
+use iced_shadcn_v2::{Theme, Toaster, toast};
+
+#[derive(Debug, Clone)]
+enum Message {
+    ShowToast,
+}
+
+fn update(message: Message) -> Task<Message> {
+    if matches!(message, Message::ShowToast) {
+        let _ = toast("Event has been created")
+            .description("Sunday, December 03, 2023 at 9:00 AM")
+            .show();
+    }
+    Task::none()
+}
+
+fn view(theme: &Theme) -> Element<'_, Message> {
+    let content = button(text("Show toast")).on_press(Message::ShowToast);
+    stack![content, Toaster::new(theme).into()].into()
+}
 ```
 
 ```rust,no_run
