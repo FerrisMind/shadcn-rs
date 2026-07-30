@@ -115,6 +115,8 @@ pub use components::label;
 pub use components::native_select;
 /// Backwards-compatible access to the pagination component.
 pub use components::pagination;
+/// Backwards-compatible access to the popover component.
+pub use components::popover;
 /// Backwards-compatible access to the progress component.
 pub use components::progress;
 /// Backwards-compatible access to the radio-group component.
@@ -214,6 +216,10 @@ pub use components::native_select::{
 pub use components::pagination::{
     Pagination, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext,
     PaginationPrevious, pagination,
+};
+pub use components::popover::{
+    Popover, PopoverAlign, PopoverDescription, PopoverHeader, PopoverSide, PopoverStyle,
+    PopoverTitle,
 };
 pub use components::progress::{
     Progress, ProgressOrientation, ProgressRadius, ProgressSize, ProgressState, ProgressVariant,

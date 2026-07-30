@@ -9,6 +9,7 @@ mod button;
 mod kbd;
 mod label;
 mod native_select;
+mod popover;
 mod progress;
 mod radio_group;
 mod skeleton;
@@ -25,6 +26,10 @@ pub use native_select::{
     NATIVE_SELECT_DISABLED_OPACITY, NATIVE_SELECT_MENU_GROUP_INDENT_PX,
     NATIVE_SELECT_MENU_ITEM_PAD_X_PX, NATIVE_SELECT_MENU_ITEM_PAD_Y_PX,
     NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NativeSelectRecipe, native_select_recipe,
+};
+pub use popover::{
+    POPOVER_ANIMATION_MS, POPOVER_SLIDE_PX, POPOVER_WIDTH_PX, POPOVER_ZOOM_FROM, PopoverRecipe,
+    PopoverShadow, popover_recipe,
 };
 pub use progress::{ProgressRecipe, progress_recipe};
 pub use radio_group::{RadioCheckedFill, RadioGroupRecipe, RadioSurface, radio_group_recipe};

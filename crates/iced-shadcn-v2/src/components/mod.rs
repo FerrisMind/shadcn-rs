@@ -24,6 +24,7 @@ pub mod kbd;
 pub mod label;
 pub mod native_select;
 pub mod pagination;
+pub mod popover;
 pub mod progress;
 pub mod radio_group;
 pub mod resizable;

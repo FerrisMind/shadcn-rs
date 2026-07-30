@@ -42,13 +42,14 @@ pub use recipes::{
     KbdRecipe, LabelContext, LabelRecipe, NATIVE_SELECT_DISABLED_OPACITY,
     NATIVE_SELECT_MENU_GROUP_INDENT_PX, NATIVE_SELECT_MENU_ITEM_PAD_X_PX,
     NATIVE_SELECT_MENU_ITEM_PAD_Y_PX, NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NativeSelectRecipe,
-    ProgressRecipe, RadioCheckedFill, RadioGroupRecipe, RadioSurface, SkeletonRecipe, SliderRecipe,
-    SliderThumbBorder, SliderThumbFill, SliderTrackSurface, SwitchRecipe, SwitchSizeRecipe,
-    TOOLTIP_ANIMATION_MS, TOOLTIP_SLIDE_PX, TOOLTIP_ZOOM_FROM, ToggleRecipe, ToggleSizeRecipe,
-    TooltipRecipe, TypeRecipe, badge_recipe, button_size, button_type, kbd_recipe, label_recipe,
-    native_select_recipe, progress_recipe, radio_group_recipe, skeleton_default_radius,
-    skeleton_recipe, slider_recipe, switch_recipe, switch_size, toggle_recipe, toggle_size,
-    tooltip_recipe,
+    POPOVER_ANIMATION_MS, POPOVER_SLIDE_PX, POPOVER_WIDTH_PX, POPOVER_ZOOM_FROM, PopoverRecipe,
+    PopoverShadow, ProgressRecipe, RadioCheckedFill, RadioGroupRecipe, RadioSurface,
+    SkeletonRecipe, SliderRecipe, SliderThumbBorder, SliderThumbFill, SliderTrackSurface,
+    SwitchRecipe, SwitchSizeRecipe, TOOLTIP_ANIMATION_MS, TOOLTIP_SLIDE_PX, TOOLTIP_ZOOM_FROM,
+    ToggleRecipe, ToggleSizeRecipe, TooltipRecipe, TypeRecipe, badge_recipe, button_size,
+    button_type, kbd_recipe, label_recipe, native_select_recipe, popover_recipe, progress_recipe,
+    radio_group_recipe, skeleton_default_radius, skeleton_recipe, slider_recipe, switch_recipe,
+    switch_size, toggle_recipe, toggle_size, tooltip_recipe,
 };
 pub use style::{StyleId, StylePack};
 pub use theme::{ResolvedTheme, SemanticThemeTable};
