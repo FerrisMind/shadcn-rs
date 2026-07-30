@@ -142,7 +142,7 @@ pub fn avatar(ui: &mut Ui, theme: &Theme, props: AvatarProps<'_>) {
     if let Some(image) = props.image {
         egui::Frame::new()
             .fill(theme.palette.muted)
-            .stroke(Stroke::new(1.0, theme.palette.border))
+            .stroke(Stroke::new(1.0_f32, theme.palette.border))
             .corner_radius(rounding)
             .show(ui, |frame_ui| {
                 let _ = frame_ui.add_sized(

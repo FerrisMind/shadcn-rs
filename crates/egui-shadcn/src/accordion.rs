@@ -358,7 +358,7 @@ pub fn accordion_item<'a, R>(
         ui.painter().hline(
             rect.x_range(),
             border_y,
-            egui::Stroke::new(1.0, border_color),
+            egui::Stroke::new(1.0_f32, border_color),
         );
 
         content_result

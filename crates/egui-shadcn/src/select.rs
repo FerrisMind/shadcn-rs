@@ -1011,7 +1011,7 @@ struct SelectState {
 
 fn draw_chevron_down(painter: &Painter, center: Pos2, size: f32, color: Color32) {
     let half = size * 0.35;
-    let stroke = Stroke::new(1.5, color);
+    let stroke = Stroke::new(1.5_f32, color);
 
     painter.line_segment(
         [
@@ -1031,7 +1031,7 @@ fn draw_chevron_down(painter: &Painter, center: Pos2, size: f32, color: Color32)
 
 fn draw_chevron_up(painter: &Painter, center: Pos2, size: f32, color: Color32) {
     let half = size * 0.35;
-    let stroke = Stroke::new(1.5, color);
+    let stroke = Stroke::new(1.5_f32, color);
 
     painter.line_segment(
         [
@@ -1050,7 +1050,7 @@ fn draw_chevron_up(painter: &Painter, center: Pos2, size: f32, color: Color32) {
 }
 
 fn draw_check_icon(painter: &Painter, center: Pos2, size: f32, color: Color32) {
-    let stroke = Stroke::new(2.0, color);
+    let stroke = Stroke::new(2.0_f32, color);
 
     let s = size * 0.4;
     painter.line_segment(
@@ -1364,7 +1364,7 @@ where
     painter.rect_stroke(
         trigger_rect,
         style.trigger_rounding,
-        Stroke::new(1.0, border_color),
+        Stroke::new(1.0_f32, border_color),
         StrokeKind::Inside,
     );
 
@@ -1651,7 +1651,7 @@ where
             animated_rect,
             style.content_rounding,
             Stroke::new(
-                1.0,
+                1.0_f32,
                 Color32::from_rgba_unmultiplied(
                     style.content_border.r(),
                     style.content_border.g(),

@@ -845,23 +845,20 @@ fn sidebar_group_card<'a>(
                 sidebar(ctx, SidebarProps::new().border(false), theme, |ctx| {
                     let mut entries = Vec::with_capacity(values.len());
                     for (index, value) in values.iter().enumerate() {
-                        entries.push(
-                            sidebar_menu_item(vec![
-                                container(sidebar_icon(heading, index))
-                                    .width(Length::Fixed(22.0))
-                                    .center_x(Length::Fill)
-                                    .into(),
-                                sidebar_menu_button(
-                                    SidebarMenuButtonProps::new(*value)
-                                        .size(SidebarMenuButtonSize::Sm)
-                                        .active(active == Some(index)),
-                                    Some(Message::LandingAction("sidebar-item")),
-                                    ctx,
-                                    theme,
-                                ),
-                            ])
-                            .into(),
-                        );
+                        entries.push(sidebar_menu_item(vec![
+                            container(sidebar_icon(heading, index))
+                                .width(Length::Fixed(22.0))
+                                .center_x(Length::Fill)
+                                .into(),
+                            sidebar_menu_button(
+                                SidebarMenuButtonProps::new(*value)
+                                    .size(SidebarMenuButtonSize::Sm)
+                                    .active(active == Some(index)),
+                                Some(Message::LandingAction("sidebar-item")),
+                                ctx,
+                                theme,
+                            ),
+                        ]));
                     }
                     sidebar_group(
                         ctx,

@@ -15,6 +15,7 @@ pub fn main() -> iced::Result {
         .run()
 }
 
+#[derive(Default)]
 struct Example {
     theme: Theme,
     open_value: String,
@@ -25,16 +26,6 @@ struct Example {
 enum Message {
     OpenChanged(String),
     Navigate(&'static str),
-}
-
-impl Default for Example {
-    fn default() -> Self {
-        Self {
-            theme: Theme::default(),
-            open_value: String::new(),
-            last_action: None,
-        }
-    }
 }
 
 impl Example {

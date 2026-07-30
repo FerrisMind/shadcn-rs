@@ -89,7 +89,7 @@ pub fn light_switch(ui: &mut Ui, theme: &Theme, props: LightSwitchProps) -> Resp
         ui.painter().rect_stroke(
             rect,
             CornerRadius::same(12),
-            egui::Stroke::new(2.0, theme.palette.ring),
+            egui::Stroke::new(2.0_f32, theme.palette.ring),
             egui::StrokeKind::Outside,
         );
     }

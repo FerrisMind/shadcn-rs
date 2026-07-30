@@ -22,10 +22,10 @@
 //!     LayoutChanged(iced_shadcn_v2::ResizableLayout),
 //! }
 //!
-//! fn view(theme: &Theme, sizes: &[f32]) -> Element<'_, Message> {
+//! fn view<'a>(theme: &'a Theme, sizes: &[f32]) -> Element<'a, Message> {
 //!     ResizablePaneGroup::new(theme)
 //!         .direction(ResizableDirection::Horizontal)
-//!         .sizes(sizes)
+//!         .sizes(sizes.to_vec())
 //!         .pane(ResizablePane::new(text("Sidebar")).default_size(25.0))
 //!         .handle(ResizableHandle::new())
 //!         .pane(ResizablePane::new(text("Content")).default_size(75.0))

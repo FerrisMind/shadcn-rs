@@ -763,7 +763,7 @@ where
             painter.rect_stroke(
                 rect,
                 style.rounding,
-                Stroke::new(1.0, border_color),
+                Stroke::new(1.0_f32, border_color),
                 StrokeKind::Inside,
             );
         }
@@ -842,7 +842,7 @@ where
             .text_styles
             .insert(TextStyle::Body, props.size.font());
         inner_style.visuals.selection.bg_fill = style.selection_bg;
-        inner_style.visuals.selection.stroke = Stroke::new(1.0, style.selection_fg);
+        inner_style.visuals.selection.stroke = Stroke::new(1.0_f32, style.selection_fg);
         inner_style.visuals.override_text_color = Some(text_color);
         inner_style.visuals.extreme_bg_color = tokens.idle.bg_fill;
 

@@ -18,9 +18,9 @@ pub fn main() -> iced::Result {
 
 #[derive(Debug, Clone)]
 enum Message {
-    CopyPressed,
-    CopyWriteFinished(Result<(), String>),
-    CopyResetDue,
+    Pressed,
+    WriteFinished(Result<(), String>),
+    ResetDue,
 }
 
 struct Example {
@@ -57,15 +57,15 @@ fn main() {
 impl Example {
     fn update(&mut self, message: Message) -> Task<Message> {
         let action = match message {
-            Message::CopyPressed => CodeBlockCopyAction::Pressed {
+            Message::Pressed => CodeBlockCopyAction::Pressed {
                 text: self.code.clone(),
             },
-            Message::CopyWriteFinished(result) => CodeBlockCopyAction::WriteFinished(result),
-            Message::CopyResetDue => CodeBlockCopyAction::ResetDue,
+            Message::WriteFinished(result) => CodeBlockCopyAction::WriteFinished(result),
+            Message::ResetDue => CodeBlockCopyAction::ResetDue,
         };
 
         let update = code_block_copy_reduce(&mut self.copy_state, action, 1200);
-        code_block_copy_task(update, Message::CopyWriteFinished, || Message::CopyResetDue)
+        code_block_copy_task(update, Message::WriteFinished, || Message::ResetDue)
     }
 
     fn view(&self) -> Element<'_, Message> {
@@ -88,7 +88,7 @@ impl Example {
 
         let copy_button = code_block_copy_button(
             self.copy_state.status,
-            Some(Message::CopyPressed),
+            Some(Message::Pressed),
             CodeBlockCopyButtonProps::new(),
             theme,
         );

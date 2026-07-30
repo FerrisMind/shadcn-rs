@@ -197,7 +197,7 @@ impl App for CheckboxDemo {
                     let mut checkbox_clicked = false;
                     let frame_response = egui::Frame::NONE
                         .fill(fill_color)
-                        .stroke(egui::Stroke::new(1.0, border_color))
+                        .stroke(egui::Stroke::new(1.0_f32, border_color))
                         .corner_radius(egui::CornerRadius::same(8))
                         .inner_margin(egui::Margin::same(12))
                         .show(ui, |frame_ui| {

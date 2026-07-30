@@ -148,10 +148,10 @@ fn state_visibility_follows_open_and_transition() {
     assert!(state.is_visible());
 
     state.open = false;
-    state.displayed = 0.4;
+    state.transition.reset(0.4);
     assert!(state.is_visible());
 
-    state.displayed = 0.0;
+    state.transition.reset(0.0);
     assert!(!state.is_visible());
 }
 

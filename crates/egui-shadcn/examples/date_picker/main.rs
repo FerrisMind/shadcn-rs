@@ -175,7 +175,7 @@ impl App for DatePickerExample {
                     }
 
                     egui::Frame::NONE
-                        .stroke(Stroke::new(1.0, self.theme.palette.border))
+                        .stroke(Stroke::new(1.0_f32, self.theme.palette.border))
                         .corner_radius(CornerRadius::same(8))
                         .inner_margin(Margin::same(8))
                         .show(ui, |ui| {

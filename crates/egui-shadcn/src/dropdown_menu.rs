@@ -197,7 +197,7 @@ pub fn dropdown_menu<R>(
         .frame(
             Frame::popup(ui.style())
                 .fill(tokens.bg)
-                .stroke(Stroke::new(1.0, tokens.border))
+                .stroke(Stroke::new(1.0_f32, tokens.border))
                 .corner_radius(tokens.rounding)
                 .inner_margin(tokens.padding),
         )

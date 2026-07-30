@@ -331,7 +331,7 @@ impl Toaster {
                 toast_ui.set_max_width(width);
                 let frame = Frame::popup(toast_ui.style())
                     .fill(fade_color(tokens.bg, anim_t))
-                    .stroke(Stroke::new(1.0, fade_color(tokens.border, anim_t)))
+                    .stroke(Stroke::new(1.0_f32, fade_color(tokens.border, anim_t)))
                     .corner_radius(tokens.rounding)
                     .inner_margin(tokens.padding);
                 frame

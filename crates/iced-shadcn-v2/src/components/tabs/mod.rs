@@ -15,7 +15,7 @@
 //!     TabChanged(String),
 //! }
 //!
-//! fn view(theme: &Theme, active: &str) -> Element<'_, Message> {
+//! fn view<'a>(theme: &'a Theme, active: &'a str) -> Element<'a, Message> {
 //!     Tabs::new(theme)
 //!         .value(active)
 //!         .list(

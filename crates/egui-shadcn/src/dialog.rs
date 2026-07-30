@@ -72,7 +72,7 @@ pub fn dialog_tokens_with_options(
     let palette = &theme.palette;
     let background = palette.background;
     let border = Stroke::new(
-        1.0,
+        1.0_f32,
         if high_contrast {
             palette.foreground
         } else {
@@ -486,7 +486,7 @@ pub fn dialog<R>(
                                         close_ui.painter().rect_stroke(
                                             ring_rect,
                                             CornerRadius::same(4),
-                                            Stroke::new(2.0, ring_color),
+                                            Stroke::new(2.0_f32, ring_color),
                                             StrokeKind::Outside,
                                         );
                                     }
@@ -565,7 +565,7 @@ pub fn dialog<R>(
                 area_ui.painter().rect_stroke(
                     close_rect,
                     CornerRadius::same(2),
-                    Stroke::new(2.0, ring_color),
+                    Stroke::new(2.0_f32, ring_color),
                     StrokeKind::Outside,
                 );
             }

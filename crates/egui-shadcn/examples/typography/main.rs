@@ -40,7 +40,7 @@ impl TypographyDemo {
         let row_h = 28.0;
         let total_rows = 1 + rows.len();
         let table_size = egui::vec2(col_w * 2.0, row_h * total_rows as f32);
-        let border = egui::Stroke::new(1.0, self.theme.palette.border);
+        let border = egui::Stroke::new(1.0_f32, self.theme.palette.border);
 
         let (table_rect, _) = ui.allocate_exact_size(table_size, egui::Sense::hover());
         let painter = ui.painter();

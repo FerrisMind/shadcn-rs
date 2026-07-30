@@ -698,7 +698,7 @@ fn paint_background(
         painter.rect_stroke(
             rect,
             style.rounding,
-            Stroke::new(1.0, border_color),
+            Stroke::new(1.0_f32, border_color),
             StrokeKind::Inside,
         );
     }
@@ -710,7 +710,7 @@ fn paint_focus_ring(painter: &Painter, rect: egui::Rect, style: &ButtonStyle, ha
         painter.rect_stroke(
             ring_rect,
             style.rounding,
-            Stroke::new(3.0, style.focus_ring),
+            Stroke::new(3.0_f32, style.focus_ring),
             StrokeKind::Outside,
         );
     }
@@ -842,7 +842,7 @@ fn paint_link_underline(
             pos2(center.x - text_width / 2.0, underline_y),
             pos2(center.x + text_width / 2.0, underline_y),
         ],
-        Stroke::new(1.0, text_color),
+        Stroke::new(1.0_f32, text_color),
     );
 }
 
@@ -1106,7 +1106,7 @@ fn draw_spinner(painter: &Painter, center: Pos2, size: f32, color: Color32, t: f
             center.y + angle.sin() * outer_r,
         );
 
-        painter.line_segment([inner, outer], Stroke::new(2.0, seg_color));
+        painter.line_segment([inner, outer], Stroke::new(2.0_f32, seg_color));
     }
 }
 

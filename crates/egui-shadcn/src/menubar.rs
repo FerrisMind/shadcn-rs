@@ -57,7 +57,7 @@ pub fn menubar<R>(
 ) -> R {
     Frame::default()
         .fill(theme.palette.background)
-        .stroke(egui::Stroke::new(1.0, theme.palette.border))
+        .stroke(egui::Stroke::new(1.0_f32, theme.palette.border))
         .corner_radius(egui::CornerRadius::same(6))
         .inner_margin(Margin::symmetric(4, 2))
         .show(ui, |bar_ui| {
@@ -123,7 +123,7 @@ pub fn menubar_menu<R>(
             .show(ui.ctx(), |popup_ui| {
                 Frame::popup(popup_ui.style())
                     .fill(theme.palette.background)
-                    .stroke(egui::Stroke::new(1.0, theme.palette.border))
+                    .stroke(egui::Stroke::new(1.0_f32, theme.palette.border))
                     .show(popup_ui, |inner_ui| {
                         inner_ui.set_min_width(160.0);
                         result = Some(add_contents(inner_ui));

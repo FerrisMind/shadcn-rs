@@ -166,7 +166,7 @@ impl App for SwitchDemo {
                     ] {
                         egui::Frame::NONE
                             .fill(self.theme.palette.background)
-                            .stroke(egui::Stroke::new(1.0, self.theme.palette.border))
+                            .stroke(egui::Stroke::new(1.0_f32, self.theme.palette.border))
                             .corner_radius(egui::CornerRadius::same(8))
                             .inner_margin(egui::Margin::symmetric(12, 10))
                             .show(form, |item_ui| {
@@ -409,7 +409,7 @@ impl App for SwitchDemo {
 
                     egui::Frame::NONE
                         .fill(self.theme.palette.background)
-                        .stroke(egui::Stroke::new(1.0, self.theme.palette.border))
+                        .stroke(egui::Stroke::new(1.0_f32, self.theme.palette.border))
                         .corner_radius(egui::CornerRadius::same(8))
                         .inner_margin(egui::Margin::symmetric(12, 10))
                         .show(form, |item_ui| {

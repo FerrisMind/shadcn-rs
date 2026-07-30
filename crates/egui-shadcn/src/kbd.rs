@@ -113,7 +113,7 @@ pub fn kbd(ui: &mut Ui, theme: &Theme, label: &str, props: KbdProps) {
 
     let frame = Frame::NONE
         .fill(background)
-        .stroke(Stroke::new(1.0, border_color))
+        .stroke(Stroke::new(1.0_f32, border_color))
         .corner_radius(radius)
         .inner_margin(Margin::symmetric(padding.x as i8, padding.y as i8));
 

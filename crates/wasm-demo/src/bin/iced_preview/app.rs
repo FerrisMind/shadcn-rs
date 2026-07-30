@@ -53,6 +53,7 @@ pub struct PreviewApp {
     theme: Theme,
     theme_mode: ThemeMode,
     github_stars: u64,
+    #[cfg(target_arch = "wasm32")]
     github_stars_loaded: bool,
     selected: PreviewPage,
     tab: ComponentTab,
@@ -98,6 +99,7 @@ pub enum Message {
     OpenGithub,
     OpenUrl(&'static str),
     FooterLinkHover(FooterLink, bool),
+    #[cfg(target_arch = "wasm32")]
     GithubStarsLoaded(u64),
     StepperStepChanged(usize),
     StepperNext,
@@ -131,6 +133,7 @@ impl Default for PreviewApp {
             theme: Theme::light(),
             theme_mode: ThemeMode::Light,
             github_stars: FALLBACK_GITHUB_STARS,
+            #[cfg(target_arch = "wasm32")]
             github_stars_loaded: false,
             selected,
             tab,
@@ -172,6 +175,7 @@ impl PreviewApp {
             Message::FooterLinkHover(link, hovered) => {
                 self.footer_hovered = hovered.then_some(link);
             }
+            #[cfg(target_arch = "wasm32")]
             Message::GithubStarsLoaded(stars) => {
                 self.github_stars = stars;
                 self.github_stars_loaded = true;

@@ -55,7 +55,7 @@ impl App for ContextMenuExample {
             ui.painter().rect_stroke(
                 rect,
                 4.0,
-                egui::Stroke::new(1.0, self.theme.palette.border),
+                egui::Stroke::new(1.0_f32, self.theme.palette.border),
                 egui::StrokeKind::Inside,
             );
             ui.painter().text(

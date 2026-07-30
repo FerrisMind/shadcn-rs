@@ -125,10 +125,8 @@ pub fn input_otp(
                     Key::ArrowLeft => {
                         cursor = cursor.saturating_sub(1);
                     }
-                    Key::ArrowRight => {
-                        if cursor < chars.len().min(props.max_length) {
-                            cursor += 1;
-                        }
+                    Key::ArrowRight if cursor < chars.len().min(props.max_length) => {
+                        cursor += 1;
                     }
                     _ => {}
                 },
@@ -272,7 +270,7 @@ fn input_otp_slot_impl(
     let painter = ui.painter();
     painter.rect_filled(rect, rounding, bg);
 
-    let border_width = if is_active { 2.0 } else { 1.0 };
+    let border_width = if is_active { 2.0_f32 } else { 1.0_f32 };
     painter.rect_stroke(
         rect,
         rounding,
@@ -290,7 +288,7 @@ fn input_otp_slot_impl(
         painter.rect_stroke(
             rect,
             rounding,
-            Stroke::new(3.0, ring_color),
+            Stroke::new(3.0_f32, ring_color),
             StrokeKind::Outside,
         );
     }

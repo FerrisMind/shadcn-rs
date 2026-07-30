@@ -679,10 +679,10 @@ where
 
         let mut style = ui.style().as_ref().clone();
 
-        style.visuals.widgets.noninteractive.fg_stroke = Stroke::new(0.0, Color32::TRANSPARENT);
-        style.visuals.widgets.inactive.fg_stroke = Stroke::new(0.0, Color32::TRANSPARENT);
-        style.visuals.widgets.hovered.fg_stroke = Stroke::new(0.0, Color32::TRANSPARENT);
-        style.visuals.widgets.active.fg_stroke = Stroke::new(0.0, Color32::TRANSPARENT);
+        style.visuals.widgets.noninteractive.fg_stroke = Stroke::new(0.0_f32, Color32::TRANSPARENT);
+        style.visuals.widgets.inactive.fg_stroke = Stroke::new(0.0_f32, Color32::TRANSPARENT);
+        style.visuals.widgets.hovered.fg_stroke = Stroke::new(0.0_f32, Color32::TRANSPARENT);
+        style.visuals.widgets.active.fg_stroke = Stroke::new(0.0_f32, Color32::TRANSPARENT);
         ui.set_style(style);
 
         resize.show(ui, |ui| {
@@ -744,7 +744,7 @@ where
             painter.rect_stroke(
                 rect,
                 style.rounding,
-                Stroke::new(1.0, border_color),
+                Stroke::new(1.0_f32, border_color),
                 StrokeKind::Inside,
             );
         }
@@ -788,7 +788,7 @@ where
             .text_styles
             .insert(TextStyle::Body, props.size.font());
         inner_style.visuals.selection.bg_fill = style.selection_bg;
-        inner_style.visuals.selection.stroke = Stroke::new(1.0, style.selection_fg);
+        inner_style.visuals.selection.stroke = Stroke::new(1.0_f32, style.selection_fg);
         inner_style.visuals.override_text_color = Some(text_color);
         inner_style.visuals.extreme_bg_color = tokens.idle.bg_fill;
 
@@ -860,7 +860,7 @@ where
                 pos2(corner.x - 3.0, corner.y),
                 pos2(corner.x, corner.y - 3.0),
             ],
-            Stroke::new(1.0, grip_color),
+            Stroke::new(1.0_f32, grip_color),
         );
 
         painter.line_segment(
@@ -868,7 +868,7 @@ where
                 pos2(corner.x - 3.0 - line_spacing, corner.y),
                 pos2(corner.x, corner.y - 3.0 - line_spacing),
             ],
-            Stroke::new(1.0, grip_color),
+            Stroke::new(1.0_f32, grip_color),
         );
     }
 

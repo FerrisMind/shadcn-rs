@@ -293,7 +293,7 @@ pub fn table_row<R, IdSource: Hash>(
             }
             row_ui.painter().line_segment(
                 [rect.left_bottom(), rect.right_bottom()],
-                Stroke::new(1.0, ctx.tokens.border),
+                Stroke::new(1.0_f32, ctx.tokens.border),
             );
 
             let contents = add_contents(row_ui);

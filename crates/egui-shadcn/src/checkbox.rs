@@ -277,7 +277,7 @@ pub fn checkbox_state(
     let rounding = CornerRadius::same((metrics.track_size.x * 0.25).round() as u8);
     let icon_spacing = visuals.padding.x * 0.35;
     let focus_ring = Stroke::new(
-        3.0,
+        3.0_f32,
         mix(
             toggle_tokens.on.idle.bg_fill,
             theme.palette.foreground,
@@ -285,7 +285,7 @@ pub fn checkbox_state(
         ),
     );
 
-    let invalid_ring = Stroke::new(3.0, scale_alpha(theme.palette.destructive, 0.40));
+    let invalid_ring = Stroke::new(3.0_f32, scale_alpha(theme.palette.destructive, 0.40));
     let expansion = size.expansion();
     let widgets = Widgets {
         noninteractive: widget_visuals(&toggle_tokens.disabled, rounding, expansion),

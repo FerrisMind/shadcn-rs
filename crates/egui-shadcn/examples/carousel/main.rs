@@ -301,7 +301,7 @@ fn render_slide(ui: &mut egui::Ui, theme: &Theme, index: usize, label: &str) {
     ui.painter().rect_stroke(
         rect,
         rounding,
-        Stroke::new(1.0, theme.palette.border),
+        Stroke::new(1.0_f32, theme.palette.border),
         StrokeKind::Inside,
     );
 

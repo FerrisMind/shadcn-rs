@@ -121,7 +121,7 @@ pub fn sheet_content<R>(
         .movable(false)
         .fixed_pos(animated_pos)
         .show(ctx, |area_ui| {
-            let border = Stroke::new(1.0, theme.palette.border);
+            let border = Stroke::new(1.0_f32, theme.palette.border);
             let shadow = egui::epaint::Shadow {
                 offset: [0, 4],
                 blur: 12,
@@ -181,7 +181,7 @@ pub fn sheet_content<R>(
                 area_ui.painter().rect_stroke(
                     close_rect,
                     CornerRadius::same(2),
-                    Stroke::new(2.0, ring_color),
+                    Stroke::new(2.0_f32, ring_color),
                     StrokeKind::Outside,
                 );
             }

@@ -223,7 +223,7 @@ pub fn card_tokens_with_options(
             );
 
             let border_color = palette.border;
-            let stroke = Stroke::new(if high_contrast { 1.0 } else { 0.75 }, border_color);
+            let stroke = Stroke::new(if high_contrast { 1.0_f32 } else { 0.75_f32 }, border_color);
             let stroke_hover =
                 Stroke::new(stroke.width, mix(border_color, palette.foreground, 0.08));
             let stroke_active =
@@ -294,7 +294,7 @@ pub fn card_tokens_with_options(
                 palette.foreground,
                 if high_contrast { 0.2 } else { 0.14 },
             );
-            let stroke = Stroke::new(if high_contrast { 1.2 } else { 1.0 }, border_color);
+            let stroke = Stroke::new(if high_contrast { 1.2_f32 } else { 1.0_f32 }, border_color);
             let stroke_hover =
                 Stroke::new(stroke.width, mix(border_color, palette.foreground, 0.12));
             let stroke_active =
@@ -360,7 +360,7 @@ pub fn card_tokens_with_options(
             );
             let background_active = mix(background_hover, palette.foreground, 0.08);
 
-            let stroke = Stroke::new(0.0, Color32::TRANSPARENT);
+            let stroke = Stroke::new(0.0_f32, Color32::TRANSPARENT);
 
             CardTokens {
                 background,

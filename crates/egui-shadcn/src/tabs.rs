@@ -687,7 +687,7 @@ pub fn tabs<'a, R>(
                         Pos2::new(bar_rect.left(), y),
                         Pos2::new(bar_rect.right(), y),
                     ],
-                    Stroke::new(1.0, line_color),
+                    Stroke::new(1.0_f32, line_color),
                 );
             }
             TabsOrientation::Vertical => {
@@ -697,7 +697,7 @@ pub fn tabs<'a, R>(
                         Pos2::new(x, bar_rect.top()),
                         Pos2::new(x, bar_rect.bottom()),
                     ],
-                    Stroke::new(1.0, line_color),
+                    Stroke::new(1.0_f32, line_color),
                 );
             }
         }
@@ -824,7 +824,8 @@ fn resolve_tabs_tokens(palette: &ColorPalette, props: &TabsProps<'_>) -> TabsTok
                 TabsSize::Size2 => CornerRadius::same(8),
             };
 
-            let trigger_stroke = Stroke::new(1.0, mix(palette.border, palette.foreground, 0.22));
+            let trigger_stroke =
+                Stroke::new(1.0_f32, mix(palette.border, palette.foreground, 0.22));
 
             let active_bg = palette.background;
             TabsTokens {
@@ -862,7 +863,7 @@ fn resolve_tabs_tokens(palette: &ColorPalette, props: &TabsProps<'_>) -> TabsTok
                 trigger_height,
                 trigger_padding,
                 trigger_rounding,
-                trigger_stroke: Stroke::new(1.0, stroke_color),
+                trigger_stroke: Stroke::new(1.0_f32, stroke_color),
                 trigger_idle_bg: Color32::TRANSPARENT,
                 trigger_hover_bg: hover_bg,
                 trigger_active_bg: active_bg,
