@@ -151,7 +151,12 @@ impl Rgba {
         let (hue, saturation) = if chroma == 0.0 {
             (0.0, 0.0)
         } else {
-            let saturation = chroma / if lightness < 0.5 { max + min } else { 2.0 - max - min };
+            let saturation = chroma
+                / if lightness < 0.5 {
+                    max + min
+                } else {
+                    2.0 - max - min
+                };
             let hue = if (max - red).abs() <= f32::EPSILON {
                 (green - blue) / chroma + if green < blue { 6.0 } else { 0.0 }
             } else if (max - green).abs() <= f32::EPSILON {

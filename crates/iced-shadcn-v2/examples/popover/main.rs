@@ -171,43 +171,47 @@ impl Example {
 
         // The shadcn-svelte popover demo: outline trigger, header with
         // title + description, align = start.
-        let demo = row![Popover::new(
-            Button::text("Open Popover", theme)
-                .variant(ButtonVariant::Outline)
-                .on_press(Message::Pressed),
-            PopoverHeader::new(theme)
-                .title(PopoverTitle::text("Dimensions", theme))
-                .description(PopoverDescription::text(
-                    "Set the dimensions for the layer.",
-                    theme,
-                )),
-            theme,
-        )
-        .align(PopoverAlign::Start)]
+        let demo = row![
+            Popover::new(
+                Button::text("Open Popover", theme)
+                    .variant(ButtonVariant::Outline)
+                    .on_press(Message::Pressed),
+                PopoverHeader::new(theme)
+                    .title(PopoverTitle::text("Dimensions", theme))
+                    .description(PopoverDescription::text(
+                        "Set the dimensions for the layer.",
+                        theme,
+                    )),
+                theme,
+            )
+            .align(PopoverAlign::Start)
+        ]
         .spacing(12);
 
         // The "With Form" demo: w-64 content with two labeled inputs.
-        let with_form = row![Popover::new(
-            Button::text("Open Popover", theme)
-                .variant(ButtonVariant::Outline)
-                .on_press(Message::Pressed),
-            column![
-                Element::<Message>::from(
-                    PopoverHeader::new(theme)
-                        .title(PopoverTitle::text("Dimensions", theme))
-                        .description(PopoverDescription::text(
-                            "Set the dimensions for the layer.",
-                            theme,
-                        ))
-                ),
-                form_field("Width", &self.width_value, Message::WidthChanged, theme),
-                form_field("Height", &self.height_value, Message::HeightChanged, theme),
-            ]
-            .spacing(16),
-            theme,
-        )
-        .align(PopoverAlign::Start)
-        .width(256.0)]
+        let with_form = row![
+            Popover::new(
+                Button::text("Open Popover", theme)
+                    .variant(ButtonVariant::Outline)
+                    .on_press(Message::Pressed),
+                column![
+                    Element::<Message>::from(
+                        PopoverHeader::new(theme)
+                            .title(PopoverTitle::text("Dimensions", theme))
+                            .description(PopoverDescription::text(
+                                "Set the dimensions for the layer.",
+                                theme,
+                            ))
+                    ),
+                    form_field("Width", &self.width_value, Message::WidthChanged, theme),
+                    form_field("Height", &self.height_value, Message::HeightChanged, theme),
+                ]
+                .spacing(16),
+                theme,
+            )
+            .align(PopoverAlign::Start)
+            .width(256.0)
+        ]
         .spacing(12);
 
         // The "Alignments" demo: w-40 popovers aligned start/center/end.
@@ -411,7 +415,8 @@ fn form_field<'a>(
     theme: &'a Theme,
 ) -> Element<'a, Message> {
     row![
-        container(Element::<Message>::from(Label::text(label, theme))).width(Length::FillPortion(1)),
+        container(Element::<Message>::from(Label::text(label, theme)))
+            .width(Length::FillPortion(1)),
         container(
             Input::new(theme)
                 .value(value)
@@ -425,11 +430,7 @@ fn form_field<'a>(
     .into()
 }
 
-fn side_demo<'a>(
-    label: &'static str,
-    side: PopoverSide,
-    theme: &'a Theme,
-) -> Element<'a, Message> {
+fn side_demo<'a>(label: &'static str, side: PopoverSide, theme: &'a Theme) -> Element<'a, Message> {
     Popover::text(
         Button::text(label, theme)
             .variant(ButtonVariant::Secondary)

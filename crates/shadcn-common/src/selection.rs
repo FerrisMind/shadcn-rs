@@ -232,9 +232,7 @@ mod tests {
 
     #[test]
     fn single_mode_replaces_and_can_deselect() {
-        let selection = Selection::new()
-            .select("a", |_| true)
-            .select("b", |_| true);
+        let selection = Selection::new().select("a", |_| true).select("b", |_| true);
         assert!(selection.is_selected("b"));
         assert!(!selection.is_selected("a"));
 

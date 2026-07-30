@@ -194,7 +194,11 @@ pub struct ValueRange {
 #[must_use]
 pub fn value_ranges(values: &[f32], min: f32, max: f32, gap: f32) -> Vec<ValueRange> {
     let (min, max) = ordered_bounds(min, max);
-    let gap = if gap.is_finite() && gap > 0.0 { gap } else { 0.0 };
+    let gap = if gap.is_finite() && gap > 0.0 {
+        gap
+    } else {
+        0.0
+    };
     let len = values.len();
 
     values
@@ -219,7 +223,14 @@ pub fn value_ranges(values: &[f32], min: f32, max: f32, gap: f32) -> Vec<ValueRa
 
 /// Sets `values[index]` after snapping into the thumb's allowed range.
 #[must_use]
-pub fn set_value_at_index(values: &[f32], index: usize, value: f32, min: f32, max: f32, step: f32) -> Vec<f32> {
+pub fn set_value_at_index(
+    values: &[f32],
+    index: usize,
+    value: f32,
+    min: f32,
+    max: f32,
+    step: f32,
+) -> Vec<f32> {
     let mut next = values.to_vec();
     if index >= next.len() {
         return next;

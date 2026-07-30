@@ -486,7 +486,11 @@ pub const fn weekday_sunday(date: DateParts) -> u8 {
     }
     let t = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
     let value = (year + year / 4 - year / 100 + year / 400 + t[month - 1] + day) % 7;
-    if value < 0 { (value + 7) as u8 } else { value as u8 }
+    if value < 0 {
+        (value + 7) as u8
+    } else {
+        value as u8
+    }
 }
 
 /// Start of the week containing `date`.
