@@ -64,9 +64,9 @@
 Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — его потребители:
 
 35. ~~**`tooltip`** — с нуля на overlay (самый простой потребитель, есть база в iced)~~ ✅
-36. **`popover`** — с нуля на overlay (**фундамент**: от него зависят select, combobox, date-picker)
-37. **`hover-card`** — переиспользует `popover` (hover-триггер вместо клика)
-38. **`dialog`** — с нуля на overlay (модальность + backdrop + фокус-ловушка)
+36. **`popover`** — с нуля на overlay (**фундамент**: от него зависят select, combobox, date-picker) ✅
+37. ~~**`hover-card`** — переиспользует `popover` (hover-триггер вместо клика)~~ ✅
+38. ~~**`dialog`** — с нуля на overlay (модальность + backdrop + фокус-ловушка)~~ ✅
 39. **`alert-dialog`** — переиспользует `dialog` + варианты `button`
 40. **`sheet`** — переиспользует `dialog` (позиционирование у края + slide-анимация)
 41. **`drawer`** — переиспользует `sheet`/`dialog` (в вебе это vaul, у нас — вариант sheet)
@@ -74,7 +74,7 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
     - **`dropdown-menu`** — с нуля на popover + menu-примитив
     - **`context-menu`** — переиспользует внутренности `dropdown-menu` (правый клик)
     - **`menubar`** — переиспользует `dropdown-menu` (горизонтальная полоса триггеров)
-43. **`select`** — переиспользует `popover` + список item'ов
+43. ~~**`select`** — переиспользует `popover` + список item'ов~~ ✅
 44. **`navigation-menu`** — переиспользует popover/menu-логику
 45. **`sonner`** (toast) — с нуля на overlay (в вебе внешняя либа svelte-sonner; у нас — очередь + стек + таймеры)
 
@@ -99,7 +99,7 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 button ✅, spinner ✅, separator ✅, skeleton, label ✅, badge ✅, kbd ✅, typography ✅,
 aspect-ratio, progress, input ✅, textarea, checkbox ✅, switch ✅, toggle ✅, slider,
 avatar ✅, card ✅, alert ✅, scroll-area ✅, radio-group ✅, breadcrumb ✅, item ✅, table ✅, tabs ✅,
-collapsible ✅, accordion ✅, pagination ✅, field ✅, empty ✅, resizable, tooltip ✅, popover, dialog, sonner,
+collapsible ✅, accordion ✅, pagination ✅, field ✅, empty ✅, resizable, tooltip ✅, popover, dialog ✅, sonner,
 carousel, calendar, chart, command, overlay/menu-примитивы.
 
 ### Переиспользуют готовые
