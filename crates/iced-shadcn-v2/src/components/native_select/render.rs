@@ -1,18 +1,20 @@
 //! Custom field widget and dropdown overlay for [`super::NativeSelect`].
 //!
-//! The closed field mirrors iced's `pick_list` contract (click to open,
-//! click-away / Esc to close) but paints `.cn-native-select` visuals and a
-//! lucide-style chevron. The dropdown is a scrollable overlay that renders
-//! the flattened option rows — group headings are non-interactive, disabled
-//! options are grayed out and skipped by hover and keyboard navigation.
+//! The closed field paints `.cn-native-select` visuals and a lucide-style
+//! chevron. The dropdown deliberately does NOT use shadcn tokens: like the
+//! web component — whose popup is OS-rendered — it reuses the stock
+//! [`iced_widget::overlay::menu`] styling of the runtime `iced::Theme`
+//! (the same look as `pick_list`), extended structurally with `<optgroup>`
+//! headings and disabled options that hover and keyboard navigation skip.
 
 use iced_core::keyboard;
 use iced_core::text::paragraph;
 use iced_core::text::{self as core_text, Renderer as _, Text};
 
 use shadcn_common::{
-    AccentColor, FontWeight, NATIVE_SELECT_MENU_GROUP_INDENT_PX, NATIVE_SELECT_MENU_ITEM_PAD_X_PX,
-    NATIVE_SELECT_MENU_ITEM_PAD_Y_PX, NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NATIVE_SELECT_MENU_PAD_PX,
+    AccentColor, Direction, FontWeight, NATIVE_SELECT_MENU_GROUP_INDENT_PX,
+    NATIVE_SELECT_MENU_ITEM_PAD_X_PX, NATIVE_SELECT_MENU_ITEM_PAD_Y_PX,
+    NATIVE_SELECT_MENU_MAX_HEIGHT_PX, NavAction, NavKey, Orientation, resolve_nav_action,
 };
 
 use crate::iced_compat::advanced::renderer::Renderer as _;
@@ -20,20 +22,22 @@ use crate::iced_compat::advanced::widget::{Tree, tree};
 use crate::iced_compat::advanced::{Clipboard, Shell, Widget, layout, overlay, renderer};
 use crate::iced_compat::widget::canvas;
 use crate::iced_compat::widget::graphics::geometry::Renderer as _;
+use crate::iced_compat::widget::overlay::menu;
 use crate::iced_compat::widget::scrollable::Scrollable;
 use crate::iced_compat::{
     Background, Border, Color, Element, Event, Font, Length, Pixels, Point, Rectangle, Renderer,
-    Size, Theme as IcedTheme, Vector, alignment, mouse, touch, window,
+    Size, Theme as IcedTheme, Vector, alignment, border, mouse, touch, window,
 };
 
-use super::style::{
-    self, NativeSelectMenuStyle, NativeSelectStatus, NativeSelectStyle, pack_icon_size,
-    pack_text_size,
-};
+use super::style::{self, NativeSelectStatus, NativeSelectStyle, pack_icon_size, pack_text_size};
 use super::types::{NativeSelectRadius, NativeSelectSize, Row};
 use crate::fonts::iced_font;
 use crate::recipes::iced_font_weight;
 use crate::theme::Theme;
+
+/// Text alpha of a disabled dropdown option, matching how OS menus gray
+/// disabled items out.
+const MENU_DISABLED_TEXT_ALPHA: f32 = 0.5;
 
 type ParagraphOf = <Renderer as core_text::Renderer>::Paragraph;
 
@@ -354,18 +358,45 @@ where
         let recipe = style::recipe(self.theme);
         let text_size = self.resolved_text_size();
 
-        renderer.fill_quad(
-            renderer::Quad {
-                bounds,
-                border: Border {
-                    color: resolved.border_color,
-                    width: resolved.border_width,
-                    radius: resolved.radius.into(),
+        if resolved.underline_only {
+            // Sera's `border-b-input`: background box plus a bottom hairline.
+            renderer.fill_quad(
+                renderer::Quad {
+                    bounds,
+                    border: Border {
+                        radius: resolved.radius.into(),
+                        ..Border::default()
+                    },
+                    ..renderer::Quad::default()
                 },
-                ..renderer::Quad::default()
-            },
-            Background::Color(resolved.background),
-        );
+                Background::Color(resolved.background),
+            );
+            renderer.fill_quad(
+                renderer::Quad {
+                    bounds: Rectangle {
+                        x: bounds.x,
+                        y: bounds.y + bounds.height - resolved.border_width,
+                        width: bounds.width,
+                        height: resolved.border_width,
+                    },
+                    ..renderer::Quad::default()
+                },
+                Background::Color(resolved.border_color),
+            );
+        } else {
+            renderer.fill_quad(
+                renderer::Quad {
+                    bounds,
+                    border: Border {
+                        color: resolved.border_color,
+                        width: resolved.border_width,
+                        radius: resolved.radius.into(),
+                    },
+                    ..renderer::Quad::default()
+                },
+                Background::Color(resolved.background),
+            );
+        }
 
         let label = self.selected_label();
 
@@ -420,7 +451,6 @@ where
 
         let on_select = self.on_select.as_deref()?;
         let bounds = layout.bounds();
-        let selected_index = self.selected_index();
 
         let State {
             is_open,
@@ -438,7 +468,6 @@ where
 
         let list = List {
             rows: &self.rows,
-            selected_index,
             hovered_row,
             on_selected: Box::new(move |value| {
                 *is_open = false;
@@ -448,7 +477,6 @@ where
             text_size,
             font,
             group_font,
-            menu_style: style::resolve_menu_style(self.theme),
         };
 
         Some(
@@ -499,7 +527,8 @@ fn draw_chevron(renderer: &mut Renderer, center: Point, size: f32, color: Color)
     );
 }
 
-/// Dropdown overlay: a scrollable list of rows on a popover surface.
+/// Dropdown overlay: a scrollable list of rows on the stock iced menu
+/// surface.
 struct MenuOverlay<'a, Message> {
     position: Point,
     viewport: Rectangle,
@@ -507,7 +536,6 @@ struct MenuOverlay<'a, Message> {
     list: Scrollable<'a, Message, IcedTheme, Renderer>,
     width: f32,
     target_height: f32,
-    menu_style: NativeSelectMenuStyle,
 }
 
 impl<'a, Message> MenuOverlay<'a, Message>
@@ -525,7 +553,6 @@ where
     where
         T: Clone + PartialEq + 'a,
     {
-        let menu_style = list.menu_style;
         let list = Scrollable::new(list);
 
         tree.diff(&list as &dyn Widget<_, _, _>);
@@ -537,7 +564,6 @@ where
             list,
             width,
             target_height,
-            menu_style,
         }
     }
 
@@ -610,19 +636,17 @@ impl<Message> overlay::Overlay<Message, IcedTheme, Renderer> for MenuOverlay<'_,
         cursor: mouse::Cursor,
     ) {
         let bounds = layout.bounds();
+        // Stock iced menu chrome — the "system" dropdown of this backend.
+        let style = menu::default(theme);
 
         renderer.fill_quad(
             renderer::Quad {
                 bounds,
-                border: Border {
-                    color: self.menu_style.border_color,
-                    width: 1.0,
-                    radius: self.menu_style.radius.into(),
-                },
-                shadow: self.menu_style.shadow,
+                border: style.border,
+                shadow: style.shadow,
                 ..renderer::Quad::default()
             },
-            Background::Color(self.menu_style.background),
+            style.background,
         );
 
         self.list.draw(
@@ -634,13 +658,11 @@ impl<Message> overlay::Overlay<Message, IcedTheme, Renderer> for MenuOverlay<'_,
 /// Inner list widget hosted by the dropdown scrollable.
 struct List<'a, T, Message> {
     rows: &'a [Row<T>],
-    selected_index: Option<usize>,
     hovered_row: &'a mut Option<usize>,
     on_selected: Box<dyn FnMut(T) -> Message + 'a>,
     text_size: f32,
     font: Font,
     group_font: Font,
-    menu_style: NativeSelectMenuStyle,
 }
 
 impl<T, Message> List<'_, T, Message>
@@ -654,13 +676,11 @@ where
     /// Row index under `position` (relative to the list bounds), selectable
     /// or not.
     fn row_at(&self, position: Point) -> Option<usize> {
-        let offset = position.y - NATIVE_SELECT_MENU_PAD_PX;
-
-        if offset < 0.0 {
+        if position.y < 0.0 {
             return None;
         }
 
-        let index = (offset / self.row_height()) as usize;
+        let index = (position.y / self.row_height()) as usize;
 
         (index < self.rows.len()).then_some(index)
     }
@@ -681,30 +701,27 @@ where
 
     /// Moves the keyboard hover to the next selectable row in `direction`.
     fn move_hover(&mut self, direction: isize, shell: &mut Shell<'_, Message>) {
-        let len = self.rows.len() as isize;
-
-        if len == 0 {
-            return;
+        if let Some(index) =
+            shadcn_common::step_index(self.rows, *self.hovered_row, direction, false, |row| {
+                row.is_selectable()
+            })
+            .filter(|&index| *self.hovered_row != Some(index))
+        {
+            *self.hovered_row = Some(index);
+            shell.request_redraw();
         }
+    }
 
-        let mut index = self
-            .hovered_row
-            .map_or(if direction > 0 { -1 } else { len }, |current| {
-                current as isize
-            });
+    fn move_hover_to_edge(&mut self, first: bool, shell: &mut Shell<'_, Message>) {
+        let index = if first {
+            shadcn_common::first_enabled_index(self.rows, |row| row.is_selectable())
+        } else {
+            shadcn_common::last_enabled_index(self.rows, |row| row.is_selectable())
+        };
 
-        loop {
-            index += direction;
-
-            if index < 0 || index >= len {
-                return;
-            }
-
-            if self.rows[index as usize].is_selectable() {
-                *self.hovered_row = Some(index as usize);
-                shell.request_redraw();
-                return;
-            }
+        if *self.hovered_row != index {
+            *self.hovered_row = index;
+            shell.request_redraw();
         }
     }
 }
@@ -726,10 +743,7 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let intrinsic = Size::new(
-            0.0,
-            self.row_height() * self.rows.len() as f32 + NATIVE_SELECT_MENU_PAD_PX * 2.0,
-        );
+        let intrinsic = Size::new(0.0, self.row_height() * self.rows.len() as f32);
 
         layout::Node::new(limits.resolve(Length::Fill, Length::Shrink, intrinsic))
     }
@@ -772,20 +786,19 @@ where
                     self.select_hovered(shell);
                 }
             }
-            Event::Keyboard(keyboard::Event::KeyPressed { key, .. }) => match key {
-                keyboard::Key::Named(keyboard::key::Named::ArrowDown) => {
-                    self.move_hover(1, shell);
+            Event::Keyboard(keyboard::Event::KeyPressed { key, .. }) => {
+                if let Some(action) = nav_action(key) {
+                    match action {
+                        NavAction::Next => self.move_hover(1, shell),
+                        NavAction::Previous => self.move_hover(-1, shell),
+                        NavAction::First => self.move_hover_to_edge(true, shell),
+                        NavAction::Last => self.move_hover_to_edge(false, shell),
+                        NavAction::Activate => self.select_hovered(shell),
+                        _ => {}
+                    }
                     shell.capture_event();
                 }
-                keyboard::Key::Named(keyboard::key::Named::ArrowUp) => {
-                    self.move_hover(-1, shell);
-                    shell.capture_event();
-                }
-                keyboard::Key::Named(keyboard::key::Named::Enter) => {
-                    self.select_hovered(shell);
-                }
-                _ => {}
-            },
+            }
             _ => {}
         }
     }
@@ -814,7 +827,7 @@ where
         &self,
         _tree: &Tree,
         renderer: &mut Renderer,
-        _theme: &IcedTheme,
+        theme: &IcedTheme,
         _style: &renderer::Style,
         layout: layout::Layout<'_>,
         _cursor: mouse::Cursor,
@@ -822,13 +835,19 @@ where
     ) {
         let bounds = layout.bounds();
         let row_height = self.row_height();
-        let style = &self.menu_style;
+        // Stock iced menu row palette — the "system" dropdown of this
+        // backend; shadcn tokens intentionally stay off the popup.
+        let style = menu::default(theme);
+        let disabled_text = Color {
+            a: style.text_color.a * MENU_DISABLED_TEXT_ALPHA,
+            ..style.text_color
+        };
 
         for (index, row) in self.rows.iter().enumerate() {
             let row_bounds = Rectangle {
-                x: bounds.x + NATIVE_SELECT_MENU_PAD_PX,
-                y: bounds.y + NATIVE_SELECT_MENU_PAD_PX + row_height * index as f32,
-                width: bounds.width - NATIVE_SELECT_MENU_PAD_PX * 2.0,
+                x: bounds.x,
+                y: bounds.y + row_height * index as f32,
+                width: bounds.width,
                 height: row_height,
             };
 
@@ -837,30 +856,26 @@ where
             }
 
             let is_hovered = *self.hovered_row == Some(index);
-            let is_selected = self.selected_index == Some(index);
 
-            if is_hovered || is_selected {
+            if is_hovered {
                 renderer.fill_quad(
                     renderer::Quad {
-                        bounds: row_bounds,
-                        border: Border {
-                            radius: style.row_radius.into(),
-                            ..Border::default()
+                        bounds: Rectangle {
+                            x: row_bounds.x + style.border.width,
+                            width: row_bounds.width - style.border.width * 2.0,
+                            ..row_bounds
                         },
+                        border: border::rounded(style.border.radius),
                         ..renderer::Quad::default()
                     },
-                    Background::Color(if is_hovered {
-                        style.hovered_background
-                    } else {
-                        style.selected_background
-                    }),
+                    style.selected_background,
                 );
             }
 
             let (font, color) = match row {
-                Row::GroupLabel { .. } => (self.group_font, style.group_label_color),
-                Row::Option { disabled: true, .. } => (self.font, style.disabled_text_color),
-                Row::Option { .. } if is_hovered => (self.font, style.hovered_text_color),
+                Row::GroupLabel { .. } => (self.group_font, style.text_color),
+                Row::Option { disabled: true, .. } => (self.font, disabled_text),
+                Row::Option { .. } if is_hovered => (self.font, style.selected_text_color),
                 Row::Option { .. } => (self.font, style.text_color),
             };
 
@@ -893,6 +908,20 @@ where
             );
         }
     }
+}
+
+fn nav_action(key: &keyboard::Key) -> Option<NavAction> {
+    let key = match key {
+        keyboard::Key::Named(keyboard::key::Named::ArrowUp) => NavKey::ArrowUp,
+        keyboard::Key::Named(keyboard::key::Named::ArrowDown) => NavKey::ArrowDown,
+        keyboard::Key::Named(keyboard::key::Named::Home) => NavKey::Home,
+        keyboard::Key::Named(keyboard::key::Named::End) => NavKey::End,
+        keyboard::Key::Named(keyboard::key::Named::Enter) => NavKey::Enter,
+        keyboard::Key::Named(keyboard::key::Named::Space) => NavKey::Space,
+        _ => return None,
+    };
+
+    resolve_nav_action(key, Orientation::Vertical, Direction::Ltr)
 }
 
 impl<'a, T, Message> From<List<'a, T, Message>> for Element<'a, Message>

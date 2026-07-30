@@ -208,8 +208,8 @@ pub use components::item::{
 pub use components::kbd::{Kbd, KbdBuildError, KbdGroup, KbdRadius, KbdSurface};
 pub use components::label::{Label, LabelContext};
 pub use components::native_select::{
-    NativeSelect, NativeSelectGroup, NativeSelectMenuStyle, NativeSelectOption, NativeSelectRadius,
-    NativeSelectSize, NativeSelectStatus, NativeSelectStyle, native_select,
+    NativeSelect, NativeSelectGroup, NativeSelectOption, NativeSelectRadius, NativeSelectSize,
+    NativeSelectStatus, NativeSelectStyle, native_select,
 };
 pub use components::pagination::{
     Pagination, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext,

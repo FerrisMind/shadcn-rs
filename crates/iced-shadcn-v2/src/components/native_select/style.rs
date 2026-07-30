@@ -1,17 +1,16 @@
 //! Mapping of `.cn-native-select` style-pack rules to resolved iced visuals.
 //!
-//! The web trigger is fully pack-styled while the dropdown is OS-rendered;
-//! iced draws both, so the dropdown reuses the popover palette (`bg-popover`,
-//! `text-popover-foreground`, accent hover) the way the styled shadcn select
-//! does. Like the input, the translucent `focus-visible:ring-*` halo is
+//! Only the trigger field is design-system styled — exactly like the web
+//! component, where the dropdown is OS-rendered and never receives shadcn
+//! tokens. The iced dropdown therefore reuses the stock
+//! [`iced_widget::overlay::menu`] styling from the runtime `iced::Theme`.
+//! Like the input, the translucent `focus-visible:ring-*` halo is
 //! approximated by recoloring the border with `ring`, and Sera's
 //! underline-only border degrades to a full hairline box.
 
-use crate::iced_compat::{Color, Shadow, Vector};
+use crate::iced_compat::Color;
 
-use shadcn_common::{
-    AccentColor, ComponentRadius, NATIVE_SELECT_DISABLED_OPACITY, NativeSelectRecipe,
-};
+use shadcn_common::{AccentColor, NATIVE_SELECT_DISABLED_OPACITY, NativeSelectRecipe};
 use twill_core::prelude::theme::SemanticColor;
 
 use super::types::{NativeSelectRadius, NativeSelectSize};
@@ -20,12 +19,6 @@ use crate::theme::Theme;
 
 /// `dark:aria-invalid:border-destructive/50`.
 const DARK_INVALID_BORDER_ALPHA: f32 = 0.5;
-/// Wash of the selected (but not hovered) dropdown row.
-const SELECTED_ROW_ALPHA: f32 = 0.5;
-/// Text alpha of a disabled dropdown option.
-const DISABLED_ROW_ALPHA: f32 = 0.6;
-/// Dropdown drop shadow (`shadow-md`).
-const MENU_SHADOW_ALPHA: f32 = 0.12;
 
 /// Interaction status the field style is resolved for.
 #[non_exhaustive]
@@ -53,6 +46,9 @@ pub struct NativeSelectStyle {
     pub border_color: Color,
     /// Field border width in px.
     pub border_width: f32,
+    /// Sera's `border-b-input`: paint only the bottom hairline instead of
+    /// the full border box.
+    pub underline_only: bool,
     /// Field corner radius in px.
     pub radius: f32,
     /// Color of the selected-value text.
@@ -61,33 +57,6 @@ pub struct NativeSelectStyle {
     pub placeholder_color: Color,
     /// Color of the chevron icon (`text-muted-foreground`).
     pub icon_color: Color,
-}
-
-/// Resolved visuals of the dropdown surface and its rows.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub struct NativeSelectMenuStyle {
-    /// Dropdown fill (`bg-popover`).
-    pub background: Color,
-    /// Dropdown hairline border.
-    pub border_color: Color,
-    /// Dropdown corner radius in px.
-    pub radius: f32,
-    /// Dropdown drop shadow.
-    pub shadow: Shadow,
-    /// Option text (`text-popover-foreground`).
-    pub text_color: Color,
-    /// `<optgroup>` heading text (`text-muted-foreground`).
-    pub group_label_color: Color,
-    /// Disabled option text.
-    pub disabled_text_color: Color,
-    /// Fill of the hovered row (`bg-accent`).
-    pub hovered_background: Color,
-    /// Text of the hovered row (`text-accent-foreground`).
-    pub hovered_text_color: Color,
-    /// Wash of the currently selected row.
-    pub selected_background: Color,
-    /// Corner radius of the row highlight in px (`rounded-sm`).
-    pub row_radius: f32,
 }
 
 /// `.cn-native-select` numbers of the active pack.
@@ -196,41 +165,11 @@ pub(super) fn resolve_field_style(
         background,
         border_color,
         border_width: 1.0,
+        underline_only: pack.underline_only,
         radius: field_radius_px(theme, size, radius),
         text_color,
         placeholder_color,
         icon_color,
-    }
-}
-
-pub(super) fn resolve_menu_style(theme: &Theme) -> NativeSelectMenuStyle {
-    let accent = theme.semantic_color(SemanticColor::Accent);
-
-    NativeSelectMenuStyle {
-        background: theme.semantic_color(SemanticColor::Popover),
-        border_color: theme.semantic_color(SemanticColor::Border),
-        radius: menu_radius_px(theme),
-        shadow: Shadow {
-            color: Color {
-                a: MENU_SHADOW_ALPHA,
-                ..Color::BLACK
-            },
-            offset: Vector::new(0.0, 4.0),
-            blur_radius: 12.0,
-        },
-        text_color: theme.semantic_color(SemanticColor::PopoverForeground),
-        group_label_color: theme.semantic_color(SemanticColor::MutedForeground),
-        disabled_text_color: {
-            let muted = theme.semantic_color(SemanticColor::MutedForeground);
-            with_alpha(muted, muted.a * DISABLED_ROW_ALPHA)
-        },
-        hovered_background: accent,
-        hovered_text_color: theme.semantic_color(SemanticColor::AccentForeground),
-        selected_background: with_alpha(accent, accent.a * SELECTED_ROW_ALPHA),
-        row_radius: match recipe(theme).radius {
-            ComponentRadius::None => 0.0,
-            _ => theme.style.twill_radius_sm.px_value(),
-        },
     }
 }
 
@@ -264,17 +203,6 @@ fn field_radius_px(
 
             component_radius_px(theme, intent)
         }
-    }
-}
-
-/// The dropdown keeps a moderate corner treatment even for pill fields —
-/// a `rounded-4xl` trigger still opens a `rounded-md`-ish popup, matching
-/// how the OS popup ignores the field shape on the web.
-fn menu_radius_px(theme: &Theme) -> f32 {
-    match recipe(theme).radius {
-        ComponentRadius::None => 0.0,
-        ComponentRadius::Full => theme.style.twill_radius_md.px_value(),
-        intent => component_radius_px(theme, intent),
     }
 }
 

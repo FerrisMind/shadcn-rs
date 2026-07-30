@@ -287,20 +287,10 @@ fn accent_color_recolors_the_open_border() {
 }
 
 #[test]
-fn menu_style_uses_the_popover_palette() {
-    let theme = Theme::light();
-    let menu = style::resolve_menu_style(&theme);
-
-    assert_eq!(menu.background, theme.palette.popover);
-    assert_eq!(menu.text_color, theme.palette.popover_foreground);
-    assert_eq!(menu.group_label_color, theme.palette.muted_foreground);
-    assert_eq!(menu.hovered_background, theme.palette.accent);
-    assert_eq!(menu.hovered_text_color, theme.palette.accent_foreground);
-}
-
-#[test]
-fn pill_packs_keep_a_moderate_menu_radius() {
-    // Maia's trigger is `rounded-4xl`, but the dropdown must not be a pill.
+fn pill_packs_keep_the_field_pill_shaped() {
+    // Maia's trigger is `rounded-4xl` — a pill on a 36px control. The
+    // dropdown is not asserted here: it uses the stock iced menu styling,
+    // mirroring the OS-rendered popup of the web component.
     let maia = Theme::light().with_style(StyleId::Maia);
     let field = style::resolve_field_style(
         &maia,
@@ -311,14 +301,54 @@ fn pill_packs_keep_a_moderate_menu_radius() {
         false,
         NativeSelectStatus::Active,
     );
-    let menu = style::resolve_menu_style(&maia);
 
     assert_eq!(field.radius, 9999.0);
-    assert!(menu.radius < 100.0);
 
-    // Lyra stays square everywhere.
+    // Lyra stays square.
     let lyra = Theme::light().with_style(StyleId::Lyra);
-    assert_eq!(style::resolve_menu_style(&lyra).radius, 0.0);
+    let field = style::resolve_field_style(
+        &lyra,
+        NativeSelectSize::Default,
+        None,
+        None,
+        false,
+        false,
+        NativeSelectStatus::Active,
+    );
+    assert_eq!(field.radius, 0.0);
+}
+
+#[test]
+fn sera_paints_only_the_bottom_hairline() {
+    let sera = Theme::light().with_style(StyleId::Sera);
+    let resolved = style::resolve_field_style(
+        &sera,
+        NativeSelectSize::Default,
+        None,
+        None,
+        false,
+        false,
+        NativeSelectStatus::Active,
+    );
+
+    // `border-b-input pl-0 rounded-none`.
+    assert!(resolved.underline_only);
+    assert_eq!(resolved.border_color, sera.palette.input);
+    assert_eq!(resolved.radius, 0.0);
+    assert_eq!(style::recipe(&sera).pad_left_px, 0.0);
+
+    // Every other pack keeps the full border box.
+    let vega = Theme::light();
+    let resolved = style::resolve_field_style(
+        &vega,
+        NativeSelectSize::Default,
+        None,
+        None,
+        false,
+        false,
+        NativeSelectStatus::Active,
+    );
+    assert!(!resolved.underline_only);
 }
 
 #[test]

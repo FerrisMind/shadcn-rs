@@ -1,11 +1,14 @@
 //! Native-select component ported from shadcn-svelte to iced-shadcn-v2.
 //!
-//! The web component styles a platform `<select>` (`.cn-native-select` +
-//! chevron icon) and leaves the dropdown to the OS. iced has no OS dropdown,
-//! so this port pairs the pack-styled field with its own overlay menu — the
-//! closest iced analogue of "native": click to open, click-away / Esc to
-//! close, arrow keys + Enter while open, `<optgroup>` headings, and disabled
-//! options that hover and keyboard navigation skip.
+//! The web component styles only the trigger `<select>` field
+//! (`.cn-native-select` + chevron icon) and leaves the dropdown to the OS.
+//! This port keeps that split: shadcn tokens style the field alone, while
+//! the dropdown is the stock iced overlay menu (the same "system" popup
+//! `pick_list` uses, themed by the runtime `iced::Theme`) — extended
+//! structurally with `<optgroup>` headings and disabled options, exactly
+//! like the platform popup renders them. Interactions match the native
+//! contract: click to open, click-away / Esc to close, arrow keys + Enter
+//! while open.
 //!
 //! Web attributes map as follows: `<option value>` is the typed value of
 //! [`NativeSelectOption`]; `<option disabled>` / `<optgroup disabled>` are
@@ -47,7 +50,7 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-pub use style::{NativeSelectMenuStyle, NativeSelectStatus, NativeSelectStyle};
+pub use style::{NativeSelectStatus, NativeSelectStyle};
 pub use types::{NativeSelectGroup, NativeSelectOption, NativeSelectRadius, NativeSelectSize};
 
 use std::fmt;
