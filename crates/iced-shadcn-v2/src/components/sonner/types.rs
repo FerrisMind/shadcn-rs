@@ -1,176 +1,163 @@
-//! Configuration types for the sonner toast component.
+//! Public configuration types for the Sonner toast component.
 
+use std::any::Any;
 use std::fmt;
+use std::sync::Arc;
 use std::sync::atomic::{AtomicU64, Ordering};
 
-/// Global monotonic counter for generating unique toast IDs.
-static TOAST_COUNTER: AtomicU64 = AtomicU64::new(1);
+// The framework-agnostic toast vocabulary — toast kinds, positions, and the
+// identifier newtype — is shared with egui-shadcn through
+// `shadcn_common::toast`, so both backends model the same Sonner concepts.
+// Only the iced-owned pieces (the callback wrappers, the `SonnerToast`
+// builder, the queue) remain in this module.
+pub use shadcn_common::toast::{ToastId, ToastPosition, ToastType};
 
-/// Generates the next unique toast ID.
-pub(super) fn next_toast_id() -> u64 {
-    TOAST_COUNTER.fetch_add(1, Ordering::Relaxed)
+/// Monotonic counter backing [`next_toast_id`].
+///
+/// It stays in iced (rather than `shadcn-common`) so independent iced/egui
+/// instances never share a single global toast counter.
+static NEXT_TOAST_ID: AtomicU64 = AtomicU64::new(1);
+
+/// Allocates the next process-wide toast identifier.
+fn next_toast_id() -> ToastId {
+    ToastId::from(NEXT_TOAST_ID.fetch_add(1, Ordering::Relaxed))
 }
 
-/// Type of toast notification.
+/// A callback that publishes an application message when it is invoked.
 ///
-/// ```rust
-/// use iced_shadcn_v2::ToastType;
-///
-/// assert_eq!(ToastType::default(), ToastType::Default);
-/// ```
-#[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum ToastType {
-    /// Default toast without a specific type icon.
-    #[default]
-    Default,
-    /// Success toast with a checkmark icon.
-    Success,
-    /// Informational toast with an info icon.
-    Info,
-    /// Warning toast with a triangle-alert icon.
-    Warning,
-    /// Error toast with an octagon-x icon.
-    Error,
-    /// Loading toast with a spinner icon.
-    Loading,
+/// Callbacks are type-erased only at the storage boundary. The `Toaster`
+/// overlay restores the concrete message with `Any::downcast`, and silently
+/// ignores a callback created for a different application message type. This
+/// keeps the process-wide imperative API sound without using `unsafe`.
+pub struct ToastCallback {
+    callback: RawCallback,
 }
 
-/// Position of the toast container on screen.
-///
-/// Matches shadcn-svelte `Toaster` `position` prop.
-///
-/// ```rust
-/// use iced_shadcn_v2::ToastPosition;
-///
-/// assert_eq!(ToastPosition::default(), ToastPosition::BottomRight);
-/// ```
-#[non_exhaustive]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum ToastPosition {
-    /// Bottom-right corner (default).
-    #[default]
-    BottomRight,
-    /// Bottom-left corner.
-    BottomLeft,
-    /// Bottom center.
-    BottomCenter,
-    /// Top-right corner.
-    TopRight,
-    /// Top-left corner.
-    TopLeft,
-    /// Top center.
-    TopCenter,
-}
-
-impl ToastPosition {
-    /// Whether this position is on the top edge of the screen.
-    pub const fn is_top(self) -> bool {
-        matches!(self, Self::TopRight | Self::TopLeft | Self::TopCenter)
-    }
-
-    /// Whether this position is on the bottom edge of the screen.
-    pub const fn is_bottom(self) -> bool {
-        matches!(
-            self,
-            Self::BottomRight | Self::BottomLeft | Self::BottomCenter
-        )
-    }
-
-    /// Whether this position is on the left edge of the screen.
-    pub const fn is_left(self) -> bool {
-        matches!(self, Self::TopLeft | Self::BottomLeft)
-    }
-
-    /// Whether this position is on the right edge of the screen.
-    pub const fn is_right(self) -> bool {
-        matches!(self, Self::TopRight | Self::BottomRight)
-    }
-
-    /// Whether this position is horizontally centered.
-    pub const fn is_center_x(self) -> bool {
-        matches!(self, Self::TopCenter | Self::BottomCenter)
-    }
-}
-
-/// Action button for a toast notification.
-///
-/// An action has a label and an optional callback that produces a `Message`
-/// when the button is clicked.
-pub struct ToastAction<Message> {
-    /// Button label.
-    pub label: String,
-    /// Optional callback invoked when the action button is pressed.
-    ///
-    /// The callback receives a reference to the action and returns an optional
-    /// `Message`. Return `None` to dismiss the toast without emitting a
-    /// message.
-    pub on_click: Option<Box<dyn Fn(&Self) -> Option<Message> + Send + Sync>>,
-}
-
-impl<Message> fmt::Debug for ToastAction<Message> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("ToastAction")
-            .field("label", &self.label)
-            .field("on_click", &self.on_click.is_some())
+impl fmt::Debug for ToastCallback {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("ToastCallback")
+            .field("configured", &true)
             .finish()
     }
 }
 
-impl<Message> ToastAction<Message> {
-    /// Creates a new action with a label and callback.
-    pub fn new(
-        label: impl Into<String>,
-        on_click: impl Fn(&Self) -> Option<Message> + Send + Sync + 'static,
-    ) -> Self {
+impl Clone for ToastCallback {
+    fn clone(&self) -> Self {
         Self {
-            label: label.into(),
-            on_click: Some(Box::new(on_click)),
+            callback: Arc::clone(&self.callback),
+        }
+    }
+}
+
+impl ToastCallback {
+    /// Creates a callback that returns an application message.
+    pub fn new<Message>(callback: impl Fn() -> Message + Send + Sync + 'static) -> Self
+    where
+        Message: Any + 'static,
+    {
+        Self {
+            callback: Arc::new(move || Some(Box::new(callback()) as Box<dyn Any>)),
         }
     }
 
-    /// Creates an action with only a label (no callback).
+    pub(super) fn callback(&self) -> RawCallback {
+        Arc::clone(&self.callback)
+    }
+}
+
+/// An optional action button rendered inside a toast.
+pub struct ToastAction {
+    label: String,
+    callback: Option<RawCallback>,
+}
+
+impl fmt::Debug for ToastAction {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("ToastAction")
+            .field("label", &self.label)
+            .field("callback", &self.callback.is_some())
+            .finish()
+    }
+}
+
+impl Clone for ToastAction {
+    fn clone(&self) -> Self {
+        Self {
+            label: self.label.clone(),
+            callback: self.callback.as_ref().map(Arc::clone),
+        }
+    }
+}
+
+impl ToastAction {
+    /// Creates an action button with a typed callback.
+    ///
+    /// The callback is invoked once per click and its returned message is
+    /// published by the [`crate::Toaster`] overlay.
+    pub fn new<Message>(
+        label: impl Into<String>,
+        callback: impl Fn() -> Message + Send + Sync + 'static,
+    ) -> Self
+    where
+        Message: Any + 'static,
+    {
+        Self {
+            label: label.into(),
+            callback: Some(Arc::new(move || Some(Box::new(callback()) as Box<dyn Any>))),
+        }
+    }
+
+    /// Creates a visible action without a callback.
     pub fn label(label: impl Into<String>) -> Self {
         Self {
             label: label.into(),
-            on_click: None,
+            callback: None,
         }
+    }
+
+    /// Returns the action label.
+    pub fn label_text(&self) -> &str {
+        &self.label
+    }
+
+    /// Returns whether this action has a callback.
+    pub const fn has_callback(&self) -> bool {
+        self.callback.is_some()
+    }
+
+    pub(super) fn callback(&self) -> Option<RawCallback> {
+        self.callback.as_ref().map(Arc::clone)
     }
 }
 
-/// Options for creating a toast notification.
-pub struct ToastOptions<Message> {
-    /// Toast type (success, error, etc.).
-    pub toast_type: ToastType,
-    /// Description text below the title.
-    pub description: Option<String>,
-    /// Duration in milliseconds before auto-dismiss. `None` uses the
-    /// toaster's default.
-    pub duration: Option<u64>,
-    /// Whether the toast can be dismissed by the user.
-    pub dismissible: bool,
-    /// Action button.
-    pub action: Option<ToastAction<Message>>,
-    /// Cancel button.
-    pub cancel: Option<ToastAction<Message>>,
-    /// Whether to show the close button.
-    pub close_button: bool,
-    /// Rich colors mode for this toast.
-    pub rich_colors: bool,
-    /// Invert colors for this toast.
-    pub invert: bool,
-    /// Per-toast position override.
-    pub position: Option<ToastPosition>,
+/// Options shared by a toast's type-specific helper and its builder methods.
+#[derive(Debug, Clone)]
+pub struct ToastOptions {
+    pub(super) id: Option<ToastId>,
+    pub(super) toast_type: ToastType,
+    pub(super) description: Option<String>,
+    pub(super) duration_ms: Option<u64>,
+    pub(super) dismissible: bool,
+    pub(super) action: Option<ToastAction>,
+    pub(super) cancel: Option<ToastAction>,
+    pub(super) close_button: bool,
+    pub(super) rich_colors: bool,
+    pub(super) invert: bool,
+    pub(super) position: Option<ToastPosition>,
+    pub(super) important: bool,
+    pub(super) on_dismiss: Option<ToastCallback>,
+    pub(super) on_auto_close: Option<ToastCallback>,
 }
 
-impl<Message> Default for ToastOptions<Message> {
+impl Default for ToastOptions {
     fn default() -> Self {
         Self {
+            id: None,
             toast_type: ToastType::Default,
             description: None,
-            duration: None,
+            duration_ms: None,
             dismissible: true,
             action: None,
             cancel: None,
@@ -178,130 +165,348 @@ impl<Message> Default for ToastOptions<Message> {
             rich_colors: false,
             invert: false,
             position: None,
+            important: false,
+            on_dismiss: None,
+            on_auto_close: None,
         }
     }
 }
 
-impl<Message> ToastOptions<Message> {
-    /// Creates default options for the given toast type.
+impl ToastOptions {
+    /// Creates default options for a specific toast type.
     pub fn new(toast_type: ToastType) -> Self {
         Self {
             toast_type,
-            ..Default::default()
+            ..Self::default()
         }
     }
 
-    /// Sets the description text.
+    /// Sets the optional stable identifier used for updates.
+    #[must_use = "builder methods return the modified options"]
+    pub fn id(mut self, id: ToastId) -> Self {
+        self.id = Some(id);
+        self
+    }
+
+    /// Sets the secondary description shown below the title.
+    #[must_use = "builder methods return the modified options"]
     pub fn description(mut self, description: impl Into<String>) -> Self {
         self.description = Some(description.into());
         self
     }
 
-    /// Sets the auto-dismiss duration in milliseconds.
-    pub fn duration(mut self, duration: u64) -> Self {
-        self.duration = Some(duration);
+    /// Sets the toast's semantic and visual type.
+    #[must_use = "builder methods return the modified options"]
+    pub fn toast_type(mut self, toast_type: ToastType) -> Self {
+        self.toast_type = toast_type;
         self
     }
 
-    /// Sets whether the toast is dismissible.
+    /// Sets the auto-dismiss duration in milliseconds.
+    ///
+    /// A value of `0` creates a persistent toast. The default `None` uses the
+    /// duration configured on [`crate::Toaster`].
+    #[must_use = "builder methods return the modified options"]
+    pub fn duration(mut self, duration_ms: u64) -> Self {
+        self.duration_ms = Some(duration_ms);
+        self
+    }
+
+    /// Makes the toast dismissible or persistent.
+    #[must_use = "builder methods return the modified options"]
     pub fn dismissible(mut self, dismissible: bool) -> Self {
         self.dismissible = dismissible;
         self
     }
 
-    /// Sets the action button.
-    pub fn action(mut self, action: ToastAction<Message>) -> Self {
+    /// Adds an action button.
+    #[must_use = "builder methods return the modified options"]
+    pub fn action(mut self, action: ToastAction) -> Self {
         self.action = Some(action);
         self
     }
 
-    /// Sets the cancel button.
-    pub fn cancel(mut self, cancel: ToastAction<Message>) -> Self {
+    /// Adds a secondary cancel button.
+    #[must_use = "builder methods return the modified options"]
+    pub fn cancel(mut self, cancel: ToastAction) -> Self {
         self.cancel = Some(cancel);
         self
     }
 
-    /// Sets whether to show the close button.
+    /// Shows a close button on this toast.
+    #[must_use = "builder methods return the modified options"]
     pub fn close_button(mut self, close_button: bool) -> Self {
         self.close_button = close_button;
         self
     }
 
-    /// Sets rich colors mode.
+    /// Enables the type-specific rich color palette.
+    #[must_use = "builder methods return the modified options"]
     pub fn rich_colors(mut self, rich_colors: bool) -> Self {
         self.rich_colors = rich_colors;
         self
     }
 
-    /// Sets invert mode.
+    /// Inverts this toast against the current theme.
+    #[must_use = "builder methods return the modified options"]
     pub fn invert(mut self, invert: bool) -> Self {
         self.invert = invert;
         self
     }
 
-    /// Sets a per-toast position override.
+    /// Overrides the stack position for this toast.
+    #[must_use = "builder methods return the modified options"]
     pub fn position(mut self, position: ToastPosition) -> Self {
         self.position = Some(position);
         self
     }
+
+    /// Keeps this toast visible even when the stack reaches its limit.
+    #[must_use = "builder methods return the modified options"]
+    pub fn important(mut self, important: bool) -> Self {
+        self.important = important;
+        self
+    }
+
+    /// Publishes a message when the toast is dismissed manually.
+    #[must_use = "builder methods return the modified options"]
+    pub fn on_dismiss(mut self, callback: ToastCallback) -> Self {
+        self.on_dismiss = Some(callback);
+        self
+    }
+
+    /// Publishes a message when the toast expires automatically.
+    #[must_use = "builder methods return the modified options"]
+    pub fn on_auto_close(mut self, callback: ToastCallback) -> Self {
+        self.on_auto_close = Some(callback);
+        self
+    }
+
+    /// Returns the caller-provided identifier, if one was configured.
+    pub const fn id_value(&self) -> Option<ToastId> {
+        self.id
+    }
+
+    /// Returns the configured toast type.
+    pub const fn toast_type_value(&self) -> ToastType {
+        self.toast_type
+    }
+
+    /// Returns the optional description.
+    pub fn description_text(&self) -> Option<&str> {
+        self.description.as_deref()
+    }
+
+    /// Returns the optional auto-dismiss duration in milliseconds.
+    pub const fn duration_ms(&self) -> Option<u64> {
+        self.duration_ms
+    }
+
+    /// Returns whether the toast can be dismissed by the user.
+    pub const fn is_dismissible(&self) -> bool {
+        self.dismissible
+    }
+
+    /// Returns the configured action, if any.
+    pub fn action_ref(&self) -> Option<&ToastAction> {
+        self.action.as_ref()
+    }
+
+    /// Returns the configured cancel action, if any.
+    pub fn cancel_ref(&self) -> Option<&ToastAction> {
+        self.cancel.as_ref()
+    }
+
+    /// Returns whether this toast requests a close button.
+    pub const fn has_close_button(&self) -> bool {
+        self.close_button
+    }
+
+    /// Returns whether rich semantic colors are enabled.
+    pub const fn uses_rich_colors(&self) -> bool {
+        self.rich_colors
+    }
+
+    /// Returns whether the toast uses inverted colors.
+    pub const fn is_inverted(&self) -> bool {
+        self.invert
+    }
+
+    /// Returns the optional per-toast position override.
+    pub const fn position_override(&self) -> Option<ToastPosition> {
+        self.position
+    }
+
+    /// Returns whether this toast bypasses the visible-stack limit.
+    pub const fn is_important(&self) -> bool {
+        self.important
+    }
 }
 
-/// Toast lifetime: the raw data stored in the global state.
-///
-/// Actions are stored as type-erased closures using `unsafe` transmute.
-/// This is safe because:
-/// - The `toast()` function and the `Toaster` widget always use the same
-///   `Message` type (guaranteed by the app's type system).
-/// - The transmuted closure is only called in the `Toaster` widget's update
-///   method, which knows the correct `Message` type.
-pub(super) struct RawToast {
-    pub id: u64,
-    pub title: String,
-    pub toast_type: ToastType,
-    pub description: Option<String>,
-    pub duration: Option<u64>,
-    pub dismissible: bool,
-    pub close_button: bool,
-    pub rich_colors: bool,
-    pub invert: bool,
-    pub position: Option<ToastPosition>,
-    pub action_label: Option<String>,
-    pub cancel_label: Option<String>,
-    /// Type-erased action callback. Only safe to call from code that knows
-    /// the concrete `Message` type.
-    pub(super) action_cb: Option<Box<dyn Fn() -> Option<()> + Send + Sync>>,
-    /// Type-erased cancel callback. Only safe to call from code that knows
-    /// the concrete `Message` type.
-    pub(super) cancel_cb: Option<Box<dyn Fn() -> Option<()> + Send + Sync>>,
-    /// Timestamp (monotonic ms) when the toast was created, for timer
-    /// management.
-    pub created_at_ms: u64,
-    /// Whether the toast has been dismissed (triggers exit animation).
-    pub dismissed: bool,
-    /// Whether the toast is being removed (after exit animation).
-    pub removing: bool,
+/// A toast notification built with the Sonner-style fluent API.
+#[derive(Clone)]
+#[must_use = "a toast does nothing until it is shown or passed to a Toaster"]
+pub struct SonnerToast {
+    pub(super) id: ToastId,
+    pub(super) title: String,
+    pub(super) options: ToastOptions,
 }
 
-impl fmt::Debug for RawToast {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("RawToast")
+impl fmt::Debug for SonnerToast {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter
+            .debug_struct("SonnerToast")
             .field("id", &self.id)
             .field("title", &self.title)
-            .field("toast_type", &self.toast_type)
-            .field("description", &self.description)
-            .field("duration", &self.duration)
-            .field("dismissible", &self.dismissible)
-            .field("close_button", &self.close_button)
-            .field("rich_colors", &self.rich_colors)
-            .field("invert", &self.invert)
-            .field("position", &self.position)
-            .field("action_label", &self.action_label)
-            .field("cancel_label", &self.cancel_label)
-            .field("action_cb", &self.action_cb.is_some())
-            .field("cancel_cb", &self.cancel_cb.is_some())
-            .field("created_at_ms", &self.created_at_ms)
-            .field("dismissed", &self.dismissed)
-            .field("removing", &self.removing)
+            .field("options", &self.options)
             .finish()
     }
 }
+
+impl SonnerToast {
+    /// Creates a toast with a generated identifier.
+    pub fn new(title: impl Into<String>) -> Self {
+        Self {
+            id: next_toast_id(),
+            title: title.into(),
+            options: ToastOptions::default(),
+        }
+    }
+
+    /// Creates a toast using a caller-provided identifier.
+    pub fn with_id(id: ToastId) -> Self {
+        Self {
+            id,
+            title: String::new(),
+            options: ToastOptions::default().id(id),
+        }
+    }
+
+    /// Returns this toast's identifier.
+    pub const fn id(&self) -> ToastId {
+        self.id
+    }
+
+    /// Returns the title text.
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    /// Returns the configured options.
+    pub const fn options(&self) -> &ToastOptions {
+        &self.options
+    }
+
+    /// Sets the title text.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn title_text(mut self, title: impl Into<String>) -> Self {
+        self.title = title.into();
+        self
+    }
+
+    /// Sets the secondary description.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        self.options = self.options.description(description);
+        self
+    }
+
+    /// Sets the toast type.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn toast_type(mut self, toast_type: ToastType) -> Self {
+        self.options = self.options.toast_type(toast_type);
+        self
+    }
+
+    /// Sets an auto-dismiss duration in milliseconds; `0` is persistent.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn duration(mut self, duration_ms: u64) -> Self {
+        self.options = self.options.duration(duration_ms);
+        self
+    }
+
+    /// Sets whether the toast can be dismissed by the user.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn dismissible(mut self, dismissible: bool) -> Self {
+        self.options = self.options.dismissible(dismissible);
+        self
+    }
+
+    /// Adds an action button.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn action(mut self, action: ToastAction) -> Self {
+        self.options = self.options.action(action);
+        self
+    }
+
+    /// Adds a cancel button.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn cancel(mut self, cancel: ToastAction) -> Self {
+        self.options = self.options.cancel(cancel);
+        self
+    }
+
+    /// Shows or hides the close button for this toast.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn close_button(mut self, close_button: bool) -> Self {
+        self.options = self.options.close_button(close_button);
+        self
+    }
+
+    /// Enables or disables rich colors for this toast.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn rich_colors(mut self, rich_colors: bool) -> Self {
+        self.options = self.options.rich_colors(rich_colors);
+        self
+    }
+
+    /// Inverts this toast against the current theme.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn invert(mut self, invert: bool) -> Self {
+        self.options = self.options.invert(invert);
+        self
+    }
+
+    /// Overrides the stack position for this toast.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn position(mut self, position: ToastPosition) -> Self {
+        self.options = self.options.position(position);
+        self
+    }
+
+    /// Marks this toast as important when the visible stack is full.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn important(mut self, important: bool) -> Self {
+        self.options = self.options.important(important);
+        self
+    }
+
+    /// Adds a callback for manual dismissal.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn on_dismiss(mut self, callback: ToastCallback) -> Self {
+        self.options = self.options.on_dismiss(callback);
+        self
+    }
+
+    /// Adds a callback for automatic expiration.
+    #[must_use = "builder methods return the modified toast"]
+    pub fn on_auto_close(mut self, callback: ToastCallback) -> Self {
+        self.options = self.options.on_auto_close(callback);
+        self
+    }
+
+    /// Shows this toast in the process-wide Sonner queue.
+    pub fn show(self) -> ToastId {
+        crate::components::sonner::state::create_toast(self)
+    }
+
+    pub(super) fn into_parts(self) -> (ToastId, String, ToastOptions) {
+        (self.id, self.title, self.options)
+    }
+}
+
+/// The conventional short name for [`SonnerToast`].
+pub type Toast = SonnerToast;
+
+/// Type-erased callback storage used only inside the process-wide queue.
+pub(super) type RawCallback = Arc<dyn Fn() -> Option<Box<dyn Any>> + Send + Sync + 'static>;

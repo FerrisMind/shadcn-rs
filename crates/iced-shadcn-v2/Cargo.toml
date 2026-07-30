@@ -39,4 +39,4 @@ tiny-skia = [
     "iced_renderer/x11",
     "iced_renderer/wayland",
 ]
-serde = ["dep:serde"]
+serde = ["dep:serde", "shadcn-common/serde"]

@@ -1,336 +1,273 @@
-//! Style resolution for sonner toast notifications.
-//!
-//! Maps toast types and theme mode to the visual properties (background,
-//! border, text color) matching shadcn-svelte's sonner defaults.
+//! Theme-aware style resolution for Sonner toasts.
 
-use crate::iced_compat::Color;
+use crate::iced_compat::{Color, Shadow, Vector};
 use crate::theme::Theme;
+use shadcn_common::StyleId;
 
 use super::types::ToastType;
 
-/// Resolved visual style for a toast notification.
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct ToastStyle {
-    /// Toast background color.
-    pub background: Color,
-    /// Text color for the title and description.
-    pub text: Color,
-    /// Border color.
-    pub border_color: Color,
-    /// Border width in pixels.
-    pub border_width: f32,
-    /// Border radius in pixels.
-    pub border_radius: f32,
-    /// Shadow.
-    pub shadow: crate::iced_compat::Shadow,
+/// Resolved colors and geometry for one toast surface.
+///
+/// The type is intentionally configured through `with_*` methods so style
+/// overrides remain forward-compatible if more visual tokens are added.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ToastStyle {
+    background: Color,
+    text: Color,
+    description: Color,
+    border: Color,
+    icon: Color,
+    action_background: Color,
+    action_text: Color,
+    cancel_background: Color,
+    cancel_text: Color,
+    border_width: f32,
+    radius: f32,
+    shadow: Shadow,
 }
 
-/// Default toast width in pixels (matches shadcn-svelte `--width: 356px`).
-pub(crate) const TOAST_WIDTH: f32 = 356.0;
+impl ToastStyle {
+    /// Returns the toast surface color.
+    pub const fn background(self) -> Color {
+        self.background
+    }
 
-/// Default gap between toasts in pixels.
-pub(crate) const TOAST_GAP: f32 = 14.0;
+    /// Returns the title color.
+    pub const fn text(self) -> Color {
+        self.text
+    }
 
-/// Default viewport offset in pixels.
-pub(crate) const TOAST_OFFSET: f32 = 24.0;
+    /// Returns the description color — a muted foreground, matching
+    /// svelte-sonner's `color: #3f3f3f` (light) / `hsl(0,0%,91%)` (dark),
+    /// captured on shadcn-svelte.com as `rgb(63, 63, 63)`.
+    pub const fn description(self) -> Color {
+        self.description
+    }
 
-/// Default toast padding in pixels.
-pub(crate) const TOAST_PADDING: f32 = 16.0;
+    /// Returns the outline color.
+    pub const fn border(self) -> Color {
+        self.border
+    }
 
-/// Default border radius in pixels.
-pub(crate) const TOAST_RADIUS: f32 = 8.0;
+    /// Returns the semantic icon color.
+    pub const fn icon(self) -> Color {
+        self.icon
+    }
 
-/// Default toast font size in pixels.
-pub(crate) const TOAST_FONT_SIZE: f32 = 13.0;
+    /// Returns the primary action background color.
+    pub const fn action_background(self) -> Color {
+        self.action_background
+    }
 
-/// Default description font weight (400 = normal).
-pub(crate) const DESCRIPTION_FONT_WEIGHT: u16 = 400;
+    /// Returns the primary action text color.
+    pub const fn action_text(self) -> Color {
+        self.action_text
+    }
 
-/// Default title font weight (500 = medium).
-pub(crate) const TITLE_FONT_WEIGHT: u16 = 500;
+    /// Returns the cancel action background color.
+    pub const fn cancel_background(self) -> Color {
+        self.cancel_background
+    }
 
-/// Default auto-dismiss duration in milliseconds.
-pub(crate) const DEFAULT_DURATION_MS: u64 = 4000;
+    /// Returns the cancel action text color.
+    pub const fn cancel_text(self) -> Color {
+        self.cancel_text
+    }
 
-/// Maximum number of visible toasts.
-pub(crate) const MAX_VISIBLE_TOASTS: usize = 3;
+    /// Returns the outline width in pixels.
+    pub const fn border_width(self) -> f32 {
+        self.border_width
+    }
 
-/// Scale factor for stacked toasts behind the front toast.
-pub(crate) const STACK_SCALE_STEP: f32 = 0.05;
+    /// Returns the surface corner radius in pixels.
+    pub const fn radius(self) -> f32 {
+        self.radius
+    }
 
-/// Duration of the enter/exit animation in milliseconds.
-pub(crate) const ANIMATION_MS: u64 = 400;
+    /// Returns the surface shadow.
+    pub const fn shadow(self) -> Shadow {
+        self.shadow
+    }
 
-/// Duration before unmounting after exit animation.
-pub(crate) const UNMOUNT_DELAY_MS: u64 = 200;
+    /// Replaces the surface color.
+    #[must_use = "style methods return the modified style"]
+    pub const fn with_background(mut self, background: Color) -> Self {
+        self.background = background;
+        self
+    }
 
-/// Resolves the visual style for a toast based on its type and the current
-/// theme.
-pub(crate) fn resolve_toast_style(
+    /// Replaces the text color.
+    #[must_use = "style methods return the modified style"]
+    pub const fn with_text(mut self, text: Color) -> Self {
+        self.text = text;
+        self
+    }
+
+    /// Replaces the description color.
+    #[must_use = "style methods return the modified style"]
+    pub const fn with_description(mut self, description: Color) -> Self {
+        self.description = description;
+        self
+    }
+
+    /// Replaces the outline color.
+    #[must_use = "style methods return the modified style"]
+    pub const fn with_border(mut self, border: Color) -> Self {
+        self.border = border;
+        self
+    }
+
+    /// Replaces the icon color.
+    #[must_use = "style methods return the modified style"]
+    pub const fn with_icon(mut self, icon: Color) -> Self {
+        self.icon = icon;
+        self
+    }
+
+    /// Replaces the primary action colors.
+    #[must_use = "style methods return the modified style"]
+    pub const fn with_action(mut self, background: Color, text: Color) -> Self {
+        self.action_background = background;
+        self.action_text = text;
+        self
+    }
+
+    /// Replaces the cancel action colors.
+    #[must_use = "style methods return the modified style"]
+    pub const fn with_cancel(mut self, background: Color, text: Color) -> Self {
+        self.cancel_background = background;
+        self.cancel_text = text;
+        self
+    }
+
+    /// Replaces the outline width, clamped to a non-negative value.
+    #[must_use = "style methods return the modified style"]
+    pub fn with_border_width(mut self, border_width: f32) -> Self {
+        self.border_width = finite_non_negative(border_width);
+        self
+    }
+
+    /// Replaces the corner radius, clamped to a non-negative value.
+    #[must_use = "style methods return the modified style"]
+    pub fn with_radius(mut self, radius: f32) -> Self {
+        self.radius = finite_non_negative(radius);
+        self
+    }
+
+    /// Replaces the surface shadow.
+    #[must_use = "style methods return the modified style"]
+    pub const fn with_shadow(mut self, shadow: Shadow) -> Self {
+        self.shadow = shadow;
+        self
+    }
+}
+
+pub(super) fn resolve_toast_style(
     theme: &Theme,
     toast_type: ToastType,
     rich_colors: bool,
+    invert: bool,
 ) -> ToastStyle {
-    let is_dark = theme.is_dark();
-
-    match toast_type {
-        ToastType::Default => default_toast_style(theme, is_dark),
-        ToastType::Success => {
-            if rich_colors {
-                rich_success_style(is_dark)
-            } else {
-                default_toast_style(theme, is_dark)
-            }
-        }
-        ToastType::Info => {
-            if rich_colors {
-                rich_info_style(is_dark)
-            } else {
-                default_toast_style(theme, is_dark)
-            }
-        }
-        ToastType::Warning => {
-            if rich_colors {
-                rich_warning_style(is_dark)
-            } else {
-                default_toast_style(theme, is_dark)
-            }
-        }
-        ToastType::Error => {
-            if rich_colors {
-                rich_error_style(is_dark)
-            } else {
-                default_toast_style(theme, is_dark)
-            }
-        }
-        ToastType::Loading => default_toast_style(theme, is_dark),
-    }
-}
-
-/// Style for inverted toasts (dark in light mode, light in dark mode).
-pub(crate) fn inverted_toast_style(is_dark: bool) -> ToastStyle {
-    if is_dark {
-        ToastStyle {
-            background: Color::WHITE,
-            text: Color::from_rgb(0.09, 0.09, 0.09),
-            border_color: Color::from_rgba(0.87, 0.87, 0.87, 1.0),
-            border_width: 1.0,
-            border_radius: TOAST_RADIUS,
-            shadow: default_shadow(),
-        }
+    let palette = &theme.palette;
+    let base_background = if invert {
+        palette.foreground
     } else {
-        ToastStyle {
-            background: Color::BLACK,
-            text: Color::from_rgba(0.98, 0.98, 0.98, 1.0),
-            border_color: Color::from_rgba(0.2, 0.2, 0.2, 1.0),
-            border_width: 1.0,
-            border_radius: TOAST_RADIUS,
-            shadow: default_shadow(),
-        }
-    }
-}
+        palette.popover
+    };
+    let base_text = if invert {
+        palette.background
+    } else {
+        palette.popover_foreground
+    };
+    let base_border = if invert {
+        palette.background.scale_alpha(0.32)
+    } else {
+        palette.border
+    };
 
-/// Default toast style (normal-bg / normal-text / normal-border).
-fn default_toast_style(_theme: &Theme, is_dark: bool) -> ToastStyle {
-    let (bg, text, border) = if is_dark {
+    let semantic = match toast_type {
+        ToastType::Success => palette.chart_2,
+        ToastType::Info => palette.chart_1,
+        ToastType::Warning => palette.chart_4,
+        ToastType::Error => palette.destructive,
+        ToastType::Default | ToastType::Loading => palette.muted_foreground,
+        // Future kinds added to the shared `non_exhaustive` `ToastType` fall
+        // back to the neutral index color used by the default/loading kinds.
+        _ => palette.muted_foreground,
+    };
+
+    // `richColors` recolours only the success/info/warning/error kinds — the
+    // default and loading kinds stay on the neutral popover palette even in
+    // rich mode, matching svelte-sonner's
+    // `[data-rich-colors='true'] [data-type='success'|'info'|'warning'|'error']`
+    // selector (verified against shadcn-svelte.com via Playwright).
+    let colored = rich_colors && !matches!(toast_type, ToastType::Default | ToastType::Loading);
+    let (background, border, icon) = if colored {
         (
-            Color::BLACK,
-            Color::from_rgba(0.98, 0.98, 0.98, 1.0), // gray1
-            Color::from_rgba(0.2, 0.2, 0.2, 1.0),    // gray4
+            mix(
+                base_background,
+                semantic,
+                if theme.is_dark() { 0.22 } else { 0.10 },
+            ),
+            mix(base_border, semantic, 0.42),
+            semantic,
         )
     } else {
-        (
-            Color::WHITE,
-            Color::from_rgba(0.09, 0.09, 0.09, 1.0), // gray12
-            Color::from_rgba(0.93, 0.93, 0.93, 1.0), // gray4
-        )
+        // Without rich colors the icon inherits the toast's foreground color
+        // (one neutral glyph), exactly like svelte-sonner's non-rich styling.
+        (base_background, base_border, base_text)
     };
 
     ToastStyle {
-        background: bg,
-        text,
-        border_color: border,
+        background,
+        text: base_text,
+        description: palette.muted_foreground,
+        border,
+        icon,
+        action_background: base_text,
+        action_text: base_background,
+        cancel_background: base_border.scale_alpha(0.36),
+        cancel_text: base_text,
         border_width: 1.0,
-        border_radius: TOAST_RADIUS,
-        shadow: default_shadow(),
-    }
-}
-
-/// Rich success style.
-fn rich_success_style(is_dark: bool) -> ToastStyle {
-    let (bg, border, text) = if is_dark {
-        (
-            Color::from_rgba(0.06, 0.45, 0.19, 1.0), // hsl(150, 100%, 6%)
-            Color::from_rgba(0.12, 0.52, 0.27, 1.0), // hsl(147, 100%, 12%)
-            Color::from_rgba(0.65, 0.86, 0.55, 1.0), // hsl(150, 86%, 65%)
-        )
-    } else {
-        (
-            Color::from_rgba(0.96, 0.98, 0.96, 1.0), // hsl(143, 85%, 96%)
-            Color::from_rgba(0.87, 0.95, 0.88, 1.0), // hsl(145, 92%, 87%)
-            Color::from_rgba(0.13, 0.55, 0.13, 1.0), // hsl(140, 100%, 27%)
-        )
-    };
-
-    ToastStyle {
-        background: bg,
-        text,
-        border_color: border,
-        border_width: 1.0,
-        border_radius: TOAST_RADIUS,
-        shadow: default_shadow(),
-    }
-}
-
-/// Rich info style.
-fn rich_info_style(is_dark: bool) -> ToastStyle {
-    let (bg, border, text) = if is_dark {
-        (
-            Color::from_rgba(0.06, 0.22, 0.47, 1.0), // hsl(215, 100%, 6%)
-            Color::from_rgba(0.17, 0.31, 0.52, 1.0), // hsl(223, 43%, 17%)
-            Color::from_rgba(0.65, 0.77, 0.85, 1.0), // hsl(216, 87%, 65%)
-        )
-    } else {
-        (
-            Color::from_rgba(0.97, 0.98, 1.0, 1.0),  // hsl(208, 100%, 97%)
-            Color::from_rgba(0.93, 0.95, 0.98, 1.0), // hsl(221, 91%, 93%)
-            Color::from_rgba(0.18, 0.45, 0.82, 1.0), // hsl(210, 92%, 45%)
-        )
-    };
-
-    ToastStyle {
-        background: bg,
-        text,
-        border_color: border,
-        border_width: 1.0,
-        border_radius: TOAST_RADIUS,
-        shadow: default_shadow(),
-    }
-}
-
-/// Rich warning style.
-fn rich_warning_style(is_dark: bool) -> ToastStyle {
-    let (bg, border, text) = if is_dark {
-        (
-            Color::from_rgba(0.27, 0.27, 0.06, 1.0), // hsl(64, 100%, 6%)
-            Color::from_rgba(0.33, 0.33, 0.09, 1.0), // hsl(60, 100%, 9%)
-            Color::from_rgba(0.85, 0.77, 0.40, 1.0), // hsl(46, 87%, 65%)
-        )
-    } else {
-        (
-            Color::from_rgba(1.0, 0.99, 0.97, 1.0),  // hsl(49, 100%, 97%)
-            Color::from_rgba(1.0, 0.95, 0.84, 1.0),  // hsl(49, 91%, 84%)
-            Color::from_rgba(0.55, 0.30, 0.18, 1.0), // hsl(31, 92%, 45%)
-        )
-    };
-
-    ToastStyle {
-        background: bg,
-        text,
-        border_color: border,
-        border_width: 1.0,
-        border_radius: TOAST_RADIUS,
-        shadow: default_shadow(),
-    }
-}
-
-/// Rich error style.
-fn rich_error_style(is_dark: bool) -> ToastStyle {
-    let (bg, border, text) = if is_dark {
-        (
-            Color::from_rgba(0.35, 0.08, 0.10, 1.0), // hsl(358, 76%, 10%)
-            Color::from_rgba(0.45, 0.13, 0.16, 1.0), // hsl(357, 89%, 16%)
-            Color::from_rgba(1.0, 0.44, 0.48, 1.0),  // hsl(358, 100%, 81%)
-        )
-    } else {
-        (
-            Color::from_rgba(1.0, 0.97, 0.97, 1.0), // hsl(359, 100%, 97%)
-            Color::from_rgba(1.0, 0.94, 0.94, 1.0), // hsl(359, 100%, 94%)
-            Color::from_rgba(0.88, 0.0, 0.0, 1.0),  // hsl(360, 100%, 45%)
-        )
-    };
-
-    ToastStyle {
-        background: bg,
-        text,
-        border_color: border,
-        border_width: 1.0,
-        border_radius: TOAST_RADIUS,
-        shadow: default_shadow(),
-    }
-}
-
-/// Default toast shadow.
-fn default_shadow() -> crate::iced_compat::Shadow {
-    crate::iced_compat::Shadow {
-        color: Color::from_rgba(0.0, 0.0, 0.0, 0.1),
-        offset: crate::iced_compat::Vector::new(0.0, 4.0),
-        blur_radius: 12.0,
-    }
-}
-
-/// Close button style for a toast.
-pub(crate) fn close_button_style(is_dark: bool) -> ToastStyle {
-    ToastStyle {
-        background: if is_dark {
-            Color::from_rgba(0.15, 0.15, 0.15, 1.0) // gray2 dark
-        } else {
-            Color::from_rgba(0.97, 0.97, 0.97, 1.0) // gray2 light
+        radius: toast_radius(theme),
+        shadow: Shadow {
+            color: Color::BLACK.scale_alpha(0.10),
+            offset: Vector::new(0.0, 4.0),
+            blur_radius: 12.0,
         },
-        text: if is_dark {
-            Color::from_rgba(0.09, 0.09, 0.09, 1.0) // gray12 dark
-        } else {
-            Color::from_rgba(0.09, 0.09, 0.09, 1.0) // gray12 light
-        },
-        border_color: if is_dark {
-            Color::from_rgba(0.25, 0.25, 0.25, 1.0) // gray5 dark
-        } else {
-            Color::from_rgba(0.93, 0.93, 0.93, 1.0) // gray4 light
-        },
-        border_width: 1.0,
-        border_radius: 9999.0, // fully rounded
-        shadow: crate::iced_compat::Shadow::default(),
     }
 }
 
-/// Action button style.
-pub(crate) fn action_button_style(is_dark: bool) -> ToastStyle {
-    let (bg, text) = if is_dark {
-        (Color::BLACK, Color::WHITE) // normal-bg, normal-text inverted
-    } else {
-        (Color::from_rgb(0.09, 0.09, 0.09), Color::WHITE)
-    };
-
-    ToastStyle {
-        background: bg,
-        text,
-        border_color: Color::TRANSPARENT,
-        border_width: 0.0,
-        border_radius: 4.0,
-        shadow: crate::iced_compat::Shadow::default(),
+/// Resolves the `.cn-toast` radius from the active shadcn style pack.
+///
+/// The Svelte style sheets use `rounded-2xl` for the regular packs,
+/// `rounded-md` for Mira, and `rounded-none` for Lyra/Sera. The radius scale
+/// already includes custom picker overrides, so using it here keeps Sonner in
+/// sync with the rest of the theme instead of freezing the surface at 8 px.
+fn toast_radius(theme: &Theme) -> f32 {
+    match theme.style_id() {
+        StyleId::Mira => theme.radius_scale().md_px.max(0.0),
+        StyleId::Lyra | StyleId::Sera => 0.0,
+        StyleId::Vega | StyleId::Nova | StyleId::Maia | StyleId::Luma | StyleId::Rhea => {
+            theme.radius_scale().xxl_px.max(0.0)
+        }
     }
 }
 
-/// Cancel button style.
-pub(crate) fn cancel_button_style(is_dark: bool) -> ToastStyle {
-    let (bg, text) = if is_dark {
-        (
-            Color::from_rgba(1.0, 1.0, 1.0, 0.3), // rgba white
-            Color::from_rgba(0.98, 0.98, 0.98, 1.0),
-        )
+fn finite_non_negative(value: f32) -> f32 {
+    if value.is_finite() {
+        value.max(0.0)
     } else {
-        (
-            Color::from_rgba(0.0, 0.0, 0.0, 0.08), // rgba black
-            Color::from_rgba(0.09, 0.09, 0.09, 1.0),
-        )
-    };
+        0.0
+    }
+}
 
-    ToastStyle {
-        background: bg,
-        text,
-        border_color: Color::TRANSPARENT,
-        border_width: 0.0,
-        border_radius: 4.0,
-        shadow: crate::iced_compat::Shadow::default(),
+fn mix(start: Color, end: Color, amount: f32) -> Color {
+    let amount = amount.clamp(0.0, 1.0);
+    Color {
+        r: start.r + (end.r - start.r) * amount,
+        g: start.g + (end.g - start.g) * amount,
+        b: start.b + (end.b - start.b) * amount,
+        a: start.a + (end.a - start.a) * amount,
     }
 }
