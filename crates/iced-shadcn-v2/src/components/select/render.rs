@@ -11,8 +11,8 @@ use iced_core::text::paragraph;
 use iced_core::text::{self as core_text, Renderer as _, Text};
 
 use shadcn_common::{
-    Direction, FontWeight, NavAction, NavKey, Orientation, SELECT_CONTENT_MAX_HEIGHT_PX,
-    SELECT_SIDE_OFFSET_PX, resolve_nav_action,
+    Direction, FontWeight, NavAction, NavKey, Orientation, SELECT_SIDE_OFFSET_PX,
+    resolve_nav_action,
 };
 
 use crate::iced_compat::advanced::renderer::Renderer as _;
@@ -20,10 +20,11 @@ use crate::iced_compat::advanced::widget::{Tree, tree};
 use crate::iced_compat::advanced::{Clipboard, Shell, Widget, layout, overlay, renderer};
 use crate::iced_compat::widget::canvas;
 use crate::iced_compat::widget::graphics::geometry::Renderer as _;
-use crate::iced_compat::widget::scrollable::Scrollable;
 use crate::iced_compat::{
     Background, Border, Color, Element, Event, Font, Length, Pixels, Point, Rectangle, Renderer,
-    Shadow, Size, Theme as IcedTheme, Vector, alignment, mouse, touch, window,
+    Shadow, Size, Theme as IcedTheme, Vector, alignment, mouse,
+    time::{Duration, Instant},
+    touch, window,
 };
 
 use super::style::{
@@ -54,6 +55,7 @@ where
     pub(super) size: SelectSize,
     pub(super) radius: Option<SelectRadius>,
     pub(super) width: Length,
+    pub(super) max_height: f32,
     pub(super) text_size: Option<f32>,
     pub(super) disabled: bool,
     pub(super) invalid: bool,
@@ -67,11 +69,194 @@ where
     pub(super) last_status: Option<SelectStatus>,
 }
 
+/// Direction of an active scroll-button hold (bits-ui auto-scroll).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ScrollHoldDir {
+    Up,
+    Down,
+}
+
+/// bits-ui select scroll-button default `delay` (`() => 50`).
+const SCROLL_HOLD_INTERVAL: Duration = Duration::from_millis(50);
+
+/// Height of `.cn-select-scroll-*-button` (`py-1` + icon).
+fn scroll_button_height(recipe: shadcn_common::SelectRecipe) -> f32 {
+    recipe.scroll_button_pad_y_px * 2.0 + recipe.icon_size_px
+}
+
+/// Typical option row height used as the bits-ui auto-scroll step.
+fn typical_option_height(recipe: shadcn_common::SelectRecipe, text_size: f32) -> f32 {
+    recipe.item_typography.line_height_px.max(text_size + 6.0) + recipe.item_pad_y_px * 2.0
+}
+
+fn row_height_px(
+    recipe: shadcn_common::SelectRecipe,
+    text_size: f32,
+    row: &Row<impl Clone + PartialEq>,
+) -> f32 {
+    match row {
+        Row::Separator => recipe.separator_margin_y_px * 2.0 + 1.0,
+        Row::Label { .. } => recipe.label_typography.line_height_px + recipe.label_pad_y_px * 2.0,
+        Row::Option { .. } => typical_option_height(recipe, text_size),
+    }
+}
+
+fn content_total_height(
+    rows: &[Row<impl Clone + PartialEq>],
+    recipe: shadcn_common::SelectRecipe,
+    text_size: f32,
+) -> f32 {
+    let pad = recipe.content_pad_px * 2.0;
+    pad + rows
+        .iter()
+        .map(|row| row_height_px(recipe, text_size, row))
+        .sum::<f32>()
+}
+
+/// Resolves scroll-button visibility + viewport height.
+///
+/// `can_down` is decided against the viewport **without** the down button.
+/// Reserving the down button first shrinks the viewport, inflates `max_scroll`,
+/// and keeps `can_down` stuck true (self-fulfilling overflow).
+fn compute_scroll_metrics(
+    content_h: f32,
+    button_h: f32,
+    budget: f32,
+    mut scroll_offset: f32,
+) -> (OverlayMetrics, f32) {
+    let max_h = budget.max(0.0);
+
+    if content_h <= max_h + 0.5 {
+        return (
+            OverlayMetrics {
+                up_h: 0.0,
+                down_h: 0.0,
+                viewport_h: content_h,
+                outer_h: content_h,
+                can_up: false,
+                can_down: false,
+                max_scroll: 0.0,
+            },
+            0.0,
+        );
+    }
+
+    // Pass 1: decide buttons. `can_up` depends only on offset. `can_down` uses
+    // the remaining budget after an up button — never after a down button.
+    let can_up = scroll_offset > 0.5;
+    let up_h = if can_up { button_h } else { 0.0 };
+    let max_scroll_without_down = (content_h - (max_h - up_h).max(0.0)).max(0.0);
+    let can_down = scroll_offset < max_scroll_without_down - 0.5;
+
+    let down_h = if can_down { button_h } else { 0.0 };
+    let viewport_h = (max_h - up_h - down_h).max(0.0);
+    let max_scroll = (content_h - viewport_h).max(0.0);
+    scroll_offset = scroll_offset.clamp(0.0, max_scroll);
+
+    // Pass 2: offset clamp may clear `can_up`; recompute once.
+    let can_up = scroll_offset > 0.5;
+    let up_h = if can_up { button_h } else { 0.0 };
+    let max_scroll_without_down = (content_h - (max_h - up_h).max(0.0)).max(0.0);
+    let can_down = scroll_offset < max_scroll_without_down - 0.5;
+    let down_h = if can_down { button_h } else { 0.0 };
+    let viewport_h = (max_h - up_h - down_h).max(0.0);
+    let max_scroll = (content_h - viewport_h).max(0.0);
+    scroll_offset = scroll_offset.clamp(0.0, max_scroll);
+
+    (
+        OverlayMetrics {
+            up_h,
+            down_h,
+            viewport_h,
+            outer_h: up_h + viewport_h + down_h,
+            can_up: scroll_offset > 0.5,
+            can_down,
+            max_scroll,
+        },
+        scroll_offset,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn tick_scroll_hold<Message>(
+    scroll_offset: &mut f32,
+    scroll_hold: &mut Option<(ScrollHoldDir, Instant)>,
+    content_h: f32,
+    button_h: f32,
+    budget: f32,
+    step: f32,
+    now: Instant,
+    shell: &mut Shell<'_, Message>,
+) {
+    let Some((dir, last)) = *scroll_hold else {
+        return;
+    };
+
+    let (metrics, clamped) = compute_scroll_metrics(content_h, button_h, budget, *scroll_offset);
+    *scroll_offset = clamped;
+
+    let exhausted = match dir {
+        ScrollHoldDir::Up => !metrics.can_up,
+        ScrollHoldDir::Down => !metrics.can_down,
+    };
+    if exhausted {
+        *scroll_hold = None;
+        shell.request_redraw();
+        return;
+    }
+
+    let next_tick = last + SCROLL_HOLD_INTERVAL;
+    if now < next_tick {
+        shell.request_redraw_at(next_tick);
+        return;
+    }
+
+    let delta = match dir {
+        ScrollHoldDir::Up => -step,
+        ScrollHoldDir::Down => step,
+    };
+    let (metrics, next) =
+        compute_scroll_metrics(content_h, button_h, budget, *scroll_offset + delta);
+    *scroll_offset = next;
+
+    let exhausted = match dir {
+        ScrollHoldDir::Up => !metrics.can_up,
+        ScrollHoldDir::Down => !metrics.can_down,
+    };
+    if exhausted {
+        *scroll_hold = None;
+    } else {
+        *scroll_hold = Some((dir, now));
+        shell.request_redraw_at(now + SCROLL_HOLD_INTERVAL);
+    }
+    shell.request_redraw();
+}
+
+fn arm_scroll_hold<Message>(
+    scroll_hold: &mut Option<(ScrollHoldDir, Instant)>,
+    dir: ScrollHoldDir,
+    now: Instant,
+    shell: &mut Shell<'_, Message>,
+) {
+    if scroll_hold.is_some_and(|(active, _)| active == dir) {
+        if let Some((_, last)) = *scroll_hold {
+            shell.request_redraw_at(last + SCROLL_HOLD_INTERVAL);
+        }
+        return;
+    }
+
+    *scroll_hold = Some((dir, now));
+    shell.request_redraw_at(now + SCROLL_HOLD_INTERVAL);
+}
+
 /// Widget-tree state of the trigger and its dropdown.
 struct State {
     is_open: bool,
     hovered_row: Option<usize>,
-    menu_tree: Tree,
+    /// Vertical scroll of the select viewport (bits-ui `viewport.scrollTop`).
+    scroll_offset: f32,
+    /// Active hover on `.cn-select-scroll-*-button` for bits-ui auto-scroll.
+    scroll_hold: Option<(ScrollHoldDir, Instant)>,
     rows: Vec<paragraph::Plain<ParagraphOf>>,
     placeholder: paragraph::Plain<ParagraphOf>,
 }
@@ -81,7 +266,8 @@ impl State {
         Self {
             is_open: false,
             hovered_row: None,
-            menu_tree: Tree::empty(),
+            scroll_offset: 0.0,
+            scroll_hold: None,
             rows: Vec::new(),
             placeholder: paragraph::Plain::default(),
         }
@@ -281,6 +467,7 @@ where
             | Event::Touch(touch::Event::FingerPressed { .. }) => {
                 if state.is_open {
                     state.is_open = false;
+                    state.scroll_hold = None;
 
                     if let Some(on_close) = &self.on_close {
                         shell.publish(on_close.clone());
@@ -289,6 +476,8 @@ where
                     shell.capture_event();
                 } else if cursor.is_over(layout.bounds()) && self.is_interactive() {
                     state.is_open = true;
+                    state.scroll_offset = 0.0;
+                    state.scroll_hold = None;
                     state.hovered_row = self
                         .rows
                         .iter()
@@ -328,8 +517,29 @@ where
 
         let status = self.status(state, cursor.is_over(layout.bounds()));
 
-        if let Event::Window(window::Event::RedrawRequested(_now)) = event {
+        if let Event::Window(window::Event::RedrawRequested(now)) = event {
             self.last_status = Some(status);
+
+            // Drive scroll-button auto-scroll from the widget: overlay hover
+            // arms `scroll_hold`, but redraw scheduling is reliable here.
+            if state.is_open && state.scroll_hold.is_some() {
+                let recipe = style::recipe(self.theme);
+                let text_size = self.resolved_text_size();
+                let content_h = content_total_height(&self.rows, recipe, text_size);
+                let button_h = scroll_button_height(recipe);
+                let step = typical_option_height(recipe, text_size);
+
+                tick_scroll_hold(
+                    &mut state.scroll_offset,
+                    &mut state.scroll_hold,
+                    content_h,
+                    button_h,
+                    self.max_height,
+                    step,
+                    *now,
+                    shell,
+                );
+            }
         } else if self
             .last_status
             .is_some_and(|last_status| last_status != status)
@@ -467,7 +677,7 @@ where
         tree: &'b mut Tree,
         layout: layout::Layout<'b>,
         _renderer: &Renderer,
-        viewport: &Rectangle,
+        _viewport: &Rectangle,
         translation: Vector,
     ) -> Option<overlay::Element<'b, Message, IcedTheme, Renderer>> {
         let state = tree.state.downcast_mut::<State>();
@@ -494,7 +704,8 @@ where
         let State {
             is_open,
             hovered_row,
-            menu_tree,
+            scroll_offset,
+            scroll_hold,
             ..
         } = state;
 
@@ -521,11 +732,12 @@ where
         Some(
             MenuOverlay::new(
                 layout.position() + translation,
-                *viewport,
-                menu_tree,
                 list,
+                scroll_offset,
+                scroll_hold,
                 bounds.width.max(recipe.content_min_width_px),
                 bounds.height,
+                self.max_height,
                 content_style,
             )
             .element(),
@@ -598,44 +810,56 @@ fn draw_check(renderer: &mut Renderer, center: Point, size: f32, color: Color) {
     );
 }
 
-/// Dropdown overlay: scrollable list on the `.cn-select-content` surface.
-struct MenuOverlay<'a, Message> {
+/// Dropdown overlay: bits-ui select content with scroll buttons + clipped viewport.
+struct MenuOverlay<'a, T, Message>
+where
+    T: Clone + PartialEq,
+{
     position: Point,
-    viewport: Rectangle,
-    tree: &'a mut Tree,
-    list: Scrollable<'a, Message, IcedTheme, Renderer>,
+    list: List<'a, T, Message>,
+    scroll_offset: &'a mut f32,
+    scroll_hold: &'a mut Option<(ScrollHoldDir, Instant)>,
     width: f32,
     target_height: f32,
+    max_height: f32,
     style: SelectContentStyle,
 }
 
-impl<'a, Message> MenuOverlay<'a, Message>
+#[derive(Debug, Clone, Copy)]
+struct OverlayMetrics {
+    up_h: f32,
+    down_h: f32,
+    viewport_h: f32,
+    outer_h: f32,
+    can_up: bool,
+    can_down: bool,
+    max_scroll: f32,
+}
+
+impl<'a, T, Message> MenuOverlay<'a, T, Message>
 where
-    Message: 'a,
+    T: Clone + PartialEq + 'a,
+    Message: Clone + 'a,
 {
-    fn new<T>(
+    #[allow(clippy::too_many_arguments)]
+    fn new(
         position: Point,
-        viewport: Rectangle,
-        tree: &'a mut Tree,
         list: List<'a, T, Message>,
+        scroll_offset: &'a mut f32,
+        scroll_hold: &'a mut Option<(ScrollHoldDir, Instant)>,
         width: f32,
         target_height: f32,
+        max_height: f32,
         style: SelectContentStyle,
-    ) -> Self
-    where
-        T: Clone + PartialEq + 'a,
-        Message: Clone + 'a,
-    {
-        let list = Scrollable::new(list);
-        tree.diff(&list as &dyn Widget<_, _, _>);
-
+    ) -> Self {
         Self {
             position,
-            viewport,
-            tree,
             list,
+            scroll_offset,
+            scroll_hold,
             width,
             target_height,
+            max_height: max_height.max(0.0),
             style,
         }
     }
@@ -643,29 +867,102 @@ where
     fn element(self) -> overlay::Element<'a, Message, IcedTheme, Renderer> {
         overlay::Element::new(Box::new(self))
     }
+
+    fn button_height(&self) -> f32 {
+        scroll_button_height(self.list.recipe)
+    }
+
+    fn step_height(&self) -> f32 {
+        // bits-ui scrolls by the highlighted item height; fall back to a typical option row.
+        self.list
+            .hovered_row
+            .and_then(|index| {
+                if index < self.list.rows.len() {
+                    Some(self.list.row_height(index))
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_else(|| typical_option_height(self.list.recipe, self.list.text_size))
+    }
+
+    fn resolve_metrics(&mut self, available: f32) -> OverlayMetrics {
+        let (metrics, offset) = compute_scroll_metrics(
+            self.list.total_height(),
+            self.button_height(),
+            available.min(self.max_height),
+            *self.scroll_offset,
+        );
+        *self.scroll_offset = offset;
+        metrics
+    }
+
+    fn peek_metrics(&self, available: f32) -> OverlayMetrics {
+        compute_scroll_metrics(
+            self.list.total_height(),
+            self.button_height(),
+            available.min(self.max_height),
+            *self.scroll_offset,
+        )
+        .0
+    }
+
+    fn scroll_by(&mut self, delta: f32, metrics: &OverlayMetrics, shell: &mut Shell<'_, Message>) {
+        if metrics.max_scroll <= 0.0 {
+            return;
+        }
+
+        let next = (*self.scroll_offset + delta).clamp(0.0, metrics.max_scroll);
+        if (next - *self.scroll_offset).abs() > 0.01 {
+            *self.scroll_offset = next;
+            let _ = self.resolve_metrics(self.max_height);
+            shell.request_redraw();
+        }
+    }
+
+    fn regions(
+        &self,
+        bounds: Rectangle,
+        metrics: OverlayMetrics,
+    ) -> (Rectangle, Rectangle, Rectangle) {
+        let up = Rectangle {
+            x: bounds.x,
+            y: bounds.y,
+            width: bounds.width,
+            height: metrics.up_h,
+        };
+        let viewport = Rectangle {
+            x: bounds.x,
+            y: bounds.y + metrics.up_h,
+            width: bounds.width,
+            height: metrics.viewport_h,
+        };
+        let down = Rectangle {
+            x: bounds.x,
+            y: bounds.y + metrics.up_h + metrics.viewport_h,
+            width: bounds.width,
+            height: metrics.down_h,
+        };
+        (up, viewport, down)
+    }
 }
 
-impl<Message> overlay::Overlay<Message, IcedTheme, Renderer> for MenuOverlay<'_, Message> {
-    fn layout(&mut self, renderer: &Renderer, bounds: Size) -> layout::Node {
+impl<T, Message> overlay::Overlay<Message, IcedTheme, Renderer> for MenuOverlay<'_, T, Message>
+where
+    T: Clone + PartialEq,
+    Message: Clone,
+{
+    fn layout(&mut self, _renderer: &Renderer, bounds: Size) -> layout::Node {
         let space_below =
             bounds.height - (self.position.y + self.target_height + SELECT_SIDE_OFFSET_PX);
         let space_above = self.position.y - SELECT_SIDE_OFFSET_PX;
         let open_below = space_below >= space_above;
         let space = if open_below { space_below } else { space_above };
 
-        let limits = layout::Limits::new(
-            Size::ZERO,
-            Size::new(
-                (bounds.width - self.position.x).max(self.width),
-                space.min(SELECT_CONTENT_MAX_HEIGHT_PX),
-            ),
-        )
-        .width(self.width);
+        let metrics = self.resolve_metrics(space.max(0.0));
+        let size = Size::new(self.width, metrics.outer_h);
 
-        let node = self.list.layout(self.tree, renderer, &limits);
-        let size = node.size();
-
-        node.move_to(if open_below {
+        layout::Node::new(size).move_to(if open_below {
             self.position + Vector::new(0.0, self.target_height + SELECT_SIDE_OFFSET_PX)
         } else {
             self.position - Vector::new(0.0, size.height + SELECT_SIDE_OFFSET_PX)
@@ -677,24 +974,132 @@ impl<Message> overlay::Overlay<Message, IcedTheme, Renderer> for MenuOverlay<'_,
         event: &Event,
         layout: layout::Layout<'_>,
         cursor: mouse::Cursor,
-        renderer: &Renderer,
-        clipboard: &mut dyn Clipboard,
+        _renderer: &Renderer,
+        _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
     ) {
         let bounds = layout.bounds();
-        self.list.update(
-            self.tree, event, layout, cursor, renderer, clipboard, shell, &bounds,
-        );
+        let metrics = self.resolve_metrics(bounds.height);
+        let (up_bounds, viewport_bounds, down_bounds) = self.regions(bounds, metrics);
+
+        match event {
+            Event::Mouse(mouse::Event::WheelScrolled { delta }) => {
+                if cursor.is_over(bounds) {
+                    let dy = match delta {
+                        mouse::ScrollDelta::Lines { y, .. } => -*y * self.step_height(),
+                        mouse::ScrollDelta::Pixels { y, .. } => -*y,
+                    };
+                    self.scroll_by(dy, &metrics, shell);
+                    shell.capture_event();
+                }
+            }
+            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+            | Event::Touch(touch::Event::FingerPressed { .. }) => {
+                // bits-ui also starts auto-scroll on pointerdown; hover (move) is enough too.
+                let now = Instant::now();
+                if metrics.can_up && cursor.is_over(up_bounds) {
+                    arm_scroll_hold(self.scroll_hold, ScrollHoldDir::Up, now, shell);
+                } else if metrics.can_down && cursor.is_over(down_bounds) {
+                    arm_scroll_hold(self.scroll_hold, ScrollHoldDir::Down, now, shell);
+                } else if let Some(position) = cursor.position_in(viewport_bounds) {
+                    let content_pos = Point::new(position.x, position.y + *self.scroll_offset);
+                    *self.list.hovered_row = self
+                        .list
+                        .row_at(content_pos)
+                        .filter(|&index| self.list.rows[index].is_selectable());
+                    self.list.select_hovered(shell);
+                }
+            }
+            Event::Mouse(mouse::Event::CursorMoved { .. })
+            | Event::Touch(touch::Event::FingerMoved { .. }) => {
+                // bits-ui: pointermove on the scroll button arms auto-scroll; leave clears it.
+                let now = Instant::now();
+                if metrics.can_up && cursor.is_over(up_bounds) {
+                    arm_scroll_hold(self.scroll_hold, ScrollHoldDir::Up, now, shell);
+                } else if metrics.can_down && cursor.is_over(down_bounds) {
+                    arm_scroll_hold(self.scroll_hold, ScrollHoldDir::Down, now, shell);
+                } else {
+                    if self.scroll_hold.is_some() {
+                        *self.scroll_hold = None;
+                        shell.request_redraw();
+                    }
+
+                    if let Some(position) = cursor.position_in(viewport_bounds) {
+                        let content_pos = Point::new(position.x, position.y + *self.scroll_offset);
+                        let hovered = self
+                            .list
+                            .row_at(content_pos)
+                            .filter(|&index| self.list.rows[index].is_selectable());
+
+                        if *self.list.hovered_row != hovered {
+                            *self.list.hovered_row = hovered;
+                            shell.request_redraw();
+                        }
+                    }
+                }
+            }
+            Event::Keyboard(keyboard::Event::KeyPressed { key, .. }) => {
+                if let Some(action) = nav_action(key) {
+                    match action {
+                        NavAction::Next => self.list.move_hover(1, shell),
+                        NavAction::Previous => self.list.move_hover(-1, shell),
+                        NavAction::First => self.list.move_hover_to_edge(true, shell),
+                        NavAction::Last => self.list.move_hover_to_edge(false, shell),
+                        NavAction::Activate => self.list.select_hovered(shell),
+                        _ => {}
+                    }
+                    // Keep the highlighted row in view.
+                    if let Some(index) = *self.list.hovered_row {
+                        let mut y = self.list.recipe.content_pad_px;
+                        for i in 0..index {
+                            y += self.list.row_height(i);
+                        }
+                        let row_h = self.list.row_height(index);
+                        if y < *self.scroll_offset {
+                            *self.scroll_offset = y;
+                            let _ = self.resolve_metrics(bounds.height);
+                            shell.request_redraw();
+                        } else if y + row_h > *self.scroll_offset + metrics.viewport_h {
+                            *self.scroll_offset =
+                                (y + row_h - metrics.viewport_h).clamp(0.0, metrics.max_scroll);
+                            let _ = self.resolve_metrics(bounds.height);
+                            shell.request_redraw();
+                        }
+                    }
+                    shell.capture_event();
+                }
+            }
+            _ => {}
+        }
     }
 
     fn mouse_interaction(
         &self,
         layout: layout::Layout<'_>,
         cursor: mouse::Cursor,
-        renderer: &Renderer,
+        _renderer: &Renderer,
     ) -> mouse::Interaction {
-        self.list
-            .mouse_interaction(self.tree, layout, cursor, &self.viewport, renderer)
+        let bounds = layout.bounds();
+        let metrics = self.peek_metrics(bounds.height);
+        let (up_bounds, viewport_bounds, down_bounds) = self.regions(bounds, metrics);
+
+        if (metrics.can_up && cursor.is_over(up_bounds))
+            || (metrics.can_down && cursor.is_over(down_bounds))
+        {
+            return mouse::Interaction::Pointer;
+        }
+
+        let selectable_under_cursor = cursor
+            .position_in(viewport_bounds)
+            .map(|position| Point::new(position.x, position.y + *self.scroll_offset))
+            .and_then(|position| self.list.row_at(position))
+            .is_some_and(|index| self.list.rows[index].is_selectable());
+
+        if selectable_under_cursor {
+            mouse::Interaction::Pointer
+        } else {
+            mouse::Interaction::default()
+        }
     }
 
     fn draw(
@@ -717,13 +1122,127 @@ impl<Message> overlay::Overlay<Message, IcedTheme, Renderer> for MenuOverlay<'_,
             self.style.shadow,
         );
 
-        self.list.draw(
-            self.tree, renderer, theme, defaults, layout, cursor, &bounds,
+        let metrics = self.peek_metrics(bounds.height);
+        let (up_bounds, viewport_bounds, down_bounds) = self.regions(bounds, metrics);
+        let content_h = self.list.total_height();
+
+        let content_node = layout::Node::new(Size::new(bounds.width, content_h)).move_to(
+            Point::new(viewport_bounds.x, viewport_bounds.y - *self.scroll_offset),
         );
+        let content_layout = layout::Layout::new(&content_node);
+
+        renderer.with_layer(viewport_bounds, |renderer| {
+            self.list.draw(
+                &Tree::empty(),
+                renderer,
+                theme,
+                defaults,
+                content_layout,
+                cursor,
+                &viewport_bounds,
+            );
+        });
+
+        // After the list — bits-ui scroll buttons use `z-10`. Caret must be
+        // drawn inside the same `with_layer` as the strip fill, or it ends up
+        // under that layer and vanishes.
+        if metrics.can_up {
+            paint_scroll_button(
+                renderer,
+                up_bounds,
+                bounds,
+                &self.style,
+                self.list.recipe.icon_size_px,
+                true,
+            );
+        }
+
+        if metrics.can_down {
+            paint_scroll_button(
+                renderer,
+                down_bounds,
+                bounds,
+                &self.style,
+                self.list.recipe.icon_size_px,
+                false,
+            );
+        }
     }
 }
 
-/// Inner list widget hosted by the dropdown scrollable.
+/// Scroll strip: full-content rounded fill clipped to the strip, then caret
+/// in the **same** layer (otherwise the layer composites over the glyph).
+fn paint_scroll_button(
+    renderer: &mut Renderer,
+    strip: Rectangle,
+    content_bounds: Rectangle,
+    style: &SelectContentStyle,
+    icon_size: f32,
+    up: bool,
+) {
+    if strip.height <= 0.0 || strip.width <= 0.0 {
+        return;
+    }
+
+    renderer.with_layer(strip, |renderer| {
+        renderer.fill_quad(
+            renderer::Quad {
+                bounds: content_bounds,
+                border: Border {
+                    radius: style.radius.into(),
+                    width: 0.0,
+                    color: Color::TRANSPARENT,
+                },
+                shadow: Shadow::default(),
+                ..renderer::Quad::default()
+            },
+            Background::Color(style.background),
+        );
+
+        let center = Point::new(strip.center_x(), strip.center_y());
+        if up {
+            draw_chevron_up(renderer, center, icon_size, style.muted_color);
+        } else {
+            draw_chevron(renderer, center, icon_size, style.muted_color);
+        }
+    });
+}
+
+/// Paints the lucide-style `chevron-up` glyph of `.cn-select-scroll-up-button`.
+fn draw_chevron_up(renderer: &mut Renderer, center: Point, size: f32, color: Color) {
+    if size <= 0.0 {
+        return;
+    }
+
+    let reach = size * 0.25;
+    let arm = size * 0.125;
+    let stroke_width = (size * 0.10).clamp(1.0, 1.75);
+
+    let mut frame = canvas::Frame::new(renderer, Size::new(size, size));
+    frame.translate(Vector::new(size / 2.0, size / 2.0));
+    frame.stroke(
+        &canvas::Path::new(|builder| {
+            builder.move_to(Point::new(-reach, arm));
+            builder.line_to(Point::new(0.0, -arm));
+            builder.line_to(Point::new(reach, arm));
+        }),
+        canvas::Stroke::default()
+            .with_width(stroke_width)
+            .with_color(color)
+            .with_line_cap(canvas::LineCap::Round)
+            .with_line_join(canvas::LineJoin::Round),
+    );
+    let geometry = frame.into_geometry();
+
+    renderer.with_translation(
+        Vector::new(center.x - size / 2.0, center.y - size / 2.0),
+        |renderer| {
+            renderer.draw_geometry(geometry);
+        },
+    );
+}
+
+/// Inner list widget hosted by the dropdown viewport.
 struct List<'a, T, Message>
 where
     T: Clone + PartialEq,
@@ -1120,4 +1639,53 @@ fn nav_action(key: &keyboard::Key) -> Option<NavAction> {
     };
 
     resolve_nav_action(nav_key, Orientation::Vertical, Direction::Ltr)
+}
+
+#[cfg(test)]
+mod scroll_metrics_tests {
+    use super::compute_scroll_metrics;
+
+    #[test]
+    fn down_button_hides_at_content_end_with_up_visible() {
+        // Content taller than budget; scrolled so only the up button should remain.
+        let content_h = 500.0;
+        let button_h = 24.0;
+        let budget = 300.0;
+        // End of content with only the up button reserved:
+        // max_scroll_without_down = content - (budget - button) = 500 - 276 = 224.
+        let offset = 224.0;
+
+        let (metrics, clamped) = compute_scroll_metrics(content_h, button_h, budget, offset);
+
+        assert!(metrics.can_up, "scrolled away from top");
+        assert!(
+            !metrics.can_down,
+            "down must hide once content end fits without it"
+        );
+        assert_eq!(metrics.down_h, 0.0);
+        assert!((clamped - 224.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn down_button_shows_near_top_when_overflowing() {
+        let (metrics, _) = compute_scroll_metrics(500.0, 24.0, 300.0, 0.0);
+        assert!(!metrics.can_up);
+        assert!(metrics.can_down);
+        assert!(metrics.down_h > 0.0);
+    }
+
+    #[test]
+    fn former_sticky_mid_offset_does_not_keep_down_button() {
+        // Old iterative algorithm kept can_down true at this offset because
+        // reserving the down button inflated max_scroll by button_h.
+        let content_h = 500.0;
+        let button_h = 24.0;
+        let budget = 300.0;
+        let sticky_offset = content_h - budget + button_h; // 224.0
+
+        let (metrics, _) = compute_scroll_metrics(content_h, button_h, budget, sticky_offset);
+
+        assert!(metrics.can_up);
+        assert!(!metrics.can_down);
+    }
 }

@@ -41,7 +41,7 @@ pub use types::{SelectGroup, SelectItem, SelectRadius, SelectSelection, SelectSi
 
 use std::fmt;
 
-use shadcn_common::SelectMode;
+use shadcn_common::{SELECT_CONTENT_MAX_HEIGHT_PX, SelectMode};
 
 use crate::iced_compat::{Element, Length, Pixels};
 use crate::theme::Theme;
@@ -102,6 +102,8 @@ where
     size: SelectSize,
     radius: Option<SelectRadius>,
     width: Length,
+    /// Dropdown content max height (`max-h-*` on `Select.Content`).
+    max_height: f32,
     text_size: Option<f32>,
     disabled: bool,
     invalid: bool,
@@ -129,6 +131,7 @@ where
             .field("size", &self.size)
             .field("radius", &self.radius)
             .field("width", &self.width)
+            .field("max_height", &self.max_height)
             .field("text_size", &self.text_size)
             .field("disabled", &self.disabled)
             .field("invalid", &self.invalid)
@@ -160,6 +163,7 @@ where
             size: SelectSize::Default,
             radius: None,
             width: Length::Shrink,
+            max_height: SELECT_CONTENT_MAX_HEIGHT_PX,
             text_size: None,
             disabled: false,
             invalid: false,
@@ -303,6 +307,15 @@ where
         self
     }
 
+    /// Sets the dropdown content max height (`max-h-*` on `Select.Content`).
+    ///
+    /// Defaults to [`SELECT_CONTENT_MAX_HEIGHT_PX`] (`max-h-96` → 384). The
+    /// scrollable docs demo uses `max-h-[300px]`.
+    pub fn max_height(mut self, max_height: impl Into<Pixels>) -> Self {
+        self.max_height = max_height.into().0.max(0.0);
+        self
+    }
+
     /// Sets the value text size. The pack's `.cn-select-trigger` size is used
     /// by default.
     pub fn text_size(mut self, text_size: impl Into<Pixels>) -> Self {
@@ -426,6 +439,7 @@ where
             size,
             radius,
             width,
+            max_height,
             text_size,
             disabled,
             invalid,
@@ -446,6 +460,7 @@ where
             size,
             radius,
             width,
+            max_height,
             text_size,
             disabled,
             invalid,

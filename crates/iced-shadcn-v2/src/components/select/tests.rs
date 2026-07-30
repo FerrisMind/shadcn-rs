@@ -47,6 +47,10 @@ fn builder_updates_semantic_fields() {
     assert_eq!(select.size, SelectSize::Sm);
     assert_eq!(select.radius, Some(SelectRadius::Full));
     assert_eq!(select.width, Length::Fixed(200.0));
+    assert_eq!(
+        select.max_height,
+        shadcn_common::SELECT_CONTENT_MAX_HEIGHT_PX
+    );
     assert_eq!(select.text_size, Some(13.0));
     assert_eq!(select.selection, SelectSelection::Single(Some("banana")));
     assert!(select.disabled);
@@ -198,4 +202,11 @@ fn item_and_group_accessors_report_configuration() {
     assert_eq!(group.label(), Some("Fruits"));
     assert!(group.is_empty());
     assert_eq!(group.item(("apple", "Apple")).len(), 1);
+}
+
+#[test]
+fn max_height_overrides_default_content_cap() {
+    let theme = Theme::light();
+    let select = fruits(&theme).max_height(300.0);
+    assert_eq!(select.max_height, 300.0);
 }

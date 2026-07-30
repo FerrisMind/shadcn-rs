@@ -1,8 +1,9 @@
 //! Interactive playground for `iced-shadcn-v2::Select` + `shadcn-common`
 //! theme knobs.
 //!
-//! Mirrors the shadcn-svelte select docs demos (basic, groups, sizes,
-//! multiple, disabled, invalid) plus theme controls like the button example.
+//! Mirrors the shadcn-svelte select docs demos (basic, groups, scrollable,
+//! sizes, multiple, disabled, invalid) plus theme controls like the button
+//! example.
 //!
 //! Run: `cargo run -p iced-shadcn-v2 --example select`
 
@@ -37,6 +38,7 @@ struct Example {
     size_default: Option<&'static str>,
     multi: SelectSelection<&'static str>,
     role: Option<&'static str>,
+    timezone: Option<&'static str>,
     open_count: u32,
 }
 
@@ -55,6 +57,7 @@ enum Message {
     SizeDefault(&'static str),
     MultiChanged(SelectSelection<&'static str>),
     RolePicked(&'static str),
+    TimezonePicked(&'static str),
     Opened,
     Closed,
 }
@@ -69,6 +72,7 @@ impl Default for Example {
             size_default: None,
             multi: SelectSelection::Multiple(Vec::new()),
             role: None,
+            timezone: None,
             open_count: 0,
         }
     }
@@ -119,6 +123,9 @@ impl Example {
             }
             Message::RolePicked(role) => {
                 self.role = Some(role);
+            }
+            Message::TimezonePicked(timezone) => {
+                self.timezone = Some(timezone);
             }
             Message::Opened => {
                 self.open_count += 1;
@@ -272,6 +279,55 @@ impl Example {
             .invalid(true)
             .on_select(Message::RolePicked);
 
+        let scrollable_select = Select::new(theme)
+            .placeholder("Select a timezone")
+            .width(Length::Fixed(280.0))
+            .max_height(300.0)
+            .group(
+                SelectGroup::new("North America")
+                    .item(("est", "Eastern Standard Time (EST)"))
+                    .item(("cst", "Central Standard Time (CST)"))
+                    .item(("mst", "Mountain Standard Time (MST)"))
+                    .item(("pst", "Pacific Standard Time (PST)"))
+                    .item(("akst", "Alaska Standard Time (AKST)"))
+                    .item(("hst", "Hawaii Standard Time (HST)")),
+            )
+            .group(
+                SelectGroup::new("Europe & Africa")
+                    .item(("gmt", "Greenwich Mean Time (GMT)"))
+                    .item(("cet", "Central European Time (CET)"))
+                    .item(("eet", "Eastern European Time (EET)"))
+                    .item(("west", "Western European Summer Time (WEST)"))
+                    .item(("cat", "Central Africa Time (CAT)"))
+                    .item(("eat", "East Africa Time (EAT)")),
+            )
+            .group(
+                SelectGroup::new("Asia")
+                    .item(("msk", "Moscow Time (MSK)"))
+                    .item(("ist", "India Standard Time (IST)"))
+                    .item(("cst_china", "China Standard Time (CST)"))
+                    .item(("jst", "Japan Standard Time (JST)"))
+                    .item(("kst", "Korea Standard Time (KST)"))
+                    .item(("ist_indonesia", "Indonesia Central Standard Time (WITA)")),
+            )
+            .group(
+                SelectGroup::new("Australia & Pacific")
+                    .item(("awst", "Australian Western Standard Time (AWST)"))
+                    .item(("acst", "Australian Central Standard Time (ACST)"))
+                    .item(("aest", "Australian Eastern Standard Time (AEST)"))
+                    .item(("nzst", "New Zealand Standard Time (NZST)"))
+                    .item(("fjt", "Fiji Time (FJT)")),
+            )
+            .group(
+                SelectGroup::new("South America")
+                    .item(("art", "Argentina Time (ART)"))
+                    .item(("bot", "Bolivia Time (BOT)"))
+                    .item(("brt", "Brasilia Time (BRT)"))
+                    .item(("clt", "Chile Standard Time (CLT)")),
+            )
+            .selected_maybe(self.timezone)
+            .on_select(Message::TimezonePicked);
+
         let title_px = 32u32;
 
         let content = column![
@@ -280,8 +336,8 @@ impl Example {
                 .font(iced_font(theme.font_pack().heading))
                 .color(p.foreground),
             text(format!(
-                "selected: fruit={:?} · food={:?} · multi={:?} · opened {} times",
-                self.fruit, self.food, self.multi, self.open_count
+                "selected: fruit={:?} · food={:?} · multi={:?} · tz={:?} · opened {} times",
+                self.fruit, self.food, self.multi, self.timezone, self.open_count
             ))
             .size(14)
             .font(iced_font(theme.font_pack().sans))
@@ -295,6 +351,12 @@ impl Example {
                 theme.font_pack()
             ),
             groups,
+            section_label(
+                "Scrollable (max-h-[300px] + scroll buttons)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
+            scrollable_select,
             section_label(
                 "Sizes (sm · default)",
                 p.muted_foreground,
