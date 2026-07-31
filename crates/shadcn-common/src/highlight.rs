@@ -200,11 +200,10 @@ pub fn highlight_code(source: &str, language: LanguageId) -> Vec<CodeToken> {
     };
 
     let mut highlighter = Highlighter::new();
-    let events =
-        match highlighter.highlight(config, source.as_bytes(), None, config_for) {
-            Ok(events) => events,
-            Err(_) => return plain_tokens(source),
-        };
+    let events = match highlighter.highlight(config, source.as_bytes(), None, config_for) {
+        Ok(events) => events,
+        Err(_) => return plain_tokens(source),
+    };
 
     let mut tokens: Vec<CodeToken> = Vec::new();
     let mut stack: Vec<SyntaxKind> = Vec::new();
