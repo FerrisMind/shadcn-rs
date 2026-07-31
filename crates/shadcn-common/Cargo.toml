@@ -21,14 +21,40 @@ include = [
 ]
 
 [dependencies]
+chorale-core = { workspace = true }
 twill-core = { workspace = true }
 ## Optional, only for the `serde` feature.
 serde = { version = "1", features = ["derive"], optional = true }
+## Optional tree-sitter grammars, only for the `syntax` feature.
+tree-sitter = { workspace = true, optional = true }
+tree-sitter-highlight = { workspace = true, optional = true }
+tree-sitter-bash = { workspace = true, optional = true }
+tree-sitter-css = { workspace = true, optional = true }
+tree-sitter-diff = { workspace = true, optional = true }
+tree-sitter-javascript = { workspace = true, optional = true }
+tree-sitter-json = { workspace = true, optional = true }
+tree-sitter-rust = { workspace = true, optional = true }
+tree-sitter-svelte-next = { workspace = true, optional = true }
+tree-sitter-typescript = { workspace = true, optional = true }
 
 [features]
 default = []
 ## Bundle TTF font faces (Geist, Inter, Instrument Serif, JetBrains Mono).
 fonts = []
+## Enable the tree-sitter-based syntax highlighter shared by the egui and
+## iced renderers (shadcn-common::syntax / shadcn-common::highlight).
+syntax = [
+    "dep:tree-sitter",
+    "dep:tree-sitter-highlight",
+    "dep:tree-sitter-bash",
+    "dep:tree-sitter-css",
+    "dep:tree-sitter-diff",
+    "dep:tree-sitter-javascript",
+    "dep:tree-sitter-json",
+    "dep:tree-sitter-rust",
+    "dep:tree-sitter-svelte-next",
+    "dep:tree-sitter-typescript",
+]
 ## Derive `serde::Serialize`/`Deserialize` for the shared toast vocabulary.
 ## iced-shadcn-v2 forwards its own `serde` feature here.
 serde = ["dep:serde"]

@@ -276,10 +276,16 @@ impl StylePack {
         let resolved = self.id.resolve_radius(radius);
         let rem = resolved.resolved_rem(self.id.default_radius_rem());
         self.radius = RadiusScale::from_rem(rem);
-        let (sm, md, lg) = RadiusId::twill_radii_for_rem(rem);
-        self.twill_radius_sm = sm;
-        self.twill_radius_md = md;
-        self.twill_radius_lg = lg;
+        // An explicit picker value recomputes the corner tokens. `Default`
+        // keeps the pack's intrinsic corners (style-*.css: Vega/Nova md=8px,
+        // Mira md=6px, Maia/Luma/Rhea md=12px, Lyra/Sera none) — without this,
+        // every unlocked style collapses to the same radius.
+        if resolved.rem().is_some() {
+            let (sm, md, lg) = RadiusId::twill_radii_for_rem(rem);
+            self.twill_radius_sm = sm;
+            self.twill_radius_md = md;
+            self.twill_radius_lg = lg;
+        }
         self
     }
 
@@ -338,6 +344,21 @@ impl StylePack {
     /// `.cn-skeleton` default radius for this pack.
     pub const fn skeleton_default_radius(self) -> crate::recipes::ComponentRadius {
         crate::recipes::skeleton_default_radius(self.id)
+    }
+
+    /// Snippet frame geometry + typography for this pack.
+    pub const fn snippet(self) -> crate::recipes::SnippetRecipe {
+        crate::recipes::snippet_recipe(self.id)
+    }
+
+    /// Code-block frame geometry for this pack.
+    pub const fn code(self) -> crate::recipes::CodeRecipe {
+        crate::recipes::code_recipe(self.id)
+    }
+
+    /// `.cn-checkbox` track radius for this pack.
+    pub const fn checkbox(self) -> crate::recipes::CheckboxRecipe {
+        crate::recipes::checkbox_recipe(self.id)
     }
 
     /// `.cn-progress` geometry and default radius for this pack.

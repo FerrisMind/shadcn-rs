@@ -25,6 +25,17 @@ env_logger = "0.11"
 shadcn-common = { path = "crates/shadcn-common", version = "0.5.0" }
 twill-core = { git = "https://github.com/FerrisMind/twill.git", rev = "83e8ac1a00766b5304ec88d25a9f3e99274ef0e8", version = "0.3.0" }
 twill-iced = { git = "https://github.com/FerrisMind/twill.git", rev = "83e8ac1a00766b5304ec88d25a9f3e99274ef0e8", default-features = false }
+tree-sitter = "0.25"
+tree-sitter-bash = "0.25"
+tree-sitter-css = "0.25"
+tree-sitter-diff = "0.1"
+tree-sitter-highlight = "0.25"
+tree-sitter-javascript = "0.25"
+tree-sitter-json = "0.24"
+tree-sitter-rust = "0.24"
+tree-sitter-svelte-next = "0.1"
+tree-sitter-typescript = "0.23"
+chorale-core = "0.2.3"
 
 [profile.dev]
 incremental = true

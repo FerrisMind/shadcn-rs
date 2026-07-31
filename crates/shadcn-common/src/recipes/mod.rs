@@ -7,8 +7,11 @@
 mod alert_dialog;
 mod badge;
 mod button;
+mod calendar;
 mod carousel;
 mod chart;
+mod checkbox;
+mod code;
 mod command;
 mod context_menu;
 mod dialog;
@@ -28,6 +31,7 @@ mod sheet;
 mod sidebar;
 mod skeleton;
 mod slider;
+mod snippet;
 mod switch;
 mod toggle;
 mod tooltip;
@@ -35,8 +39,11 @@ mod tooltip;
 pub use alert_dialog::{AlertDialogRecipe, alert_dialog_recipe};
 pub use badge::{BadgeRecipe, badge_recipe};
 pub use button::{ButtonSizeRecipe, ButtonTypeRecipe, ControlSize, button_size, button_type};
+pub use calendar::{CalendarRecipe, calendar_recipe};
 pub use carousel::{CarouselRecipe, carousel_recipe};
 pub use chart::{ChartRecipe, chart_recipe};
+pub use checkbox::{CheckboxRecipe, checkbox_recipe};
+pub use code::{CodeRecipe, code_recipe};
 pub use command::{
     COMMAND_DIALOG_VERTICAL_ANCHOR, COMMAND_DISABLED_OPACITY, COMMAND_INPUT_ICON_OPACITY,
     COMMAND_LIST_MAX_HEIGHT_PX, CommandRecipe, command_recipe,
@@ -94,6 +101,7 @@ pub use skeleton::{SkeletonRecipe, skeleton_default_radius, skeleton_recipe};
 pub use slider::{
     SliderRecipe, SliderThumbBorder, SliderThumbFill, SliderTrackSurface, slider_recipe,
 };
+pub use snippet::{SnippetRecipe, snippet_recipe};
 pub use switch::{SwitchRecipe, SwitchSizeRecipe, switch_recipe, switch_size};
 pub use toggle::{ToggleRecipe, ToggleSizeRecipe, toggle_recipe, toggle_size};
 pub use tooltip::{

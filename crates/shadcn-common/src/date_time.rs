@@ -575,7 +575,7 @@ const fn days_in_month(year: i32, month: u8) -> u8 {
     }
 }
 
-fn date_to_ordinal(date: DateParts) -> i64 {
+pub(crate) fn date_to_ordinal(date: DateParts) -> i64 {
     let mut days = 0_i64;
     let year = i64::from(date.year);
     for y in 1..year {
