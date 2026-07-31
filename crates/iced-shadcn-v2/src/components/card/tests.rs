@@ -8,7 +8,7 @@ use super::geometry::{
 };
 use super::style::{
     default_footer_background, footer_has_border, resolve_footer_style, resolve_header_style,
-    resolve_root_style,
+    resolve_root_style, root_ring,
 };
 use super::*;
 use crate::theme::Theme;
