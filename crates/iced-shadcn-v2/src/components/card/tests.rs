@@ -103,14 +103,16 @@ fn root_visual_uses_card_tokens_ring_and_style_shadow() {
         Some(crate::iced_compat::Background::Color(theme.palette.card))
     );
     assert_eq!(visual.text_color, Some(theme.palette.card_foreground));
-    assert_eq!(visual.border.width, 1.0);
-    assert!((visual.border.color.a - 0.1).abs() < f32::EPSILON);
+    assert_eq!(visual.border.width, 0.0);
+    assert_eq!(visual.border.color, crate::iced_compat::Color::TRANSPARENT);
+    let (ring_color, ring_width) = root_ring(&theme);
+    assert_eq!(ring_width, 1.0);
+    assert!((ring_color.a - 0.1).abs() < f32::EPSILON);
     assert!(visual.shadow.blur_radius > 0.0);
 
     let sera = Theme::light().with_style(StyleId::Sera);
-    assert!(
-        (resolve_root_style(&sera, CardRadius::Theme).border.color.a - 0.05).abs() < f32::EPSILON
-    );
+    let (ring_color, _) = root_ring(&sera);
+    assert!((ring_color.a - 0.05).abs() < f32::EPSILON);
 }
 
 #[test]
