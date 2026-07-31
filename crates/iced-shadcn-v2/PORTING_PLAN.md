@@ -83,10 +83,10 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 46. ~~**`command`** — переиспользует `dialog` + `input` + список (fuzzy-фильтрация в `shadcn-common`)~~ ✅
 47. **`combobox`** — переиспользует `popover` + `command` (сам почти ничего не добавляет)
 48. **`carousel`** — с нуля (в вебе embla; у нас — свой scroll/snap) + `button` ✅
-49. **`calendar`** — с нуля (date-логика!) + варианты `button` + `select`
-50. **`range-calendar`** — переиспользует `calendar` (range-состояние)
-51. **`date-picker`** — переиспользует `popover` + `calendar`/`range-calendar` + `input-group`
-52. **`data-table`** — переиспользует `table`, `checkbox`, `button`, `dropdown-menu`, `select`, `input` (в вебе TanStack Table — нужен свой мини-движок: sort/filter/pagination state)
+49. **`calendar`** — с нуля (date-логика!) + варианты `button` + `select` ✅
+50. **`range-calendar`** — переиспользует `calendar` (range-состояние) ✅
+51. **`date-picker`** — переиспользует `popover` + `calendar`/`range-calendar` + `input-group` ✅
+52. **`data-table`** — переиспользует `table`, `checkbox`, `button`, `dropdown-menu`, `select`, `input` (в вебе TanStack Table — нужен свой мини-движок: sort/filter/pagination state) ✅ [chorale-core 0.2.3]
 53. **`chart`** — с нуля на `Canvas` (в вебе layerchart; самый «неперетаскиваемый» компонент) + `tooltip`
 54. ~~**`sidebar`** — переиспользует `sheet`, `tooltip`, `separator`, `skeleton`, `input`, `button` (самый большой композит — строго последним)~~ ✅
 
