@@ -89,6 +89,11 @@ pub struct Dialog<'a, Message> {
     footer: Option<DialogFooter<'a, Message>>,
     theme: &'a Theme,
     max_width: Option<f32>,
+    /// Overrides recipe content padding (`p-0` for command dialog).
+    content_padding: Option<f32>,
+    /// When set, places the surface top edge at this fraction of the window
+    /// height (`top-1/3` for command dialog) instead of vertical centering.
+    vertical_anchor_top: Option<f32>,
     duration: Duration,
     animated: bool,
     disabled: bool,
@@ -114,6 +119,8 @@ impl<Message> fmt::Debug for Dialog<'_, Message> {
             .field("footer", &self.footer.is_some())
             .field("theme", &self.theme)
             .field("max_width", &self.max_width)
+            .field("content_padding", &self.content_padding)
+            .field("vertical_anchor_top", &self.vertical_anchor_top)
             .field("duration", &self.duration)
             .field("animated", &self.animated)
             .field("disabled", &self.disabled)
@@ -146,6 +153,8 @@ impl<'a, Message> Dialog<'a, Message> {
             footer: None,
             theme,
             max_width: None,
+            content_padding: None,
+            vertical_anchor_top: None,
             duration: Duration::from_millis(DIALOG_ANIMATION_MS),
             animated: true,
             disabled: false,
@@ -174,6 +183,21 @@ impl<'a, Message> Dialog<'a, Message> {
     /// Mirrors passing a `sm:max-w-[N]` class to `Dialog.Content`.
     pub fn max_width(mut self, max_width: f32) -> Self {
         self.max_width = Some(max_width.max(0.0));
+        self
+    }
+
+    /// Overrides the content padding in px (`p-0` for command dialog).
+    ///
+    /// `None` (default) keeps the style-pack recipe padding.
+    pub fn content_padding(mut self, padding: f32) -> Self {
+        self.content_padding = Some(padding.max(0.0));
+        self
+    }
+
+    /// Places the surface top edge at `fraction` of the window height
+    /// (`top-1/3` → `1.0 / 3.0`) instead of vertical centering.
+    pub fn vertical_anchor_top(mut self, fraction: f32) -> Self {
+        self.vertical_anchor_top = Some(fraction.clamp(0.0, 1.0));
         self
     }
 
@@ -276,7 +300,7 @@ where
             resolved = style_override(resolved);
         }
 
-        let pad = recipe.pad_px;
+        let pad = dialog.content_padding.unwrap_or(recipe.pad_px);
         let footer_row = dialog.footer.map(|footer| {
             let spacing = footer.spacing.unwrap_or(recipe.footer_gap_px);
 
@@ -349,6 +373,7 @@ where
             margin: DIALOG_MARGIN_PX,
             close_size: DIALOG_CLOSE_SIZE_PX,
             close_offset: recipe.close_offset_px,
+            vertical_anchor_top: dialog.vertical_anchor_top,
             duration: dialog.duration,
             animated: dialog.animated,
             disabled: dialog.disabled,

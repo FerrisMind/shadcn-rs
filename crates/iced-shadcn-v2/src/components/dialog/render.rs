@@ -40,6 +40,7 @@ pub(super) struct DialogWidget<'a, Message> {
     pub(super) margin: f32,
     pub(super) close_size: f32,
     pub(super) close_offset: f32,
+    pub(super) vertical_anchor_top: Option<f32>,
     pub(super) duration: Duration,
     pub(super) animated: bool,
     pub(super) disabled: bool,
@@ -304,6 +305,7 @@ impl<Message> Widget<Message, Theme, Renderer> for DialogWidget<'_, Message> {
                 margin: self.margin,
                 close_size: self.close_size,
                 close_offset: self.close_offset,
+                vertical_anchor_top: self.vertical_anchor_top,
                 style,
                 on_open_change: self.on_open_change.as_deref(),
                 close_on_click_outside: self.close_on_click_outside,
@@ -334,6 +336,7 @@ struct DialogOverlay<'a, 'b, Message> {
     margin: f32,
     close_size: f32,
     close_offset: f32,
+    vertical_anchor_top: Option<f32>,
     style: DialogStyle,
     on_open_change: Option<&'b (dyn Fn(bool) -> Message + 'a)>,
     close_on_click_outside: bool,
@@ -383,9 +386,16 @@ impl<Message> overlay::Overlay<Message, Theme, Renderer> for DialogOverlay<'_, '
                 .layout(self.surface_tree, renderer, &limits);
         let size = surface_node.size();
 
-        // `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`.
+        // Default: `fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2`.
+        // Command dialog: `top-1/3 translate-y-0` → top edge at fraction.
         let x = ((bounds.width - size.width) / 2.0).max(0.0);
-        let y = ((bounds.height - size.height) / 2.0).max(0.0);
+        let y = match self.vertical_anchor_top {
+            Some(fraction) => {
+                let top = bounds.height * fraction;
+                top.clamp(self.margin, (bounds.height - size.height - self.margin).max(0.0))
+            }
+            None => ((bounds.height - size.height) / 2.0).max(0.0),
+        };
         let surface_node = surface_node.move_to(Point::new(x, y));
 
         let mut children = vec![surface_node];
@@ -588,12 +598,12 @@ impl<Message> overlay::Overlay<Message, Theme, Renderer> for DialogOverlay<'_, '
             * Transformation::translate(-origin.x, -origin.y);
 
         renderer.with_transformation(transform, |renderer| {
+            // Fill first; CSS ring is painted *after* children so `p-0`
+            // opaque content (Command) cannot cover the hairline.
             crate::floating_surface::fill_floating_surface(
                 renderer,
                 surface_bounds,
                 self.style.background.scale_alpha(progress),
-                self.style.border_color.scale_alpha(progress),
-                self.style.border_width,
                 self.style.radius,
                 crate::iced_compat::Shadow {
                     color: self.style.shadow.color.scale_alpha(progress),
@@ -650,6 +660,14 @@ impl<Message> overlay::Overlay<Message, Theme, Renderer> for DialogOverlay<'_, '
                     &button,
                 );
             }
+
+            crate::floating_surface::paint_outside_ring(
+                renderer,
+                surface_bounds,
+                self.style.border_color.scale_alpha(progress),
+                self.style.border_width,
+                self.style.radius,
+            );
         });
     }
 }

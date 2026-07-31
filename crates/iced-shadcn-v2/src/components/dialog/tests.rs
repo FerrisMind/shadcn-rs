@@ -30,6 +30,8 @@ fn builder_updates_semantic_fields() {
     let dialog: Dialog<'_, Message> = Dialog::new(container("Open"), container("Body"), &theme)
         .footer(DialogFooter::new(&theme).push(container("Save")))
         .max_width(425.0)
+        .content_padding(0.0)
+        .vertical_anchor_top(1.0 / 3.0)
         .duration(Duration::from_millis(200))
         .animated(false)
         .disabled(true)
@@ -43,6 +45,8 @@ fn builder_updates_semantic_fields() {
 
     assert!(dialog.footer.is_some());
     assert_eq!(dialog.max_width, Some(425.0));
+    assert_eq!(dialog.content_padding, Some(0.0));
+    assert_eq!(dialog.vertical_anchor_top, Some(1.0 / 3.0));
     assert_eq!(dialog.duration, Duration::from_millis(200));
     assert!(!dialog.animated);
     assert!(dialog.disabled);
@@ -159,6 +163,18 @@ fn style_override_patches_resolved_style() {
 }
 
 #[test]
+fn luma_and_maia_use_theme_radius_4xl_not_literal_32() {
+    let luma = Theme::light().with_style(StyleId::Luma);
+    let maia = Theme::light().with_style(StyleId::Maia);
+    let expected = luma.style.radius.xxxxl_px;
+
+    assert_eq!(style::resolve_style(&luma).radius, expected);
+    assert_eq!(style::resolve_style(&maia).radius, expected);
+    // Not the Tailwind default literal for `rounded-4xl`.
+    assert_ne!(expected, 32.0);
+}
+
+#[test]
 fn recipe_tracks_style_pack_tokens() {
     // Vega: `bg-black/10`, `gap-6 rounded-xl p-6 sm:max-w-md`, close at
     // `top-4 right-4`.
@@ -177,10 +193,11 @@ fn recipe_tracks_style_pack_tokens() {
     assert_eq!(nova.pad_px, 16.0);
     assert!(nova.footer_bar);
 
-    // Maia: `bg-black/80` backdrop with `rounded-4xl`.
+    // Maia: `bg-black/80` backdrop with `rounded-4xl` (`--radius-4xl`).
     let maia = dialog_recipe(StyleId::Maia);
     assert_eq!(maia.overlay_alpha, 0.80);
-    assert_eq!(maia.radius_px, Some(32.0));
+    assert_eq!(maia.radius, ComponentRadius::S4xl);
+    assert_eq!(maia.radius_px, None);
 
     // Sera: square with an uppercase wide-tracked title.
     let sera = dialog_recipe(StyleId::Sera);
