@@ -48,7 +48,6 @@ use crate::iced_compat::widget::{container, text};
 use crate::iced_compat::{Background, Border, Element, Length, Padding};
 use crate::recipes::component_radius_px;
 use crate::theme::Theme;
-use shadcn_common::ComponentRadius;
 
 use render::ContextMenuWidget;
 use types::Entry;
@@ -333,7 +332,7 @@ fn default_trigger_area<'a, Message: 'a>(label: String, theme: &'a Theme) -> Ele
     let border = theme.palette.border;
     let foreground = theme.palette.foreground;
     let background = theme.palette.background;
-    let radius = component_radius_px(theme, ComponentRadius::Lg);
+    let radius = component_radius_px(theme, theme.style.button_type().default_radius);
 
     container(
         text(label)

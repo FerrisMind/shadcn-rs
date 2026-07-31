@@ -51,7 +51,7 @@ pub fn resolve_style(
         border: Border {
             color: with_alpha(border, opacity),
             width: 1.0,
-            radius: geometry::track_radius(size).into(),
+            radius: geometry::track_radius(theme, size).into(),
         },
         text_color: Some(with_alpha(
             if disabled {

@@ -48,7 +48,7 @@ pub(super) fn suppress_bottom_padding(theme: &Theme) -> bool {
 }
 
 /// Resolved card radius in pixels.
-pub(super) fn radius_px(theme: &Theme, radius: CardRadius) -> f32 {
+pub(crate) fn radius_px(theme: &Theme, radius: CardRadius) -> f32 {
     let scale = theme.style.radius;
 
     let resolved = match radius {

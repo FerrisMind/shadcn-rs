@@ -1,5 +1,6 @@
 //! Field layout and typography metrics.
 
+use crate::components::card::{CardRadius, geometry as card_geometry};
 use crate::theme::Theme;
 
 /// The `@md/field-group` container query used by shadcn-svelte is 28 rem.
@@ -34,6 +35,9 @@ pub(super) fn normalize_px(value: f32) -> f32 {
 }
 
 /// Returns the choice-card radius used by the active style pack.
+///
+/// Choice cards are card-like surfaces without their own style tokens, so the
+/// corner radius follows the card pack ([`CardRadius::Theme`]).
 pub(super) fn choice_card_radius(theme: &Theme) -> f32 {
-    crate::recipes::component_radius_px(theme, shadcn_common::ComponentRadius::Md)
+    card_geometry::radius_px(theme, CardRadius::Theme)
 }

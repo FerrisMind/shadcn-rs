@@ -1,6 +1,7 @@
 //! Geometry calculations for checkbox track and indicator.
 
 use crate::components::checkbox::types::CheckboxSize;
+use crate::theme::Theme;
 
 /// Returns the size of the checkbox track in pixels.
 pub fn track_size(size: CheckboxSize) -> f32 {
@@ -11,13 +12,12 @@ pub fn track_size(size: CheckboxSize) -> f32 {
     }
 }
 
-/// Returns the corner radius for the track.
-pub fn track_radius(size: CheckboxSize) -> f32 {
-    match size {
-        CheckboxSize::Sm => 4.0,
-        CheckboxSize::Md => 6.0,
-        CheckboxSize::Lg => 8.0,
-    }
+/// Returns the corner radius for the track from the active style pack.
+///
+/// Matches `.cn-checkbox` in `style-*.css` (`rounded-[4px]` / `[5px]` /
+/// `[6px]` / `none`). The reference does not vary radius by size.
+pub fn track_radius(theme: &Theme, _size: CheckboxSize) -> f32 {
+    theme.style.checkbox().radius_px
 }
 
 /// Returns padding around the track (for centering indicator).

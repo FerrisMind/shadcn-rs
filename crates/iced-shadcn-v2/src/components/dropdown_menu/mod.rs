@@ -45,7 +45,6 @@ use crate::iced_compat::widget::{container, text};
 use crate::iced_compat::{Background, Border, Element, Length, Padding};
 use crate::recipes::component_radius_px;
 use crate::theme::Theme;
-use shadcn_common::ComponentRadius;
 
 use render::DropdownMenuWidget;
 use types::Entry;
@@ -309,7 +308,7 @@ fn default_outline_trigger<'a, Message: 'a>(
     let border = theme.palette.border;
     let foreground = theme.palette.foreground;
     let background = theme.palette.background;
-    let radius = component_radius_px(theme, ComponentRadius::Md);
+    let radius = component_radius_px(theme, theme.style.button_type().default_radius);
     let height = theme.style.control_height_md_px;
 
     container(text(label).size(14.0).color(foreground))

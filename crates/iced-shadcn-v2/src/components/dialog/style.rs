@@ -1,7 +1,7 @@
 //! Style resolution for the dialog surface, backdrop, and close button.
 
 use crate::iced_compat::{Color, Shadow, Vector};
-use shadcn_common::{ComponentRadius, DialogRecipe, dialog_recipe};
+use shadcn_common::{DialogRecipe, dialog_recipe};
 
 use crate::recipes::component_radius_px;
 use crate::theme::Theme;
@@ -82,7 +82,7 @@ pub(super) fn resolve_style(theme: &Theme) -> DialogStyle {
         close_background,
         close_hover_background: theme.palette.accent,
         close_icon_color,
-        close_radius: component_radius_px(theme, ComponentRadius::Md),
+        close_radius: component_radius_px(theme, theme.style.button_type().default_radius),
         footer_background: theme.palette.muted.scale_alpha(0.5),
         footer_border_color: theme.palette.border,
     }

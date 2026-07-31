@@ -36,7 +36,7 @@
 //! }
 //! ```
 
-mod geometry;
+pub(crate) mod geometry;
 mod render;
 mod style;
 mod types;

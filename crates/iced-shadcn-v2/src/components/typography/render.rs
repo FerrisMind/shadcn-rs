@@ -67,7 +67,12 @@ pub(super) fn apply_chrome<'a, Message: 'a>(
         }
         TypographyVariant::InlineCode => {
             let background = theme.palette.muted;
-            let radius = component_radius_px(theme, ComponentRadius::Sm);
+            let radius_token = if theme.style_id().locks_radius() {
+                ComponentRadius::None
+            } else {
+                ComponentRadius::Sm
+            };
+            let radius = component_radius_px(theme, radius_token);
 
             container(body)
                 .padding(Padding {
