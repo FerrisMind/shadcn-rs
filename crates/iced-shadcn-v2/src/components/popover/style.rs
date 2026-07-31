@@ -1,9 +1,8 @@
 //! Style resolution for the popover surface.
 
 use crate::iced_compat::{Color, Shadow, Vector};
-use shadcn_common::{PopoverRecipe, popover_recipe};
+use shadcn_common::{ComponentRadius, PopoverRecipe, popover_recipe};
 
-use crate::recipes::component_radius_px;
 use crate::theme::Theme;
 
 /// Resolved visuals of a popover surface.
@@ -26,6 +25,30 @@ pub struct PopoverStyle {
     pub shadow: Shadow,
 }
 
+/// Resolves the radius token used by the active style's `.cn-popover-content`.
+///
+/// Popover recipes use CSS radius tokens (`rounded-md`, `rounded-lg`,
+/// `rounded-2xl`, ...), so they must resolve against the active radius scale.
+/// The generic component-radius adapter intentionally maps control radii
+/// through style-pack twill slots and is therefore not interchangeable here.
+pub(crate) fn surface_radius(theme: &Theme) -> f32 {
+    let scale = theme.radius_scale();
+    let radius = recipe(theme).radius;
+
+    match radius {
+        ComponentRadius::None => 0.0,
+        ComponentRadius::Sm => scale.sm_px,
+        ComponentRadius::Md => scale.md_px,
+        ComponentRadius::Lg => scale.lg_px,
+        ComponentRadius::Xl => scale.xl_px,
+        ComponentRadius::S2xl => scale.xxl_px,
+        ComponentRadius::S3xl => scale.xxxl_px,
+        ComponentRadius::S4xl => scale.xxxxl_px,
+        ComponentRadius::Full => 9999.0,
+        _ => scale.md_px,
+    }
+}
+
 /// Resolves the popover style from the active theme and style pack.
 pub(super) fn resolve_style(theme: &Theme) -> PopoverStyle {
     let recipe = recipe(theme);
@@ -40,7 +63,7 @@ pub(super) fn resolve_style(theme: &Theme) -> PopoverStyle {
         text_color: theme.palette.popover_foreground,
         border_color: theme.palette.foreground.scale_alpha(ring_alpha),
         border_width: 1.0,
-        radius: component_radius_px(theme, recipe.radius),
+        radius: surface_radius(theme),
         shadow: Shadow {
             color: Color::BLACK.scale_alpha(recipe.shadow.alpha),
             offset: Vector::new(0.0, recipe.shadow.offset_y_px),

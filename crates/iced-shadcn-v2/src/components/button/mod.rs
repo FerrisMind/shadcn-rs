@@ -80,6 +80,7 @@ pub struct Button<'a, Message> {
     loading: bool,
     disabled: bool,
     on_press: Option<Message>,
+    on_press_with: Option<Box<dyn Fn() -> Message + 'a>>,
     group_corners: Option<CornerFlatten>,
     style_override: Option<
         Box<dyn Fn(button_widget::Style, button_widget::Status) -> button_widget::Style + 'a>,
@@ -115,6 +116,7 @@ impl<Message> fmt::Debug for Button<'_, Message> {
             .field("loading", &self.loading)
             .field("disabled", &self.disabled)
             .field("on_press", &self.on_press.is_some())
+            .field("on_press_with", &self.on_press_with.is_some())
             .field("group_corners", &self.group_corners)
             .field("style_override", &self.style_override.is_some())
             .finish()
@@ -155,6 +157,7 @@ impl<'a, Message> Button<'a, Message> {
             loading: false,
             disabled: false,
             on_press: None,
+            on_press_with: None,
             group_corners: None,
             style_override: None,
         }
@@ -247,12 +250,25 @@ impl<'a, Message> Button<'a, Message> {
     /// Sets the message emitted when the button is pressed.
     pub fn on_press(mut self, message: Message) -> Self {
         self.on_press = Some(message);
+        self.on_press_with = None;
         self
     }
 
     /// Sets or clears the message emitted when the button is pressed.
     pub fn on_press_maybe(mut self, message: Option<Message>) -> Self {
         self.on_press = message;
+        self.on_press_with = None;
+        self
+    }
+
+    /// Sets a lazy message factory invoked only when the button is pressed.
+    ///
+    /// This is useful for buttons whose message contains data computed from
+    /// the clicked item. [`Self::on_press`] remains the cheaper choice for a
+    /// message that can be constructed while the view is built.
+    pub fn on_press_with(mut self, on_press: impl Fn() -> Message + 'a) -> Self {
+        self.on_press = None;
+        self.on_press_with = Some(Box::new(on_press));
         self
     }
 
@@ -302,6 +318,7 @@ impl<'a, Message> Button<'a, Message> {
             loading,
             disabled,
             on_press,
+            on_press_with,
             group_corners,
             style_override,
         } = self;
@@ -319,7 +336,7 @@ impl<'a, Message> Button<'a, Message> {
 
         let content = render::build_content(content, variant, size, loading, color, theme);
         let content = render::build_wrapper(content, full_width, icon);
-        let disabled_state = disabled || loading || on_press.is_none();
+        let disabled_state = disabled || loading || (on_press.is_none() && on_press_with.is_none());
         let resolved_padding = padding.unwrap_or_else(|| size.default_padding(theme));
 
         let mut widget = iced_button(content)
@@ -327,10 +344,12 @@ impl<'a, Message> Button<'a, Message> {
             .width(resolved_width)
             .height(control_height);
 
-        if let Some(message) = on_press
-            && !disabled_state
-        {
-            widget = widget.on_press(message);
+        if !disabled_state {
+            if let Some(on_press_with) = on_press_with {
+                widget = widget.on_press_with(on_press_with);
+            } else if let Some(message) = on_press {
+                widget = widget.on_press(message);
+            }
         }
 
         widget.style(move |_iced_theme, status| {

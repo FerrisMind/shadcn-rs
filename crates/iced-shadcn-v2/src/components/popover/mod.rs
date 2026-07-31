@@ -16,6 +16,11 @@ mod types;
 mod tests;
 
 pub use style::PopoverStyle;
+
+/// Returns the style-pack radius used by a popover surface.
+pub(crate) fn surface_radius(theme: &Theme) -> f32 {
+    style::surface_radius(theme)
+}
 pub use types::{PopoverAlign, PopoverSide};
 
 use std::fmt;
@@ -85,6 +90,10 @@ pub struct Popover<'a, Message> {
     side_offset: f32,
     align_offset: f32,
     width: Option<f32>,
+    /// Overrides the style-pack content padding (`p-0` for composed views).
+    content_padding: Option<f32>,
+    /// Overrides the surface radius in px.
+    radius: Option<f32>,
     duration: Duration,
     animated: bool,
     disabled: bool,
@@ -121,6 +130,8 @@ impl<Message> fmt::Debug for Popover<'_, Message> {
             .field("side_offset", &self.side_offset)
             .field("align_offset", &self.align_offset)
             .field("width", &self.width)
+            .field("content_padding", &self.content_padding)
+            .field("radius", &self.radius)
             .field("duration", &self.duration)
             .field("animated", &self.animated)
             .field("disabled", &self.disabled)
@@ -186,6 +197,8 @@ impl<'a, Message> Popover<'a, Message> {
             side_offset: DEFAULT_SIDE_OFFSET,
             align_offset: defaults.align_offset,
             width: None,
+            content_padding: None,
+            radius: None,
             duration: Duration::from_millis(POPOVER_ANIMATION_MS),
             animated: true,
             disabled: false,
@@ -231,6 +244,24 @@ impl<'a, Message> Popover<'a, Message> {
     /// Overrides the surface width in px (`w-72` — 288 px — by default).
     pub fn width(mut self, width: f32) -> Self {
         self.width = Some(width.max(0.0));
+        self
+    }
+
+    /// Overrides the content padding in px (`p-0` for composed content).
+    ///
+    /// `None` (the default) keeps the style-pack recipe padding. Set this to
+    /// zero when the content owns its own surface geometry, as the emoji
+    /// picker popover does.
+    pub fn content_padding(mut self, padding: f32) -> Self {
+        self.content_padding = Some(padding.max(0.0));
+        self
+    }
+
+    /// Overrides the style-pack surface radius in px.
+    ///
+    /// `None` (the default) keeps the active style-pack recipe radius.
+    pub fn radius(mut self, radius: f32) -> Self {
+        self.radius = Some(radius.max(0.0));
         self
     }
 
@@ -358,8 +389,14 @@ where
             PopoverContent::Element(element) => element,
         };
 
+        if let Some(radius) = popover.radius {
+            resolved.radius = radius;
+        }
+
         let content = container(inner)
-            .padding(Padding::new(recipe.pad_px))
+            .padding(Padding::new(
+                popover.content_padding.unwrap_or(recipe.pad_px),
+            ))
             .width(Length::Fixed(popover.width.unwrap_or(recipe.width_px)));
 
         let config = FloatingConfig::default()

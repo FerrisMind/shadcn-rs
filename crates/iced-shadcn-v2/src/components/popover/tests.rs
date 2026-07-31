@@ -33,6 +33,8 @@ fn builder_updates_semantic_fields() {
         .side_offset(10.0)
         .align_offset(2.0)
         .width(256.0)
+        .content_padding(0.0)
+        .radius(6.0)
         .duration(Duration::from_millis(200))
         .animated(false)
         .disabled(true)
@@ -52,6 +54,8 @@ fn builder_updates_semantic_fields() {
     assert_eq!(popover.side_offset, 10.0);
     assert_eq!(popover.align_offset, 2.0);
     assert_eq!(popover.width, Some(256.0));
+    assert_eq!(popover.content_padding, Some(0.0));
+    assert_eq!(popover.radius, Some(6.0));
     assert_eq!(popover.duration, Duration::from_millis(200));
     assert!(!popover.animated);
     assert!(popover.disabled);
@@ -78,6 +82,8 @@ fn defaults_match_shadcn_svelte() {
     assert_eq!(popover.side_offset, 4.0);
     assert_eq!(popover.align_offset, 0.0);
     assert_eq!(popover.width, None);
+    assert_eq!(popover.content_padding, None);
+    assert_eq!(popover.radius, None);
     assert_eq!(
         popover.duration,
         Duration::from_millis(POPOVER_ANIMATION_MS)
@@ -130,6 +136,30 @@ fn style_uses_popover_pair_with_foreground_ring() {
         theme.palette.foreground.scale_alpha(0.10)
     );
     assert!(resolved.shadow.blur_radius > 0.0);
+}
+
+#[test]
+fn surface_radius_matches_each_style_pack() {
+    let cases = [
+        (StyleId::Vega, 8.0),
+        (StyleId::Nova, 10.0),
+        (StyleId::Maia, 18.0),
+        (StyleId::Lyra, 0.0),
+        (StyleId::Mira, 10.0),
+        (StyleId::Luma, 22.0),
+        (StyleId::Sera, 0.0),
+        (StyleId::Rhea, 22.0),
+    ];
+
+    for (style_id, expected) in cases {
+        let theme = Theme::light().with_style(style_id);
+        assert_eq!(style::surface_radius(&theme), expected, "{style_id:?}");
+        assert_eq!(
+            style::resolve_style(&theme).radius,
+            expected,
+            "{style_id:?}"
+        );
+    }
 }
 
 #[test]
