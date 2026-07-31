@@ -194,16 +194,18 @@ fn config_for(name: &str) -> Option<&'static HighlightConfiguration> {
 /// Highlights `source` for `language`, returning a full partition of the
 /// source into semantic tokens (see the module docs).
 #[must_use]
+#[allow(clippy::redundant_closure)]
 pub fn highlight_code(source: &str, language: LanguageId) -> Vec<CodeToken> {
     let Some(config) = config_for(language.as_str()) else {
         return plain_tokens(source);
     };
 
     let mut highlighter = Highlighter::new();
-    let events = match highlighter.highlight(config, source.as_bytes(), None, config_for) {
-        Ok(events) => events,
-        Err(_) => return plain_tokens(source),
-    };
+    let events =
+        match highlighter.highlight(config, source.as_bytes(), None, |name| config_for(name)) {
+            Ok(events) => events,
+            Err(_) => return plain_tokens(source),
+        };
 
     let mut tokens: Vec<CodeToken> = Vec::new();
     let mut stack: Vec<SyntaxKind> = Vec::new();
