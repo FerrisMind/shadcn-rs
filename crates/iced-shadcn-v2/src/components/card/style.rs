@@ -10,20 +10,28 @@ use super::types::{CardBorder, CardRadius};
 use crate::theme::Theme;
 
 /// Resolves the outer card container style.
+///
+/// Fill + radius + shadow only. The CSS `ring-1` hairline is painted **outside**
+/// the bounds by [`super::render::with_outside_ring`] — an iced inset
+/// [`Border`] sits under edge-to-edge children (e.g. Command in `p-0`) and
+/// vanishes on large radii (Maia / Luma).
 pub(super) fn resolve_root_style(theme: &Theme, radius: CardRadius) -> container::Style {
-    let ring = ring_color(theme);
-
     container::Style {
         background: Some(Background::Color(theme.palette.card)),
         text_color: Some(theme.palette.card_foreground),
         border: Border {
             radius: geometry::radius_px(theme, radius).into(),
-            width: 1.0,
-            color: ring,
+            width: 0.0,
+            color: Color::TRANSPARENT,
         },
         shadow: card_shadow(theme),
-        snap: true,
+        snap: false,
     }
+}
+
+/// `ring-1 ring-foreground/N` tokens for the outside hairline.
+pub(super) fn root_ring(theme: &Theme) -> (Color, f32) {
+    (ring_color(theme), 1.0)
 }
 
 /// Resolves a section wrapper. Section borders are painted as explicit rules

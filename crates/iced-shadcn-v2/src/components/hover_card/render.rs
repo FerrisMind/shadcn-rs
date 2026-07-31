@@ -567,8 +567,6 @@ impl<Message> overlay::Overlay<Message, Theme, Renderer> for HoverCardOverlay<'_
                 renderer,
                 bounds,
                 self.style.background.scale_alpha(progress),
-                self.style.border_color.scale_alpha(progress),
-                self.style.border_width,
                 self.style.radius,
                 crate::iced_compat::Shadow {
                     color: self.style.shadow.color.scale_alpha(progress),
@@ -588,6 +586,14 @@ impl<Message> overlay::Overlay<Message, Theme, Renderer> for HoverCardOverlay<'_
                 layout.children().next().expect("content layout"),
                 cursor,
                 &bounds,
+            );
+
+            crate::floating_surface::paint_outside_ring(
+                renderer,
+                bounds,
+                self.style.border_color.scale_alpha(progress),
+                self.style.border_width,
+                self.style.radius,
             );
         });
     }

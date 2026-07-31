@@ -131,20 +131,28 @@ pub(super) fn resolve_link_style(
     }
 }
 
-/// Paints the viewport / popup surface with CSS ring-outside semantics.
+/// Paints the viewport / popup surface fill (CSS ring is painted after
+/// content by the caller).
 pub(super) fn paint_viewport_surface(
     renderer: &mut Renderer,
     bounds: Rectangle,
     style: NavigationMenuViewportStyle,
 ) {
-    fill_floating_surface(
+    fill_floating_surface(renderer, bounds, style.background, style.radius, style.shadow);
+}
+
+/// Paints the CSS `ring-1` hairline outside the viewport bounds.
+pub(super) fn paint_viewport_ring(
+    renderer: &mut Renderer,
+    bounds: Rectangle,
+    style: NavigationMenuViewportStyle,
+) {
+    crate::floating_surface::paint_outside_ring(
         renderer,
         bounds,
-        style.background,
         style.border_color,
         style.border_width,
         style.radius,
-        style.shadow,
     );
 }
 

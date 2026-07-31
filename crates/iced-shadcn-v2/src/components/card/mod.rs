@@ -258,7 +258,24 @@ impl<'a, Message> Card<'a, Message> {
             resolved = override_fn(resolved);
         }
 
-        container(body)
+        // CSS `ring-1` is outside; keep any override color/width as the ring
+        // source, then clear the inset border so opaque children cannot cover it.
+        let (default_ring, default_width) = style::root_ring(theme);
+        let ring_width = if resolved.border.width > 0.0 {
+            resolved.border.width
+        } else {
+            default_width
+        };
+        let ring_color = if resolved.border.width > 0.0 {
+            resolved.border.color
+        } else {
+            default_ring
+        };
+        let ring_radius = geometry::radius_px(theme, radius);
+        resolved.border.width = 0.0;
+        resolved.border.color = Color::TRANSPARENT;
+
+        let inner = container(body)
             .padding(crate::iced_compat::Padding {
                 top: top_padding.unwrap_or(spacing),
                 right: 0.0,
@@ -268,8 +285,9 @@ impl<'a, Message> Card<'a, Message> {
             .width(width)
             .height(height)
             .clip(true)
-            .style(move |_| resolved)
-            .into()
+            .style(move |_| resolved);
+
+        render::with_outside_ring(inner.into(), ring_color, ring_width, ring_radius)
     }
 }
 

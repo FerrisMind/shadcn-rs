@@ -1160,8 +1160,6 @@ fn draw_menu_surface<Message>(
         renderer,
         bounds,
         style.background,
-        style.border_color,
-        style.border_width,
         style.radius,
         style.shadow,
     );
@@ -1332,6 +1330,14 @@ fn draw_menu_surface<Message>(
 
         y += height;
     }
+
+    crate::floating_surface::paint_outside_ring(
+        renderer,
+        bounds,
+        style.border_color,
+        style.border_width,
+        style.radius,
+    );
 }
 
 #[allow(clippy::too_many_arguments)]

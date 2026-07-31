@@ -1116,8 +1116,6 @@ where
             renderer,
             bounds,
             self.style.background,
-            self.style.border_color,
-            self.style.border_width,
             self.style.radius,
             self.style.shadow,
         );
@@ -1167,6 +1165,14 @@ where
                 false,
             );
         }
+
+        crate::floating_surface::paint_outside_ring(
+            renderer,
+            bounds,
+            self.style.border_color,
+            self.style.border_width,
+            self.style.radius,
+        );
     }
 }
 

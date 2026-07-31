@@ -4,19 +4,25 @@
 //! (`0 0 0 1px color`), drawn **outside** the surface. Painting the same
 //! token as an iced inset [`Border`] makes soft packs (Maia / Luma / Rhea)
 //! look outlined when the reference site barely shows a hairline.
+//!
+//! Call order for overlays with opaque children (Command, forms, …):
+//! 1. [`fill_floating_surface`] — shadow + fill
+//! 2. draw children
+//! 3. [`paint_outside_ring`] — hairline **after** content so edge-to-edge
+//!    fills cannot cover the ring at large radii
 
 use crate::iced_compat::{
     Background, Border, Color, Rectangle, Renderer, Shadow, advanced::renderer,
 };
 
-/// Paints a popover-like surface: drop shadow + fill, then an optional CSS
-/// `ring-1` hairline outside the bounds.
+/// Paints a popover-like surface: drop shadow + fill only.
+///
+/// Does **not** paint the CSS ring — callers must invoke
+/// [`paint_outside_ring`] **after** drawing surface children.
 pub fn fill_floating_surface(
     renderer: &mut Renderer,
     bounds: Rectangle,
     background: Color,
-    ring_color: Color,
-    ring_width: f32,
     radius: f32,
     shadow: Shadow,
 ) {
@@ -31,12 +37,10 @@ pub fn fill_floating_surface(
                 color: Color::TRANSPARENT,
             },
             shadow,
-            ..renderer::Quad::default()
+            snap: false,
         },
         Background::Color(background),
     );
-
-    paint_outside_ring(renderer, bounds, ring_color, ring_width, radius);
 }
 
 /// CSS `ring-1` as an outside stroke (transparent fill + border on expanded
@@ -64,7 +68,7 @@ pub fn paint_outside_ring(
                 color: ring_color,
             },
             shadow: Shadow::default(),
-            ..renderer::Quad::default()
+            snap: false,
         },
         Background::Color(Color::TRANSPARENT),
     );

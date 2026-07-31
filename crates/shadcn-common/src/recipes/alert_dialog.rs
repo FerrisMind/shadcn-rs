@@ -35,10 +35,10 @@ pub struct AlertDialogRecipe {
     pub pad_px: f32,
     /// Gap of the content grid (`gap-6` / `gap-4` / `gap-3`).
     pub gap_px: f32,
-    /// Surface corner radius intent (`rounded-xl` / `rounded-none`).
+    /// Surface corner radius intent (`rounded-xl` / `rounded-4xl` / …).
     pub radius: ComponentRadius,
-    /// Fixed radius override in px for the `rounded-4xl` packs
-    /// (`rounded-4xl` → 32, `rounded-[min(var(--radius-4xl),24px)]` → 24).
+    /// Optional **cap** in px for `min(scale(radius), cap)` — Rhea's
+    /// `rounded-[min(var(--radius-4xl),24px)]`.
     pub radius_px: Option<f32>,
     /// `ring-foreground/N` alpha in light mode.
     pub ring_alpha: f32,
@@ -91,7 +91,7 @@ pub const fn alert_dialog_recipe(style: StyleId) -> AlertDialogRecipe {
         StyleId::Maia => AlertDialogRecipe {
             overlay_alpha: 0.80,
             max_width_px: 448.0,
-            radius_px: Some(32.0),
+            radius: ComponentRadius::S4xl,
             ring_alpha: 0.05,
             ring_alpha_dark: 0.05,
             media_radius: ComponentRadius::Full,
@@ -100,7 +100,7 @@ pub const fn alert_dialog_recipe(style: StyleId) -> AlertDialogRecipe {
         StyleId::Luma => AlertDialogRecipe {
             overlay_alpha: 0.30,
             max_width_px: 448.0,
-            radius_px: Some(32.0),
+            radius: ComponentRadius::S4xl,
             ring_alpha: 0.05,
             ring_alpha_dark: 0.10,
             shadow: Some(SHADOW_XL),
@@ -110,6 +110,7 @@ pub const fn alert_dialog_recipe(style: StyleId) -> AlertDialogRecipe {
         StyleId::Rhea => AlertDialogRecipe {
             overlay_alpha: 0.30,
             max_width_px: 448.0,
+            radius: ComponentRadius::S4xl,
             radius_px: Some(24.0),
             ring_alpha: 0.05,
             ring_alpha_dark: 0.10,
@@ -282,12 +283,13 @@ mod tests {
         assert_eq!(nova.media_icon_px, 24.0);
         assert_eq!(nova.media_gap_x_px, 16.0);
 
-        // Maia: `bg-black/80`, `rounded-4xl`, `ring-foreground/5`,
+        // Maia: `bg-black/80`, `rounded-4xl` (`--radius-4xl`), `ring-foreground/5`,
         // `rounded-full` media.
         let maia = alert_dialog_recipe(StyleId::Maia);
         assert_eq!(maia.overlay_alpha, 0.80);
         assert_eq!(maia.max_width_px, 448.0);
-        assert_eq!(maia.radius_px, Some(32.0));
+        assert_eq!(maia.radius, ComponentRadius::S4xl);
+        assert_eq!(maia.radius_px, None);
         assert_eq!(maia.ring_alpha, 0.05);
         assert_eq!(maia.ring_alpha_dark, 0.05);
         assert_eq!(maia.media_radius, ComponentRadius::Full);

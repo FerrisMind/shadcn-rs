@@ -38,10 +38,12 @@ pub struct DialogRecipe {
     pub pad_px: f32,
     /// Gap of the content grid (`gap-6` / `gap-4`).
     pub gap_px: f32,
-    /// Surface corner radius intent (`rounded-xl` / `rounded-none`).
+    /// Surface corner radius intent (`rounded-xl` / `rounded-4xl` / `rounded-none`).
     pub radius: ComponentRadius,
-    /// Fixed radius override in px for the `rounded-4xl` packs
-    /// (`rounded-4xl` → 32, `rounded-[min(var(--radius-4xl),24px)]` → 24).
+    /// Optional **cap** in px for `min(scale(radius), cap)` — Rhea's
+    /// `rounded-[min(var(--radius-4xl),24px)]`. Not a Tailwind-literal
+    /// substitute for `rounded-4xl` (that is [`ComponentRadius::S4xl`] →
+    /// `--radius-4xl` = base + 16).
     pub radius_px: Option<f32>,
     /// `ring-foreground/N` alpha in light mode.
     pub ring_alpha: f32,
@@ -88,7 +90,7 @@ pub const fn dialog_recipe(style: StyleId) -> DialogRecipe {
         },
         StyleId::Maia => DialogRecipe {
             overlay_alpha: 0.80,
-            radius_px: Some(32.0),
+            radius: ComponentRadius::S4xl,
             ring_alpha: 0.05,
             ring_alpha_dark: 0.05,
             title: leading_none(text_base(FontWeight::Medium)),
@@ -96,7 +98,7 @@ pub const fn dialog_recipe(style: StyleId) -> DialogRecipe {
         },
         StyleId::Luma => DialogRecipe {
             overlay_alpha: 0.30,
-            radius_px: Some(32.0),
+            radius: ComponentRadius::S4xl,
             ring_alpha: 0.05,
             ring_alpha_dark: 0.10,
             shadow: Some(SHADOW_XL),
@@ -107,6 +109,7 @@ pub const fn dialog_recipe(style: StyleId) -> DialogRecipe {
         },
         StyleId::Rhea => DialogRecipe {
             overlay_alpha: 0.30,
+            radius: ComponentRadius::S4xl,
             radius_px: Some(24.0),
             ring_alpha: 0.05,
             ring_alpha_dark: 0.10,
@@ -266,14 +269,16 @@ mod tests {
         assert!(nova.footer_bar);
         assert_eq!(nova.close_offset_px, 8.0);
 
-        // Maia: `bg-black/80` backdrop, `rounded-4xl`, `ring-foreground/5`.
+        // Maia: `bg-black/80` backdrop, `rounded-4xl` → `--radius-4xl`.
         let maia = dialog_recipe(StyleId::Maia);
         assert_eq!(maia.overlay_alpha, 0.80);
-        assert_eq!(maia.radius_px, Some(32.0));
+        assert_eq!(maia.radius, ComponentRadius::S4xl);
+        assert_eq!(maia.radius_px, None);
         assert_eq!(maia.ring_alpha, 0.05);
 
         // Rhea caps the radius at 24 px and casts `shadow-xl`.
         let rhea = dialog_recipe(StyleId::Rhea);
+        assert_eq!(rhea.radius, ComponentRadius::S4xl);
         assert_eq!(rhea.radius_px, Some(24.0));
         assert_eq!(rhea.shadow, Some(SHADOW_XL));
         assert!(rhea.close_secondary_bg);

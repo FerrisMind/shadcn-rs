@@ -29,7 +29,8 @@ use crate::iced_compat::{
 use crate::theme::Theme;
 
 use super::style::{
-    NavigationMenuViewportStyle, metrics, paint_item_surface, paint_viewport_surface,
+    NavigationMenuViewportStyle, metrics, paint_item_surface, paint_viewport_ring,
+    paint_viewport_surface,
     resolve_link_style,
 };
 use super::types::{
@@ -930,6 +931,8 @@ where
                 self.surface.border_color,
             );
         }
+
+        paint_viewport_ring(renderer, bounds, self.surface);
         let _ = style;
     }
 }

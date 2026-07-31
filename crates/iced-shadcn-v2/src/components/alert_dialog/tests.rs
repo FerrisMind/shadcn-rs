@@ -223,7 +223,8 @@ fn recipe_tracks_style_pack_tokens() {
     // Maia: `bg-black/80` backdrop with `rounded-4xl` and round media.
     let maia = alert_dialog_recipe(StyleId::Maia);
     assert_eq!(maia.overlay_alpha, 0.80);
-    assert_eq!(maia.radius_px, Some(32.0));
+    assert_eq!(maia.radius, ComponentRadius::S4xl);
+    assert_eq!(maia.radius_px, None);
     assert_eq!(maia.media_radius, ComponentRadius::Full);
 
     // Sera: square with an uppercase wide-tracked title.
