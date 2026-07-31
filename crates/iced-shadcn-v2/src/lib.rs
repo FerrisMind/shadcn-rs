@@ -92,6 +92,8 @@ pub use components::breadcrumb;
 pub use components::button;
 /// Backwards-compatible access to the button-group component.
 pub use components::button_group;
+/// Backwards-compatible access to the calendar component.
+pub use components::calendar;
 /// Backwards-compatible access to the card component.
 pub use components::card;
 /// Backwards-compatible access to the carousel component.
@@ -100,6 +102,8 @@ pub use components::carousel;
 pub use components::chart;
 /// Backwards-compatible access to the checkbox component.
 pub use components::checkbox;
+/// Backwards-compatible access to the code component.
+pub use components::code;
 /// Backwards-compatible access to the collapsible component.
 pub use components::collapsible;
 /// Backwards-compatible access to the command component.
@@ -108,12 +112,18 @@ pub use components::command;
 pub use components::context_menu;
 /// Backwards-compatible access to the copy-button component.
 pub use components::copy_button;
+/// Backwards-compatible access to the data-table component.
+pub use components::data_table;
+/// Backwards-compatible access to the date-picker component.
+pub use components::date_picker;
 /// Backwards-compatible access to the dialog component.
 pub use components::dialog;
 /// Backwards-compatible access to the drawer component.
 pub use components::drawer;
 /// Backwards-compatible access to the dropdown-menu component.
 pub use components::dropdown_menu;
+/// Backwards-compatible access to the emoji-picker component.
+pub use components::emoji_picker;
 /// Backwards-compatible access to the empty-state component.
 pub use components::empty;
 /// Backwards-compatible access to the field component.
@@ -146,6 +156,8 @@ pub use components::popover;
 pub use components::progress;
 /// Backwards-compatible access to the radio-group component.
 pub use components::radio_group;
+/// Backwards-compatible access to the range-calendar component.
+pub use components::range_calendar;
 /// Backwards-compatible access to the resizable component.
 pub use components::resizable;
 /// Backwards-compatible access to the scroll-area component.
@@ -162,6 +174,8 @@ pub use components::sidebar;
 pub use components::skeleton;
 /// Backwards-compatible access to the slider component.
 pub use components::slider;
+/// Backwards-compatible access to the snippet component.
+pub use components::snippet;
 /// Backwards-compatible access to the sonner toast component.
 pub use components::sonner;
 /// Backwards-compatible access to the spinner component.
@@ -207,6 +221,10 @@ pub use components::button::{Button, ButtonBuildError, ButtonRadius, ButtonSize,
 pub use components::button_group::{
     ButtonGroup, ButtonGroupItem, ButtonGroupOrientation, ButtonGroupText,
 };
+pub use components::calendar::{
+    Calendar, CalendarCaptionLayout, CalendarMonthFormat, CalendarSelection, CalendarWeekdayFormat,
+    CalendarYearFormat, calendar,
+};
 pub use components::card::{
     Card, CardAction, CardBorder, CardContent, CardDescription, CardFooter, CardFooterAlignment,
     CardFooterDirection, CardHeader, CardRadius, CardSize, CardTitle,
@@ -222,6 +240,7 @@ pub use components::chart::{
 pub use components::checkbox::{
     Checkbox, CheckboxConfig, CheckboxSize, CheckboxState, CheckboxVariant,
 };
+pub use components::code::{Code, CodeCopyButton, CodeOverflow, CodeVariant};
 pub use components::collapsible::{
     Collapsible, CollapsibleAlignment, CollapsibleBuildError, CollapsibleContent,
     CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement, CollapsibleOrientation,
@@ -239,6 +258,10 @@ pub use components::copy_button::{
     CopyButton, CopyButtonAction, CopyButtonState, CopyButtonStatus, CopyButtonUpdate,
     copy_button_reduce,
 };
+pub use components::data_table::{DataTable, data_table};
+pub use components::date_picker::{
+    DatePicker, DatePickerIconPosition, DateRangePicker, date_picker, date_range_picker,
+};
 pub use components::dialog::{
     Dialog, DialogDescription, DialogFooter, DialogHeader, DialogStyle, DialogTitle,
 };
@@ -250,6 +273,11 @@ pub use components::dropdown_menu::{
     DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContentStyle, DropdownMenuItem,
     DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSub,
     dropdown_menu,
+};
+pub use components::emoji_picker::{
+    EmojiPicker, EmojiPickerCategory, EmojiPickerData, EmojiPickerFooter, EmojiPickerList,
+    EmojiPickerRecent, EmojiPickerRecents, EmojiPickerSearch, EmojiPickerSkin,
+    EmojiPickerSkinToneSelector, EmojiPickerViewport, SelectedEmoji,
 };
 pub use components::empty::{
     Empty, EmptyBorderStyle, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia,
@@ -311,6 +339,7 @@ pub use components::radio_group::{
     RadioGroup, RadioGroupItem, RadioGroupOrientation, RadioGroupRadius, RadioGroupSize,
     RadioGroupStatus, RadioGroupStyle, radio_group,
 };
+pub use components::range_calendar::{DateRange, RangeCalendar, RangeDayPosition, range_calendar};
 pub use components::resizable::{
     ResizableBuildError, ResizableDirection, ResizableHandle, ResizableLayout, ResizablePane,
     ResizablePaneGroup, ResizableRadius, resizable_pane_group,
@@ -342,6 +371,7 @@ pub use components::skeleton::{
 pub use components::slider::{
     Slider, SliderOrientation, SliderRadius, SliderState, SliderStatus, SliderStyle, slider,
 };
+pub use components::snippet::{Snippet, SnippetRadius, SnippetText, SnippetVariant};
 pub use components::sonner::{
     SonnerToast, Toast, ToastAction, ToastCallback, ToastId, ToastOptions, ToastPosition,
     ToastPromise, ToastStyle, ToastType, Toaster, active_toast_count, dismiss_all_toasts,
@@ -372,9 +402,9 @@ pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};
 
 pub use shadcn_common::{
-    AccentColor, BaseColor, ComponentRadius, ControlSize, FloatingPadding, FloatingSticky,
-    FontHeading, FontId, FontPack, FontWeight, MenuActivateKind, MenuItemVariant, RadiusId,
-    RadiusScale, ResolvedTheme, SelectMode, StyleId, StylePack, ThemeMode, TypeRecipe,
+    AccentColor, BaseColor, ComponentRadius, ControlSize, DateParts, FloatingPadding,
+    FloatingSticky, FontHeading, FontId, FontPack, FontWeight, MenuActivateKind, MenuItemVariant,
+    RadiusId, RadiusScale, ResolvedTheme, SelectMode, StyleId, StylePack, ThemeMode, TypeRecipe,
     matches_sidebar_shortcut,
 };
 
