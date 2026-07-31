@@ -14,7 +14,7 @@ pub(crate) use iced_core::{
     Rectangle, Shadow, Size, Theme, Transformation, Vector,
 };
 
-pub(crate) use iced_core::{alignment, border, font, mouse, time, touch, window};
+pub(crate) use iced_core::{alignment, border, font, gradient, mouse, time, touch, window};
 
 pub(crate) use iced_widget::Renderer;
 

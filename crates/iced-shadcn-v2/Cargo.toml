@@ -20,10 +20,12 @@ include = [
 ]
 
 [dependencies]
+chorale-core = { workspace = true }
 iced_core = { version = "0.14", default-features = false, features = ["advanced"] }
 iced_widget = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image"] }
 iced_renderer = { version = "0.14", default-features = false, optional = true }
-shadcn-common = { workspace = true, features = ["fonts"] }
+emojis = "0.9"
+shadcn-common = { workspace = true, features = ["fonts", "syntax"] }
 twill-core = { workspace = true }
 serde = { version = "1", features = ["derive"], optional = true }
 
