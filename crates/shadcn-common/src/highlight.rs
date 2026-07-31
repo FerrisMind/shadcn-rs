@@ -201,7 +201,7 @@ pub fn highlight_code(source: &str, language: LanguageId) -> Vec<CodeToken> {
 
     let mut highlighter = Highlighter::new();
     let events =
-        match highlighter.highlight(config, source.as_bytes(), None, |name| config_for(name)) {
+        match highlighter.highlight(config, source.as_bytes(), None, config_for) {
             Ok(events) => events,
             Err(_) => return plain_tokens(source),
         };
