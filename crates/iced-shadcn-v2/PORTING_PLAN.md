@@ -80,15 +80,15 @@ Esc, z-слои) — аналог bits-ui Floating/Portal. Всё ниже — �
 
 ## Фаза 4 — тяжёлые композиты (финал)
 
-46. **`command`** — переиспользует `dialog` + `input` + список (fuzzy-фильтрация — с нуля)
+46. ~~**`command`** — переиспользует `dialog` + `input` + список (fuzzy-фильтрация в `shadcn-common`)~~ ✅
 47. **`combobox`** — переиспользует `popover` + `command` (сам почти ничего не добавляет)
-48. **`carousel`** — с нуля (в вебе embla; у нас — свой scroll/snap) + `button`
+48. **`carousel`** — с нуля (в вебе embla; у нас — свой scroll/snap) + `button` ✅
 49. **`calendar`** — с нуля (date-логика!) + варианты `button` + `select`
 50. **`range-calendar`** — переиспользует `calendar` (range-состояние)
 51. **`date-picker`** — переиспользует `popover` + `calendar`/`range-calendar` + `input-group`
 52. **`data-table`** — переиспользует `table`, `checkbox`, `button`, `dropdown-menu`, `select`, `input` (в вебе TanStack Table — нужен свой мини-движок: sort/filter/pagination state)
 53. **`chart`** — с нуля на `Canvas` (в вебе layerchart; самый «неперетаскиваемый» компонент) + `tooltip`
-54. **`sidebar`** — переиспользует `sheet`, `tooltip`, `separator`, `skeleton`, `input`, `button` (самый большой композит — строго последним)
+54. ~~**`sidebar`** — переиспользует `sheet`, `tooltip`, `separator`, `skeleton`, `input`, `button` (самый большой композит — строго последним)~~ ✅
 
 ---
 
@@ -100,7 +100,7 @@ button ✅, spinner ✅, separator ✅, skeleton, label ✅, badge ✅, kbd ✅,
 aspect-ratio, progress, input ✅, textarea, checkbox ✅, switch ✅, toggle ✅, slider,
 avatar ✅, card ✅, alert ✅, scroll-area ✅, radio-group ✅, breadcrumb ✅, item ✅, table ✅, tabs ✅,
 collapsible ✅, accordion ✅, pagination ✅, field ✅, empty ✅, resizable, tooltip ✅, popover, dialog ✅, sonner ✅,
-carousel, calendar, chart, command, overlay ✅, dropdown-menu ✅, navigation-menu ✅, menubar ✅.
+carousel ✅, calendar, chart, command ✅, overlay ✅, dropdown-menu ✅, navigation-menu ✅, menubar ✅.
 
 ### Переиспользуют готовые
 
