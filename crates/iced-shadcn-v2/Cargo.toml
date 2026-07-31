@@ -28,7 +28,7 @@ twill-core = { workspace = true }
 serde = { version = "1", features = ["derive"], optional = true }
 
 [dev-dependencies]
-iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image", "wgpu", "tiny-skia", "thread-pool", "x11", "wayland"] }
+iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image", "wgpu", "tiny-skia", "thread-pool", "tokio", "x11", "wayland"] }
 
 [features]
 default = ["wgpu", "tiny-skia"]
