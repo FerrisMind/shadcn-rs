@@ -390,7 +390,10 @@ where
     ) -> Self {
         Self {
             trigger: trigger.into(),
-            command: command.in_dialog(true).show_border(false).show_shadow(false),
+            command: command
+                .in_dialog(true)
+                .show_border(false)
+                .show_shadow(false),
             theme,
             title: "Command Palette".to_owned(),
             description: "Search for a command to run...".to_owned(),
@@ -450,7 +453,9 @@ where
         // Keep title/description in the tree for a11y parity with the web
         // `sr-only` Dialog.Header; they occupy no visual space.
         let content: Element<'a, Message> = column![
-            Space::new().width(Length::Fixed(0.0)).height(Length::Fixed(0.0)),
+            Space::new()
+                .width(Length::Fixed(0.0))
+                .height(Length::Fixed(0.0)),
             dialog.command,
         ]
         .into();

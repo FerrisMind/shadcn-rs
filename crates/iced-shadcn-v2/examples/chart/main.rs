@@ -217,17 +217,15 @@ impl Example {
                 "January - June 2024",
                 Chart::bar(theme)
                     .categories(MONTHS)
-                    .series(
-                        ChartSeries::new("Visitors", VISITORS).point_colors(
-                            VISITORS.iter().map(|value| {
-                                Some(if *value >= 0.0 {
-                                    ChartColor::Chart1
-                                } else {
-                                    ChartColor::Chart2
-                                })
-                            }),
-                        ),
-                    )
+                    .series(ChartSeries::new("Visitors", VISITORS).point_colors(
+                        VISITORS.iter().map(|value| {
+                            Some(if *value >= 0.0 {
+                                ChartColor::Chart1
+                            } else {
+                                ChartColor::Chart2
+                            })
+                        }),
+                    ),)
                     .axis(ChartAxis::None)
                     .bar_radius(0.0)
                     .category_format(month_short)

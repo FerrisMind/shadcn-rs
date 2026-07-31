@@ -9,7 +9,7 @@
 use std::fmt;
 
 use iced::keyboard::{self, Key, Modifiers};
-use iced::widget::{column, container, pick_list, row, text, Space};
+use iced::widget::{Space, column, container, pick_list, row, text};
 use iced::{Alignment, Background, Border, Color, Element, Event, Length, Padding, Task, event};
 
 use iced_shadcn_v2::{
@@ -17,9 +17,10 @@ use iced_shadcn_v2::{
     BreadcrumbPage, FontHeading, FontId, FontPack, RadiusId, Separator, SeparatorOrientation,
     Sidebar, SidebarCollapsible, SidebarContent, SidebarController, SidebarFooter, SidebarGroup,
     SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarInset, SidebarMenu,
-    SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem, SidebarMenuSub, SidebarMenuSubButton,
-    SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarSide, SidebarTrigger, SidebarVariant,
-    StyleId, Theme, ThemeMode, fonts, iced_font, matches_sidebar_shortcut,
+    SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuItem, SidebarMenuSub,
+    SidebarMenuSubButton, SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarSide,
+    SidebarTrigger, SidebarVariant, StyleId, Theme, ThemeMode, fonts, iced_font,
+    matches_sidebar_shortcut,
 };
 
 pub fn main() -> iced::Result {
@@ -141,8 +142,8 @@ impl Example {
                 modifiers,
                 ..
             }) => {
-                let ctrl_or_meta = modifiers.contains(Modifiers::CTRL)
-                    || modifiers.contains(Modifiers::COMMAND);
+                let ctrl_or_meta =
+                    modifiers.contains(Modifiers::CTRL) || modifiers.contains(Modifiers::COMMAND);
                 let ch = c.chars().next().unwrap_or('\0');
                 if matches_sidebar_shortcut(ch, ctrl_or_meta) {
                     Some(Message::Shortcut)
@@ -194,8 +195,7 @@ impl Example {
                 if self.force_mobile {
                     self.controller.set_is_mobile(true);
                 } else {
-                    self.controller
-                        .set_viewport_width(self.last_viewport_width);
+                    self.controller.set_viewport_width(self.last_viewport_width);
                 }
             }
             Message::ToggleNav(index) => {
@@ -265,10 +265,7 @@ impl Example {
                 .width(flex)
                 .height(Length::Fixed(128.0))
                 .style(move |_| container::Style {
-                    background: Some(Background::Color(Color {
-                        a: 0.5,
-                        ..p.muted
-                    })),
+                    background: Some(Background::Color(Color { a: 0.5, ..p.muted })),
                     border: Border {
                         color: Color::TRANSPARENT,
                         width: 0.0,
@@ -290,10 +287,7 @@ impl Example {
             .width(Length::Fill)
             .height(Length::Fill)
             .style(move |_| container::Style {
-                background: Some(Background::Color(Color {
-                    a: 0.5,
-                    ..p.muted
-                })),
+                background: Some(Background::Color(Color { a: 0.5, ..p.muted })),
                 border: Border {
                     color: Color::TRANSPARENT,
                     width: 0.0,
@@ -441,11 +435,7 @@ fn nav_main_item<'a>(
         SidebarMenuButton::text(entry.title, ctrl, theme)
             .collapsible(state.collapsible)
             .tooltip(entry.title)
-            .leading_icon(
-                text(entry.glyph)
-                    .size(14)
-                    .color(p.sidebar_foreground),
-            )
+            .leading_icon(text(entry.glyph).size(14).color(p.sidebar_foreground))
             .trailing_icon(text(chevron).size(14).color(p.sidebar_foreground))
             .on_press(Message::ToggleNav(index)),
     );
@@ -515,7 +505,11 @@ fn chevron_up_down<'a, Message: 'a>(color: Color) -> Element<'a, Message> {
 fn theme_controls<'a>(state: &'a Example, theme: &'a Theme) -> Element<'a, Message> {
     let p = &theme.palette;
     column![
-        section_label("Theme (shadcn-common)", p.muted_foreground, theme.font_pack()),
+        section_label(
+            "Theme (shadcn-common)",
+            p.muted_foreground,
+            theme.font_pack()
+        ),
         row![
             control_select(
                 "Style",

@@ -138,7 +138,13 @@ pub(super) fn paint_viewport_surface(
     bounds: Rectangle,
     style: NavigationMenuViewportStyle,
 ) {
-    fill_floating_surface(renderer, bounds, style.background, style.radius, style.shadow);
+    fill_floating_surface(
+        renderer,
+        bounds,
+        style.background,
+        style.radius,
+        style.shadow,
+    );
 }
 
 /// Paints the CSS `ring-1` hairline outside the viewport bounds.

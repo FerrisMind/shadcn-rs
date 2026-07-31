@@ -536,8 +536,7 @@ pub fn chart_pie_hit(
     let fraction = (angle / std::f32::consts::TAU).rem_euclid(1.0);
 
     slices.iter().position(|slice| {
-        fraction >= slice.start_fraction
-            && fraction < slice.end_fraction.max(slice.start_fraction)
+        fraction >= slice.start_fraction && fraction < slice.end_fraction.max(slice.start_fraction)
     })
 }
 
@@ -580,7 +579,9 @@ pub fn chart_format_value(value: f64) -> String {
 
     if fraction > 0.0 {
         let fraction_digits = format!("{fraction:.3}");
-        let trimmed = fraction_digits.trim_start_matches("0.").trim_end_matches('0');
+        let trimmed = fraction_digits
+            .trim_start_matches("0.")
+            .trim_end_matches('0');
 
         if !trimmed.is_empty() {
             result.push('.');

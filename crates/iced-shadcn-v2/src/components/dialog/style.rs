@@ -74,9 +74,10 @@ pub(super) fn resolve_style(theme: &Theme) -> DialogStyle {
         text_color: theme.palette.popover_foreground,
         border_color: theme.palette.foreground.scale_alpha(ring_alpha),
         border_width: 1.0,
-        radius: recipe
-            .radius_px
-            .unwrap_or_else(|| component_radius_px(theme, recipe.radius)),
+        radius: {
+            let scaled = component_radius_px(theme, recipe.radius);
+            recipe.radius_px.map_or(scaled, |cap| scaled.min(cap))
+        },
         shadow,
         close_background,
         close_hover_background: theme.palette.accent,

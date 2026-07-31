@@ -54,9 +54,8 @@ use crate::iced_compat::widget::{column, container, row};
 use crate::iced_compat::{Element, Length, alignment};
 
 use shadcn_common::{
-    AccentColor, CAROUSEL_ANIMATION_MS, CAROUSEL_CONTROL_OFFSET_PX,
-    CAROUSEL_GAP_PX, carousel_can_scroll_next, carousel_can_scroll_prev, carousel_next_snap,
-    carousel_previous_snap,
+    AccentColor, CAROUSEL_ANIMATION_MS, CAROUSEL_CONTROL_OFFSET_PX, CAROUSEL_GAP_PX,
+    carousel_can_scroll_next, carousel_can_scroll_prev, carousel_next_snap, carousel_previous_snap,
 };
 
 use crate::components::button::{Button, ButtonSize, ButtonVariant};
@@ -440,9 +439,9 @@ impl<'a, Message> Carousel<'a, Message> {
         let previous_message = on_select.as_ref().and_then(|on_select| {
             carousel_previous_snap(selected, snap_count, looped).map(on_select)
         });
-        let next_message = on_select.as_ref().and_then(|on_select| {
-            carousel_next_snap(selected, snap_count, looped).map(on_select)
-        });
+        let next_message = on_select
+            .as_ref()
+            .and_then(|on_select| carousel_next_snap(selected, snap_count, looped).map(on_select));
 
         let (main, cross) = match orientation {
             CarouselOrientation::Horizontal => (
@@ -527,8 +526,7 @@ impl<'a, Message> Carousel<'a, Message> {
             CarouselOrientation::Vertical => {
                 let prev =
                     previous.into_button(theme, ChevronDirection::Up, previous_message, !can_prev);
-                let next =
-                    next.into_button(theme, ChevronDirection::Down, next_message, !can_next);
+                let next = next.into_button(theme, ChevronDirection::Down, next_message, !can_next);
                 let mut root = column(vec![
                     container(prev)
                         .height(gutter)

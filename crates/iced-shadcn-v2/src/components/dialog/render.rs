@@ -392,7 +392,10 @@ impl<Message> overlay::Overlay<Message, Theme, Renderer> for DialogOverlay<'_, '
         let y = match self.vertical_anchor_top {
             Some(fraction) => {
                 let top = bounds.height * fraction;
-                top.clamp(self.margin, (bounds.height - size.height - self.margin).max(0.0))
+                top.clamp(
+                    self.margin,
+                    (bounds.height - size.height - self.margin).max(0.0),
+                )
             }
             None => ((bounds.height - size.height) / 2.0).max(0.0),
         };

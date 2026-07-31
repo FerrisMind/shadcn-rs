@@ -163,9 +163,8 @@ impl Example {
                     .keywords(["preferences"]),
             );
 
-        let loading = include_loading.then(|| {
-            CommandLoading::new("Loading more commands...").progress(0.35)
-        });
+        let loading =
+            include_loading.then(|| CommandLoading::new("Loading more commands...").progress(0.35));
 
         (suggestions, settings, loading)
     }
@@ -232,7 +231,11 @@ impl Example {
         let p = &theme.palette;
 
         let controls = column![
-            section_label("Theme (shadcn-common)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Theme (shadcn-common)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             control_select(
                 "Style",
                 &STYLES,
@@ -315,9 +318,7 @@ impl Example {
             self.inline_command(),
             section_label("Dialog", p.muted_foreground, theme.font_pack()),
             dialog,
-            text(&self.last_action)
-                .size(13)
-                .color(p.muted_foreground),
+            text(&self.last_action).size(13).color(p.muted_foreground),
             text("Tip: type \"loading\" in the dialog search to show Command.Loading.")
                 .size(12)
                 .color(p.muted_foreground),
@@ -337,11 +338,7 @@ impl Example {
     }
 }
 
-fn section_label<'a>(
-    label: &'a str,
-    color: Color,
-    fonts: FontPack,
-) -> Element<'a, Message> {
+fn section_label<'a>(label: &'a str, color: Color, fonts: FontPack) -> Element<'a, Message> {
     text(label)
         .size(12)
         .font(iced_font(fonts.mono))

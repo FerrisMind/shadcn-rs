@@ -30,8 +30,7 @@ use crate::theme::Theme;
 
 use super::style::{
     NavigationMenuViewportStyle, metrics, paint_item_surface, paint_viewport_ring,
-    paint_viewport_surface,
-    resolve_link_style,
+    paint_viewport_surface, resolve_link_style,
 };
 use super::types::{
     Motion, NavigationMenuContentProps, NavigationMenuJustify, NavigationMenuLinkProps,

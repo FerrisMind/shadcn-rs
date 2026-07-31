@@ -213,12 +213,7 @@ impl<Message> Track<'_, Message> {
     }
 
     /// Advances animation and autoplay for the frame drawn at `now`.
-    fn on_frame(
-        &self,
-        state: &mut TrackState,
-        now: time::Instant,
-        shell: &mut Shell<'_, Message>,
-    ) {
+    fn on_frame(&self, state: &mut TrackState, now: time::Instant, shell: &mut Shell<'_, Message>) {
         // External selection changes (controls, app logic) count as
         // interactions for `stopOnInteraction`, autoplay's own advances do not.
         if state.last_selected != Some(self.selected) {
@@ -264,8 +259,7 @@ impl<Message> Track<'_, Message> {
             }
             Some(deadline) if now >= deadline => {
                 // The autoplay plugin wraps to the first snap even without loop.
-                if let Some(next) =
-                    carousel_next_snap(self.selected, self.strip.snap_count(), true)
+                if let Some(next) = carousel_next_snap(self.selected, self.strip.snap_count(), true)
                     && let Some(on_select) = self.on_select.as_ref()
                 {
                     state.autoplay_expected = Some(next);
@@ -283,7 +277,12 @@ impl<Message> Track<'_, Message> {
     }
 
     /// Ends an active drag: settles back or commits whole snap steps.
-    fn finish_drag(&self, state: &mut TrackState, bounds: Rectangle, shell: &mut Shell<'_, Message>) {
+    fn finish_drag(
+        &self,
+        state: &mut TrackState,
+        bounds: Rectangle,
+        shell: &mut Shell<'_, Message>,
+    ) {
         let Some(drag) = state.drag.take() else {
             return;
         };
@@ -504,7 +503,8 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
         let state = tree.state.downcast_mut::<TrackState>();
 
         match event {
-            Event::Mouse(mouse::Event::CursorMoved { .. }) | Event::Touch(touch::Event::FingerMoved { .. }) => {
+            Event::Mouse(mouse::Event::CursorMoved { .. })
+            | Event::Touch(touch::Event::FingerMoved { .. }) => {
                 state.hovered = cursor.is_over(bounds);
 
                 if let Some(drag) = state.drag.as_mut()

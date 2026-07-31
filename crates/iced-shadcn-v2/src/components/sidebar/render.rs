@@ -343,10 +343,14 @@ pub(super) fn build_header<'a, Message: Clone + 'a>(
 ) -> Element<'a, Message> {
     let _ = icon_mode;
     let recipe = style.recipe;
-    container(column(header.children).spacing(recipe.section_gap_px).width(Length::Fill))
-        .padding(recipe.section_pad_px)
-        .width(Length::Fill)
-        .into()
+    container(
+        column(header.children)
+            .spacing(recipe.section_gap_px)
+            .width(Length::Fill),
+    )
+    .padding(recipe.section_pad_px)
+    .width(Length::Fill)
+    .into()
 }
 
 pub(super) fn build_content<'a, Message: Clone + 'a>(
@@ -384,10 +388,14 @@ pub(super) fn build_footer<'a, Message: Clone + 'a>(
 ) -> Element<'a, Message> {
     let _ = icon_mode;
     let recipe = style.recipe;
-    container(column(footer.children).spacing(recipe.section_gap_px).width(Length::Fill))
-        .padding(recipe.section_pad_px)
-        .width(Length::Fill)
-        .into()
+    container(
+        column(footer.children)
+            .spacing(recipe.section_gap_px)
+            .width(Length::Fill),
+    )
+    .padding(recipe.section_pad_px)
+    .width(Length::Fill)
+    .into()
 }
 
 pub(super) fn build_inset<'a, Message: Clone + 'a>(
@@ -401,7 +409,10 @@ pub(super) fn build_inset<'a, Message: Clone + 'a>(
     }
     items.extend(inset.children);
 
-    let body = column(items).spacing(0.0).width(Length::Fill).height(Length::Fill);
+    let body = column(items)
+        .spacing(0.0)
+        .width(Length::Fill)
+        .height(Length::Fill);
     let mut root = container(body)
         .width(Length::Fill)
         .height(Length::Fill)
@@ -494,14 +505,14 @@ pub(super) fn build_separator<'a, Message: 'a>(
     let style = resolve_style(separator.theme);
     let recipe = style.recipe;
     container(Separator::new(separator.theme).orientation(SeparatorOrientation::Horizontal))
-    .padding(Padding {
-        top: 0.0,
-        right: recipe.separator_margin_x_px,
-        bottom: 0.0,
-        left: recipe.separator_margin_x_px,
-    })
-    .width(Length::Fill)
-    .into()
+        .padding(Padding {
+            top: 0.0,
+            right: recipe.separator_margin_x_px,
+            bottom: 0.0,
+            left: recipe.separator_margin_x_px,
+        })
+        .width(Length::Fill)
+        .into()
 }
 
 pub(super) fn build_group<'a, Message: Clone + 'a>(
@@ -549,7 +560,9 @@ pub(super) fn build_group_label<'a, Message: Clone + 'a>(
     container(
         text(label.text)
             .size(recipe.group_label.size_px)
-            .line_height(LineHeight::Absolute(recipe.group_label.line_height_px.into()))
+            .line_height(LineHeight::Absolute(
+                recipe.group_label.line_height_px.into(),
+            ))
             .font(font)
             .color(color),
     )
@@ -598,7 +611,10 @@ pub(super) fn build_group_content<'a, Message: Clone + 'a>(
     icon_mode: bool,
 ) -> Element<'a, Message> {
     let _ = icon_mode;
-    column(content.children).spacing(0.0).width(Length::Fill).into()
+    column(content.children)
+        .spacing(0.0)
+        .width(Length::Fill)
+        .into()
 }
 
 pub(super) fn build_menu<'a, Message: Clone + 'a>(
@@ -637,7 +653,11 @@ pub(super) fn build_menu_button<'a, Message: Clone + 'a>(
         SidebarMenuButtonSize::Lg => (
             recipe.menu_button_lg_height_px,
             recipe.menu_button,
-            if icon_mode { 0.0 } else { recipe.menu_button_pad_px },
+            if icon_mode {
+                0.0
+            } else {
+                recipe.menu_button_pad_px
+            },
         ),
         SidebarMenuButtonSize::Default => (
             recipe.menu_button_height_px,
@@ -906,7 +926,10 @@ pub(super) fn build_menu_sub<'a, Message: Clone + 'a>(
 pub(super) fn build_menu_sub_item<'a, Message: Clone + 'a>(
     item: SidebarMenuSubItem<'a, Message>,
 ) -> Element<'a, Message> {
-    column(item.children).spacing(0.0).width(Length::Fill).into()
+    column(item.children)
+        .spacing(0.0)
+        .width(Length::Fill)
+        .into()
 }
 
 pub(super) fn build_menu_sub_button<'a, Message: Clone + 'a>(
@@ -999,7 +1022,11 @@ fn menu_button_style(
             } else {
                 style.foreground
             };
-            let border_color = if emphasize { style.accent } else { style.border };
+            let border_color = if emphasize {
+                style.accent
+            } else {
+                style.border
+            };
             (
                 bg,
                 fg,

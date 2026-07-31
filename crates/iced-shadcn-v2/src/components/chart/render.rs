@@ -12,10 +12,10 @@ use crate::iced_compat::{
 
 use shadcn_common::{
     CHART_AREA_FILL_OPACITY, CHART_GROUP_PADDING_FRACTION, CHART_HIGHLIGHT_POINT_RADIUS_PX,
-    CHART_MOTION_MS, CHART_TOOLTIP_MIN_WIDTH_PX, ChartRecipe, chart_band_slots,
-    chart_format_value, chart_group_slots, chart_linear_fraction, chart_natural_curve,
-    chart_nearest_center, chart_nice_domain, chart_nice_ticks, chart_pie_hit, chart_pie_slices,
-    chart_recipe, chart_stack_spans, chart_value_extent,
+    CHART_MOTION_MS, CHART_TOOLTIP_MIN_WIDTH_PX, ChartRecipe, chart_band_slots, chart_format_value,
+    chart_group_slots, chart_linear_fraction, chart_natural_curve, chart_nearest_center,
+    chart_nice_domain, chart_nice_ticks, chart_pie_hit, chart_pie_slices, chart_recipe,
+    chart_stack_spans, chart_value_extent,
 };
 
 use super::Chart;
@@ -60,8 +60,7 @@ impl<Message> canvas::Program<Message> for Chart<'_> {
 
                 if let Some(start) = state.start_time {
                     let elapsed = now.saturating_duration_since(start);
-                    state.progress =
-                        (elapsed.as_secs_f32() * 1000.0 / CHART_MOTION_MS).min(1.0);
+                    state.progress = (elapsed.as_secs_f32() * 1000.0 / CHART_MOTION_MS).min(1.0);
                 }
 
                 if state.progress < 1.0 {
@@ -72,9 +71,7 @@ impl<Message> canvas::Program<Message> for Chart<'_> {
 
                 Some(canvas::Action::request_redraw())
             }
-            canvas::Event::Mouse(
-                mouse::Event::CursorMoved { .. } | mouse::Event::CursorLeft,
-            ) => {
+            canvas::Event::Mouse(mouse::Event::CursorMoved { .. } | mouse::Event::CursorLeft) => {
                 if !self.tooltip && !self.highlight {
                     return None;
                 }
@@ -232,7 +229,11 @@ fn compute_layout(chart: &Chart<'_>, size: Size) -> Option<PlotLayout> {
         let width: f32 = if horizontal {
             (0..count)
                 .map(|index| {
-                    estimate_text_width(&chart.format_category(chart.category(index)), text_size, false)
+                    estimate_text_width(
+                        &chart.format_category(chart.category(index)),
+                        text_size,
+                        false,
+                    )
                 })
                 .fold(0.0, f32::max)
         } else {
@@ -316,13 +317,17 @@ fn draw_cartesian(
         return;
     };
 
-    let hovered = cursor.filter(|position| layout.plot.contains(*position)).and_then(
-        |position| {
-            let along = if chart.is_horizontal() { position.y } else { position.x };
+    let hovered = cursor
+        .filter(|position| layout.plot.contains(*position))
+        .and_then(|position| {
+            let along = if chart.is_horizontal() {
+                position.y
+            } else {
+                position.x
+            };
 
             chart_nearest_center(&layout.centers, along)
-        },
-    );
+        });
 
     if chart.grid {
         draw_grid(chart, frame, &layout);
@@ -513,7 +518,11 @@ fn draw_bars(
     let stacked = chart.stacked && chart.series.len() > 1;
     let grouped = !stacked && chart.series.len() > 1;
     let (offsets, width) = if grouped {
-        chart_group_slots(layout.bandwidth, chart.series.len(), CHART_GROUP_PADDING_FRACTION)
+        chart_group_slots(
+            layout.bandwidth,
+            chart.series.len(),
+            CHART_GROUP_PADDING_FRACTION,
+        )
     } else {
         (vec![0.0], layout.bandwidth)
     };
@@ -657,7 +666,12 @@ fn draw_series_curves(
             .map(|sample| {
                 (
                     layout.centers[sample],
-                    layout.value_px(chart, spans[series_index][sample].1.max(spans[series_index][sample].0)),
+                    layout.value_px(
+                        chart,
+                        spans[series_index][sample]
+                            .1
+                            .max(spans[series_index][sample].0),
+                    ),
                 )
             })
             .collect();
@@ -810,7 +824,9 @@ fn draw_pie(
 
         let start = Radians(-PI / 2.0 + slice.start_fraction * progress * TAU);
         let end = Radians(start.0 + sweep * TAU);
-        let color = series.resolved_point_color(index, index).resolve(chart.theme);
+        let color = series
+            .resolved_point_color(index, index)
+            .resolve(chart.theme);
         let path = pie_slice_path(center, outer, inner, start, end);
 
         frame.fill(&path, color);
@@ -830,7 +846,9 @@ fn draw_pie(
             inner,
         )
     {
-        let color = series.resolved_point_color(index, index).resolve(chart.theme);
+        let color = series
+            .resolved_point_color(index, index)
+            .resolve(chart.theme);
         let value = values.get(index).copied().unwrap_or(f64::NAN);
         let rows = vec![TooltipRow {
             color,
@@ -895,7 +913,9 @@ fn legend_entries(chart: &Chart<'_>, pie: bool) -> Vec<(Color, String)> {
         (0..series.values().len())
             .map(|index| {
                 (
-                    series.resolved_point_color(index, index).resolve(chart.theme),
+                    series
+                        .resolved_point_color(index, index)
+                        .resolve(chart.theme),
                     chart.category(index).to_owned(),
                 )
             })
@@ -1078,11 +1098,7 @@ fn draw_tooltip(
     let box_size = Size::new(width, height);
 
     // Soft drop shadow stand-in (canvas frames cannot blur).
-    let shadow = Path::rounded_rectangle(
-        Point::new(x, y + 2.0),
-        box_size,
-        corner_radius.into(),
-    );
+    let shadow = Path::rounded_rectangle(Point::new(x, y + 2.0), box_size, corner_radius.into());
     frame.fill(&shadow, Color::from_rgba(0.0, 0.0, 0.0, 0.08));
 
     let body = Path::rounded_rectangle(top_left, box_size, corner_radius.into());
@@ -1201,10 +1217,18 @@ fn estimate_text_width(text: &str, size: f32, mono: bool) -> f32 {
     text.chars()
         .map(|character| match character {
             'i' | 'l' | 'j' | 't' | 'f' | 'r' | '.' | ',' | '\'' | ' ' | ':' | '|' => {
-                if mono { factor } else { 0.30 }
+                if mono {
+                    factor
+                } else {
+                    0.30
+                }
             }
             'm' | 'w' | 'M' | 'W' => {
-                if mono { factor } else { 0.88 }
+                if mono {
+                    factor
+                } else {
+                    0.88
+                }
             }
             _ => factor,
         })

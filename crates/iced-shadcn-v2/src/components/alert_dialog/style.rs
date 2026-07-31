@@ -62,9 +62,7 @@ pub(super) fn resolve_style(theme: &Theme) -> AlertDialogStyle {
         border_width: 1.0,
         radius: {
             let scaled = component_radius_px(theme, recipe.radius);
-            recipe
-                .radius_px
-                .map_or(scaled, |cap| scaled.min(cap))
+            recipe.radius_px.map_or(scaled, |cap| scaled.min(cap))
         },
         shadow,
         media_background: theme.palette.muted,

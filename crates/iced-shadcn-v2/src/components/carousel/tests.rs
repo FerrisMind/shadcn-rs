@@ -81,9 +81,7 @@ fn looping_keeps_every_snap_and_both_controls_enabled() {
 #[test]
 fn last_snap_disables_next_without_looping() {
     let theme = Theme::light();
-    let carousel = five_slides(&theme)
-        .selected(4)
-        .on_select(Message::Selected);
+    let carousel = five_slides(&theme).selected(4).on_select(Message::Selected);
 
     assert!(carousel.can_scroll_prev());
     assert!(!carousel.can_scroll_next());

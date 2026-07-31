@@ -85,10 +85,15 @@ fn numeric_knobs_are_clamped() {
 
     assert_eq!(chart.bar_radius, Some(0.0));
     assert_eq!(chart.donut_fraction, 0.95);
-    assert_eq!(chart.band_padding, shadcn_common::CHART_BAND_PADDING_FRACTION);
+    assert_eq!(
+        chart.band_padding,
+        shadcn_common::CHART_BAND_PADDING_FRACTION
+    );
     assert_eq!(chart.tick_count, 1);
 
-    let chart = sample_chart(&theme).bar_radius(f32::INFINITY).donut(f32::NAN);
+    let chart = sample_chart(&theme)
+        .bar_radius(f32::INFINITY)
+        .donut(f32::NAN);
     assert_eq!(chart.bar_radius, Some(0.0));
     assert_eq!(chart.donut_fraction, 0.0);
 }

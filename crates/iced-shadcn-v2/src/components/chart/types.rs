@@ -180,10 +180,7 @@ impl ChartSeries {
     /// Mirrors the shadcn-svelte `c` accessor used by the negative and mixed
     /// bar demos, and colors individual pie slices.
     #[must_use]
-    pub fn point_colors(
-        mut self,
-        colors: impl IntoIterator<Item = Option<ChartColor>>,
-    ) -> Self {
+    pub fn point_colors(mut self, colors: impl IntoIterator<Item = Option<ChartColor>>) -> Self {
         self.point_colors = colors.into_iter().collect();
         self
     }

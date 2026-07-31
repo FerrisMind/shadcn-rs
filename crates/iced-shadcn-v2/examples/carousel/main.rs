@@ -13,9 +13,8 @@ use iced::widget::{column, container, pick_list, row, scrollable, text};
 use iced::{Alignment, Background, Border, Color, Element, Length, Task};
 
 use iced_shadcn_v2::{
-    BaseColor, Card, CardContent, Carousel, CarouselAlign, CarouselItem,
-    CarouselOrientation, FontHeading, FontId, FontPack, RadiusId, StyleId, Theme, ThemeMode, fonts,
-    iced_font,
+    BaseColor, Card, CardContent, Carousel, CarouselAlign, CarouselItem, CarouselOrientation,
+    FontHeading, FontId, FontPack, RadiusId, StyleId, Theme, ThemeMode, fonts, iced_font,
 };
 
 pub fn main() -> iced::Result {
@@ -172,16 +171,28 @@ impl Example {
                 .font(iced_font(theme.font_pack().sans))
                 .color(p.muted_foreground),
             controls,
-            section_label("Default (full-width slides)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Default (full-width slides)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             demo_carousel,
             text(format!("Slide {} of 5", self.demo_selected + 1))
                 .size(13)
                 .color(p.muted_foreground),
             section_label("Size (basis-1/3)", p.muted_foreground, theme.font_pack()),
             size_carousel,
-            section_label("Orientation (vertical)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Orientation (vertical)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             orientation_carousel,
-            section_label("Autoplay (2 s delay, loops)", p.muted_foreground, theme.font_pack()),
+            section_label(
+                "Autoplay (2 s delay, loops)",
+                p.muted_foreground,
+                theme.font_pack()
+            ),
             autoplay_carousel,
         ]
         .spacing(16)
@@ -270,10 +281,7 @@ fn autoplay_section<'a>(theme: &'a Theme, selected: usize) -> Element<'a, Messag
     carousel.into()
 }
 
-fn slide_card<'a>(
-    index: usize,
-    theme: &'a Theme,
-) -> Element<'a, Message> {
+fn slide_card<'a>(index: usize, theme: &'a Theme) -> Element<'a, Message> {
     let p = &theme.palette;
 
     Card::new(theme)

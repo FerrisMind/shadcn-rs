@@ -168,7 +168,10 @@ impl<Message> fmt::Debug for Sidebar<'_, Message> {
             .field("footer", &self.footer.is_some())
             .field("rail", &self.rail.is_some())
             .field("children", &self.children.len())
-            .field("on_mobile_open_change", &self.on_mobile_open_change.is_some())
+            .field(
+                "on_mobile_open_change",
+                &self.on_mobile_open_change.is_some(),
+            )
             .field("style_override", &self.style_override.is_some())
             .finish()
     }

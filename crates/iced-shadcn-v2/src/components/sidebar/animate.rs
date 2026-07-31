@@ -12,9 +12,7 @@ use crate::iced_compat::advanced::layout::{self, Layout};
 use crate::iced_compat::advanced::renderer::Renderer as _;
 use crate::iced_compat::advanced::widget::{Operation, Tree, tree};
 use crate::iced_compat::advanced::{Clipboard, Shell, Widget, overlay, renderer};
-use crate::iced_compat::{
-    Element, Event, Length, Rectangle, Size, Vector, mouse, time, window,
-};
+use crate::iced_compat::{Element, Event, Length, Rectangle, Size, Vector, mouse, time, window};
 
 use shadcn_common::{
     Easing, SIDEBAR_ANIMATION_MS, SidebarCollapsible, SidebarVariant, TransitionValue,
@@ -163,10 +161,10 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
         let gap = self.gap_for(state.progress());
 
         let child_limits = limits.width(Length::Fixed(gap)).height(Length::Fill);
-        let child = self
-            .content
-            .as_widget_mut()
-            .layout(&mut tree.children[0], renderer, &child_limits);
+        let child =
+            self.content
+                .as_widget_mut()
+                .layout(&mut tree.children[0], renderer, &child_limits);
 
         let height = limits
             .resolve(Length::Shrink, Length::Fill, child.size())

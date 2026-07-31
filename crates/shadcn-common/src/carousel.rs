@@ -143,7 +143,11 @@ pub fn carousel_slot_positions(slot_lengths: &[f32]) -> Vec<f32> {
 
     for length in slot_lengths {
         positions.push(acc);
-        acc += if length.is_finite() { length.max(0.0) } else { 0.0 };
+        acc += if length.is_finite() {
+            length.max(0.0)
+        } else {
+            0.0
+        };
     }
 
     positions
@@ -166,7 +170,13 @@ pub fn carousel_snap_offsets_weighted(
     let positions = carousel_slot_positions(slot_lengths);
     let period: f32 = slot_lengths
         .iter()
-        .map(|length| if length.is_finite() { length.max(0.0) } else { 0.0 })
+        .map(|length| {
+            if length.is_finite() {
+                length.max(0.0)
+            } else {
+                0.0
+            }
+        })
         .sum();
     let raw = positions.iter().zip(slot_lengths).map(|(start, slot)| {
         let content = (slot - gap_px).max(0.0);
@@ -319,7 +329,11 @@ pub fn carousel_loop_target(current_px: f32, snap_px: f32, period_px: f32) -> f3
         return snap_px;
     }
 
-    let current = if current_px.is_finite() { current_px } else { 0.0 };
+    let current = if current_px.is_finite() {
+        current_px
+    } else {
+        0.0
+    };
     let snap = if snap_px.is_finite() { snap_px } else { 0.0 };
     let turns = ((current - snap) / period_px).round();
 

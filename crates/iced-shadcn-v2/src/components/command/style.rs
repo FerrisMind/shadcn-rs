@@ -117,7 +117,9 @@ pub fn resolve_style(
 /// Container style for the command root surface.
 #[must_use]
 #[allow(dead_code)]
-pub fn surface_container_style(style: CommandStyle) -> crate::iced_compat::widget::container::Style {
+pub fn surface_container_style(
+    style: CommandStyle,
+) -> crate::iced_compat::widget::container::Style {
     crate::iced_compat::widget::container::Style {
         background: Some(Background::Color(style.background)),
         text_color: Some(style.foreground),

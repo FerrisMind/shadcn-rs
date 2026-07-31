@@ -54,11 +54,7 @@ pub fn fuzzy_score(query: &str, text: &str) -> f32 {
     }
 
     let ratio = matched as f32 / query.chars().count() as f32;
-    if target.is_none() {
-        ratio
-    } else {
-        ratio * 0.5
-    }
+    if target.is_none() { ratio } else { ratio * 0.5 }
 }
 
 /// Whether an item should stay visible for the current search.
@@ -117,17 +113,26 @@ mod tests {
 
     #[test]
     fn empty_query_matches_everything() {
-        assert!(command_matches("  ", "Calendar", &[], true, default_command_filter));
-        assert!(command_matches("", "Calendar", &[], true, default_command_filter));
+        assert!(command_matches(
+            "  ",
+            "Calendar",
+            &[],
+            true,
+            default_command_filter
+        ));
+        assert!(command_matches(
+            "",
+            "Calendar",
+            &[],
+            true,
+            default_command_filter
+        ));
     }
 
     #[test]
     fn stepping_skips_disabled() {
         let enabled = [true, false, true];
-        assert_eq!(
-            step_selectable_index(&enabled, Some(0), 1, false),
-            Some(2)
-        );
+        assert_eq!(step_selectable_index(&enabled, Some(0), 1, false), Some(2));
         assert_eq!(first_selectable_index(&enabled), Some(0));
         assert_eq!(last_selectable_index(&enabled), Some(2));
     }

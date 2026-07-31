@@ -78,10 +78,7 @@ impl<Message> canvas::Program<Message> for PanelLeftIcon {
     }
 }
 
-pub(super) fn panel_left_icon<'a, Message: 'a>(
-    size_px: f32,
-    color: Color,
-) -> Element<'a, Message> {
+pub(super) fn panel_left_icon<'a, Message: 'a>(size_px: f32, color: Color) -> Element<'a, Message> {
     let icon = PanelLeftIcon::new(size_px, color);
     canvas::Canvas::<PanelLeftIcon, Message>::new(icon)
         .width(Length::Fixed(icon.size_px))

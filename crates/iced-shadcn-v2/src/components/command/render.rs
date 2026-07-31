@@ -13,9 +13,7 @@ use iced_core::keyboard;
 
 use crate::components::input::Input;
 use crate::components::input_group::{InputGroup, InputGroupAddon, InputGroupAddonAlign};
-use crate::components::scroll_area::{
-    ScrollArea, ScrollAreaOrientation, ScrollAreaScrollbar,
-};
+use crate::components::scroll_area::{ScrollArea, ScrollAreaOrientation, ScrollAreaScrollbar};
 use crate::components::separator::Separator;
 use crate::components::spinner::{Spinner, SpinnerSize};
 use crate::fonts::iced_font;
@@ -161,7 +159,12 @@ fn flatten<'a, T>(entries: &'a [CommandEntry<T>], out: &mut Vec<FlatItem<'a, T>>
     }
 }
 
-fn visible_flags(items: &[FlatItem<'_, impl Clone>], query: &str, should_filter: bool, filter: CommandFilter) -> Vec<bool> {
+fn visible_flags(
+    items: &[FlatItem<'_, impl Clone>],
+    query: &str,
+    should_filter: bool,
+    filter: CommandFilter,
+) -> Vec<bool> {
     items
         .iter()
         .map(|item| {
@@ -472,9 +475,7 @@ fn build_heading<'a, Message: 'a>(
             .size(Pixels(typography_size(ty)))
             .line_height(LineHeight::Absolute(Pixels(ty.line_height_px)))
             .font(font)
-            .style(move |_| text_style::Style {
-                color: Some(color),
-            }),
+            .style(move |_| text_style::Style { color: Some(color) }),
     )
     .padding(Padding {
         top: recipe.heading_pad_y_px,
@@ -584,23 +585,23 @@ fn build_item<'a, T, Message: Clone + 'a>(
 
     let item_radius = style.item_radius;
     let disabled = item.disabled;
-    let mut widget = button(padded).padding(0).width(Length::Fill).style(move |_, status| {
-        let hot = !disabled
-            && (selected
-                || matches!(
-                    status,
-                    button::Status::Hovered | button::Status::Pressed
-                ));
-        button::Style {
-            background: Some(Background::Color(if hot { bg_hot } else { bg_idle })),
-            text_color: if hot { fg_hot } else { fg_idle },
-            border: Border {
-                radius: border::radius(item_radius),
-                ..Border::default()
-            },
-            ..button::Style::default()
-        }
-    });
+    let mut widget = button(padded)
+        .padding(0)
+        .width(Length::Fill)
+        .style(move |_, status| {
+            let hot = !disabled
+                && (selected
+                    || matches!(status, button::Status::Hovered | button::Status::Pressed));
+            button::Style {
+                background: Some(Background::Color(if hot { bg_hot } else { bg_idle })),
+                text_color: if hot { fg_hot } else { fg_idle },
+                border: Border {
+                    radius: border::radius(item_radius),
+                    ..Border::default()
+                },
+                ..button::Style::default()
+            }
+        });
     if let Some(message) = on_press.filter(|_| !item.disabled) {
         widget = widget.on_press(message);
     }
@@ -752,9 +753,7 @@ fn build_empty<'a, Message: 'a>(
             .size(Pixels(typography_size(ty)))
             .line_height(LineHeight::Absolute(Pixels(ty.line_height_px)))
             .font(font)
-            .style(move |_| text_style::Style {
-                color: Some(color),
-            }),
+            .style(move |_| text_style::Style { color: Some(color) }),
     )
     .padding(Padding {
         top: recipe.empty_pad_y_px,
@@ -780,9 +779,7 @@ fn build_loading<'a, Message: 'a>(
             Spinner::new(theme).size(SpinnerSize::Sm),
             text(loading.label.clone())
                 .size(Pixels(typography_size(ty)))
-                .style(move |_| text_style::Style {
-                    color: Some(color),
-                }),
+                .style(move |_| text_style::Style { color: Some(color) }),
         ]
         .spacing(recipe.item_gap_px)
         .align_y(alignment::Vertical::Center),
@@ -797,7 +794,11 @@ fn build_loading<'a, Message: 'a>(
     .into()
 }
 
-fn glyph_canvas<'a, Message: 'a>(glyph: CommandGlyph, size: f32, color: Color) -> Element<'a, Message> {
+fn glyph_canvas<'a, Message: 'a>(
+    glyph: CommandGlyph,
+    size: f32,
+    color: Color,
+) -> Element<'a, Message> {
     canvas(GlyphPainter { glyph, size, color })
         .width(Length::Fixed(size))
         .height(Length::Fixed(size))
@@ -886,7 +887,8 @@ where
     fn state(&self) -> tree::State {
         let (_, _, enabled) = self.enabled_flags();
         tree::State::new(State::new(
-            self.highlighted.or_else(|| first_selectable_index(&enabled)),
+            self.highlighted
+                .or_else(|| first_selectable_index(&enabled)),
             self.max_height,
         ))
     }
@@ -941,10 +943,10 @@ where
         let inner_w = (limits.max().width - pad * 2.0).max(0.0);
 
         let input_limits = layout::Limits::new(Size::ZERO, Size::new(inner_w, limits.max().height));
-        let input_node = self
-            .input
-            .as_widget_mut()
-            .layout(&mut tree.children[0], renderer, &input_limits);
+        let input_node =
+            self.input
+                .as_widget_mut()
+                .layout(&mut tree.children[0], renderer, &input_limits);
         let input_size = input_node.size();
 
         // Measure list body unconstrained on Y, then apply `max-h-72`.
@@ -1195,9 +1197,13 @@ where
     ) -> Option<overlay::Element<'b, Message, IcedTheme, Renderer>> {
         let mut children = layout.children();
         let input_layout = children.next()?;
-        self.input
-            .as_widget_mut()
-            .overlay(&mut tree.children[0], input_layout, renderer, viewport, translation)
+        self.input.as_widget_mut().overlay(
+            &mut tree.children[0],
+            input_layout,
+            renderer,
+            viewport,
+            translation,
+        )
     }
 }
 

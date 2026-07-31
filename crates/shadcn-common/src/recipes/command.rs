@@ -359,38 +359,14 @@ mod tests {
     #[test]
     fn surface_radii_match_shadcn_svelte_css() {
         // `.cn-command` / `.cn-command-dialog` radius (same token per pack).
-        assert_eq!(
-            command_recipe(StyleId::Vega).radius,
-            ComponentRadius::Xl
-        );
-        assert_eq!(
-            command_recipe(StyleId::Nova).radius,
-            ComponentRadius::Xl
-        );
-        assert_eq!(
-            command_recipe(StyleId::Maia).radius,
-            ComponentRadius::S4xl
-        );
-        assert_eq!(
-            command_recipe(StyleId::Luma).radius,
-            ComponentRadius::S4xl
-        );
-        assert_eq!(
-            command_recipe(StyleId::Rhea).radius,
-            ComponentRadius::S3xl
-        );
-        assert_eq!(
-            command_recipe(StyleId::Mira).radius,
-            ComponentRadius::Xl
-        );
-        assert_eq!(
-            command_recipe(StyleId::Lyra).radius,
-            ComponentRadius::None
-        );
-        assert_eq!(
-            command_recipe(StyleId::Sera).radius,
-            ComponentRadius::None
-        );
+        assert_eq!(command_recipe(StyleId::Vega).radius, ComponentRadius::Xl);
+        assert_eq!(command_recipe(StyleId::Nova).radius, ComponentRadius::Xl);
+        assert_eq!(command_recipe(StyleId::Maia).radius, ComponentRadius::S4xl);
+        assert_eq!(command_recipe(StyleId::Luma).radius, ComponentRadius::S4xl);
+        assert_eq!(command_recipe(StyleId::Rhea).radius, ComponentRadius::S3xl);
+        assert_eq!(command_recipe(StyleId::Mira).radius, ComponentRadius::Xl);
+        assert_eq!(command_recipe(StyleId::Lyra).radius, ComponentRadius::None);
+        assert_eq!(command_recipe(StyleId::Sera).radius, ComponentRadius::None);
 
         // Item radii: inline vs `in-data-[slot=dialog-content]:…`.
         let luma = command_recipe(StyleId::Luma);

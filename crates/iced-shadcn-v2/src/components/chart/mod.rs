@@ -148,10 +148,7 @@ impl<'a> Chart<'a> {
     }
 
     /// Sets the category labels of the band/point axis (pie slice names).
-    pub fn categories(
-        mut self,
-        categories: impl IntoIterator<Item = impl Into<String>>,
-    ) -> Self {
+    pub fn categories(mut self, categories: impl IntoIterator<Item = impl Into<String>>) -> Self {
         self.categories = categories.into_iter().map(Into::into).collect();
         self
     }
@@ -255,7 +252,11 @@ impl<'a> Chart<'a> {
     /// ([`shadcn_common::chart_recipe`]): square packs (Lyra, Sera) draw
     /// square bars, the others round them per their radius scale.
     pub fn bar_radius(mut self, radius: f32) -> Self {
-        self.bar_radius = Some(if radius.is_finite() { radius.max(0.0) } else { 0.0 });
+        self.bar_radius = Some(if radius.is_finite() {
+            radius.max(0.0)
+        } else {
+            0.0
+        });
         self
     }
 
