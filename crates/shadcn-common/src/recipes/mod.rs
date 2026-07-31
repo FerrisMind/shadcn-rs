@@ -7,6 +7,9 @@
 mod alert_dialog;
 mod badge;
 mod button;
+mod carousel;
+mod chart;
+mod command;
 mod context_menu;
 mod dialog;
 mod drawer;
@@ -22,6 +25,7 @@ mod progress;
 mod radio_group;
 mod select;
 mod sheet;
+mod sidebar;
 mod skeleton;
 mod slider;
 mod switch;
@@ -31,6 +35,12 @@ mod tooltip;
 pub use alert_dialog::{AlertDialogRecipe, alert_dialog_recipe};
 pub use badge::{BadgeRecipe, badge_recipe};
 pub use button::{ButtonSizeRecipe, ButtonTypeRecipe, ControlSize, button_size, button_type};
+pub use carousel::{CarouselRecipe, carousel_recipe};
+pub use chart::{ChartRecipe, chart_recipe};
+pub use command::{
+    COMMAND_DIALOG_VERTICAL_ANCHOR, COMMAND_DISABLED_OPACITY, COMMAND_INPUT_ICON_OPACITY,
+    COMMAND_LIST_MAX_HEIGHT_PX, CommandRecipe, command_recipe,
+};
 pub use context_menu::{
     CONTEXT_MENU_ANIMATION_MS, CONTEXT_MENU_CONTENT_MAX_HEIGHT_PX,
     CONTEXT_MENU_DESTRUCTIVE_FOCUS_ALPHA, CONTEXT_MENU_DESTRUCTIVE_FOCUS_ALPHA_DARK,
@@ -173,4 +183,9 @@ pub use sheet::{
     SHEET_ANIMATION_MS, SHEET_CLOSE_ICON_PX, SHEET_CLOSE_SIZE_PX, SHEET_MAX_WIDTH_PX,
     SHEET_SIDE_WIDTH_FRACTION, SHEET_SLIDE_PX, SheetPanelMetrics, SheetRecipe, SheetSide,
     sheet_panel_metrics, sheet_recipe,
+};
+pub use sidebar::{
+    SIDEBAR_DISABLED_OPACITY, SIDEBAR_GROUP_LABEL_FG_ALPHA, SIDEBAR_ICON_SIZE_PX,
+    SIDEBAR_RAIL_INDICATOR_PX, SIDEBAR_RAIL_WIDTH_PX, SIDEBAR_TRANSITION_MS, SidebarRecipe,
+    sidebar_recipe,
 };

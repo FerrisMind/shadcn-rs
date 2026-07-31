@@ -325,6 +325,11 @@ impl StylePack {
         crate::recipes::badge_recipe(self.id)
     }
 
+    /// `.cn-carousel-previous` / `.cn-carousel-next` control tokens for this pack.
+    pub const fn carousel(self) -> crate::recipes::CarouselRecipe {
+        crate::recipes::carousel_recipe(self.id)
+    }
+
     /// `.cn-kbd` recipe for this pack.
     pub const fn kbd(self) -> crate::recipes::KbdRecipe {
         crate::recipes::kbd_recipe(self.id)

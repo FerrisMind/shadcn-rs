@@ -7,9 +7,12 @@
 
 #![forbid(unsafe_code)]
 
+pub mod carousel;
+pub mod chart;
 pub mod collection_navigation;
 pub mod color;
 pub mod color_space;
+pub mod command;
 pub mod date_time;
 pub mod floating;
 #[cfg(feature = "fonts")]
@@ -23,6 +26,7 @@ pub mod radius;
 pub mod recipes;
 pub mod select_value;
 pub mod selection;
+pub mod sidebar;
 pub mod style;
 pub mod theme;
 pub mod toast;
@@ -32,8 +36,28 @@ pub mod value_mapping;
 
 mod generated;
 
+pub use carousel::{
+    CAROUSEL_ANIMATION_MS, CAROUSEL_AUTOPLAY_DELAY_MS, CAROUSEL_CONTROL_OFFSET_PX,
+    CAROUSEL_DRAG_THRESHOLD_FRACTION, CAROUSEL_GAP_PX, CarouselAlign, CarouselLayout,
+    carousel_can_scroll_next, carousel_can_scroll_prev, carousel_drag_steps, carousel_loop_target,
+    carousel_next_snap, carousel_nearest_snap, carousel_previous_snap, carousel_slot_positions,
+    carousel_snap_offsets, carousel_snap_offsets_weighted, carousel_step_snap,
+    carousel_wrap_position,
+};
+pub use chart::{
+    CHART_AREA_FILL_OPACITY, CHART_ASPECT_RATIO, CHART_BAND_PADDING_FRACTION,
+    CHART_GROUP_PADDING_FRACTION, CHART_HIGHLIGHT_POINT_RADIUS_PX, CHART_MOTION_MS,
+    CHART_TICK_COUNT, CHART_TOOLTIP_MIN_WIDTH_PX, ChartCubicSegment, ChartPieSlice,
+    chart_band_slots, chart_format_value, chart_group_slots, chart_linear_fraction,
+    chart_natural_curve, chart_nearest_center, chart_nice_domain, chart_nice_ticks,
+    chart_pie_hit, chart_pie_slices, chart_stack_spans, chart_value_extent,
+};
 pub use collection_navigation::{first_enabled_index, last_enabled_index, step_index};
 pub use color::{AccentColor, BaseColor, OklchColor, ThemeMode};
+pub use command::{
+    CommandFilter, command_matches, default_command_filter, first_selectable_index, fuzzy_score,
+    last_selectable_index, step_selectable_index,
+};
 pub use color_space::{Hsba, Hsla, Rgba};
 pub use date_time::{
     DateDefaultConfig, DateGranularity, DateParts, DateTimeError, DateTimeParts, DateValue,
@@ -64,7 +88,9 @@ pub use recipes::{
     CONTEXT_MENU_CONTENT_MAX_HEIGHT_PX, CONTEXT_MENU_DESTRUCTIVE_FOCUS_ALPHA,
     CONTEXT_MENU_DESTRUCTIVE_FOCUS_ALPHA_DARK, CONTEXT_MENU_DISABLED_OPACITY,
     CONTEXT_MENU_FLIP_SLACK_PX, CONTEXT_MENU_SIDE_OFFSET_PX, CONTEXT_MENU_SLIDE_PX,
-    CONTEXT_MENU_ZOOM_FROM, ComponentRadius, ContextMenuRecipe, ControlSize, DIALOG_ANIMATION_MS,
+    CONTEXT_MENU_ZOOM_FROM, COMMAND_DIALOG_VERTICAL_ANCHOR, COMMAND_DISABLED_OPACITY,
+    COMMAND_INPUT_ICON_OPACITY, COMMAND_LIST_MAX_HEIGHT_PX, CommandRecipe, ComponentRadius,
+    ContextMenuRecipe, ControlSize, DIALOG_ANIMATION_MS,
     DIALOG_CLOSE_ICON_PX, DIALOG_CLOSE_SIZE_PX, DIALOG_MARGIN_PX, DIALOG_ZOOM_FROM,
     DRAWER_ANIMATION_MS, DRAWER_EDGE_INSET_PX, DRAWER_HANDLE_HEIGHT_COMPACT_PX,
     DRAWER_HANDLE_HEIGHT_PX, DRAWER_HANDLE_MARGIN_TOP_PX, DRAWER_HANDLE_WIDTH_PX,
@@ -96,21 +122,33 @@ pub use recipes::{
     RadioGroupRecipe, RadioSurface, SELECT_ANIMATION_MS, SELECT_CONTENT_MAX_HEIGHT_PX,
     SELECT_DISABLED_OPACITY, SELECT_SIDE_OFFSET_PX, SELECT_SLIDE_PX, SELECT_ZOOM_FROM,
     SHEET_ANIMATION_MS, SHEET_CLOSE_ICON_PX, SHEET_CLOSE_SIZE_PX, SHEET_MAX_WIDTH_PX,
-    SHEET_SIDE_WIDTH_FRACTION, SHEET_SLIDE_PX, SelectRecipe, SheetPanelMetrics, SheetRecipe,
-    SheetSide, SkeletonRecipe, SliderRecipe, SliderThumbBorder, SliderThumbFill,
+    SHEET_SIDE_WIDTH_FRACTION, SHEET_SLIDE_PX, SIDEBAR_DISABLED_OPACITY,
+    SIDEBAR_GROUP_LABEL_FG_ALPHA, SIDEBAR_ICON_SIZE_PX, SIDEBAR_RAIL_INDICATOR_PX,
+    SIDEBAR_RAIL_WIDTH_PX, SIDEBAR_TRANSITION_MS, SelectRecipe, SheetPanelMetrics, SheetRecipe,
+    SheetSide, SidebarRecipe, SkeletonRecipe, SliderRecipe, SliderThumbBorder, SliderThumbFill,
     SliderTrackSurface, SwitchRecipe, SwitchSizeRecipe, TOOLTIP_ANIMATION_MS, TOOLTIP_SLIDE_PX,
     TOOLTIP_ZOOM_FROM, ToggleRecipe, ToggleSizeRecipe, TooltipRecipe, TypeRecipe,
-    alert_dialog_recipe, badge_recipe, button_size, button_type, context_menu_recipe,
-    dialog_recipe, drawer_corner_mask, drawer_panel_metrics, drawer_recipe, dropdown_menu_recipe,
+    CarouselRecipe, carousel_recipe,
+    ChartRecipe, chart_recipe,
+    alert_dialog_recipe, badge_recipe, button_size, button_type, command_recipe,
+    context_menu_recipe, dialog_recipe, drawer_corner_mask, drawer_panel_metrics, drawer_recipe,
+    dropdown_menu_recipe,
     hover_card_recipe, kbd_recipe, label_recipe, menubar_recipe, native_select_recipe,
     navigation_menu_recipe, popover_recipe, progress_recipe, radio_group_recipe, select_recipe,
-    sheet_panel_metrics, sheet_recipe, skeleton_default_radius, skeleton_recipe, slider_recipe,
-    switch_recipe, switch_size, toggle_recipe, toggle_size, tooltip_recipe,
+    sheet_panel_metrics, sheet_recipe, sidebar_recipe, skeleton_default_radius, skeleton_recipe,
+    slider_recipe, switch_recipe, switch_size, toggle_recipe, toggle_size, tooltip_recipe,
 };
 pub use select_value::{
     SelectMode, multiple_selection_label, next_multiple_values, next_single_value,
 };
 pub use selection::{Selection, SelectionMode};
+pub use sidebar::{
+    SIDEBAR_ANIMATION_MS, SIDEBAR_COOKIE_MAX_AGE_SECS, SIDEBAR_COOKIE_NAME,
+    SIDEBAR_FLOATING_ICON_EXTRA_PX, SIDEBAR_FLOATING_PAD_PX, SIDEBAR_KEYBOARD_SHORTCUT,
+    SIDEBAR_MOBILE_BREAKPOINT_PX, SIDEBAR_WIDTH_ICON_PX, SIDEBAR_WIDTH_MOBILE_PX, SIDEBAR_WIDTH_PX,
+    SidebarCollapsible, SidebarController, SidebarDisplayState, SidebarSide, SidebarVariant,
+    lerp_sidebar_gap, matches_sidebar_shortcut, sidebar_gap_width, sidebar_panel_width,
+};
 pub use style::{StyleId, StylePack};
 pub use theme::{ResolvedTheme, SemanticThemeTable};
 pub use transition::{Easing, TransitionValue};

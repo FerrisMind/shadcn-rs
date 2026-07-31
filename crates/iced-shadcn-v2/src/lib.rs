@@ -94,12 +94,20 @@ pub use components::button;
 pub use components::button_group;
 /// Backwards-compatible access to the card component.
 pub use components::card;
+/// Backwards-compatible access to the carousel component.
+pub use components::carousel;
+/// Backwards-compatible access to the chart component.
+pub use components::chart;
 /// Backwards-compatible access to the checkbox component.
 pub use components::checkbox;
 /// Backwards-compatible access to the collapsible component.
 pub use components::collapsible;
+/// Backwards-compatible access to the command component.
+pub use components::command;
 /// Backwards-compatible access to the context-menu component.
 pub use components::context_menu;
+/// Backwards-compatible access to the copy-button component.
+pub use components::copy_button;
 /// Backwards-compatible access to the dialog component.
 pub use components::dialog;
 /// Backwards-compatible access to the drawer component.
@@ -148,6 +156,8 @@ pub use components::select;
 pub use components::separator;
 /// Backwards-compatible access to the sheet component.
 pub use components::sheet;
+/// Backwards-compatible access to the sidebar component.
+pub use components::sidebar;
 /// Backwards-compatible access to the skeleton component.
 pub use components::skeleton;
 /// Backwards-compatible access to the slider component.
@@ -201,6 +211,14 @@ pub use components::card::{
     Card, CardAction, CardBorder, CardContent, CardDescription, CardFooter, CardFooterAlignment,
     CardFooterDirection, CardHeader, CardRadius, CardSize, CardTitle,
 };
+pub use components::carousel::{
+    Carousel, CarouselAlign, CarouselItem, CarouselNext, CarouselOrientation, CarouselPrevious,
+    carousel,
+};
+pub use components::chart::{
+    CHART_DEFAULT_HEIGHT_PX, Chart, ChartAxis, ChartColor, ChartCurve, ChartIndicator, ChartKind,
+    ChartSeries, chart,
+};
 pub use components::checkbox::{
     Checkbox, CheckboxConfig, CheckboxSize, CheckboxState, CheckboxVariant,
 };
@@ -209,9 +227,17 @@ pub use components::collapsible::{
     CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement, CollapsibleOrientation,
     CollapsibleState, CollapsibleTrigger, collapsible,
 };
+pub use components::command::{
+    Command, CommandDialog, CommandEmpty, CommandEntry, CommandGlyph, CommandGroup, CommandItem,
+    CommandLoading, CommandRadius, CommandStyle, command, command_dialog,
+};
 pub use components::context_menu::{
     ContextMenu, ContextMenuCheckboxItem, ContextMenuContentStyle, ContextMenuItem,
     ContextMenuItemVariant, ContextMenuLabel, ContextMenuRadioItem, ContextMenuSub, context_menu,
+};
+pub use components::copy_button::{
+    CopyButton, CopyButtonAction, CopyButtonState, CopyButtonStatus, CopyButtonUpdate,
+    copy_button_reduce,
 };
 pub use components::dialog::{
     Dialog, DialogDescription, DialogFooter, DialogHeader, DialogStyle, DialogTitle,
@@ -301,6 +327,15 @@ pub use components::separator::{Separator, SeparatorOrientation, separator};
 pub use components::sheet::{
     Sheet, SheetBody, SheetDescription, SheetFooter, SheetHeader, SheetSide, SheetStyle, SheetTitle,
 };
+pub use components::sidebar::{
+    Sidebar, SidebarCollapsible, SidebarContent, SidebarController, SidebarDisplayState,
+    SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent, SidebarGroupLabel,
+    SidebarHeader, SidebarInput, SidebarInset, SidebarMenu, SidebarMenuAction, SidebarMenuBadge,
+    SidebarMenuButton, SidebarMenuButtonSize, SidebarMenuButtonVariant, SidebarMenuItem,
+    SidebarMenuSkeleton, SidebarMenuSub, SidebarMenuSubButton, SidebarMenuSubButtonSize,
+    SidebarMenuSubItem, SidebarProvider, SidebarRail, SidebarSeparator, SidebarSide, SidebarStyle,
+    SidebarTrigger, SidebarVariant,
+};
 pub use components::skeleton::{
     Skeleton, SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape,
 };
@@ -340,6 +375,7 @@ pub use shadcn_common::{
     AccentColor, BaseColor, ComponentRadius, ControlSize, FloatingPadding, FloatingSticky,
     FontHeading, FontId, FontPack, FontWeight, MenuActivateKind, MenuItemVariant, RadiusId,
     RadiusScale, ResolvedTheme, SelectMode, StyleId, StylePack, ThemeMode, TypeRecipe,
+    matches_sidebar_shortcut,
 };
 
 /// Semantic color slots resolved by [`Theme::semantic_color`].
