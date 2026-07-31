@@ -29,14 +29,16 @@
 
 mod icon;
 mod render;
-mod types;
-
 #[cfg(test)]
 mod tests;
+mod types;
 
 pub use types::{
     CopyButtonAction, CopyButtonState, CopyButtonStatus, CopyButtonUpdate, copy_button_reduce,
 };
+
+/// The built-in Copy/Check/X icon program, shared with the snippet overlay.
+pub(crate) use self::icon::CopyButtonIcon;
 
 use std::fmt;
 use std::time::Duration;
@@ -49,8 +51,6 @@ use crate::iced_compat::widget::{container, row};
 use crate::iced_compat::{Element, Length};
 use crate::theme::Theme;
 use shadcn_common::AccentColor;
-
-use self::icon::CopyButtonIcon;
 
 /// Content appended after the status icon.
 enum CopyButtonContent<'a, Message> {

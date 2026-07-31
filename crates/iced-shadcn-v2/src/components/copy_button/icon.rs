@@ -16,17 +16,21 @@ const INITIAL_SCALE: f32 = 0.85;
 /// Built-in icon program used when a caller does not provide a custom idle
 /// icon. The program is deliberately independent of the application message
 /// type so it can be embedded in any `Element`.
+///
+/// `pub(crate)` so the snippet component can draw the same Copy/Check/X set
+/// with its own hover colors (the snippet reference keeps the ghost button
+/// transparent on hover and fades the icon instead).
 #[derive(Debug, Clone, Copy)]
-pub(super) struct CopyButtonIcon {
-    pub(super) status: CopyButtonStatus,
-    pub(super) color: Color,
-    pub(super) hover_color: Color,
-    pub(super) size: f32,
-    pub(super) animation_duration: Duration,
+pub(crate) struct CopyButtonIcon {
+    pub(crate) status: CopyButtonStatus,
+    pub(crate) color: Color,
+    pub(crate) hover_color: Color,
+    pub(crate) size: f32,
+    pub(crate) animation_duration: Duration,
 }
 
 impl CopyButtonIcon {
-    pub(super) fn element<'a, Message: 'a>(self) -> Element<'a, Message> {
+    pub(crate) fn element<'a, Message: 'a>(self) -> Element<'a, Message> {
         canvas::Canvas::<Self, Message>::new(self)
             .width(crate::iced_compat::Length::Fixed(self.size))
             .height(crate::iced_compat::Length::Fixed(self.size))
@@ -36,7 +40,7 @@ impl CopyButtonIcon {
 
 /// Runtime-owned state for one icon canvas.
 #[derive(Debug, Default)]
-pub(super) struct CopyButtonIconState {
+pub(crate) struct CopyButtonIconState {
     status: Option<CopyButtonStatus>,
     started_at: Option<crate::iced_compat::time::Instant>,
     progress: f32,
