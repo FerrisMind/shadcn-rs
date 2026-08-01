@@ -22,6 +22,8 @@ with native `iced` types.
   - `components::card` — composable card root with header, title,
     description, action, content, and footer slots.
   - `components::checkbox` — controlled checked, unchecked, and indeterminate input.
+  - `components::data_table` — sortable, filterable, paginated table with row selection;
+    forwards the existing Input, Button, Checkbox, and Table style parameters.
   - `components::collapsible` — controlled disclosure with trigger, content, and
     chevron indicator (height/width transition).
   - `components::field` — composable field roots, groups, labels, descriptions,
@@ -60,7 +62,7 @@ with native `iced` types.
 - `fonts` — font-face exports and the iced font adapter.
 
 The root `accordion`, `alert`, `aspect_ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `card`, `checkbox`,
-`collapsible`, `field`, `input`, `input_group`, `item`, `kbd`, `label`, `pagination`, `progress`,
+`collapsible`, `data_table`, `field`, `input`, `input_group`, `item`, `kbd`, `label`, `pagination`, `progress`,
 `radio_group`, `scroll_area`, `separator`, `skeleton`, `slider`, `sonner`, `spinner`, `switch`, `table`,
   `tabs`, `toggle`, `toggle_group`, and `typography` modules are compatibility re-exports of
 `components`, so existing
@@ -159,6 +161,7 @@ cargo run -p iced-shadcn-v2 --example button
 cargo run -p iced-shadcn-v2 --example card
 cargo run -p iced-shadcn-v2 --example checkbox
 cargo run -p iced-shadcn-v2 --example collapsible
+cargo run -p iced-shadcn-v2 --example data_table
 cargo run -p iced-shadcn-v2 --example field
 cargo run -p iced-shadcn-v2 --example input
 cargo run -p iced-shadcn-v2 --example input_group
