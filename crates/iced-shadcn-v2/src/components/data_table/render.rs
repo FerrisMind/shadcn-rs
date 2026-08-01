@@ -2,15 +2,20 @@
 
 use std::rc::Rc;
 
-use chorale_core::{CellValue, RenderRow, SortAction, SortDirection, visible_view};
+use chorale_core::{
+    Alignment as ColumnAlignment, CellValue, RenderRow, SortAction, SortDirection,
+    filtered_sorted_pairs, visible_view,
+};
+use shadcn_common::AccentColor;
 
-use crate::components::button::{Button, ButtonSize, ButtonVariant};
+use crate::components::button::{Button, ButtonRadius, ButtonSize, ButtonVariant};
 use crate::components::checkbox::{Checkbox, CheckboxState};
+use crate::components::dropdown_menu::{DropdownMenuCheckboxItem, dropdown_menu};
 use crate::components::input::Input;
 use crate::components::table::{Table, TableBody, TableCell, TableHead, TableHeader, TableRow};
 use crate::iced_compat::alignment::{Horizontal, Vertical};
-use crate::iced_compat::widget::{column, container, row, text as iced_text};
-use crate::iced_compat::{Element, Length};
+use crate::iced_compat::widget::{Space, column, container, row, text as iced_text};
+use crate::iced_compat::{Border, Element, Length};
 
 use crate::fonts::iced_font;
 
@@ -30,10 +35,30 @@ where
         filterable,
         paginated,
         selectable,
-        column_visibility: _column_visibility,
+        column_visibility,
         page_sizes: _page_sizes,
         empty_message,
         filter_placeholder,
+        filter_value,
+        filter_input_size,
+        filter_input_radius,
+        filter_input_color,
+        sort_button_variant,
+        sort_button_size,
+        sort_button_radius,
+        sort_button_color,
+        columns_button_variant,
+        columns_button_size,
+        columns_button_radius,
+        columns_button_color,
+        pagination_button_variant,
+        pagination_button_size,
+        pagination_button_radius,
+        pagination_button_color,
+        checkbox_variant,
+        checkbox_size,
+        table_width,
+        table_min_width,
         on_sort,
         on_filter: _on_filter,
         on_global_filter,
@@ -41,34 +66,65 @@ where
         on_page_size: _on_page_size,
         on_select,
         on_select_all,
-        on_column_visibility: _on_column_visibility,
+        on_column_visibility,
     } = dt;
 
     let palette = theme.palette;
 
     let mut sections: Vec<Element<'a, Message>> = Vec::new();
 
-    // ── Toolbar: filter input ──────────────────────────────────────────────
-    if filterable {
-        let filter_input: Element<'a, Message> = if let Some(callback) = on_global_filter {
-            Input::new(theme)
-                .placeholder(filter_placeholder.clone())
-                .width(Length::Fixed(250.0))
-                .on_input(callback)
-                .into()
-        } else {
-            Input::new(theme)
-                .placeholder(filter_placeholder.clone())
-                .width(Length::Fixed(250.0))
-                .into()
-        };
+    // ── Toolbar: filter input + column visibility ─────────────────────────
+    if filterable || column_visibility {
+        let mut toolbar = row![]
+            .spacing(8)
+            .align_y(Vertical::Center)
+            .width(Length::Fill);
 
-        sections.push(
-            container(filter_input)
-                .width(Length::Fill)
-                .padding(4)
-                .into(),
-        );
+        if filterable {
+            let mut filter = Input::new(theme)
+                .value(filter_value.clone())
+                .placeholder(filter_placeholder.clone())
+                .size(filter_input_size)
+                .width(Length::Fixed(250.0));
+            if let Some(radius) = filter_input_radius {
+                filter = filter.radius(radius);
+            }
+            if let Some(color) = filter_input_color {
+                filter = filter.color(color);
+            }
+            if let Some(callback) = on_global_filter {
+                filter = filter.on_input(callback);
+            }
+            let filter_input: Element<'a, Message> = filter.into();
+            toolbar = toolbar.push(filter_input);
+        }
+
+        if column_visibility {
+            let columns_trigger = apply_button_style(
+                Button::text("Columns", theme),
+                columns_button_variant,
+                columns_button_size,
+                columns_button_radius,
+                columns_button_color,
+            );
+            let mut columns_menu = dropdown_menu("Columns", theme)
+                .trigger(columns_trigger)
+                .width(180.0);
+            for column in &state.columns {
+                let visible = state.is_column_visible(column.id);
+                let on_toggle = on_column_visibility
+                    .as_ref()
+                    .map(|callback| callback(column.id, !visible));
+                columns_menu = columns_menu.checkbox_item(
+                    DropdownMenuCheckboxItem::new(column.header.clone(), visible)
+                        .on_toggle_maybe(on_toggle),
+                );
+            }
+            toolbar = toolbar.push(Space::new().width(Length::Fill));
+            toolbar = toolbar.push(columns_menu);
+        }
+
+        sections.push(container(toolbar).width(Length::Fill).padding(4).into());
     }
 
     // ── Table ──────────────────────────────────────────────────────────────
@@ -78,13 +134,28 @@ where
         .filter(|col| state.is_column_visible(col.id))
         .collect();
 
+    let view = visible_view(state);
+    let visible_ids: Vec<_> = view
+        .iter()
+        .filter_map(|row| match row {
+            RenderRow::Data { id, .. } => Some(*id),
+            _ => None,
+        })
+        .collect();
+
     // Header row
     let mut header_row = TableRow::new(theme);
 
     // Selection checkbox header
     if selectable {
-        let all_selected = !state.selection.is_empty() && state.selection.len() == state.rows.len();
-        let some_selected = !state.selection.is_empty() && !all_selected;
+        let all_selected = !visible_ids.is_empty()
+            && visible_ids
+                .iter()
+                .all(|row_id| state.selection.contains(row_id));
+        let some_selected = visible_ids
+            .iter()
+            .any(|row_id| state.selection.contains(row_id))
+            && !all_selected;
 
         let checkbox_state = if all_selected {
             CheckboxState::Checked
@@ -94,7 +165,10 @@ where
             CheckboxState::Unchecked
         };
 
-        let mut cb = Checkbox::new(theme).state(checkbox_state);
+        let mut cb = Checkbox::new(theme)
+            .variant(checkbox_variant)
+            .size(checkbox_size)
+            .state(checkbox_state);
         if let Some(callback) = on_select_all {
             cb = cb
                 .on_change(move |new_state| callback(matches!(new_state, CheckboxState::Checked)));
@@ -106,6 +180,7 @@ where
     for col in &visible_cols {
         let header_text = col.header.clone();
         let col_id = col.id;
+        let alignment = table_alignment(col.alignment);
 
         let sort_state = state
             .sort
@@ -117,18 +192,21 @@ where
             let arrow = match sort_state {
                 Some(SortDirection::Asc) => " \u{2191}",
                 Some(SortDirection::Desc) => " \u{2193}",
-                None => "",
+                None => " \u{2195}",
             };
 
             let label = format!("{header_text}{arrow}");
 
             if let Some(ref callback) = on_sort {
-                let cb = callback;
-                Button::text(label, theme)
-                    .variant(ButtonVariant::Ghost)
-                    .size(ButtonSize::Sm)
-                    .on_press(cb(col_id, SortAction::Replace))
-                    .into()
+                apply_button_style(
+                    Button::text(label, theme),
+                    sort_button_variant,
+                    sort_button_size,
+                    sort_button_radius,
+                    sort_button_color,
+                )
+                .on_press(callback(col_id, SortAction::Replace))
+                .into()
             } else {
                 iced_text(label)
                     .size(14)
@@ -142,13 +220,12 @@ where
                 .into()
         };
 
-        header_row = header_row.head(TableHead::new(header_content, theme));
+        header_row = header_row.head(TableHead::new(header_content, theme).align_x(alignment));
     }
 
     let header = TableHeader::new(theme).push(header_row);
 
     // Body
-    let view = visible_view(state);
     let mut body = TableBody::new(theme);
 
     // Wrap on_select in Rc for sharing across row closures.
@@ -190,14 +267,17 @@ where
                 };
 
                 let rid = *row_id;
-                let mut cb = Checkbox::new(theme).state(cb_state);
+                let mut cb = Checkbox::new(theme)
+                    .variant(checkbox_variant)
+                    .size(checkbox_size)
+                    .state(cb_state);
                 if let Some(ref callback) = on_select_rc {
                     let cb_rc = Rc::clone(callback);
                     cb = cb.on_change(move |new_state| {
                         cb_rc(rid, matches!(new_state, CheckboxState::Checked))
                     });
                 }
-                table_row = table_row.cell(TableCell::new(cb, theme));
+                table_row = table_row.cell(TableCell::new(cb, theme).width(Length::Fixed(40.0)));
             }
 
             // Data cells
@@ -205,15 +285,41 @@ where
                 let value = (col.accessor)(row_data);
                 let cell_text = format_cell_value(&value);
 
-                table_row = table_row.cell(TableCell::text(cell_text, theme));
+                table_row = table_row.cell(
+                    TableCell::text(cell_text, theme).align_x(table_alignment(col.alignment)),
+                );
             }
 
             body = body.push(table_row);
         }
     }
 
-    let table = Table::new(theme).header(header).body(body);
-    sections.push(table.into());
+    let mut column_widths = Vec::with_capacity(visible_cols.len() + usize::from(selectable));
+    if selectable {
+        column_widths.push(Length::Fixed(40.0));
+    }
+    column_widths.extend(std::iter::repeat_n(Length::Fill, visible_cols.len()));
+
+    let table = Table::new(theme)
+        .width(table_width)
+        .min_width(table_min_width)
+        .column_widths(column_widths)
+        .header(header)
+        .body(body);
+    let table_radius = theme.radius_scale().md_px;
+    sections.push(
+        container(table)
+            .width(Length::Fill)
+            .style(move |_| container::Style {
+                border: Border {
+                    color: palette.border,
+                    width: 1.0,
+                    radius: table_radius.into(),
+                },
+                ..container::Style::default()
+            })
+            .into(),
+    );
 
     // ── Footer: selection count + pagination ───────────────────────────────
     if paginated || selectable {
@@ -221,14 +327,18 @@ where
 
         // Selection count
         if selectable {
-            let selected = state.selection.len();
-            let total = state.rows.len();
+            let selected = filtered_sorted_pairs(state)
+                .iter()
+                .filter(|(row_id, _)| state.selection.contains(row_id))
+                .count();
+            let total = state.filtered_row_count();
             let count_text = format!("{selected} of {total} row(s) selected.");
             footer_children.push(
                 iced_text(count_text)
                     .size(13)
                     .font(iced_font(theme.font_pack().sans))
                     .color(palette.muted_foreground)
+                    .width(Length::Fill)
                     .into(),
             );
         }
@@ -240,24 +350,16 @@ where
 
             let mut pagination_row: Vec<Element<'a, Message>> = Vec::new();
 
-            // Page info
-            pagination_row.push(
-                iced_text(format!(
-                    "Page {} of {}",
-                    current_page + 1,
-                    total_pages.max(1)
-                ))
-                .size(13)
-                .font(iced_font(theme.font_pack().sans))
-                .color(palette.foreground)
-                .into(),
-            );
-
             // Prev button
             let can_prev = current_page > 0;
-            let mut prev_btn = Button::text("\u{2039}", theme)
-                .variant(ButtonVariant::Outline)
-                .size(ButtonSize::IconSm);
+            let mut prev_btn = apply_button_style(
+                Button::text("Previous", theme),
+                pagination_button_variant,
+                pagination_button_size,
+                pagination_button_radius,
+                pagination_button_color,
+            )
+            .disabled(!can_prev || on_page.is_none());
             if can_prev && let Some(ref callback) = on_page {
                 prev_btn = prev_btn.on_press(callback(current_page.saturating_sub(1)));
             }
@@ -265,9 +367,14 @@ where
 
             // Next button
             let can_next = current_page + 1 < total_pages;
-            let mut next_btn = Button::text("\u{203a}", theme)
-                .variant(ButtonVariant::Outline)
-                .size(ButtonSize::IconSm);
+            let mut next_btn = apply_button_style(
+                Button::text("Next", theme),
+                pagination_button_variant,
+                pagination_button_size,
+                pagination_button_radius,
+                pagination_button_color,
+            )
+            .disabled(!can_next || on_page.is_none());
             if can_next && let Some(ref callback) = on_page {
                 next_btn = next_btn.on_press(callback(current_page + 1));
             }
@@ -292,6 +399,32 @@ where
     }
 
     column(sections).spacing(8).width(Length::Fill).into()
+}
+
+fn table_alignment(alignment: ColumnAlignment) -> Horizontal {
+    match alignment {
+        ColumnAlignment::Left => Horizontal::Left,
+        ColumnAlignment::Center => Horizontal::Center,
+        ColumnAlignment::Right => Horizontal::Right,
+        _ => Horizontal::Left,
+    }
+}
+
+fn apply_button_style<'a, Message>(
+    mut button: Button<'a, Message>,
+    variant: ButtonVariant,
+    size: ButtonSize,
+    radius: Option<ButtonRadius>,
+    color: Option<AccentColor>,
+) -> Button<'a, Message> {
+    button = button.variant(variant).size(size);
+    if let Some(radius) = radius {
+        button = button.radius(radius);
+    }
+    if let Some(color) = color {
+        button = button.color(color);
+    }
+    button
 }
 
 fn format_cell_value(value: &CellValue) -> String {
