@@ -61,6 +61,8 @@ pub enum CheckboxVariant {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CheckboxSize {
+    /// Extra-small size (16 px), matching shadcn-svelte's `size-4` control.
+    Xs,
     /// Small size (20 px).
     Sm,
     /// Medium size (24 px).
@@ -74,6 +76,7 @@ impl CheckboxSize {
     /// Returns the size in pixels or rem for geometry.
     pub const fn size_px(self) -> f32 {
         match self {
+            CheckboxSize::Xs => 16.0,
             CheckboxSize::Sm => 20.0,
             CheckboxSize::Md => 24.0,
             CheckboxSize::Lg => 28.0,

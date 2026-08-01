@@ -6,6 +6,7 @@ use crate::theme::Theme;
 /// Returns the size of the checkbox track in pixels.
 pub fn track_size(size: CheckboxSize) -> f32 {
     match size {
+        CheckboxSize::Xs => 16.0,
         CheckboxSize::Sm => 20.0,
         CheckboxSize::Md => 24.0,
         CheckboxSize::Lg => 28.0,
@@ -23,6 +24,7 @@ pub fn track_radius(theme: &Theme, _size: CheckboxSize) -> f32 {
 /// Returns padding around the track (for centering indicator).
 pub fn track_padding(size: CheckboxSize) -> f32 {
     match size {
+        CheckboxSize::Xs => 1.5,
         CheckboxSize::Sm => 2.0,
         CheckboxSize::Md => 3.0,
         CheckboxSize::Lg => 4.0,

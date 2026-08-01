@@ -107,7 +107,7 @@ impl_display! {
         Indeterminate => "indeterminate",
     }
     CheckboxVariant { Surface => "surface", Classic => "classic", Soft => "soft" }
-    CheckboxSize { Sm => "sm", Md => "md", Lg => "lg" }
+    CheckboxSize { Xs => "xs", Sm => "sm", Md => "md", Lg => "lg" }
     CollapsibleState { Closed => "closed", Open => "open" }
     CollapsibleOrientation { Vertical => "vertical", Horizontal => "horizontal" }
     CollapsibleAlignment { Start => "start", Center => "center", End => "end" }
