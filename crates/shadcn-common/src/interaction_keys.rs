@@ -8,6 +8,7 @@
 /// Axis used by arrow-key navigation.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Orientation {
     /// Left/right arrows navigate.
     #[default]
@@ -19,6 +20,7 @@ pub enum Orientation {
 /// Inline direction used to resolve horizontal arrow keys.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Direction {
     /// Left-to-right layout: right is forward.
     #[default]
