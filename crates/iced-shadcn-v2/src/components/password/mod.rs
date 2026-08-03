@@ -24,7 +24,7 @@
 //!     Password(PasswordAction),
 //! }
 //!
-//! fn view(theme: &Theme, state: &PasswordState) -> Element<'_, Message> {
+//! fn view<'a>(theme: &'a Theme, state: &'a PasswordState) -> Element<'a, Message> {
 //!     Password::new(theme)
 //!         .push(
 //!             PasswordInput::new(theme)

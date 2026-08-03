@@ -29,7 +29,7 @@
 //!     Zone(FileDropZoneAction),
 //! }
 //!
-//! fn view(theme: &Theme, state: &FileDropZoneState, count: usize) -> Element<'_, Message> {
+//! fn view<'a>(theme: &'a Theme, state: &'a FileDropZoneState, count: usize) -> Element<'a, Message> {
 //!     FileDropZone::new(theme, state)
 //!         .max_files(4)
 //!         .file_count(count)
@@ -194,7 +194,7 @@ impl<'a, Message> FileDropZone<'a, Message> {
     ///
     /// # #[derive(Debug, Clone)]
     /// # enum Message { Zone(FileDropZoneAction) }
-    /// fn view(theme: &Theme, state: &FileDropZoneState) -> Element<'_, Message> {
+    /// fn view<'a>(theme: &'a Theme, state: &'a FileDropZoneState) -> Element<'a, Message> {
     ///     FileDropZone::new(theme, state)
     ///         .on_action(Message::Zone)
     ///         .trigger()
