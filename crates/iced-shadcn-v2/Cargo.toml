@@ -28,6 +28,7 @@ emojis = "0.9"
 shadcn-common = { workspace = true, features = ["fonts", "syntax"] }
 twill-core = { workspace = true }
 serde = { version = "1", features = ["derive"], optional = true }
+rfd = { version = "0.16", optional = true }
 
 [dev-dependencies]
 iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image", "wgpu", "tiny-skia", "thread-pool", "tokio", "x11", "wayland"] }
@@ -42,3 +43,4 @@ tiny-skia = [
     "iced_renderer/wayland",
 ]
 serde = ["dep:serde", "shadcn-common/serde"]
+rfd = ["dep:rfd"]
