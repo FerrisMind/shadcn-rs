@@ -16,6 +16,8 @@
 | `separator` ✅ | с нуля |
 | `badge` ✅ | с нуля |
 | `label` ✅ | с нуля |
+| `form` ✅ | композит над `field` + `FormState` в `shadcn-common` |
+| `file-drop-zone` ✅ | extras: Root/Trigger/Textarea + shared validation in `shadcn-common` |
 
 ## Фаза 1 — атомарные примитивы (всё с нуля, без зависимостей)
 
@@ -51,11 +53,15 @@
 25. ~~**`item`** — с нуля (универсальная строка: media/content/actions)~~ ✅
 26. ~~**`empty`** — переиспользует `item`-подобный layout + typography~~ ✅
 27. ~~**`field`** — переиспользует `label`, `input`, `checkbox` и т.д. (форменная обвязка + ошибки)~~ ✅
+27b. ~~**`form`** — переиспользует `field` + `button` + `FormState`/`FormRecipe` из `shadcn-common`~~ ✅
 28. ~~**`table`** — с нуля (Row/Cell/Header на базе grid/column)~~ ✅
 29. ~~**`tabs`** — с нуля (trigger переиспользует стили `button`/`toggle`)~~ ✅
 30. ~~**`collapsible`** — с нуля (state + анимация высоты)~~ ✅
 31. ~~**`accordion`** — переиспользует логику `collapsible` (+ single/multiple)~~ ✅
 33. ~~**`input-otp`** — переиспользует `input`-логику (посимвольные слоты, фокус-менеджмент)~~ ✅
+33b. ~~**`star-rating`** (extras) — с нуля на bits-ui RatingGroup + `StarRating` recipe/state в `shadcn-common`~~ ✅
+33c. ~~**`phone-input`** (extras) — country selector (popover+command) + tel field; `PhoneInput` recipe/state в `shadcn-common`~~ ✅
+33d. ~~**`password`** (extras) — Root/Input/Toggle/Copy/Strength + zxcvbn state в `shadcn-common`~~ ✅
 34. **`resizable`** — в iced отображается на `pane_grid` — обёртка с нуля ✅
 
 ## Фаза 3 — overlay-инфраструктура ⚠️ (ключевая, самая рискованная)

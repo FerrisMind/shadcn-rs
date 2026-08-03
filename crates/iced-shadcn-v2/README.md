@@ -36,6 +36,8 @@ with native `iced` types.
   - `components::kbd` — keyboard-shortcut chip and grouped key sequences.
   - `components::label` — form label with style-pack typography and `for` / click.
   - `components::pagination` — controlled page window with prev/next and ellipsis.
+  - `components::password` — extras password suite (input, visibility toggle, copy,
+    zxcvbn strength meter) with shared state in `shadcn-common`.
   - `components::progress` — theme-aware determinate and indeterminate progress bar.
   - `components::radio_group` — controlled single-value radio selection with
     orientation, focus ring, descriptions, and arrow-key helpers.
