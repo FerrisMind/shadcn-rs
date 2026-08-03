@@ -34,6 +34,8 @@ pub struct CommandItem<T> {
     pub value: T,
     /// Visible label.
     pub label: String,
+    /// Optional secondary line rendered below the label.
+    pub description: Option<String>,
     /// Extra search keywords (cmdk `keywords`).
     pub keywords: Vec<String>,
     /// Optional shortcut chip text (`.cn-command-shortcut`).
@@ -48,6 +50,13 @@ pub struct CommandItem<T> {
     pub force_mount: bool,
     /// Marks the item as checked (shows the trailing check indicator).
     pub checked: bool,
+    /// Reserves a leading check-indicator slot.
+    ///
+    /// When enabled, the check glyph is painted before the label and becomes
+    /// transparent while [`Self::checked`] is false. This is useful for
+    /// composed controls such as comboboxes whose selected indicator lives
+    /// before the option label in the source component.
+    pub leading_check: bool,
 }
 
 impl<T> CommandItem<T> {
@@ -57,6 +66,7 @@ impl<T> CommandItem<T> {
         Self {
             value,
             label: label.into(),
+            description: None,
             keywords: Vec::new(),
             shortcut: None,
             href: None,
@@ -64,6 +74,7 @@ impl<T> CommandItem<T> {
             disabled: false,
             force_mount: false,
             checked: false,
+            leading_check: false,
         }
     }
 
@@ -71,6 +82,13 @@ impl<T> CommandItem<T> {
     #[must_use]
     pub fn keywords(mut self, keywords: impl IntoIterator<Item = impl Into<String>>) -> Self {
         self.keywords = keywords.into_iter().map(Into::into).collect();
+        self
+    }
+
+    /// Sets the optional secondary line shown below the label.
+    #[must_use]
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        self.description = Some(description.into());
         self
     }
 
@@ -113,6 +131,13 @@ impl<T> CommandItem<T> {
     #[must_use]
     pub fn checked(mut self, checked: bool) -> Self {
         self.checked = checked;
+        self
+    }
+
+    /// Shows a leading check-indicator slot, including when unchecked.
+    #[must_use]
+    pub fn leading_check(mut self, leading_check: bool) -> Self {
+        self.leading_check = leading_check;
         self
     }
 }

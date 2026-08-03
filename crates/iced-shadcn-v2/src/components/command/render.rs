@@ -523,6 +523,18 @@ fn build_item<'a, T, Message: Clone + 'a>(
         .align_y(alignment::Vertical::Center)
         .width(Length::Fill);
 
+    if item.leading_check {
+        content = content.push(glyph_canvas(
+            CommandGlyph::Check,
+            recipe.item_icon_size_px,
+            if item.checked {
+                if selected { fg_hot } else { fg_idle }
+            } else {
+                Color::TRANSPARENT
+            },
+        ));
+    }
+
     if let Some(icon) = item.icon {
         content = content.push(glyph_canvas(
             icon,
@@ -538,15 +550,36 @@ fn build_item<'a, T, Message: Clone + 'a>(
     let mut font = iced_font(theme.font_pack().sans);
     font.weight = iced_font_weight(ty.weight);
     let label_color = if selected { fg_hot } else { fg_idle };
-    content = content.push(
-        text(label)
-            .size(Pixels(typography_size(ty)))
-            .line_height(LineHeight::Absolute(Pixels(ty.line_height_px)))
-            .font(font)
-            .style(move |_| text_style::Style {
-                color: Some(label_color),
-            }),
-    );
+    let label = text(label)
+        .size(Pixels(typography_size(ty)))
+        .line_height(LineHeight::Absolute(Pixels(ty.line_height_px)))
+        .font(font)
+        .style(move |_| text_style::Style {
+            color: Some(label_color),
+        });
+
+    if let Some(description) = &item.description {
+        let description_style = recipe.shortcut_typography;
+        let description_color = if selected { muted_hot } else { muted_idle };
+        content = content.push(
+            column![
+                label,
+                text(description.clone())
+                    .size(Pixels(typography_size(description_style)))
+                    .line_height(LineHeight::Absolute(Pixels(
+                        description_style.line_height_px,
+                    )))
+                    .font(iced_font(theme.font_pack().sans))
+                    .style(move |_| text_style::Style {
+                        color: Some(description_color),
+                    }),
+            ]
+            .spacing(0)
+            .width(Length::Fill),
+        );
+    } else {
+        content = content.push(label);
+    }
     content = content.push(Space::new().width(Length::Fill));
 
     if let Some(shortcut) = &item.shortcut {
@@ -560,7 +593,7 @@ fn build_item<'a, T, Message: Clone + 'a>(
                     color: Some(shortcut_color),
                 }),
         );
-    } else if item.checked {
+    } else if item.checked && !item.leading_check {
         content = content.push(glyph_canvas(
             CommandGlyph::Check,
             recipe.item_icon_size_px,
@@ -568,10 +601,15 @@ fn build_item<'a, T, Message: Clone + 'a>(
         ));
     }
 
+    let description_height = item
+        .description
+        .as_ref()
+        .map(|_| recipe.shortcut_typography.line_height_px)
+        .unwrap_or(0.0);
     let min_h = recipe
         .item_min_height_px
-        .unwrap_or(ty.line_height_px + recipe.item_pad_y_px * 2.0)
-        .max(ty.line_height_px + recipe.item_pad_y_px * 2.0);
+        .unwrap_or(ty.line_height_px + description_height + recipe.item_pad_y_px * 2.0)
+        .max(ty.line_height_px + description_height + recipe.item_pad_y_px * 2.0);
 
     let padded = container(content)
         .padding(Padding {
