@@ -48,7 +48,7 @@ fn meter_follows_theme_style_pack() {
 
     assert_eq!(vega.style.meter(), rhea.style.meter());
     assert_ne!(vega.style.button_type(), rhea.style.button_type());
-    assert_ne!(vega.font_pack(), rhea.font_pack());
+    assert_eq!(vega.font_pack(), rhea.font_pack());
 
     // Pack alone does not retint semantic primary — Base/Accent do — but Meter
     // still resolves fills from the shared Theme (Form pattern: one Theme).
