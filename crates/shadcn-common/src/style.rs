@@ -366,6 +366,11 @@ impl StylePack {
         crate::recipes::progress_recipe(self.id)
     }
 
+    /// shadcn-svelte-extras `Meter` geometry (`h-2`, `rounded-full`, `/20` track).
+    pub const fn meter(self) -> crate::recipes::MeterRecipe {
+        crate::recipes::meter_recipe(self.id)
+    }
+
     /// `.cn-slider*` track, range, and thumb tokens for this pack.
     pub const fn slider(self) -> crate::recipes::SliderRecipe {
         crate::recipes::slider_recipe(self.id)
@@ -429,5 +434,35 @@ impl StylePack {
         size: crate::recipes::ControlSize,
     ) -> crate::recipes::ToggleSizeRecipe {
         crate::recipes::toggle_size(self.id, size)
+    }
+
+    /// `.cn-form-*` layout and supporting-text tokens for this pack.
+    pub const fn form(self) -> crate::recipes::FormRecipe {
+        crate::recipes::form_recipe(self.id)
+    }
+
+    /// `.cn-textarea` geometry + surface tokens for this pack.
+    pub const fn textarea(self) -> crate::recipes::TextareaRecipe {
+        crate::recipes::textarea_recipe(self.id)
+    }
+
+    /// Star-rating geometry from shadcn-svelte-extras (`size-5` / `gap-1`).
+    pub const fn star_rating(self) -> crate::recipes::StarRatingRecipe {
+        crate::recipes::star_rating_recipe(self.id)
+    }
+
+    /// Password geometry from shadcn-svelte-extras (`size-9` / `h-[6px]`).
+    pub const fn password(self) -> crate::recipes::PasswordRecipe {
+        crate::recipes::password_recipe(self.id)
+    }
+
+    /// File-drop-zone trigger geometry from shadcn-svelte-extras (`h-48` / `p-6`).
+    pub const fn file_drop_zone(self) -> crate::recipes::FileDropZoneRecipe {
+        crate::recipes::file_drop_zone_recipe(self.id)
+    }
+
+    /// Phone-input geometry from shadcn-svelte-extras (`h-9` / `w-[300px]`).
+    pub const fn phone_input(self) -> crate::recipes::PhoneInputRecipe {
+        crate::recipes::phone_input_recipe(self.id)
     }
 }

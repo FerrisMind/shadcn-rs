@@ -25,6 +25,7 @@ use crate::components::input_group::{
 };
 use crate::components::input_otp::{InputOtpPattern, InputOtpRadius};
 use crate::components::kbd::{KbdRadius, KbdSurface};
+use crate::components::meter::{MeterOrientation, MeterRadius, MeterSize};
 use crate::components::progress::{
     ProgressOrientation, ProgressRadius, ProgressSize, ProgressVariant,
 };
@@ -34,6 +35,7 @@ use crate::components::separator::SeparatorOrientation;
 use crate::components::skeleton::{SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape};
 use crate::components::slider::{SliderOrientation, SliderRadius};
 use crate::components::spinner::{SpinnerSize, SpinnerVariant};
+use crate::components::star_rating::{StarRatingOrientation, StarRatingSize};
 use crate::components::switch::{SwitchRadius, SwitchSize};
 use crate::components::tabs::{
     TabsActivationMode, TabsHover, TabsJustify, TabsListLoop, TabsListVariant, TabsOrientation,
@@ -159,6 +161,7 @@ impl_display! {
         Surface => "surface", Soft => "soft",
     }
     ProgressOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    MeterOrientation { Horizontal => "horizontal", Vertical => "vertical" }
     RadioGroupOrientation { Vertical => "vertical", Horizontal => "horizontal" }
     ScrollAreaOrientation {
         Vertical => "vertical", Horizontal => "horizontal", Both => "both",
@@ -167,6 +170,7 @@ impl_display! {
     SeparatorOrientation { Horizontal => "horizontal", Vertical => "vertical" }
     SkeletonAnimation { Pulse => "pulse", Static => "static" }
     SliderOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    StarRatingOrientation { Horizontal => "horizontal", Vertical => "vertical" }
     SpinnerVariant {
         LegacyLucide => "legacy-lucide", AiLoaderIcon => "ai-loader-icon",
         Circular => "circular", Classic => "classic", Pulse => "pulse",
@@ -219,6 +223,11 @@ impl_display_custom_px! {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
     }
+    MeterSize { Xs => "xs", Sm => "sm", Default => "default", Lg => "lg", Xl => "xl" }
+    MeterRadius {
+        None => "none", Small => "small", Medium => "medium",
+        Large => "large", Full => "full",
+    }
     RadioGroupSize { Sm => "sm", Default => "default", Lg => "lg" }
     RadioGroupRadius {
         None => "none", Small => "small", Medium => "medium",
@@ -237,6 +246,7 @@ impl_display_custom_px! {
         Large => "large", Full => "full",
     }
     SpinnerSize { Xs => "xs", Sm => "sm", Default => "default", Lg => "lg", Xl => "xl" }
+    StarRatingSize { Sm => "sm", Default => "default", Md => "md", Lg => "lg", Xl => "xl" }
     SwitchSize { Sm => "sm", Default => "default" }
     SwitchRadius {
         None => "none", Small => "small", Medium => "medium",
