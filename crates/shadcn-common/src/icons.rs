@@ -16,6 +16,8 @@ pub enum IconName {
     Copy,
     Download,
     Ellipsis,
+    Eye,
+    EyeOff,
     Github,
     Home,
     Info,
@@ -25,6 +27,7 @@ pub enum IconName {
     Plus,
     Search,
     Settings,
+    Star,
     Sun,
     Trash,
     User,
@@ -32,7 +35,7 @@ pub enum IconName {
 }
 
 impl IconName {
-    pub const ALL: [Self; 26] = [
+    pub const ALL: [Self; 29] = [
         Self::Activity,
         Self::ArrowLeft,
         Self::ArrowRight,
@@ -46,6 +49,8 @@ impl IconName {
         Self::Copy,
         Self::Download,
         Self::Ellipsis,
+        Self::Eye,
+        Self::EyeOff,
         Self::Github,
         Self::Home,
         Self::Info,
@@ -55,6 +60,7 @@ impl IconName {
         Self::Plus,
         Self::Search,
         Self::Settings,
+        Self::Star,
         Self::Sun,
         Self::Trash,
         Self::User,
@@ -77,6 +83,8 @@ impl IconName {
             Self::Copy => "copy",
             Self::Download => "download",
             Self::Ellipsis => "ellipsis",
+            Self::Eye => "eye",
+            Self::EyeOff => "eye-off",
             Self::Github => "github",
             Self::Home => "home",
             Self::Info => "info",
@@ -86,6 +94,7 @@ impl IconName {
             Self::Plus => "plus",
             Self::Search => "search",
             Self::Settings => "settings",
+            Self::Star => "star",
             Self::Sun => "sun",
             Self::Trash => "trash",
             Self::User => "user",

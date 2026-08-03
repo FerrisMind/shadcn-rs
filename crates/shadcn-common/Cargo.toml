@@ -23,6 +23,8 @@ include = [
 [dependencies]
 chorale-core = { workspace = true }
 twill-core = { workspace = true }
+## Dropbox zxcvbn password strength estimator (shared by Password).
+zxcvbn = { workspace = true }
 ## Optional, only for the `serde` feature.
 serde = { version = "1", features = ["derive"], optional = true }
 ## Optional tree-sitter grammars, only for the `syntax` feature.
@@ -36,6 +38,8 @@ tree-sitter-json = { workspace = true, optional = true }
 tree-sitter-rust = { workspace = true, optional = true }
 tree-sitter-svelte-next = { workspace = true, optional = true }
 tree-sitter-typescript = { workspace = true, optional = true }
+regex = "1.13.1"
+phonelib = "2.0.0"
 
 [features]
 default = []

@@ -17,12 +17,17 @@ mod context_menu;
 mod dialog;
 mod drawer;
 mod dropdown_menu;
+mod file_drop_zone;
+mod form;
 mod hover_card;
 mod kbd;
 mod label;
 mod menubar;
+pub(crate) mod meter;
 mod native_select;
 mod navigation_menu;
+mod password;
+mod phone_input;
 mod popover;
 mod progress;
 mod radio_group;
@@ -32,7 +37,9 @@ mod sidebar;
 mod skeleton;
 mod slider;
 mod snippet;
+mod star_rating;
 mod switch;
+mod textarea;
 mod toggle;
 mod tooltip;
 
@@ -70,6 +77,10 @@ pub use menubar::{
     MENUBAR_DISABLED_OPACITY, MENUBAR_SIDE_OFFSET_PX, MENUBAR_SLIDE_PX, MENUBAR_ZOOM_FROM,
     MenubarRecipe, menubar_recipe,
 };
+pub use meter::{
+    HEIGHT_PX as METER_HEIGHT_PX, MeterRecipe, TRACK_ALPHA as METER_TRACK_ALPHA,
+    TRANSITION_MS as METER_TRANSITION_MS, WARNING_RATIO as METER_WARNING_RATIO, meter_recipe,
+};
 pub use native_select::{
     NATIVE_SELECT_DISABLED_OPACITY, NATIVE_SELECT_MENU_GROUP_INDENT_PX,
     NATIVE_SELECT_MENU_ITEM_PAD_X_PX, NATIVE_SELECT_MENU_ITEM_PAD_Y_PX,
@@ -87,6 +98,22 @@ pub use navigation_menu::{
     NAVIGATION_MENU_VIEWPORT_PAD_PX, NAVIGATION_MENU_VIEWPORT_ZOOM_FROM, NavigationMenuRecipe,
     navigation_menu_recipe,
 };
+pub use password::{
+    PASSWORD_ACTION_ICON_PX, PASSWORD_ACTION_SIZE_PX, PASSWORD_DEFAULT_MIN_SCORE,
+    PASSWORD_END_PAD_BOTH_PX, PASSWORD_END_PAD_ONE_PX, PASSWORD_ROOT_GAP_PX,
+    PASSWORD_SCORE_GREEN_RGB, PASSWORD_SCORE_RED_RGB, PASSWORD_SCORE_YELLOW_RGB,
+    PASSWORD_STRENGTH_GAP_PX, PASSWORD_STRENGTH_HEIGHT_PX, PASSWORD_STRENGTH_RING_PX,
+    PASSWORD_STRENGTH_SEGMENTS, PASSWORD_STRENGTH_TRANSITION_MS, PASSWORD_TOGGLE_COMPACT_WIDTH_PX,
+    PasswordRecipe, password_end_padding_px, password_recipe, password_score_rgb,
+};
+pub use phone_input::{
+    CHEVRON_SIZE_PX as PHONE_INPUT_CHEVRON_SIZE_PX,
+    DISABLED_OPACITY as PHONE_INPUT_DISABLED_OPACITY, FLAG_HEIGHT_PX as PHONE_INPUT_FLAG_HEIGHT_PX,
+    FLAG_WIDTH_PX as PHONE_INPUT_FLAG_WIDTH_PX, JOINT_OVERLAP_PX as PHONE_INPUT_JOINT_OVERLAP_PX,
+    LIST_HEIGHT_PX as PHONE_INPUT_LIST_HEIGHT_PX, POPOVER_WIDTH_PX as PHONE_INPUT_POPOVER_WIDTH_PX,
+    PhoneInputRecipe, TRIGGER_GAP_PX as PHONE_INPUT_TRIGGER_GAP_PX,
+    TRIGGER_PAD_X_PX as PHONE_INPUT_TRIGGER_PAD_X_PX, phone_input_recipe,
+};
 pub use popover::{
     POPOVER_ANIMATION_MS, POPOVER_SLIDE_PX, POPOVER_WIDTH_PX, POPOVER_ZOOM_FROM, PopoverRecipe,
     PopoverShadow, popover_recipe,
@@ -102,7 +129,16 @@ pub use slider::{
     SliderRecipe, SliderThumbBorder, SliderThumbFill, SliderTrackSurface, slider_recipe,
 };
 pub use snippet::{SnippetRecipe, snippet_recipe};
+pub use star_rating::{
+    DISABLED_OPACITY as STAR_RATING_DISABLED_OPACITY, RING_OFFSET_PX as STAR_RATING_RING_OFFSET_PX,
+    RING_WIDTH_PX as STAR_RATING_RING_WIDTH_PX, STAR_GAP_PX, STAR_SIZE_PX, STAR_STROKE_VIEWBOX,
+    STAR_VIEWBOX, StarRatingRecipe, star_rating_recipe,
+};
 pub use switch::{SwitchRecipe, SwitchSizeRecipe, switch_recipe, switch_size};
+pub use textarea::{
+    DARK_INVALID_BORDER_ALPHA, DISABLED_OPACITY, INVALID_RING_ALPHA_DARK, INVALID_RING_ALPHA_LIGHT,
+    MIN_HEIGHT_PX, SELECTION_ALPHA, TextareaRecipe, textarea_recipe,
+};
 pub use toggle::{ToggleRecipe, ToggleSizeRecipe, toggle_recipe, toggle_size};
 pub use tooltip::{
     TOOLTIP_ANIMATION_MS, TOOLTIP_SLIDE_PX, TOOLTIP_ZOOM_FROM, TooltipRecipe, tooltip_recipe,
@@ -187,6 +223,18 @@ pub use dropdown_menu::{
     DROPDOWN_MENU_ZOOM_FROM, DropdownMenuRecipe, MENU_SUB_SIDE_OFFSET_PX, MenuActivateKind,
     MenuItemVariant, dropdown_menu_recipe,
 };
+pub use file_drop_zone::{
+    BORDER_WIDTH_PX as FILE_DROP_ZONE_BORDER_WIDTH_PX,
+    DISABLED_OPACITY as FILE_DROP_ZONE_DISABLED_OPACITY, FileDropZoneRecipe,
+    GAP_PX as FILE_DROP_ZONE_GAP_PX, HEIGHT_PX as FILE_DROP_ZONE_HEIGHT_PX,
+    HINT_FOREGROUND_ALPHA as FILE_DROP_ZONE_HINT_FOREGROUND_ALPHA,
+    HOVER_ACCENT_ALPHA as FILE_DROP_ZONE_HOVER_ACCENT_ALPHA,
+    ICON_CIRCLE_PX as FILE_DROP_ZONE_ICON_CIRCLE_PX, ICON_PX as FILE_DROP_ZONE_ICON_PX,
+    ICON_STROKE_VIEWBOX as FILE_DROP_ZONE_ICON_STROKE_VIEWBOX,
+    ICON_VIEWBOX as FILE_DROP_ZONE_ICON_VIEWBOX, PADDING_PX as FILE_DROP_ZONE_PADDING_PX,
+    TEXT_GAP_PX as FILE_DROP_ZONE_TEXT_GAP_PX, file_drop_zone_recipe,
+};
+pub use form::{FormRecipe, form_recipe};
 pub use sheet::{
     SHEET_ANIMATION_MS, SHEET_CLOSE_ICON_PX, SHEET_CLOSE_SIZE_PX, SHEET_MAX_WIDTH_PX,
     SHEET_SIDE_WIDTH_FRACTION, SHEET_SLIDE_PX, SheetPanelMetrics, SheetRecipe, SheetSide,
