@@ -15,6 +15,14 @@
 ## Обзор
 `egui-shadcn` — набор компонентов ввода для egui в стиле shadcn/ui. Повторяет варианты и размеры shadcn и использует токены темы для единых визуальных состояний.
 
+## Демо
+
+Полноценный интерактивный WASM showcase:
+
+**[ferrismind.github.io/shadcn-rs](https://ferrismind.github.io/shadcn-rs/)**
+
+Исходники: `crates/wasm-demo`.
+
 ## Быстрый старт
 ```rust
 use egui_shadcn::{button, ControlSize, ControlVariant, Theme};

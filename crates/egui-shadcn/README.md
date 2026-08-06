@@ -26,6 +26,14 @@
 
 `egui-shadcn` provides a set of form components for [egui](https://github.com/emilk/egui) styled after [shadcn/ui](https://ui.shadcn.com). It mirrors shadcn variants and sizes while exposing theme tokens for consistent visuals and per-control customization.
 
+## Demo
+
+Full interactive WASM showcase:
+
+**[ferrismind.github.io/shadcn-rs](https://ferrismind.github.io/shadcn-rs/)**
+
+Source crate: `crates/wasm-demo`.
+
 ## Installation
 
 Add to your `Cargo.toml`:

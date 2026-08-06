@@ -15,6 +15,14 @@
 ## Visão geral
 `egui-shadcn` é um conjunto de componentes de formulário para egui inspirados no shadcn/ui. Replica variantes e tamanhos do shadcn e expõe tokens de tema para visuais consistentes.
 
+## Demo
+
+Showcase WASM interativo completo:
+
+**[ferrismind.github.io/shadcn-rs](https://ferrismind.github.io/shadcn-rs/)**
+
+Código-fonte: `crates/wasm-demo`.
+
 ## Início rápido
 ```rust
 use egui_shadcn::{button, ControlSize, ControlVariant, Theme};

@@ -33,23 +33,33 @@
 - `iced-shadcn-v2` — компоненты для iced, **v2 builder-first** API; не зависит от v1 (см. `crates/iced-shadcn-v2/README.md`).
 - `shadcn-common` — общие design tokens, style packs и backend-agnostic хелперы для egui/iced (см. `crates/shadcn-common/README.md`).
 
-## Демо (iced-shadcn v1)
+## Демо
+
+### egui-shadcn — WASM showcase
+
+Полноценный интерактивный showcase для `egui-shadcn` (и iced) в браузере:
+
+**[ferrismind.github.io/shadcn-rs](https://ferrismind.github.io/shadcn-rs/)**
+
+Исходники: `crates/wasm-demo`.
+
+### iced-shadcn v1 — desktop apps
 
 Эти desktop-приложения используют **v1** (`iced-shadcn`) props-first API и пока **находятся в разработке**. См. также [issue #5](https://github.com/FerrisMind/shadcn-rs/issues/5).
 
-### Nova Code
+#### Nova Code
 
 Минималистичный редактор в духе VS Code на iced.
 
 https://github.com/user-attachments/assets/04ddafcb-adf1-42fa-bb0e-97676792973b
 
-### Zver
+#### Zver
 
 Минималистичный desktop-браузер на системных web-движках через wry.
 
 https://github.com/user-attachments/assets/0afa7180-efd5-496e-8f28-5a371fe2a12d
 
-### NeuroLang
+#### NeuroLang
 
 Локальный desktop-переводчик (сейчас текст; другие форматы в планах).
 
