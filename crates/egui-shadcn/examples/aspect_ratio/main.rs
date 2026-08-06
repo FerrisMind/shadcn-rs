@@ -45,7 +45,7 @@ impl App for AspectRatioExample {
                 let _ = aspect_ratio(ui, AspectRatioProps::new(16.0 / 9.0), |content_ui| {
                     let frame = EguiFrame::default()
                         .fill(self.theme.palette.muted)
-                        .stroke(Stroke::new(1.0, self.theme.palette.border))
+                        .stroke(Stroke::new(1.0_f32, self.theme.palette.border))
                         .corner_radius(rounding);
                     frame.show(content_ui, |frame_ui| {
                         frame_ui.centered_and_justified(|inner| {

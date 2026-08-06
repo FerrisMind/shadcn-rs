@@ -505,7 +505,7 @@ pub fn menu_separator(ui: &mut Ui, theme: &Theme) -> Response {
     if ui.is_rect_visible(rect) {
         ui.painter().line_segment(
             [rect.left_center(), rect.right_center()],
-            Stroke::new(1.0, theme.palette.border),
+            Stroke::new(1.0_f32, theme.palette.border),
         );
     }
     ui.add_space(4.0);
@@ -604,7 +604,7 @@ pub fn menu_sub<R>(
             .show(ui.ctx(), |ui| {
                 Frame::popup(ui.style())
                     .fill(tokens.bg)
-                    .stroke(Stroke::new(1.0, tokens.border))
+                    .stroke(Stroke::new(1.0_f32, tokens.border))
                     .corner_radius(tokens.rounding)
                     .inner_margin(tokens.padding)
                     .show(ui, |ui| {

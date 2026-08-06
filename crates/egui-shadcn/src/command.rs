@@ -255,7 +255,7 @@ pub fn command<R>(
         egui::Shadow::NONE
     };
     let stroke = if props.show_border {
-        Stroke::new(1.0, tokens.border)
+        Stroke::new(1.0_f32, tokens.border)
     } else {
         Stroke::NONE
     };
@@ -327,7 +327,7 @@ pub fn command_input(ui: &mut Ui, ctx: &mut CommandContext, props: CommandInputP
 
     let response = inner.inner;
     let rect = inner.response.rect;
-    let stroke = Stroke::new(1.0, ctx.tokens.border);
+    let stroke = Stroke::new(1.0_f32, ctx.tokens.border);
     ui.painter()
         .line_segment([rect.left_bottom(), rect.right_bottom()], stroke);
 
@@ -400,7 +400,7 @@ pub fn command_separator(ui: &mut Ui, ctx: &mut CommandContext) -> Response {
     let (rect, response) = ui.allocate_exact_size(vec2(ui.available_width(), 1.0), Sense::hover());
     ui.painter().line_segment(
         [rect.left_center(), rect.right_center()],
-        Stroke::new(1.0, ctx.tokens.border),
+        Stroke::new(1.0_f32, ctx.tokens.border),
     );
     ui.add_space(ctx.metrics.separator_margin);
     response

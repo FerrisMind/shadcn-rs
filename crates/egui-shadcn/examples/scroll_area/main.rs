@@ -38,7 +38,7 @@ impl App for ScrollAreaDemo {
 
                 egui::Frame::NONE
                     .fill(self.theme.palette.background)
-                    .stroke(egui::Stroke::new(1.0, self.theme.palette.border))
+                    .stroke(egui::Stroke::new(1.0_f32, self.theme.palette.border))
                     .corner_radius(egui::CornerRadius::same(6))
                     .show(ui, |frame_ui| {
                         let props = ScrollAreaProps::default()
@@ -69,7 +69,7 @@ impl App for ScrollAreaDemo {
 
                 egui::Frame::NONE
                     .fill(self.theme.palette.background)
-                    .stroke(egui::Stroke::new(1.0, self.theme.palette.border))
+                    .stroke(egui::Stroke::new(1.0_f32, self.theme.palette.border))
                     .corner_radius(egui::CornerRadius::same(6))
                     .show(ui, |frame_ui| {
                         let props = ScrollAreaProps::default()

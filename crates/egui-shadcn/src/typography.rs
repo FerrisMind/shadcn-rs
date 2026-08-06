@@ -765,7 +765,7 @@ pub fn link(ui: &mut Ui, theme: &Theme, props: LinkProps) -> Response {
         let y = base.rect.bottom() - 1.0;
         painter.line_segment(
             [pos2(base.rect.left(), y), pos2(base.rect.right(), y)],
-            Stroke::new(1.0, base_color),
+            Stroke::new(1.0_f32, base_color),
         );
     }
 
@@ -794,7 +794,10 @@ pub fn code(ui: &mut Ui, theme: &Theme, props: CodeProps) -> Response {
     let (fill, stroke) = match props.variant {
         CodeVariant::Soft => (theme.palette.muted, Stroke::NONE),
         CodeVariant::Solid => (theme.palette.primary, Stroke::NONE),
-        CodeVariant::Outline => (Color32::TRANSPARENT, Stroke::new(1.0, theme.palette.border)),
+        CodeVariant::Outline => (
+            Color32::TRANSPARENT,
+            Stroke::new(1.0_f32, theme.palette.border),
+        ),
         CodeVariant::Ghost => (Color32::TRANSPARENT, Stroke::NONE),
     };
 
@@ -1134,7 +1137,7 @@ pub fn typography(ui: &mut Ui, theme: &Theme, props: TypographyProps) -> Respons
                         pos2(response.rect.left(), y),
                         pos2(response.rect.right(), y),
                     ],
-                    Stroke::new(1.0, theme.palette.border),
+                    Stroke::new(1.0_f32, theme.palette.border),
                 );
             }
             response

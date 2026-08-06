@@ -67,7 +67,7 @@ impl Example {
             SliderProps::new(),
             theme,
         )
-        .step(10.0)
+        .step(10.0_f32)
         .min_steps_between_thumbs(1)
         .width(Length::Fill);
         let range_section = column![

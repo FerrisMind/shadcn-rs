@@ -141,7 +141,7 @@ impl ShadcnChart {
 
         let frame = Frame::NONE
             .fill(theme.palette.card)
-            .stroke(Stroke::new(1.0, theme.palette.border))
+            .stroke(Stroke::new(1.0_f32, theme.palette.border))
             .corner_radius(theme.radius.r4)
             .inner_margin(Margin::from(self.props.margin));
 
@@ -404,7 +404,7 @@ impl<'a> ChartTooltip<'a> {
     pub fn show(self, ctx: &egui::Context, theme: &Theme, id: Id, pos: Pos2) {
         let frame = Frame::NONE
             .fill(theme.palette.popover)
-            .stroke(Stroke::new(1.0, theme.palette.border))
+            .stroke(Stroke::new(1.0_f32, theme.palette.border))
             .corner_radius(theme.radius.r3)
             .inner_margin(Margin::symmetric(10, 8));
 
@@ -451,7 +451,7 @@ impl<'a> ChartTooltip<'a> {
                                         let top = rect.top() + 1.0;
                                         let bottom = rect.bottom() - 1.0;
                                         let mid = rect.center().y;
-                                        let stroke = Stroke::new(1.5, item.color);
+                                        let stroke = Stroke::new(1.5_f32, item.color);
                                         painter.line_segment(
                                             [pos2(center_x, top), pos2(center_x, mid - 1.0)],
                                             stroke,

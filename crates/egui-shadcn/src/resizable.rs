@@ -329,7 +329,7 @@ pub fn resizable_handle(
                     let y = center.y + offset;
                     ui.painter().line_segment(
                         [egui::pos2(center.x - 2.0, y), egui::pos2(center.x + 2.0, y)],
-                        egui::Stroke::new(1.0, line_color),
+                        egui::Stroke::new(1.0_f32, line_color),
                     );
                 }
             }
@@ -338,7 +338,7 @@ pub fn resizable_handle(
                     let x = center.x + offset;
                     ui.painter().line_segment(
                         [egui::pos2(x, center.y - 2.0), egui::pos2(x, center.y + 2.0)],
-                        egui::Stroke::new(1.0, line_color),
+                        egui::Stroke::new(1.0_f32, line_color),
                     );
                 }
             }

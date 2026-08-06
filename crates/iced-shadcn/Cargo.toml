@@ -25,15 +25,18 @@ iced_wgpu = { version = "0.14", optional = true, default-features = false }
 lucide-icons = { version = "0.575", features = ["iced"] }
 num-traits = "0.2"
 regex = "1.10"
-twill = { git = "https://github.com/FerrisMind/twill.git", rev = "d3419a53af2b20f7c1f7e4532a5ef3afa866229f", features = ["iced"] }
+shadcn-common = { workspace = true }
+twill = { git = "https://github.com/FerrisMind/twill.git", rev = "83e8ac1a00766b5304ec88d25a9f3e99274ef0e8", features = ["iced"] }
 chrono = { version = "0.4", optional = true, default-features = false, features = ["std"] }
 image = { version = "0.25", default-features = false, features = ["avif", "bmp", "dds", "gif", "ico", "jpeg", "png", "pnm", "qoi", "tga", "webp"] }
 rfd = { version = "0.16", optional = true }
 tracing = { version = "0.1", optional = true }
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "fmt"] }
 tracy-client = { version = "0.18", optional = true, default-features = false, features = ["enable", "ondemand", "only-localhost"] }
-gtk = { version = "0.18", optional = true }
 wry = { version = "0.54.4", optional = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+gtk = { version = "0.18", optional = true }
 
 [dev-dependencies]
 rfd = "0.16"

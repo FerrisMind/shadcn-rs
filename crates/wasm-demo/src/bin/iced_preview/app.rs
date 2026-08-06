@@ -1,6 +1,6 @@
 use iced::border::Border;
 use iced::widget::text::{Rich, Span};
-use iced::widget::{column, container, row, scrollable, text};
+use iced::widget::{column, container, row, scrollable, text, text_editor};
 use iced::{Alignment, Background, Element, Length, Subscription, Task};
 
 #[cfg(target_arch = "wasm32")]
@@ -53,6 +53,7 @@ pub struct PreviewApp {
     theme: Theme,
     theme_mode: ThemeMode,
     github_stars: u64,
+    #[cfg(target_arch = "wasm32")]
     github_stars_loaded: bool,
     selected: PreviewPage,
     tab: ComponentTab,
@@ -62,6 +63,18 @@ pub struct PreviewApp {
     stepper_step: usize,
     email: String,
     username: String,
+    landing_name: String,
+    landing_message: text_editor::Content,
+    landing_checkbox: bool,
+    landing_radio: usize,
+    landing_switch: bool,
+    landing_dialog_open: bool,
+    landing_dividend_visible: bool,
+    landing_transfer_visible: bool,
+    landing_amount: String,
+    landing_from_account: String,
+    landing_to_account: String,
+    landing_notice: Option<String>,
     footer_hovered: Option<FooterLink>,
 }
 
@@ -86,6 +99,7 @@ pub enum Message {
     OpenGithub,
     OpenUrl(&'static str),
     FooterLinkHover(FooterLink, bool),
+    #[cfg(target_arch = "wasm32")]
     GithubStarsLoaded(u64),
     StepperStepChanged(usize),
     StepperNext,
@@ -96,6 +110,15 @@ pub enum Message {
     ProgressChanged(Vec<f32>),
     EmailChanged(String),
     UsernameChanged(String),
+    LandingNameChanged(String),
+    LandingMessageChanged(text_editor::Action),
+    LandingCheckboxChanged(bool),
+    LandingRadioChanged(usize),
+    LandingSwitchChanged(bool),
+    LandingAmountChanged(String),
+    LandingFromAccountChanged(String),
+    LandingToAccountChanged(String),
+    LandingAction(&'static str),
     Noop,
 }
 
@@ -110,6 +133,7 @@ impl Default for PreviewApp {
             theme: Theme::light(),
             theme_mode: ThemeMode::Light,
             github_stars: FALLBACK_GITHUB_STARS,
+            #[cfg(target_arch = "wasm32")]
             github_stars_loaded: false,
             selected,
             tab,
@@ -119,6 +143,18 @@ impl Default for PreviewApp {
             stepper_step: 1,
             email: String::new(),
             username: String::new(),
+            landing_name: String::new(),
+            landing_message: text_editor::Content::new(),
+            landing_checkbox: true,
+            landing_radio: 0,
+            landing_switch: true,
+            landing_dialog_open: false,
+            landing_dividend_visible: true,
+            landing_transfer_visible: true,
+            landing_amount: "1,200.00".to_owned(),
+            landing_from_account: "Main Checking (...8402) — $12,450.00".to_owned(),
+            landing_to_account: "High Yield Savings (...1192) — $42,100.00".to_owned(),
+            landing_notice: None,
             footer_hovered: None,
         }
     }
@@ -139,6 +175,7 @@ impl PreviewApp {
             Message::FooterLinkHover(link, hovered) => {
                 self.footer_hovered = hovered.then_some(link);
             }
+            #[cfg(target_arch = "wasm32")]
             Message::GithubStarsLoaded(stars) => {
                 self.github_stars = stars;
                 self.github_stars_loaded = true;
@@ -164,6 +201,38 @@ impl PreviewApp {
             }
             Message::EmailChanged(value) => self.email = value,
             Message::UsernameChanged(value) => self.username = value,
+            Message::LandingNameChanged(value) => self.landing_name = value,
+            Message::LandingMessageChanged(action) => self.landing_message.perform(action),
+            Message::LandingCheckboxChanged(value) => {
+                self.landing_checkbox = value;
+                self.landing_notice = Some(if value {
+                    "Email alerts enabled".to_owned()
+                } else {
+                    "Email alerts disabled".to_owned()
+                });
+            }
+            Message::LandingRadioChanged(value) => {
+                self.landing_radio = value;
+                self.landing_notice = Some(format!("Preference changed to option {}", value + 1));
+            }
+            Message::LandingSwitchChanged(value) => {
+                self.landing_switch = value;
+                self.landing_notice = Some(if value {
+                    "Compact notifications enabled".to_owned()
+                } else {
+                    "Compact notifications disabled".to_owned()
+                });
+            }
+            Message::LandingAmountChanged(value) => self.landing_amount = value,
+            Message::LandingFromAccountChanged(value) => {
+                self.landing_from_account = value;
+                self.landing_notice = Some("Source account updated".to_owned());
+            }
+            Message::LandingToAccountChanged(value) => {
+                self.landing_to_account = value;
+                self.landing_notice = Some("Destination account updated".to_owned());
+            }
+            Message::LandingAction(action) => self.handle_landing_action(action),
             Message::Noop => {}
         }
 
@@ -279,6 +348,89 @@ impl PreviewApp {
 
     pub fn footer_link_hovered(&self, link: FooterLink) -> bool {
         self.footer_hovered == Some(link)
+    }
+
+    pub fn landing_name(&self) -> &str {
+        &self.landing_name
+    }
+
+    pub fn landing_message(&self) -> &text_editor::Content {
+        &self.landing_message
+    }
+
+    pub fn landing_checkbox(&self) -> bool {
+        self.landing_checkbox
+    }
+
+    pub fn landing_radio(&self) -> usize {
+        self.landing_radio
+    }
+
+    pub fn landing_switch(&self) -> bool {
+        self.landing_switch
+    }
+
+    pub fn landing_dialog_open(&self) -> bool {
+        self.landing_dialog_open
+    }
+
+    pub fn landing_dividend_visible(&self) -> bool {
+        self.landing_dividend_visible
+    }
+
+    pub fn landing_transfer_visible(&self) -> bool {
+        self.landing_transfer_visible
+    }
+
+    pub fn landing_amount(&self) -> &str {
+        &self.landing_amount
+    }
+
+    pub fn landing_from_account(&self) -> &str {
+        &self.landing_from_account
+    }
+
+    pub fn landing_to_account(&self) -> &str {
+        &self.landing_to_account
+    }
+
+    pub fn landing_notice(&self) -> Option<&str> {
+        self.landing_notice.as_deref()
+    }
+
+    fn handle_landing_action(&mut self, action: &'static str) {
+        match action {
+            "open-alert" => self.landing_dialog_open = true,
+            "alert-confirm" => {
+                self.landing_dialog_open = false;
+                self.landing_notice = Some("Accessory connection allowed".to_owned());
+            }
+            "alert-cancel" => {
+                self.landing_dialog_open = false;
+                self.landing_notice = Some("Accessory connection cancelled".to_owned());
+            }
+            "dismiss-dividend" => {
+                self.landing_dividend_visible = false;
+                self.landing_notice = Some("Dividend income card dismissed".to_owned());
+            }
+            "dismiss-transfer" => {
+                self.landing_transfer_visible = false;
+                self.landing_notice = Some("Transfer funds card dismissed".to_owned());
+            }
+            "confirm-transfer" => {
+                self.landing_notice = Some(format!(
+                    "Transfer of ${} is ready to confirm",
+                    self.landing_amount
+                ));
+            }
+            "button" => self.landing_notice = Some("Primary button pressed".to_owned()),
+            "secondary" => self.landing_notice = Some("Secondary button pressed".to_owned()),
+            "outline" => self.landing_notice = Some("Outline button pressed".to_owned()),
+            "quick-actions" => self.landing_notice = Some("Quick actions opened".to_owned()),
+            "account-options" => self.landing_notice = Some("Account menu opened".to_owned()),
+            "payment-action" => self.landing_notice = Some("Payment action selected".to_owned()),
+            _ => self.landing_notice = Some(format!("Action selected: {action}")),
+        }
     }
 
     fn filtered_pages(&self) -> Vec<PreviewPage> {
@@ -525,8 +677,7 @@ async fn fetch_github_stars() -> u64 {
         return FALLBACK_GITHUB_STARS;
     };
     let Ok(response_value) =
-        JsFuture::from(window.fetch_with_str("https://ungh.cc/repos/FerrisMind/shadcn-rs"))
-            .await
+        JsFuture::from(window.fetch_with_str("https://ungh.cc/repos/FerrisMind/shadcn-rs")).await
     else {
         return FALLBACK_GITHUB_STARS;
     };

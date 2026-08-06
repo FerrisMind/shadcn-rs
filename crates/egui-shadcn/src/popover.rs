@@ -556,7 +556,7 @@ pub fn popover<R>(
                 popup_ui.set_max_height(position_rect.height());
                 let frame = Frame::popup(popup_ui.style())
                     .fill(bg)
-                    .stroke(Stroke::new(1.0, border))
+                    .stroke(Stroke::new(1.0_f32, border))
                     .corner_radius(rounding)
                     .inner_margin(props.content_padding);
 

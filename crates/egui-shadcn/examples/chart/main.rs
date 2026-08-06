@@ -450,7 +450,7 @@ mod app {
                 let mut bar = Bar::new(idx as f64, *value)
                     .width(0.7)
                     .fill(color)
-                    .stroke(egui::Stroke::new(1.0, egui::Color32::TRANSPARENT));
+                    .stroke(egui::Stroke::new(1.0_f32, egui::Color32::TRANSPARENT));
                 if let Some(base_values) = base
                     && let Some(offset) = base_values.get(idx)
                 {

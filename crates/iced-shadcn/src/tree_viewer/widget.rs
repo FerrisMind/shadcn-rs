@@ -510,7 +510,7 @@ mod tests {
     use crate::theme::Theme;
 
     #[test]
-    fn inactive_hover_is_ten_percent_dimmer_than_active_hover() {
+    fn inactive_hover_is_thirty_percent_dimmer_than_active_hover() {
         let theme = Theme::default();
         let active = active_row_hover_bg(&theme);
         let inactive = inactive_row_hover_bg(&theme);
@@ -518,6 +518,6 @@ mod tests {
         assert_eq!(inactive.r, active.r);
         assert_eq!(inactive.g, active.g);
         assert_eq!(inactive.b, active.b);
-        assert!((inactive.a - active.a * 0.50).abs() < f32::EPSILON);
+        assert!((inactive.a - active.a * 0.70).abs() < f32::EPSILON);
     }
 }

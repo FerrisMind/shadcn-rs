@@ -210,7 +210,7 @@ fn render_login_card(ui: &mut egui::Ui, theme: &Theme, email: &mut String, passw
                                             egui::pos2(response.rect.left(), y),
                                             egui::pos2(response.rect.right(), y),
                                         ],
-                                        egui::Stroke::new(1.0, theme.palette.primary),
+                                        egui::Stroke::new(1.0_f32, theme.palette.primary),
                                     );
                                 }
                             },

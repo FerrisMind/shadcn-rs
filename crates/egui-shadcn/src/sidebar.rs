@@ -193,7 +193,7 @@ pub fn sidebar<R>(
 
     let palette = &theme.palette;
     let rounding = CornerRadius::same(theme.radius.r2.round() as u8);
-    let border = Stroke::new(1.0, palette.sidebar_border);
+    let border = Stroke::new(1.0_f32, palette.sidebar_border);
 
     let inner = ui.allocate_ui_with_layout(
         Vec2::new(width, height),

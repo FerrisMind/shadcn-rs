@@ -28,7 +28,7 @@ pub fn render(app: &mut EguiPreviewApp, ui: &mut Ui, compact: bool) {
     ui.painter().rect_stroke(
         rect,
         6.0,
-        Stroke::new(1.0, app.theme.palette.border),
+        Stroke::new(1.0_f32, app.theme.palette.border),
         StrokeKind::Inside,
     );
     ui.painter().text(

@@ -19,7 +19,7 @@ use egui_shadcn::{
 fn repo_item(ui: &mut egui::Ui, theme: &Theme, text: &str) {
     let rounding = CornerRadius::same(theme.radius.r2.round() as u8);
     let frame = egui::Frame::NONE
-        .stroke(Stroke::new(1.0, theme.palette.border))
+        .stroke(Stroke::new(1.0_f32, theme.palette.border))
         .corner_radius(rounding)
         .inner_margin(Margin::symmetric(16, 8));
 
@@ -186,7 +186,7 @@ impl App for CollapsibleDemo {
                                     ui.painter().rect_stroke(
                                         rect,
                                         0.0,
-                                        Stroke::new(2.0, Color32::RED),
+                            Stroke::new(2.0_f32, Color32::RED),
                                         egui::StrokeKind::Outside,
                                     );
                                 }
@@ -195,7 +195,7 @@ impl App for CollapsibleDemo {
                                     ui.painter().circle_stroke(
                                         pos,
                                         6.0,
-                                        Stroke::new(2.0, Color32::LIGHT_GREEN),
+                            Stroke::new(2.0_f32, Color32::LIGHT_GREEN),
                                     );
                                 }
                             }

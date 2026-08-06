@@ -140,7 +140,7 @@ pub fn badge(ui: &mut Ui, theme: &Theme, props: BadgeProps<'_>) -> Response {
 
     let inner = egui::Frame::NONE
         .fill(bg_color)
-        .stroke(egui::Stroke::new(1.0, border_color))
+        .stroke(egui::Stroke::new(1.0_f32, border_color))
         .corner_radius(rounding)
         .inner_margin(padding)
         .show(ui, |ui| {

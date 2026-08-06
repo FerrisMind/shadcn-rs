@@ -65,9 +65,14 @@ pub struct Spinner {
 
 impl Spinner {
     pub fn new(theme: &Theme) -> Self {
+        Self::from_color(theme.palette.primary)
+    }
+
+    /// Spinner with an explicit color (for `new_api` themes that are not crate [`Theme`]).
+    pub fn from_color(color: Color) -> Self {
         Self {
             progress: 0.0,
-            color: theme.palette.primary,
+            color,
             size: SpinnerSize::Size2,
             loading: true,
             animated: false,

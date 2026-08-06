@@ -1,7 +1,7 @@
 use iced::widget::{column, container, row, text};
 use iced::{Alignment, Background, Element, Length, Task};
 
-use iced_shadcn::new_api::{Button, ButtonVariant};
+use iced_shadcn::new_api::{Button, ButtonVariant, Theme as ApiTheme};
 use iced_shadcn::{DecorativeSurfaceProps, Theme, decorative_surface};
 use twill::prelude::{DynamicSemanticTheme, SemanticThemeVars, ThemeVariant};
 
@@ -15,6 +15,7 @@ struct Example {
     use_dynamic: bool,
     variant: ThemeVariant,
     pressed: u32,
+    api_theme: ApiTheme,
 }
 
 #[derive(Debug, Clone)]
@@ -30,6 +31,7 @@ impl Default for Example {
             use_dynamic: false,
             variant: ThemeVariant::Light,
             pressed: 0,
+            api_theme: ApiTheme::light(),
         }
     }
 }
@@ -59,6 +61,11 @@ impl Example {
                 } else {
                     ThemeVariant::Dark
                 };
+                self.api_theme = if self.variant.is_dark() {
+                    ApiTheme::dark()
+                } else {
+                    ApiTheme::light()
+                };
             }
             Message::Pressed => {
                 self.pressed += 1;
@@ -70,6 +77,7 @@ impl Example {
 
     fn view(&self) -> Element<'_, Message> {
         let theme = self.theme();
+        let api_theme = &self.api_theme;
         let background = theme.semantic_color(twill::prelude::SemanticColor::Background);
         let foreground = theme.semantic_color(twill::prelude::SemanticColor::Foreground);
         let primary = theme.semantic_color(twill::prelude::SemanticColor::Primary);
@@ -82,7 +90,7 @@ impl Example {
                 } else {
                     "Use dynamic brand"
                 },
-                &theme,
+                api_theme,
             )
             .variant(ButtonVariant::Outline)
             .on_press(Message::ToggleSource),
@@ -92,7 +100,7 @@ impl Example {
                 } else {
                     "Switch to dark"
                 },
-                &theme,
+                api_theme,
             )
             .variant(ButtonVariant::Secondary)
             .on_press(Message::ToggleVariant),
@@ -100,7 +108,7 @@ impl Example {
         .spacing(12)
         .align_y(Alignment::Center);
 
-        let action = Button::text("Decorated action", &theme)
+        let action = Button::text("Decorated action", api_theme)
             .variant(ButtonVariant::Default)
             .on_press(Message::Pressed);
 

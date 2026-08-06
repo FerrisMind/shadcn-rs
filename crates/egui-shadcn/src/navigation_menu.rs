@@ -405,7 +405,7 @@ pub fn navigation_menu_content<R>(
 
             let frame = Frame::popup(popup_ui.style())
                 .fill(palette.popover)
-                .stroke(Stroke::new(1.0, palette.border))
+                .stroke(Stroke::new(1.0_f32, palette.border))
                 .corner_radius(CornerRadius::same(theme.radius.r3.round() as u8))
                 .inner_margin(props.padding);
 

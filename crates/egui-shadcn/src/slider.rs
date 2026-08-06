@@ -113,7 +113,9 @@ pub fn slider_tokens(palette: &ColorPalette, options: SliderTokenOptions) -> Sli
     };
 
     let track_border = match options.variant {
-        SliderVariant::Surface => Stroke::new(1.0, mix(palette.border, palette.foreground, 0.1)),
+        SliderVariant::Surface => {
+            Stroke::new(1.0_f32, mix(palette.border, palette.foreground, 0.1))
+        }
         SliderVariant::Classic => Stroke::NONE,
         SliderVariant::Soft => Stroke::NONE,
     };
@@ -125,9 +127,11 @@ pub fn slider_tokens(palette: &ColorPalette, options: SliderTokenOptions) -> Sli
     };
 
     let range_border = match options.variant {
-        SliderVariant::Surface => Stroke::new(1.0, mix(palette.border, palette.foreground, 0.1)),
+        SliderVariant::Surface => {
+            Stroke::new(1.0_f32, mix(palette.border, palette.foreground, 0.1))
+        }
         SliderVariant::Classic => Stroke::new(
-            1.0,
+            1.0_f32,
             mix(
                 mix(palette.border, palette.foreground, 0.1),
                 options.accent,
@@ -144,14 +148,16 @@ pub fn slider_tokens(palette: &ColorPalette, options: SliderTokenOptions) -> Sli
         options.accent
     };
     let thumb_border = match options.variant {
-        SliderVariant::Surface => Stroke::new(1.0, accent_border),
-        SliderVariant::Classic => Stroke::new(1.0, Color32::from_rgba_unmultiplied(0, 0, 0, 76)),
-        SliderVariant::Soft => Stroke::new(1.0, Color32::from_rgba_unmultiplied(0, 0, 0, 76)),
+        SliderVariant::Surface => Stroke::new(1.0_f32, accent_border),
+        SliderVariant::Classic => {
+            Stroke::new(1.0_f32, Color32::from_rgba_unmultiplied(0, 0, 0, 76))
+        }
+        SliderVariant::Soft => Stroke::new(1.0_f32, Color32::from_rgba_unmultiplied(0, 0, 0, 76)),
     };
 
     let thumb_disabled_bg = mix(palette.muted, palette.background, 0.6);
     let thumb_disabled_border =
-        Stroke::new(1.0, mix(palette.border, palette.muted_foreground, 0.5));
+        Stroke::new(1.0_f32, mix(palette.border, palette.muted_foreground, 0.5));
 
     let ring_color =
         Color32::from_rgba_unmultiplied(palette.ring.r(), palette.ring.g(), palette.ring.b(), 128);

@@ -441,7 +441,7 @@ impl RadioStyle {
         tokens.off.active.bg_fill = Color32::TRANSPARENT;
         tokens.disabled.bg_fill = Color32::TRANSPARENT;
         if let Some(accent) = accent_color {
-            let border = Stroke::new(1.0, mix(accent, palette.foreground, 0.18));
+            let border = Stroke::new(1.0_f32, mix(accent, palette.foreground, 0.18));
             tokens.on.idle = StateColors::with_border(accent, palette.primary_foreground, border);
             tokens.on.hovered = StateColors::with_border(
                 mix(accent, Color32::WHITE, 0.08),
@@ -932,9 +932,9 @@ fn render_radio_card<T: PartialEq + Clone + Debug>(
     };
 
     let border_stroke = if selected {
-        Stroke::new(1.0, style.on_idle.border.color)
+        Stroke::new(1.0_f32, style.on_idle.border.color)
     } else {
-        Stroke::new(1.0, style.off_idle.border.color)
+        Stroke::new(1.0_f32, style.off_idle.border.color)
     };
 
     let (card_rect, response) =
@@ -1001,7 +1001,7 @@ fn render_radio_card<T: PartialEq + Clone + Debug>(
             painter.circle_stroke(
                 radio_center,
                 focus_ring_radius,
-                Stroke::new(2.0, style.focus_ring),
+                Stroke::new(2.0_f32, style.focus_ring),
             );
         }
 

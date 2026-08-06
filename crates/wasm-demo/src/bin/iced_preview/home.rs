@@ -2,18 +2,33 @@ use iced::font::{Family, Weight};
 use iced::mouse;
 use iced::widget::text::{Rich, Span};
 use iced::widget::{
-    Column, Row, button as iced_button, column, container, mouse_area, responsive, row, scrollable,
-    space, stack, text,
+    Column, Row, column, container, mouse_area, responsive, row, scrollable, space, stack, text,
 };
 use iced::{Alignment, Background, Border, Color, Element, Length, Padding, Size};
-use iced_shadcn::{ButtonProps, ButtonSize, ButtonVariant, Theme, button_content};
+use iced_shadcn::{
+    AccentColor, AlertDialogProps, AlertProps, AlertVariant, BadgeProps, BadgeSize, BadgeVariant,
+    BarChart, BreadcrumbProps, ButtonGroupItem, ButtonProps, ButtonSize, ButtonVariant, CardProps,
+    CardSize, CardVariant, ChartGrid, ChartProps, CheckboxProps, CheckboxState, ControlSize,
+    DropdownMenuEntry, DropdownMenuItem, DropdownMenuItemProps, DropdownMenuProps,
+    InputGroupAddonAlign, InputGroupAddonProps, InputGroupInputProps, InputGroupProps, InputProps,
+    InputSize, InputVariant, ItemProps, ProgressProps, ProgressSize, ProgressVariant,
+    RadioDirection, RadioGroupProps, RadioItem, SelectProps, SelectSize, SeparatorOrientation,
+    SeparatorProps, SidebarGroupLabelProps, SidebarGroupProps, SidebarMenuButtonProps,
+    SidebarMenuButtonSize, SidebarProps, SidebarProviderProps, SwitchProps, SwitchSize,
+    TextareaProps, TextareaSize, TextareaVariant, Theme, alert, alert_dialog, badge, breadcrumb,
+    breadcrumb_item, breadcrumb_link, breadcrumb_list, breadcrumb_page, breadcrumb_separator,
+    button_content, button_group, card as shadcn_card, chart, checkbox, dropdown_menu, icon_button,
+    input, input_group, input_group_addon, input_group_input, item, radio_group, select, separator,
+    sidebar, sidebar_group, sidebar_group_content, sidebar_group_label, sidebar_menu,
+    sidebar_menu_button, sidebar_menu_item, sidebar_provider, switch, textarea,
+};
 use lucide_icons::iced::{
-    icon_activity, icon_arrow_left_right, icon_arrow_right, icon_arrow_up, icon_badge_check,
-    icon_bell, icon_book_open, icon_building_2, icon_calendar, icon_chart_bar, icon_chart_line,
-    icon_chart_pie, icon_chevron_right, icon_circle_question_mark, icon_credit_card, icon_ellipsis,
-    icon_file_text, icon_github, icon_globe, icon_menu, icon_message_square, icon_moon,
-    icon_palette, icon_plus, icon_refresh_cw, icon_search, icon_settings, icon_shield, icon_sun,
-    icon_target, icon_trending_up, icon_user, icon_wallet, icon_x,
+    icon_activity, icon_arrow_left_right, icon_arrow_right, icon_arrow_up, icon_bell,
+    icon_book_open, icon_building_2, icon_calendar, icon_chart_bar, icon_chart_line,
+    icon_chart_pie, icon_circle_question_mark, icon_credit_card, icon_ellipsis, icon_file_text,
+    icon_github, icon_globe, icon_menu, icon_message_square, icon_moon, icon_palette, icon_plus,
+    icon_refresh_cw, icon_search, icon_settings, icon_shield, icon_sun, icon_target,
+    icon_trending_up, icon_user, icon_wallet, icon_x,
 };
 
 use super::app::{FooterLink, Message, PreviewApp};
@@ -39,13 +54,27 @@ pub fn render(app: &PreviewApp) -> Element<'_, Message> {
 
 fn page(app: &PreviewApp, size: Size) -> Element<'_, Message> {
     let compact = size.width < MOBILE_BREAKPOINT;
-    let content = column![
-        topbar(app, compact),
-        hero(app, compact),
-        cards_demo(app, size),
-        footer(app, compact)
-    ]
-    .width(Length::Fill);
+    let mut content = column![topbar(app, compact), hero(app, compact)].width(Length::Fill);
+    if let Some(notice) = app.landing_notice() {
+        content = content.push(
+            container(alert::<Message>(
+                AlertProps::new(notice)
+                    .title("Interaction complete")
+                    .variant(AlertVariant::Success),
+                app.theme(),
+            ))
+            .padding(Padding {
+                top: 0.0,
+                right: 24.0,
+                bottom: 18.0,
+                left: 24.0,
+            }),
+        );
+    }
+    let content = content
+        .push(cards_demo(app, size))
+        .push(footer(app, compact))
+        .width(Length::Fill);
 
     container(scrollable(content))
         .width(Length::Fill)
@@ -117,41 +146,39 @@ fn topbar<'a>(app: &'a PreviewApp, compact: bool) -> Element<'a, Message> {
         row![
             row![
                 nav_link(theme, "Home", Message::SelectPage(PreviewPage::Home)),
-                nav_link(theme, "Docs", Message::Noop),
+                nav_link(
+                    theme,
+                    "Docs",
+                    Message::OpenUrl("https://ui.shadcn.com/docs"),
+                ),
                 nav_link(
                     theme,
                     "Components",
                     Message::SelectPage(PreviewPage::Button)
                 ),
-                nav_link(theme, "Blocks", Message::Noop),
-                nav_link(theme, "Charts", Message::Noop),
+                nav_link(
+                    theme,
+                    "Blocks",
+                    Message::OpenUrl("https://ui.shadcn.com/blocks"),
+                ),
+                nav_link(
+                    theme,
+                    "Charts",
+                    Message::OpenUrl("https://ui.shadcn.com/charts"),
+                ),
                 nav_link(theme, "Create", Message::SelectPage(PreviewPage::Button)),
             ]
             .spacing(2)
             .align_y(Alignment::Center),
             space::horizontal(),
-            container(
-                iced::widget::text_input::TextInput::new("Search documentation...", app.search(),)
-                    .on_input(Message::SearchChanged)
-                    .padding([6.0, 12.0])
-                    .size(14)
-                    .style({
-                        let muted = theme.palette.muted;
-                        let foreground = theme.palette.foreground;
-                        let muted_foreground = theme.palette.muted_foreground;
-                        move |_theme, _status| iced::widget::text_input::Style {
-                            background: Background::Color(muted),
-                            border: Border {
-                                radius: 12.0.into(),
-                                width: 0.0,
-                                color: Color::TRANSPARENT,
-                            },
-                            icon: muted_foreground,
-                            placeholder: muted_foreground,
-                            value: foreground,
-                            selection: theme.palette.primary,
-                        }
-                    }),
+            input(
+                app.search(),
+                "Search documentation...",
+                Some(Message::SearchChanged),
+                InputProps::new()
+                    .size(InputSize::Size2)
+                    .variant(InputVariant::Soft),
+                theme,
             )
             .width(Length::Fixed(256.0)),
             space::horizontal().width(Length::Fixed(12.0)),
@@ -191,25 +218,13 @@ fn nav_link<'a>(theme: &'a Theme, label: &'a str, message: Message) -> Element<'
 }
 
 fn divider<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    container(text(""))
-        .width(Length::Fixed(1.0))
-        .height(Length::Fixed(16.0))
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.border)),
-            ..iced::widget::container::Style::default()
-        })
-        .into()
-}
-
-fn horizontal_divider<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    container(text(""))
-        .width(Length::Fill)
-        .height(Length::Fixed(1.0))
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.border)),
-            ..iced::widget::container::Style::default()
-        })
-        .into()
+    separator(
+        SeparatorProps::new()
+            .orientation(SeparatorOrientation::Vertical)
+            .length(16.0),
+        theme,
+    )
+    .into()
 }
 
 fn hero<'a>(app: &'a PreviewApp, compact: bool) -> Element<'a, Message> {
@@ -218,7 +233,7 @@ fn hero<'a>(app: &'a PreviewApp, compact: bool) -> Element<'a, Message> {
         row![text("Introducing Rhea"), icon_arrow_right().size(13)]
             .spacing(5)
             .align_y(Alignment::Center),
-        Some(Message::Noop),
+        Some(Message::OpenUrl("https://ui.shadcn.com")),
         ButtonProps::new()
             .variant(ButtonVariant::Secondary)
             .size(ButtonSize::Size0),
@@ -326,25 +341,16 @@ fn white_button<'a>(
     message: Option<Message>,
     width: Length,
 ) -> Element<'a, Message> {
-    let background = theme.palette.primary;
-    let text_color = theme.palette.primary_foreground;
-    let mut button = iced_button(content)
-        .width(width)
-        .height(Length::Fixed(31.0))
-        .padding([5.0, 8.0])
-        .style(move |_theme, _status| iced::widget::button::Style {
-            background: Some(Background::Color(background)),
-            text_color,
-            border: Border {
-                radius: 8.0.into(),
-                ..Border::default()
-            },
-            ..Default::default()
-        });
-    if let Some(message) = message {
-        button = button.on_press(message);
-    }
-    button.into()
+    button_content(
+        content,
+        message,
+        ButtonProps::new()
+            .variant(ButtonVariant::Solid)
+            .size(ButtonSize::Size1),
+        theme,
+    )
+    .width(width)
+    .into()
 }
 
 fn cards_demo<'a>(app: &'a PreviewApp, size: Size) -> Element<'a, Message> {
@@ -360,20 +366,24 @@ fn cards_demo<'a>(app: &'a PreviewApp, size: Size) -> Element<'a, Message> {
 
 fn mobile_cards<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
     let theme = app.theme();
-    let content = column![
-        ui_elements_card(theme),
+    let mut content = column![
+        ui_elements_card(app),
         contribution_history(theme),
         claimable_balance(theme),
         sidebar_nav(theme),
         savings_targets(theme),
-        dividend_income(theme),
-        qr_connect(theme),
-        transfer_funds(theme),
-        payments(theme),
     ]
     .spacing(DEMO_GAP)
     .width(Length::Fill)
     .padding([0.0, 12.0]);
+    if app.landing_dividend_visible() {
+        content = content.push(dividend_income(app));
+    }
+    content = content.push(qr_connect(theme));
+    if app.landing_transfer_visible() {
+        content = content.push(transfer_funds(app));
+    }
+    content = content.push(payments(theme));
 
     container(content)
         .width(Length::Fill)
@@ -384,23 +394,26 @@ fn mobile_cards<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
 fn desktop_cards<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
     let theme = app.theme();
     let left = column![
-        ui_elements_card(theme),
+        ui_elements_card(app),
         sidebar_nav(theme),
         savings_targets(theme)
     ]
     .spacing(DEMO_GAP)
     .width(Length::Fill)
     .align_x(Alignment::Center);
-    let middle = column![
-        contribution_history(theme),
-        claimable_balance(theme),
-        dividend_income(theme)
-    ]
-    .spacing(DEMO_GAP)
-    .width(Length::Fill);
-    let right = column![qr_connect(theme), transfer_funds(theme), payments(theme)]
+    let mut middle = column![contribution_history(theme), claimable_balance(theme)]
         .spacing(DEMO_GAP)
         .width(Length::Fill);
+    if app.landing_dividend_visible() {
+        middle = middle.push(dividend_income(app));
+    }
+    let mut right = column![qr_connect(theme)]
+        .spacing(DEMO_GAP)
+        .width(Length::Fill);
+    if app.landing_transfer_visible() {
+        right = right.push(transfer_funds(app));
+    }
+    let right = right.push(payments(theme));
 
     let content = row![left, middle, right]
         .spacing(DEMO_GAP)
@@ -464,19 +477,37 @@ fn card<'a>(
     theme: &'a Theme,
     content: impl Into<Element<'a, Message>>,
 ) -> iced::widget::Container<'a, Message> {
-    let background = theme.palette.card;
-    let border = theme.palette.border;
-    container(content)
-        .width(Length::Fill)
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(background)),
-            border: Border {
-                radius: 24.0.into(),
-                width: 1.0,
-                color: border,
-            },
-            ..iced::widget::container::Style::default()
-        })
+    shadcn_card(
+        content,
+        CardProps::new()
+            .variant(CardVariant::Surface)
+            .size(CardSize::Size3)
+            .show_shadow(false)
+            .padding(0.0)
+            .radius(theme.radius.lg),
+        theme,
+    )
+    .width(Length::Fill)
+}
+
+fn panel<'a>(
+    theme: &'a Theme,
+    content: impl Into<Element<'a, Message>>,
+    padding: impl Into<Padding>,
+) -> iced::widget::Container<'a, Message> {
+    shadcn_card(
+        content,
+        CardProps::new()
+            .variant(CardVariant::Surface)
+            .show_shadow(false)
+            .background(theme.palette.secondary)
+            .border_color(Color::TRANSPARENT)
+            .padding(0.0)
+            .radius(16.0),
+        theme,
+    )
+    .width(Length::Fill)
+    .padding(padding)
 }
 
 fn label<'a>(theme: &'a Theme, value: &'a str, size: u16) -> iced::widget::Text<'a> {
@@ -504,77 +535,36 @@ fn card_title<'a>(value: &'a str, size: u16) -> iced::widget::Text<'a> {
 }
 
 fn chip<'a>(value: &'a str, theme: &'a Theme, kind: ChipKind) -> Element<'a, Message> {
-    let (background, foreground, border) = match kind {
-        ChipKind::Light => (
-            theme.palette.primary,
-            theme.palette.primary_foreground,
-            Color::TRANSPARENT,
-        ),
-        ChipKind::Muted => (
-            theme.palette.secondary,
-            theme.palette.foreground,
-            Color::TRANSPARENT,
-        ),
-        ChipKind::Outline => (
-            Color::TRANSPARENT,
-            theme.palette.foreground,
-            theme.palette.border,
-        ),
+    let variant = match kind {
+        ChipKind::Light => BadgeVariant::Default,
+        ChipKind::Muted => BadgeVariant::Secondary,
+        ChipKind::Outline => BadgeVariant::Outline,
     };
-    iced_button(semibold(value, 12))
-        .padding([2.0, 8.0])
-        .style(move |_theme, _status| iced::widget::button::Style {
-            background: Some(Background::Color(background)),
-            text_color: foreground,
-            border: Border {
-                radius: 16.0.into(),
-                width: if border == Color::TRANSPARENT {
-                    0.0
-                } else {
-                    1.0
-                },
-                color: border,
-            },
-            ..Default::default()
-        })
-        .into()
+    badge(
+        value,
+        BadgeProps::new().variant(variant).size(BadgeSize::Size1),
+        theme,
+    )
 }
 
-fn button_chip<'a>(value: &'a str, theme: &'a Theme, kind: ChipKind) -> Element<'a, Message> {
-    let (background, foreground, border) = match kind {
-        ChipKind::Light => (
-            theme.palette.primary,
-            theme.palette.primary_foreground,
-            Color::TRANSPARENT,
-        ),
-        ChipKind::Muted => (
-            theme.palette.secondary,
-            theme.palette.foreground,
-            Color::TRANSPARENT,
-        ),
-        ChipKind::Outline => (
-            Color::TRANSPARENT,
-            theme.palette.foreground,
-            theme.palette.border,
-        ),
+fn button_chip<'a>(
+    value: &'a str,
+    theme: &'a Theme,
+    kind: ChipKind,
+    message: Message,
+) -> Element<'a, Message> {
+    let variant = match kind {
+        ChipKind::Light => ButtonVariant::Solid,
+        ChipKind::Muted => ButtonVariant::Secondary,
+        ChipKind::Outline => ButtonVariant::Outline,
     };
-    iced_button(semibold(value, 14))
-        .padding([6.0, 12.0])
-        .style(move |_theme, _status| iced::widget::button::Style {
-            background: Some(Background::Color(background)),
-            text_color: foreground,
-            border: Border {
-                radius: 16.0.into(),
-                width: if border == Color::TRANSPARENT {
-                    0.0
-                } else {
-                    1.0
-                },
-                color: border,
-            },
-            ..Default::default()
-        })
-        .into()
+    button_content(
+        semibold(value, 14),
+        Some(message),
+        ButtonProps::new().variant(variant).size(ButtonSize::Size1),
+        theme,
+    )
+    .into()
 }
 
 #[derive(Clone, Copy)]
@@ -584,216 +574,182 @@ enum ChipKind {
     Outline,
 }
 
-fn chip_with_icon<'a>(
-    value: &'a str,
-    icon: iced::widget::Text<'a>,
-    theme: &'a Theme,
-) -> Element<'a, Message> {
-    iced_button(
-        row![semibold(value, 14), icon.size(14)]
-            .spacing(7)
-            .align_y(Alignment::Center),
-    )
-    .padding([6.0, 12.0])
-    .style(move |_theme, _status| iced::widget::button::Style {
-        background: Some(Background::Color(Color::TRANSPARENT)),
-        text_color: theme.palette.foreground,
-        border: Border {
-            radius: 16.0.into(),
-            width: 1.0,
-            color: theme.palette.border,
-        },
-        ..Default::default()
-    })
-    .into()
-}
-
 fn primary_chip_with_icon<'a>(
     value: &'a str,
     icon: iced::widget::Text<'a>,
     theme: &'a Theme,
+    message: Message,
 ) -> Element<'a, Message> {
-    iced_button(
+    button_content(
         row![semibold(value, 14), icon.size(14)]
             .spacing(7)
             .align_y(Alignment::Center),
+        Some(message),
+        ButtonProps::new()
+            .variant(ButtonVariant::Solid)
+            .size(ButtonSize::Size1),
+        theme,
     )
-    .padding([6.0, 12.0])
-    .style(move |_theme, _status| iced::widget::button::Style {
-        background: Some(Background::Color(theme.palette.primary)),
-        text_color: theme.palette.primary_foreground,
-        border: Border {
-            radius: 16.0.into(),
-            ..Border::default()
-        },
-        ..Default::default()
-    })
-    .into()
-}
-
-fn radio_control<'a>(theme: &'a Theme, selected: bool) -> Element<'a, Message> {
-    container(text(""))
-        .width(Length::Fixed(16.0))
-        .height(Length::Fixed(16.0))
-        .style(move |_theme| iced::widget::container::Style {
-            background: if selected {
-                Some(Background::Color(theme.palette.secondary))
-            } else {
-                None
-            },
-            border: Border {
-                radius: 8.0.into(),
-                width: 2.0,
-                color: if selected {
-                    theme.palette.muted_foreground
-                } else {
-                    theme.palette.foreground
-                },
-            },
-            ..Default::default()
-        })
-        .into()
-}
-
-fn checkbox_control<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    let background = theme.palette.secondary;
-    let foreground = theme.palette.foreground;
-    container(icon_badge_check().size(13))
-        .width(Length::Fixed(16.0))
-        .height(Length::Fixed(16.0))
-        .align_x(iced::alignment::Horizontal::Center)
-        .align_y(iced::alignment::Vertical::Center)
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(background)),
-            border: Border {
-                radius: 4.0.into(),
-                ..Default::default()
-            },
-            text_color: Some(foreground),
-            ..Default::default()
-        })
-        .into()
-}
-
-fn switch_control<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    container(
-        container(text(""))
-            .width(Length::Fixed(14.0))
-            .height(Length::Fixed(14.0))
-            .style(move |_theme| iced::widget::container::Style {
-                background: Some(Background::Color(theme.palette.primary)),
-                border: Border {
-                    radius: 7.0.into(),
-                    ..Default::default()
-                },
-                ..Default::default()
-            }),
-    )
-    .width(Length::Fixed(32.0))
-    .height(Length::Fixed(18.0))
-    .align_x(iced::alignment::Horizontal::Right)
-    .align_y(iced::alignment::Vertical::Center)
-    .padding(2.0)
-    .style(move |_theme| iced::widget::container::Style {
-        background: Some(Background::Color(theme.palette.secondary)),
-        border: Border {
-            radius: 9.0.into(),
-            ..Default::default()
-        },
-        text_color: Some(theme.palette.foreground),
-        ..Default::default()
-    })
     .into()
 }
 
 fn pending_badge<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    container(
-        row![
-            container(text(""))
-                .width(Length::Fixed(8.0))
-                .height(Length::Fixed(8.0))
-                .style(|_theme| iced::widget::container::Style {
-                    background: Some(Background::Color(Color::from_rgb8(0xf0, 0xb4, 0x00))),
-                    border: Border {
-                        radius: 4.0.into(),
-                        ..Default::default()
-                    },
-                    ..Default::default()
-                }),
-            semibold("Pending Setup", 13),
-        ]
-        .spacing(5)
-        .align_y(Alignment::Center),
+    badge(
+        "Pending Setup",
+        BadgeProps::new()
+            .variant(BadgeVariant::Outline)
+            .size(BadgeSize::Size2),
+        theme,
     )
-    .padding([3.0, 8.0])
-    .style(move |_theme| iced::widget::container::Style {
-        background: Some(Background::Color(Color::TRANSPARENT)),
-        border: Border {
-            radius: 16.0.into(),
-            width: 1.0,
-            color: theme.palette.border,
-        },
-        ..Default::default()
-    })
-    .into()
 }
 
-fn ui_elements_card<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    let field = container(
-        row![
-            label(theme, "Name", 14),
-            space::horizontal(),
-            icon_search().size(14)
-        ]
-        .align_y(Alignment::Center),
+fn ui_elements_card<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
+    let theme = app.theme();
+    let field = input_group(
+        vec![
+            input_group_input(
+                app.landing_name(),
+                "Name",
+                Some(Message::LandingNameChanged),
+                InputGroupInputProps::new().size(InputSize::Size2),
+                theme,
+            ),
+            input_group_addon(
+                icon_search().size(14),
+                InputGroupAddonProps::new().align(InputGroupAddonAlign::InlineEnd),
+            ),
+        ],
+        InputGroupProps::new(),
+        theme,
+    );
+    let message = textarea(
+        app.landing_message(),
+        "Message",
+        Some(Message::LandingMessageChanged),
+        TextareaProps::new()
+            .size(TextareaSize::Size2)
+            .variant(TextareaVariant::Surface)
+            .rows(2),
+        theme,
     )
-    .width(Length::Fill)
-    .padding([7.0, 12.0])
-    .style(move |_theme| iced::widget::container::Style {
-        background: Some(Background::Color(theme.palette.secondary)),
-        border: Border {
-            radius: 16.0.into(),
-            ..Border::default()
-        },
-        ..Default::default()
-    });
-    let message = container(label(theme, "Message", 14))
-        .width(Length::Fill)
-        .height(Length::Fixed(64.0))
-        .padding([12.0, 12.0])
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.secondary)),
-            border: Border {
-                radius: 16.0.into(),
-                ..Border::default()
-            },
-            ..Default::default()
-        });
+    .height(Length::Fixed(64.0));
+    let radio = radio_group(
+        Some(app.landing_radio()),
+        vec![RadioItem::new("", 0usize), RadioItem::new("", 1usize)],
+        Message::LandingRadioChanged,
+        RadioGroupProps::new()
+            .direction(RadioDirection::Horizontal)
+            .size(ControlSize::Sm),
+        theme,
+    );
     let toggles = row![
         chip("Badge", theme, ChipKind::Light),
         chip("Secondary", theme, ChipKind::Muted),
         space::horizontal(),
-        radio_control(theme, false),
-        radio_control(theme, true),
-        checkbox_control(theme),
-        switch_control(theme),
+        radio,
+        checkbox(
+            CheckboxState::from(app.landing_checkbox()),
+            Some(|state: CheckboxState| Message::LandingCheckboxChanged(state.is_checked())),
+            CheckboxProps::new(),
+            theme,
+        ),
+        switch(
+            app.landing_switch(),
+            Some(Message::LandingSwitchChanged),
+            SwitchProps::new().size(SwitchSize::Size1),
+            theme,
+        ),
     ]
     .spacing(8)
     .align_y(Alignment::Center);
+    let menu = dropdown_menu(
+        button_content(
+            icon_arrow_up().size(14),
+            Some(Message::LandingAction("quick-actions")),
+            ButtonProps::new()
+                .variant(ButtonVariant::Outline)
+                .size(ButtonSize::Size0),
+            theme,
+        ),
+        vec![
+            DropdownMenuEntry::Label("Quick Actions".into()),
+            DropdownMenuEntry::Item(DropdownMenuItem::new(
+                "Mute Conversation",
+                Some(Message::LandingAction("mute-conversation")),
+            )),
+            DropdownMenuEntry::Item(DropdownMenuItem::new(
+                "Mark as Read",
+                Some(Message::LandingAction("mark-read")),
+            )),
+            DropdownMenuEntry::Item(DropdownMenuItem::new(
+                "Block User",
+                Some(Message::LandingAction("block-user")),
+            )),
+            DropdownMenuEntry::Separator,
+            DropdownMenuEntry::Item(
+                DropdownMenuItem::new(
+                    "Delete Conversation",
+                    Some(Message::LandingAction("delete-conversation")),
+                )
+                .props(DropdownMenuItemProps::new().color(AccentColor::Red)),
+            ),
+        ],
+        DropdownMenuProps::new().width(190),
+        theme,
+    );
+    let button_group = button_group(
+        vec![
+            ButtonGroupItem::new(
+                semibold("Button Group", 14),
+                Some(Message::LandingAction("button-group")),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Size1),
+            ),
+            ButtonGroupItem::new(
+                menu,
+                None,
+                ButtonProps::new()
+                    .variant(ButtonVariant::Outline)
+                    .size(ButtonSize::Size0),
+            ),
+        ],
+        theme,
+    );
     let bottom = row![
-        button_chip("Alert Dialog", theme, ChipKind::Outline),
+        button_chip(
+            "Alert Dialog",
+            theme,
+            ChipKind::Outline,
+            Message::LandingAction("open-alert"),
+        ),
         space::horizontal(),
-        chip_with_icon("Button Group", icon_arrow_up(), theme),
+        button_group,
     ]
     .spacing(8);
 
-    card(
+    let base: Element<'a, Message> = card(
         theme,
         column![
             row![
-                primary_chip_with_icon("Button", icon_arrow_right(), theme),
-                button_chip("Secondary", theme, ChipKind::Muted),
-                button_chip("Outline", theme, ChipKind::Outline),
+                primary_chip_with_icon(
+                    "Button",
+                    icon_arrow_right(),
+                    theme,
+                    Message::LandingAction("button"),
+                ),
+                button_chip(
+                    "Secondary",
+                    theme,
+                    ChipKind::Muted,
+                    Message::LandingAction("secondary"),
+                ),
+                button_chip(
+                    "Outline",
+                    theme,
+                    ChipKind::Outline,
+                    Message::LandingAction("outline"),
+                ),
             ]
             .spacing(10),
             field,
@@ -801,27 +757,41 @@ fn ui_elements_card<'a>(theme: &'a Theme) -> Element<'a, Message> {
             toggles,
             bottom,
         ]
-        .spacing(24)
+        .spacing(18)
         .padding(22.0),
     )
     .height(Length::Fixed(318.0))
-    .into()
+    .into();
+
+    alert_dialog(
+        base,
+        app.landing_dialog_open(),
+        AlertDialogProps::new(
+            "Allow accessory to connect?",
+            "Do you want to allow the USB accessory to connect to this device and your data?",
+            Message::LandingAction("alert-confirm"),
+            Message::LandingAction("alert-cancel"),
+        )
+        .confirm_label("Allow")
+        .cancel_label("Don't allow"),
+        theme,
+    )
 }
 
 fn sidebar_nav<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    let planning = sidebar_group(
+    let planning = sidebar_group_card(
         theme,
         "Planning",
         &["Documents", "Budget", "Reports", "Goals", "Calendar"],
         None,
     );
-    let support = sidebar_group(
+    let support = sidebar_group_card(
         theme,
         "Support",
         &["Help Center", "Docs", "Contact Us", "Status", "Community"],
         None,
     );
-    let overview = sidebar_group(
+    let overview = sidebar_group_card(
         theme,
         "Overview",
         &[
@@ -833,7 +803,7 @@ fn sidebar_nav<'a>(theme: &'a Theme) -> Element<'a, Message> {
         ],
         Some(0),
     );
-    let account = sidebar_group(
+    let account = sidebar_group_card(
         theme,
         "Account",
         &[
@@ -857,43 +827,53 @@ fn sidebar_nav<'a>(theme: &'a Theme) -> Element<'a, Message> {
     .into()
 }
 
-fn sidebar_group<'a>(
+fn sidebar_group_card<'a>(
     theme: &'a Theme,
     heading: &'a str,
     values: &'a [&'a str],
     active: Option<usize>,
-) -> iced::widget::Container<'a, Message> {
-    let mut items = Column::new().spacing(12.0);
-    for (index, value) in values.iter().enumerate() {
-        let item: Element<'a, Message> = row![sidebar_icon(heading, index), text(*value).size(14)]
-            .spacing(9)
-            .align_y(Alignment::Center)
-            .into();
-        let item: Element<'a, Message> = if active == Some(index) {
-            container(item)
-                .width(Length::Fill)
-                .padding([5.0, 8.0])
-                .style(move |_theme: &iced::Theme| iced::widget::container::Style {
-                    background: Some(Background::Color(theme.palette.secondary)),
-                    border: Border {
-                        radius: 12.0.into(),
-                        ..Border::default()
-                    },
-                    ..Default::default()
-                })
-                .into()
-        } else {
-            item
-        };
-        items = items.push(item);
-    }
-    card(
-        theme,
-        column![label(theme, heading, 12), items]
-            .spacing(14)
-            .padding(20.0),
+) -> Element<'a, Message> {
+    sidebar_provider(
+        SidebarProviderProps::new(true)
+            .expanded_width(174.0)
+            .collapsed_width(174.0)
+            .animate(false),
+        None::<fn(bool) -> Message>,
+        |ctx| {
+            card(
+                theme,
+                sidebar(ctx, SidebarProps::new().border(false), theme, |ctx| {
+                    let mut entries = Vec::with_capacity(values.len());
+                    for (index, value) in values.iter().enumerate() {
+                        entries.push(sidebar_menu_item(vec![
+                            container(sidebar_icon(heading, index))
+                                .width(Length::Fixed(22.0))
+                                .center_x(Length::Fill)
+                                .into(),
+                            sidebar_menu_button(
+                                SidebarMenuButtonProps::new(*value)
+                                    .size(SidebarMenuButtonSize::Sm)
+                                    .active(active == Some(index)),
+                                Some(Message::LandingAction("sidebar-item")),
+                                ctx,
+                                theme,
+                            ),
+                        ]));
+                    }
+                    sidebar_group(
+                        ctx,
+                        SidebarGroupProps::new().spacing(8.0),
+                        vec![
+                            sidebar_group_label(SidebarGroupLabelProps::new(heading), ctx, theme),
+                            sidebar_group_content(vec![sidebar_menu(entries)]),
+                        ],
+                    )
+                }),
+            )
+            .height(Length::Fixed(226.0))
+            .into()
+        },
     )
-    .height(Length::Fixed(226.0))
 }
 
 fn sidebar_icon<'a>(heading: &str, index: usize) -> iced::widget::Text<'a> {
@@ -930,19 +910,29 @@ fn savings_targets<'a>(theme: &'a Theme) -> Element<'a, Message> {
                   achieved: &'a str,
                   achieved_amount: &'a str|
      -> Element<'a, Message> {
-        column![
-            label(theme, name, 12),
-            semibold(amount, 30),
-            progress_bar(theme, progress),
-            row![
-                label(theme, achieved, 14),
-                space::horizontal(),
-                card_title(achieved_amount, 14)
-            ],
-        ]
-        .spacing(10)
-        .padding(16.0)
-        .width(Length::Fill)
+        panel(
+            theme,
+            column![
+                item(ItemProps::new(name), theme),
+                semibold(amount, 32),
+                iced_shadcn::progress(
+                    ProgressProps::new()
+                        .value(progress * 100.0)
+                        .max(100.0)
+                        .size(ProgressSize::Size2)
+                        .variant(ProgressVariant::Surface)
+                        .color(AccentColor::Blue),
+                    theme,
+                ),
+                row![
+                    label(theme, achieved, 14),
+                    space::horizontal(),
+                    card_title(achieved_amount, 14)
+                ],
+            ]
+            .spacing(8),
+            0.0,
+        )
         .into()
     };
     card(
@@ -977,63 +967,41 @@ fn savings_targets<'a>(theme: &'a Theme) -> Element<'a, Message> {
     .into()
 }
 
-fn progress_bar<'a>(theme: &'a Theme, progress: f32) -> Element<'a, Message> {
-    let filled = container(text(""))
-        .width(Length::FillPortion((progress * 100.0) as u16))
-        .height(Length::Fixed(8.0))
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.primary)),
-            ..Default::default()
-        });
-    let remaining = container(text(""))
-        .width(Length::FillPortion(((1.0 - progress) * 100.0) as u16))
-        .height(Length::Fixed(8.0))
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.secondary)),
-            ..Default::default()
-        });
-    container(row![filled, remaining].height(Length::Fixed(8.0)))
-        .width(Length::Fill)
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.secondary)),
-            border: Border {
-                radius: 4.0.into(),
-                ..Border::default()
-            },
-            ..Default::default()
-        })
-        .into()
-}
-
 fn contribution_history<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    let amounts = [
-        ("Dec", 0.57),
-        ("Jan", 0.79),
-        ("Feb", 0.64),
-        ("Mar", 0.93),
-        ("Apr", 0.54),
-        ("May", 1.0),
-    ];
-    let mut chart = Row::new().spacing(12.0).height(Length::Fixed(200.0));
-    for (month, amount) in amounts {
-        let bar = container(text(""))
-            .width(Length::Fill)
-            .height(Length::Fixed(177.0 * amount))
-            .style(move |_theme| iced::widget::container::Style {
-                background: Some(Background::Color(theme.palette.muted_foreground)),
-                border: Border {
-                    radius: 7.0.into(),
-                    ..Border::default()
-                },
-                ..Default::default()
-            });
-        chart = chart.push(
-            column![space::vertical(), bar, label(theme, month, 12)]
-                .spacing(8.0)
-                .width(Length::Fill)
-                .align_x(Alignment::Center),
-        );
-    }
+    let contribution_chart = chart(
+        ChartProps::new()
+            .show_legend(false)
+            .show_grid(ChartGrid::new(false, false))
+            .show_x(false)
+            .height(176.0)
+            .margin([2.0, 4.0]),
+        theme,
+        |plot| {
+            BarChart::new(vec![
+                (0.0, 800.0),
+                (1.0, 1100.0),
+                (2.0, 900.0),
+                (3.0, 1300.0),
+                (4.0, 750.0),
+                (5.0, 1400.0),
+            ])
+            .label("Contributions")
+            .color(theme.palette.chart_2)
+            .bar_width(0.62)
+            .show(plot);
+        },
+    );
+    let month_labels = row![
+        label(theme, "Dec", 12),
+        label(theme, "Jan", 12),
+        label(theme, "Feb", 12),
+        label(theme, "Mar", 12),
+        label(theme, "Apr", 12),
+        label(theme, "May", 12),
+    ]
+    .spacing(12)
+    .width(Length::Fill)
+    .align_y(Alignment::Center);
     card(
         theme,
         column![
@@ -1042,21 +1010,12 @@ fn contribution_history<'a>(theme: &'a Theme) -> Element<'a, Message> {
                 label(theme, "Last 6 months of activity", 14),
             ]
             .spacing(7.0),
-            chart,
-            container(
-                row![
-                    muted_item(theme, "UPCOMING", "May 2024", "Scheduled"),
-                    muted_item(theme, "SAVINGS PLAN", "Accelerated", "Recurring"),
-                ]
-                .spacing(12.0),
-            )
-            .width(Length::Fill)
-            .padding(Padding {
-                top: 11.0,
-                right: 0.0,
-                bottom: 0.0,
-                left: 0.0,
-            }),
+            column![contribution_chart, month_labels].spacing(0),
+            row![
+                muted_item(theme, "UPCOMING", "May 2024", "Scheduled"),
+                muted_item(theme, "SAVINGS PLAN", "Accelerated", "Recurring"),
+            ]
+            .spacing(12),
             space::vertical(),
             white_button(theme, semibold("View Full Report", 14), None, Length::Fill,),
         ]
@@ -1078,60 +1037,33 @@ fn muted_item<'a>(
     title: &'a str,
     detail: &'a str,
 ) -> Element<'a, Message> {
-    container(
+    panel(
+        theme,
         column![
             label(theme, eyebrow, 11),
             card_title(title, 16),
             label(theme, detail, 14),
         ]
-        .spacing(5.0),
+        .spacing(5.0)
+        .padding(16.0),
+        0.0,
     )
-    .width(Length::Fill)
-    .padding(16.0)
-    .style(move |_theme| iced::widget::container::Style {
-        background: Some(Background::Color(theme.palette.secondary)),
-        border: Border {
-            radius: 16.0.into(),
-            ..Border::default()
-        },
-        ..Default::default()
-    })
     .height(Length::Fixed(100.0))
     .into()
 }
 
 fn claimable_balance<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    let details = container(
+    let details = panel(
+        theme,
         column![
-            row![
-                label(theme, "Net Royalties", 14),
-                space::horizontal(),
-                card_title("1,248.75", 14)
-            ],
-            row![
-                label(theme, "Processing Fee", 14),
-                space::horizontal(),
-                card_title("-37.46", 14)
-            ],
-            horizontal_divider(theme),
-            row![
-                label(theme, "Total Ready to Claim", 14),
-                space::horizontal(),
-                card_title("1,211.29 USD", 14)
-            ],
+            detail_item(theme, "Net Royalties", "1,248.75"),
+            detail_item(theme, "Processing Fee", "-37.46"),
+            separator(SeparatorProps::new(), theme),
+            detail_item(theme, "Total Ready to Claim", "1,211.29 USD"),
         ]
-        .spacing(12.0),
-    )
-    .padding(16.0)
-    .width(Length::Fill)
-    .style(move |_theme| iced::widget::container::Style {
-        background: Some(Background::Color(theme.palette.secondary)),
-        border: Border {
-            radius: 16.0.into(),
-            ..Border::default()
-        },
-        ..Default::default()
-    });
+        .spacing(4),
+        16.0,
+    );
     card(
         theme,
         column![
@@ -1148,48 +1080,51 @@ fn claimable_balance<'a>(theme: &'a Theme) -> Element<'a, Message> {
     .into()
 }
 
-fn dividend_income<'a>(theme: &'a Theme) -> Element<'a, Message> {
+fn detail_item<'a>(theme: &'a Theme, title: &'a str, description: &'a str) -> Element<'a, Message> {
+    item(ItemProps::new(title).description(description), theme)
+}
+
+fn dividend_income<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
+    let theme = app.theme();
     let holdings = [
-        ("Vanguard", "450 Shares", [0.55, 0.72, 0.58, 0.9]),
-        ("S&P 500 VOO", "112 Shares", [0.4, 0.56, 0.82, 0.6]),
-        ("Apple AAPL", "85 Shares", [0.3, 0.42, 0.68, 0.48]),
-        ("Reality Income", "320 Shares", [0.2, 0.35, 0.48, 0.72]),
+        ("Vanguard", "450 Shares", [380.0, 420.0, 390.0, 652.0]),
+        ("S&P 500 VOO", "112 Shares", [180.0, 210.0, 320.0, 218.0]),
+        ("Apple AAPL", "85 Shares", [60.0, 70.0, 120.0, 90.0]),
+        ("Realty Income", "320 Shares", [240.0, 260.0, 280.0, 360.0]),
     ];
     let mut list = Column::new().spacing(12.0);
     for (name, shares, bars) in holdings {
-        let mut bar_row = Row::new().spacing(4.0).align_y(Alignment::End);
-        for height in bars {
-            bar_row = bar_row.push(
-                container(text(""))
-                    .width(Length::Fixed(22.0))
-                    .height(Length::Fixed(32.0 * height))
-                    .style(move |_theme| iced::widget::container::Style {
-                        background: Some(Background::Color(theme.palette.muted_foreground)),
-                        border: Border {
-                            radius: 5.0.into(),
-                            ..Border::default()
-                        },
-                        ..Default::default()
-                    }),
-            );
-        }
-        list = list.push(
-            container(row![
-                column![card_title(name, 14), label(theme, shares, 13)].spacing(4.0),
-                space::horizontal(),
-                bar_row,
-            ])
-            .width(Length::Fill)
-            .padding(14.0)
-            .style(move |_theme| iced::widget::container::Style {
-                background: Some(Background::Color(theme.palette.secondary)),
-                border: Border {
-                    radius: 16.0.into(),
-                    ..Border::default()
-                },
-                ..Default::default()
-            }),
+        let holding_chart = chart(
+            ChartProps::new()
+                .show_legend(false)
+                .show_grid(ChartGrid::new(false, false))
+                .show_x(false)
+                .height(32.0)
+                .margin([0.0, 0.0]),
+            theme,
+            |plot| {
+                BarChart::new(vec![
+                    (0.0, bars[0]),
+                    (1.0, bars[1]),
+                    (2.0, bars[2]),
+                    (3.0, bars[3]),
+                ])
+                .color(theme.palette.chart_2)
+                .bar_width(0.72)
+                .show(plot);
+            },
         );
+        list = list.push(panel(
+            theme,
+            row![
+                container(item(ItemProps::new(name).description(shares), theme))
+                    .width(Length::Fill),
+                holding_chart,
+            ]
+            .spacing(10)
+            .align_y(Alignment::Center),
+            0.0,
+        ));
     }
     card(
         theme,
@@ -1197,7 +1132,14 @@ fn dividend_income<'a>(theme: &'a Theme) -> Element<'a, Message> {
             row![
                 card_title("Q2 Dividend Income", 17),
                 space::horizontal(),
-                muted_icon_button(theme, icon_x()),
+                icon_button(
+                    icon_x(),
+                    Some(Message::LandingAction("dismiss-dividend")),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Ghost)
+                        .size(ButtonSize::Size0),
+                    theme,
+                ),
             ],
             label(
                 theme,
@@ -1299,89 +1241,95 @@ fn qr_connect<'a>(theme: &'a Theme) -> Element<'a, Message> {
     .into()
 }
 
-fn muted_icon_button<'a>(theme: &'a Theme, icon: iced::widget::Text<'a>) -> Element<'a, Message> {
-    container(icon.size(16))
-        .width(Length::Fixed(28.0))
-        .height(Length::Fixed(28.0))
-        .align_x(iced::alignment::Horizontal::Center)
-        .align_y(iced::alignment::Vertical::Center)
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.secondary)),
-            border: Border {
-                radius: 16.0.into(),
-                ..Border::default()
-            },
-            ..Default::default()
-        })
-        .into()
-}
-
-fn transfer_funds<'a>(theme: &'a Theme) -> Element<'a, Message> {
-    let field = |title: &'a str, value: &'a str| -> Element<'a, Message> {
-        column![
-            card_title(title, 14),
-            container(text(value).size(14))
-                .width(Length::Fill)
-                .padding([7.0, 12.0])
-                .style(move |_theme| iced::widget::container::Style {
-                    background: Some(Background::Color(theme.palette.secondary)),
-                    border: Border {
-                        radius: 16.0.into(),
-                        ..Border::default()
-                    },
-                    ..Default::default()
-                })
-        ]
-        .spacing(8.0)
-        .into()
-    };
-    let summary = container(
-        column![
-            row![
-                label(theme, "Estimated arrival", 14),
-                space::horizontal(),
-                card_title("Today, Apr 14", 14)
-            ],
-            horizontal_divider(theme),
-            row![
-                label(theme, "Transaction fee", 14),
-                space::horizontal(),
-                card_title("$0.00", 14)
-            ],
-            horizontal_divider(theme),
-            row![
-                card_title("Total amount", 14),
-                space::horizontal(),
-                card_title("$1,200.00", 14)
-            ],
-        ]
-        .spacing(12.0),
+fn transfer_funds<'a>(app: &'a PreviewApp) -> Element<'a, Message> {
+    let theme = app.theme();
+    const FROM_ACCOUNTS: [&str; 2] = [
+        "Main Checking (...8402) — $12,450.00",
+        "Business (...7731) — $8,920.00",
+    ];
+    const TO_ACCOUNTS: [&str; 2] = [
+        "High Yield Savings (...1192) — $42,100.00",
+        "Investment (...3349) — $18,200.00",
+    ];
+    let from = FROM_ACCOUNTS
+        .iter()
+        .copied()
+        .find(|value| *value == app.landing_from_account());
+    let to = TO_ACCOUNTS
+        .iter()
+        .copied()
+        .find(|value| *value == app.landing_to_account());
+    let amount = input_group(
+        vec![
+            input_group_addon(text("$").size(14), InputGroupAddonProps::new()),
+            input_group_input(
+                app.landing_amount(),
+                "1,200.00",
+                Some(Message::LandingAmountChanged),
+                InputGroupInputProps::new().size(InputSize::Size2),
+                theme,
+            ),
+        ],
+        InputGroupProps::new(),
+        theme,
+    );
+    let from_account = select(
+        &FROM_ACCOUNTS,
+        from,
+        "Select account",
+        |value: &str| Message::LandingFromAccountChanged(value.to_owned()),
+        SelectProps::new().size(SelectSize::Size2),
+        theme,
     )
-    .width(Length::Fill)
-    .padding(16.0)
-    .style(move |_theme| iced::widget::container::Style {
-        background: Some(Background::Color(theme.palette.secondary)),
-        border: Border {
-            radius: 16.0.into(),
-            ..Border::default()
-        },
-        ..Default::default()
-    });
+    .width(Length::Fill);
+    let to_account = select(
+        &TO_ACCOUNTS,
+        to,
+        "Select account",
+        |value: &str| Message::LandingToAccountChanged(value.to_owned()),
+        SelectProps::new().size(SelectSize::Size2),
+        theme,
+    )
+    .width(Length::Fill);
+    let summary = panel(
+        theme,
+        column![
+            detail_item(theme, "Estimated arrival", "Today, Apr 14"),
+            separator(SeparatorProps::new(), theme),
+            detail_item(theme, "Transaction fee", "$0.00"),
+            separator(SeparatorProps::new(), theme),
+            detail_item(theme, "Total amount", "$1,200.00"),
+        ]
+        .spacing(4),
+        16.0,
+    );
     card(
         theme,
         column![
             row![
                 card_title("Transfer Funds", 17),
                 space::horizontal(),
-                muted_icon_button(theme, icon_x())
+                icon_button(
+                    icon_x(),
+                    Some(Message::LandingAction("dismiss-transfer")),
+                    ButtonProps::new()
+                        .variant(ButtonVariant::Ghost)
+                        .size(ButtonSize::Size0),
+                    theme,
+                )
             ],
             label(theme, "Move money between your connected accounts.", 14),
-            field("Amount to Transfer", "$ 1,200.00"),
-            field("From Account", "Main Checking (...8402) — $12,450.00"),
-            field("To Account", "High Yield Savings (...1192) — $42,100.00"),
+            column![card_title("Amount to Transfer", 14), amount].spacing(8),
+            column![card_title("From Account", 14), from_account].spacing(8),
+            column![card_title("To Account", 14), to_account].spacing(8),
             summary,
             space::vertical(),
-            white_button(theme, semibold("Confirm Transfer", 14), None, Length::Fill,),
+            white_button(
+                theme,
+                semibold("Confirm Transfer", 14),
+                Some(Message::LandingAction("confirm-transfer")),
+                Length::Fill,
+            ),
         ]
         .spacing(14.0)
         .padding(20.0),
@@ -1397,37 +1345,71 @@ fn payments<'a>(theme: &'a Theme) -> Element<'a, Message> {
             "Scheduled transfers" => icon_calendar(),
             _ => icon_refresh_cw(),
         };
-        container(
+        button_content(
             row![
                 leading_icon.size(16),
-                column![card_title(title, 14), label(theme, description, 13)].spacing(4.0),
-                space::horizontal(),
+                container(item(ItemProps::new(title).description(description), theme))
+                    .width(Length::Fill),
                 icon_arrow_right().size(16),
             ]
-            .spacing(10.0),
+            .spacing(10),
+            Some(Message::LandingAction("payment-action")),
+            ButtonProps::new()
+                .variant(ButtonVariant::Secondary)
+                .size(ButtonSize::Size3),
+            theme,
         )
         .width(Length::Fill)
-        .padding(16.0)
-        .style(move |_theme| iced::widget::container::Style {
-            background: Some(Background::Color(theme.palette.secondary)),
-            border: Border {
-                radius: 16.0.into(),
-                ..Border::default()
-            },
-            ..Default::default()
-        })
     };
+    let breadcrumbs = breadcrumb(theme, BreadcrumbProps::new().text_size(14.0), |ctx| {
+        let account_menu = dropdown_menu(
+            button_content(
+                icon_ellipsis().size(16),
+                Some(Message::LandingAction("account-options")),
+                ButtonProps::new()
+                    .variant(ButtonVariant::Ghost)
+                    .size(ButtonSize::Size0),
+                theme,
+            ),
+            vec![
+                DropdownMenuEntry::Item(DropdownMenuItem::new(
+                    "Profile",
+                    Some(Message::LandingAction("profile")),
+                )),
+                DropdownMenuEntry::Item(DropdownMenuItem::new(
+                    "Statements",
+                    Some(Message::LandingAction("statements")),
+                )),
+                DropdownMenuEntry::Item(DropdownMenuItem::new(
+                    "Documents",
+                    Some(Message::LandingAction("documents")),
+                )),
+            ],
+            DropdownMenuProps::new().width(160),
+            theme,
+        );
+        breadcrumb_list(
+            ctx,
+            vec![
+                breadcrumb_item(
+                    ctx,
+                    vec![breadcrumb_link(
+                        "Home",
+                        Some(Message::LandingAction("breadcrumb-home")),
+                        ctx,
+                    )],
+                ),
+                breadcrumb_separator(ctx, None),
+                breadcrumb_item(ctx, vec![account_menu]),
+                breadcrumb_separator(ctx, None),
+                breadcrumb_item(ctx, vec![breadcrumb_page("Payments", ctx)]),
+            ],
+        )
+    });
     card(
         theme,
         column![
-            row![
-                label(theme, "Home", 14),
-                icon_chevron_right().size(14),
-                icon_ellipsis().size(15),
-                icon_chevron_right().size(14),
-                space::horizontal(),
-                card_title("Payments", 14)
-            ],
+            breadcrumbs,
             payment(
                 "Change transfer limit",
                 "Adjust how much you can send from your balance."
@@ -1502,10 +1484,9 @@ fn footer_link<'a>(
     size: f32,
     color: Color,
 ) -> Element<'a, Message> {
-    let content = Rich::<(), Message>::with_spans(vec![
-        Span::new(label).color(color).underline(hovered),
-    ])
-    .size(size);
+    let content =
+        Rich::<(), Message>::with_spans(vec![Span::new(label).color(color).underline(hovered)])
+            .size(size);
 
     mouse_area(content)
         .on_press(Message::OpenUrl(url))

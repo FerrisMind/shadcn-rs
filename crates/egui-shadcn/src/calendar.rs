@@ -601,7 +601,7 @@ where
                                     cell_painter.rect_stroke(
                                         cell_rect.shrink(0.5),
                                         CornerRadius::same(4),
-                                        Stroke::new(1.0, theme.palette.primary),
+                                        Stroke::new(1.0_f32, theme.palette.primary),
                                         egui::StrokeKind::Inside,
                                     );
                                 }

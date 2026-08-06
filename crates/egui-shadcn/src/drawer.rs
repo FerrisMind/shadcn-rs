@@ -121,7 +121,7 @@ pub fn drawer<R>(
 
             let frame = Frame::popup(area_ui.style())
                 .fill(theme.palette.background)
-                .stroke(egui::Stroke::new(1.0, theme.palette.border))
+                .stroke(egui::Stroke::new(1.0_f32, theme.palette.border))
                 .corner_radius(rounding);
 
             frame.show(area_ui, |content_ui| {

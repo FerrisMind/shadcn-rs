@@ -1,0 +1,46 @@
+[package]
+name = "iced-shadcn-v2"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+readme = "README.md"
+description = "Builder-first shadcn-inspired component kit for iced (v2 API)"
+documentation = "https://docs.rs/iced-shadcn-v2"
+keywords = ["iced", "ui", "components", "shadcn", "radix"]
+categories = ["gui", "visualization", "rendering::graphics-api"]
+
+include = [
+    "src/**/*",
+    "Cargo.toml",
+    "/README.md",
+    "LICENSE*",
+]
+
+[dependencies]
+chorale-core = { workspace = true }
+iced_core = { version = "0.14", default-features = false, features = ["advanced"] }
+iced_widget = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image"] }
+iced_renderer = { version = "0.14", default-features = false, optional = true }
+emojis = "0.9"
+shadcn-common = { workspace = true, features = ["fonts", "syntax"] }
+twill-core = { workspace = true }
+serde = { version = "1", features = ["derive"], optional = true }
+rfd = { version = "0.16", optional = true }
+
+[dev-dependencies]
+iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image", "wgpu", "tiny-skia", "thread-pool", "tokio", "x11", "wayland"] }
+
+[features]
+default = ["wgpu", "tiny-skia"]
+wgpu = ["iced_widget/wgpu"]
+tiny-skia = [
+    "dep:iced_renderer",
+    "iced_renderer/tiny-skia",
+    "iced_renderer/x11",
+    "iced_renderer/wayland",
+]
+serde = ["dep:serde", "shadcn-common/serde"]
+rfd = ["dep:rfd"]
