@@ -32,6 +32,28 @@
 - `iced-shadcn-v2` — iced components, **v2 builder-first** API; does not depend on v1 (see `crates/iced-shadcn-v2/README.md`).
 - `shadcn-common` — shared design tokens, style packs, and backend-agnostic helpers for egui/iced (see `crates/shadcn-common/README.md`).
 
+## Demos (iced-shadcn v1)
+
+These desktop apps use the **v1** (`iced-shadcn`) props-first API and are still **under development**. See also [issue #5](https://github.com/FerrisMind/shadcn-rs/issues/5).
+
+### Nova Code
+
+Minimal VS Code–style editor UI on iced.
+
+https://github.com/user-attachments/assets/04ddafcb-adf1-42fa-bb0e-97676792973b
+
+### Zver
+
+Minimal desktop browser using system web engines via wry.
+
+https://github.com/user-attachments/assets/0afa7180-efd5-496e-8f28-5a371fe2a12d
+
+### NeuroLang
+
+Local desktop translator (text for now; more formats planned).
+
+https://github.com/user-attachments/assets/e4908f23-5f14-486b-8200-9164f4136322
+
 ## License
 Dual-licensed under [MIT](https://opensource.org/licenses/MIT) OR [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) (see workspace `Cargo.toml`).
 

@@ -27,6 +27,28 @@
 - Гайд по теме и токенам
 - Примеры использования и лучшие практики
 
+## Демо
+
+Desktop-приложения на этом **v1** props-first крейте. Они пока **находятся в разработке**. Подробнее: [issue #5](https://github.com/FerrisMind/shadcn-rs/issues/5).
+
+### Nova Code
+
+Минималистичный редактор в духе VS Code на iced.
+
+https://github.com/user-attachments/assets/04ddafcb-adf1-42fa-bb0e-97676792973b
+
+### Zver
+
+Минималистичный desktop-браузер на системных web-движках через wry.
+
+https://github.com/user-attachments/assets/0afa7180-efd5-496e-8f28-5a371fe2a12d
+
+### NeuroLang
+
+Локальный desktop-переводчик (сейчас текст; другие форматы в планах).
+
+https://github.com/user-attachments/assets/e4908f23-5f14-486b-8200-9164f4136322
+
 ## Empty
 
 Композиционный пример для `Empty` в той же структуре, что и в `shadcn-svelte`:

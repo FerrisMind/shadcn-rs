@@ -27,6 +27,28 @@ Este crate está **em desenvolvimento ativo**. A API pública, o modelo de tema 
 - Guia de temas e tokens
 - Exemplos de uso e boas práticas
 
+## Demos
+
+Apps desktop feitos com este crate **v1** props-first. Ainda estão **em desenvolvimento**. Mais contexto: [issue #5](https://github.com/FerrisMind/shadcn-rs/issues/5).
+
+### Nova Code
+
+Editor minimalista no estilo VS Code em iced.
+
+https://github.com/user-attachments/assets/04ddafcb-adf1-42fa-bb0e-97676792973b
+
+### Zver
+
+Navegador desktop minimalista com engines web do sistema via wry.
+
+https://github.com/user-attachments/assets/0afa7180-efd5-496e-8f28-5a371fe2a12d
+
+### NeuroLang
+
+Tradutor desktop local (texto por enquanto; outros formatos planejados).
+
+https://github.com/user-attachments/assets/e4908f23-5f14-486b-8200-9164f4136322
+
 ## Licença
 
 MIT

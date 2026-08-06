@@ -37,6 +37,28 @@ This crate is **under active development**. Public API, theming model, and compo
 - Theming guide and tokens
 - Usage examples and best practices
 
+## Demos
+
+Desktop apps built with this **v1** props-first crate. They are still **under development**. More context: [issue #5](https://github.com/FerrisMind/shadcn-rs/issues/5).
+
+### Nova Code
+
+Minimal VS Code–style editor UI on iced.
+
+https://github.com/user-attachments/assets/04ddafcb-adf1-42fa-bb0e-97676792973b
+
+### Zver
+
+Minimal desktop browser using system web engines via wry.
+
+https://github.com/user-attachments/assets/0afa7180-efd5-496e-8f28-5a371fe2a12d
+
+### NeuroLang
+
+Local desktop translator (text for now; more formats planned).
+
+https://github.com/user-attachments/assets/e4908f23-5f14-486b-8200-9164f4136322
+
 ## Tabs
 
 Minimal example using the new Tabs API:
