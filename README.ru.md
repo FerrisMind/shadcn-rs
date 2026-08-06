@@ -12,7 +12,7 @@
 
 > Переводы: [![EN](https://img.shields.io/badge/EN-README-black)](README.md) [![PT-BR](https://img.shields.io/badge/PT--BR-README-green)](README.pt-BR.md)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
 [![egui-shadcn](https://img.shields.io/crates/v/egui-shadcn?label=egui-shadcn)](https://crates.io/crates/egui-shadcn)
 [![iced-shadcn](https://img.shields.io/crates/v/iced-shadcn?label=iced-shadcn)](https://crates.io/crates/iced-shadcn)
 [![iced-shadcn-v2](https://img.shields.io/crates/v/iced-shadcn-v2?label=iced-shadcn-v2)](https://crates.io/crates/iced-shadcn-v2)
@@ -24,21 +24,23 @@
 
 ## Кратко
 - Workspace под библиотеки в стиле shadcn на Rust.
+- Два публичных стиля API: **props-first** (`*Props` / свободные функции) и **builder-first** (цепочки `Component::new(…).variant(…)`).
+- Темизация и style packs в `shadcn-common` построены на [`twill`](https://github.com/FerrisMind/twill).
 
 ## Крейты
-- `crates/egui-shadcn` — компоненты для egui (см. `crates/egui-shadcn/README.md`).
-- `crates/iced-shadcn` — компоненты для iced, API v1 (см. `crates/iced-shadcn/README.md`).
-- `crates/iced-shadcn-v2` — builder-first компоненты для iced, API v2; не зависит от v1 (см. `crates/iced-shadcn-v2/README.md`).
-- `crates/shadcn-common` — общие design tokens, style packs и backend-agnostic хелперы для egui/iced (см. `crates/shadcn-common/README.md`).
+- `egui-shadcn` — компоненты для egui, **props-first** API (поверх props есть тонкие builder-обёртки; см. `crates/egui-shadcn/README.md`).
+- `iced-shadcn` — компоненты для iced, **v1 props-first** API (см. `crates/iced-shadcn/README.md`).
+- `iced-shadcn-v2` — компоненты для iced, **v2 builder-first** API; не зависит от v1 (см. `crates/iced-shadcn-v2/README.md`).
+- `shadcn-common` — общие design tokens, style packs и backend-agnostic хелперы для egui/iced (см. `crates/shadcn-common/README.md`).
 
 ## Лицензия
-MIT (см. workspace `Cargo.toml`).
+Двойная лицензия: [MIT](https://opensource.org/licenses/MIT) OR [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) (см. workspace `Cargo.toml`).
 
 ## Благодарности
-- egui — immediate-mode GUI фреймворк для крейта egui-shadcn.
-- iced — retained-mode GUI фреймворк для крейтов iced-shadcn и iced-shadcn-v2.
-- twill — style packs и ядро design tokens для `shadcn-common`.
-- Lucide Icons — набор иконок, используемый через `lucide-icons`.
-- Radix UI — паттерны взаимодействия и доступности.
-- shadcn/ui — дизайн-язык и вдохновение для компонентов.
+- [egui](https://github.com/emilk/egui) — immediate-mode GUI фреймворк для крейта egui-shadcn.
+- [iced](https://github.com/iced-rs/iced) — retained-mode GUI фреймворк для крейтов iced-shadcn и iced-shadcn-v2.
+- [Lucide Icons](https://github.com/lucide-icons/lucide) — набор иконок, используемый через `lucide-icons`.
+- [Radix UI](https://github.com/radix-ui/primitives) — паттерны взаимодействия и доступности.
+- [shadcn/ui](https://github.com/shadcn-ui/ui) — дизайн-язык и вдохновение для компонентов.
+- [shadcn-svelte](https://github.com/huntabyte/shadcn-svelte) — порт shadcn/ui на Svelte; референс паттернов компонентов и формы API.
 

@@ -11,7 +11,7 @@
 
 > Translations: [![RU](https://img.shields.io/badge/RU-README-blue)](README.ru.md) [![PT-BR](https://img.shields.io/badge/PT--BR-README-green)](README.pt-BR.md)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses/MIT)
 [![egui-shadcn](https://img.shields.io/crates/v/egui-shadcn?label=egui-shadcn)](https://crates.io/crates/egui-shadcn)
 [![iced-shadcn](https://img.shields.io/crates/v/iced-shadcn?label=iced-shadcn)](https://crates.io/crates/iced-shadcn)
 [![iced-shadcn-v2](https://img.shields.io/crates/v/iced-shadcn-v2?label=iced-shadcn-v2)](https://crates.io/crates/iced-shadcn-v2)
@@ -23,20 +23,22 @@
 
 ## Overview
 - Rust workspace for shadcn-style UI component libraries.
+- Two public API styles: **props-first** (`*Props` / free functions) and **builder-first** (fluent `Component::new(…).variant(…)` chains).
+- Theming and style packs in `shadcn-common` are built on [`twill`](https://github.com/FerrisMind/twill).
 
 ## Crates
-- `crates/egui-shadcn` — egui components (see `crates/egui-shadcn/README.md`).
-- `crates/iced-shadcn` — iced components, v1 API (see `crates/iced-shadcn/README.md`).
-- `crates/iced-shadcn-v2` — builder-first iced components, v2 API; does not depend on v1 (see `crates/iced-shadcn-v2/README.md`).
-- `crates/shadcn-common` — shared design tokens, style packs, and backend-agnostic helpers for egui/iced (see `crates/shadcn-common/README.md`).
+- `egui-shadcn` — egui components, **props-first** API (some thin builder wrappers on top of props; see `crates/egui-shadcn/README.md`).
+- `iced-shadcn` — iced components, **v1 props-first** API (see `crates/iced-shadcn/README.md`).
+- `iced-shadcn-v2` — iced components, **v2 builder-first** API; does not depend on v1 (see `crates/iced-shadcn-v2/README.md`).
+- `shadcn-common` — shared design tokens, style packs, and backend-agnostic helpers for egui/iced (see `crates/shadcn-common/README.md`).
 
 ## License
-MIT (see workspace `Cargo.toml`).
+Dual-licensed under [MIT](https://opensource.org/licenses/MIT) OR [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) (see workspace `Cargo.toml`).
 
 ## Acknowledgements
-- egui — immediate-mode GUI framework for the egui-shadcn crate.
-- iced — retained-mode GUI framework for the iced-shadcn and iced-shadcn-v2 crates.
-- twill — style packs and design-token core used by `shadcn-common`.
-- Lucide Icons — icon set used via `lucide-icons`.
-- Radix UI — interaction patterns and accessibility cues.
-- shadcn/ui — design language and component inspiration.
+- [egui](https://github.com/emilk/egui) — immediate-mode GUI framework for the egui-shadcn crate.
+- [iced](https://github.com/iced-rs/iced) — retained-mode GUI framework for the iced-shadcn and iced-shadcn-v2 crates.
+- [Lucide Icons](https://github.com/lucide-icons/lucide) — icon set used via `lucide-icons`.
+- [Radix UI](https://github.com/radix-ui/primitives) — interaction patterns and accessibility cues.
+- [shadcn/ui](https://github.com/shadcn-ui/ui) — design language and component inspiration.
+- [shadcn-svelte](https://github.com/huntabyte/shadcn-svelte) — Svelte port of shadcn/ui; reference for component patterns and API shape.
