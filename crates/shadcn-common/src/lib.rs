@@ -43,6 +43,7 @@ pub mod syntax;
 pub mod theme;
 pub mod toast;
 pub mod transition;
+pub mod tree;
 pub mod typography;
 pub mod value_mapping;
 
@@ -236,6 +237,11 @@ pub use syntax::{
 };
 pub use theme::{ResolvedTheme, SemanticThemeTable};
 pub use transition::{Easing, TransitionValue};
+pub use tree::{
+    FolderState, TreeFile, TreeFolder, TreeIconKey, TreeNode, TreeNodeId, TreeNodeIdError,
+    TreeOrdering, TreeValidationError, TreeViewAction, TreeViewState, VisibleTreeNode,
+    flatten_visible, flatten_visible_ordered, truncate_tree_label, validate_tree,
+};
 pub use typography::{FontHeading, FontId, FontPack};
 pub use value_mapping::{
     ValueRange, closest_index, decrement, finite_or_zero, fraction, increment, max_value_at_index,

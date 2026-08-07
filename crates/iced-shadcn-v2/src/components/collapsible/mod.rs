@@ -496,6 +496,8 @@ pub struct CollapsibleTrigger<'a, Message> {
     indicator: Option<CollapsibleIndicator>,
     indicator_placement: CollapsibleIndicatorPlacement,
     gap: Option<f32>,
+    height: Option<Length>,
+    padding: Option<crate::iced_compat::Padding>,
     on_press: Option<Message>,
     style_override: Option<
         Box<dyn Fn(button_widget::Style, button_widget::Status) -> button_widget::Style + 'a>,
@@ -532,6 +534,8 @@ impl<Message> fmt::Debug for CollapsibleTrigger<'_, Message> {
             .field("indicator", &self.indicator)
             .field("indicator_placement", &self.indicator_placement)
             .field("gap", &self.gap)
+            .field("height", &self.height)
+            .field("padding", &self.padding)
             .field("on_press", &self.on_press.is_some())
             .field("style_override", &self.style_override.is_some())
             .finish()
@@ -590,6 +594,8 @@ impl<'a, Message> CollapsibleTrigger<'a, Message> {
             indicator: None,
             indicator_placement: CollapsibleIndicatorPlacement::default(),
             gap: None,
+            height: None,
+            padding: None,
             on_press: None,
             style_override: None,
         }
@@ -665,6 +671,24 @@ impl<'a, Message> CollapsibleTrigger<'a, Message> {
     pub fn gap(mut self, gap: f32) -> Self {
         self.gap = Some(geometry::normalize_px(gap));
         self
+    }
+
+    /// Sets the trigger height independently from its style-pack size.
+    pub fn height(mut self, height: impl Into<Length>) -> Self {
+        self.height = Some(height.into());
+        self
+    }
+
+    /// Sets all supported sides of the trigger button padding.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`CollapsibleBuildError`] when any padding side contains a
+    /// custom variable or `auto` value. The builder is consumed either way;
+    /// rebuild the trigger with a supported padding to recover.
+    pub fn padding(mut self, padding: Padding) -> Result<Self, CollapsibleBuildError> {
+        self.padding = Some(geometry::resolve_padding(padding)?);
+        Ok(self)
     }
 
     /// Overrides the message this trigger emits.

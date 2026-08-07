@@ -143,6 +143,8 @@ where
         indicator,
         indicator_placement,
         gap,
+        height,
+        padding,
         on_press,
         style_override,
     } = trigger;
@@ -191,6 +193,14 @@ where
 
     if full_width {
         button = button.full_width();
+    }
+
+    if let Some(height) = height {
+        button = button.height(height);
+    }
+
+    if let Some(padding) = padding {
+        button = button.padding_resolved(padding);
     }
 
     if let Some(radius) = radius {

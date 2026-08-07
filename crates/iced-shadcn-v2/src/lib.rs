@@ -466,6 +466,10 @@ pub use components::toggle_group::{
     ToggleGroupSelection, ToggleGroupSize, ToggleGroupType, ToggleGroupValue, ToggleGroupVariant,
 };
 pub use components::tooltip::{Tooltip, TooltipAlign, TooltipSide, TooltipStyle};
+pub use components::tree_view::{
+    TreeIconRenderer, TreeNavigationPolicy, TreeScrollbarPolicy, TreeSelectionMode, TreeView,
+    TreeViewBuildError, TreeViewMeasurement, TreeViewRenderMode, tree_view,
+};
 pub use components::typography::{Typography, TypographyList, TypographyTable, TypographyVariant};
 pub use fonts::{ALL_FACES, iced_font};
 pub use theme::{Palette, Theme};
@@ -474,17 +478,20 @@ pub use shadcn_common::{
     ACCEPT_AUDIO, ACCEPT_IMAGE, ACCEPT_VIDEO, AccentColor, BYTE, BaseColor, ComponentRadius,
     ControlSize, CountryCode, DEFAULT_TRIGGER_LABEL, DateParts, DetailedPhoneValue, Direction,
     FileCandidate, FileDropZoneConfig, FileRejectedReason, FloatingPadding, FloatingSticky,
-    FontHeading, FontId, FontPack, FontWeight, GIGABYTE, KILOBYTE, MEGABYTE, MenuActivateKind,
-    MenuItemVariant, MeterConfig, MeterFillTone, Orientation, PasswordAction, PasswordScore,
-    PasswordState, PasswordStrength as PasswordStrengthResult, PhoneCountry, PhoneInputOptions,
-    RadiusId, RadiusScale, ResolvedTheme, SelectMode, StarRatingConfig, StarRatingItem,
-    StarRatingItemState, StarRatingKey, StarRatingKeyEffect, StyleId, StylePack, ThemeMode,
-    TypeRecipe, apply_country_change, apply_input_change, clamp_meter_value, default_country_order,
+    FolderState, FontHeading, FontId, FontPack, FontWeight, GIGABYTE, KILOBYTE, MEGABYTE,
+    MenuActivateKind, MenuItemVariant, MeterConfig, MeterFillTone, Orientation, PasswordAction,
+    PasswordScore, PasswordState, PasswordStrength as PasswordStrengthResult, PhoneCountry,
+    PhoneInputOptions, RadiusId, RadiusScale, ResolvedTheme, SelectMode, StarRatingConfig,
+    StarRatingItem, StarRatingItemState, StarRatingKey, StarRatingKeyEffect, StyleId, StylePack,
+    ThemeMode, TreeFile, TreeFolder, TreeIconKey, TreeNode, TreeNodeId, TreeNodeIdError,
+    TreeOrdering, TreeValidationError, TreeViewAction, TreeViewState, TypeRecipe, VisibleTreeNode,
+    apply_country_change, apply_input_change, clamp_meter_value, default_country_order,
     display_size, estimate_password_strength, file_drop_zone_can_upload,
-    file_drop_zone_default_hint, file_drop_zone_recipe, format_phone_value, guess_mime,
-    is_phone_valid, matches_sidebar_shortcut, meter_fill_tone, meter_ratio, meter_recipe,
-    meter_value_label, parse_phone_input, password_reduce, phone_countries, phone_country,
-    phone_input_recipe, should_accept_file, sort_countries,
+    file_drop_zone_default_hint, file_drop_zone_recipe, flatten_visible, flatten_visible_ordered,
+    format_phone_value, guess_mime, is_phone_valid, matches_sidebar_shortcut, meter_fill_tone,
+    meter_ratio, meter_recipe, meter_value_label, parse_phone_input, password_reduce,
+    phone_countries, phone_country, phone_input_recipe, should_accept_file, sort_countries,
+    truncate_tree_label, validate_tree,
 };
 
 /// Semantic color slots resolved by [`Theme::semantic_color`].

@@ -14,6 +14,7 @@ categories = ["gui", "visualization", "rendering::graphics-api"]
 
 include = [
     "src/**/*",
+    "examples/**/*",
     "Cargo.toml",
     "/README.md",
     "LICENSE*",

@@ -73,4 +73,5 @@ pub mod textarea;
 pub mod toggle;
 pub mod toggle_group;
 pub mod tooltip;
+pub mod tree_view;
 pub mod typography;

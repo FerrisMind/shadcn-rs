@@ -233,6 +233,13 @@ impl<'a, Message> Button<'a, Message> {
         self
     }
 
+    /// Applies already-resolved iced padding, used by sibling components that
+    /// validate padding through their own geometry helpers.
+    pub(crate) fn padding_resolved(mut self, padding: crate::iced_compat::Padding) -> Self {
+        self.padding = Some(padding);
+        self
+    }
+
     /// Shows an animated spinner to the left of the label and disables press.
     ///
     /// Icon-only buttons replace their glyph with the spinner.
