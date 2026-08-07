@@ -40,6 +40,8 @@ Full interactive showcase for `egui-shadcn` (and iced) in the browser:
 
 **[ferrismind.github.io/shadcn-rs](https://ferrismind.github.io/shadcn-rs/)**
 
+https://github.com/user-attachments/assets/8a3e7f25-fc51-4434-99d8-b9eb0de99e8f
+
 Source: `crates/wasm-demo`.
 
 ### iced-shadcn v1 — desktop apps
