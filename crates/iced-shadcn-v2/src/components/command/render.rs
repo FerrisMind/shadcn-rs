@@ -58,6 +58,8 @@ pub(super) fn build<'a, T, Message>(
     on_select: Option<Box<dyn Fn(T) -> Message + 'a>>,
     on_highlight_change: Option<Box<dyn Fn(usize) -> Message + 'a>>,
     style_override: Option<Box<dyn Fn(CommandStyle) -> CommandStyle + 'a>>,
+    input_leading: Option<Element<'a, Message>>,
+    input_trailing: Option<Element<'a, Message>>,
 ) -> Element<'a, Message>
 where
     T: Clone + 'a,
@@ -77,6 +79,8 @@ where
         resolved,
         recipe,
         on_query_change,
+        input_leading,
+        input_trailing,
     );
 
     Element::new(CommandWidget {
@@ -263,6 +267,8 @@ fn build_input<'a, Message: Clone + 'a>(
     style: CommandStyle,
     recipe: shadcn_common::CommandRecipe,
     on_query_change: Option<Box<dyn Fn(String) -> Message + 'a>>,
+    input_leading: Option<Element<'a, Message>>,
+    input_trailing: Option<Element<'a, Message>>,
 ) -> Element<'a, Message> {
     let mut input = Input::new(theme)
         .value(query)
@@ -289,7 +295,13 @@ fn build_input<'a, Message: Clone + 'a>(
             resolved
         });
 
-    if show_search_icon {
+    if let Some(leading) = input_leading {
+        group = group.push(
+            InputGroupAddon::empty(theme)
+                .align(InputGroupAddonAlign::InlineStart)
+                .push(leading),
+        );
+    } else if show_search_icon {
         group = group.push(
             InputGroupAddon::empty(theme)
                 .align(InputGroupAddonAlign::InlineStart)
@@ -304,6 +316,13 @@ fn build_input<'a, Message: Clone + 'a>(
         );
     }
     group = group.push(input);
+    if let Some(trailing) = input_trailing {
+        group = group.push(
+            InputGroupAddon::empty(theme)
+                .align(InputGroupAddonAlign::InlineEnd)
+                .push(trailing),
+        );
+    }
 
     let mut pad = Padding::new(recipe.input_wrapper_pad_px);
     if !recipe.input_wrapper_border_bottom {

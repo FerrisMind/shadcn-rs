@@ -81,6 +81,8 @@ where
     on_select: Option<Box<dyn Fn(T) -> Message + 'a>>,
     on_highlight_change: Option<Box<dyn Fn(usize) -> Message + 'a>>,
     style_override: Option<Box<dyn Fn(CommandStyle) -> CommandStyle + 'a>>,
+    input_leading: Option<Element<'a, Message>>,
+    input_trailing: Option<Element<'a, Message>>,
 }
 
 impl<T, Message> fmt::Debug for Command<'_, T, Message>
@@ -109,6 +111,8 @@ where
             .field("on_select", &self.on_select.is_some())
             .field("on_highlight_change", &self.on_highlight_change.is_some())
             .field("style_override", &self.style_override.is_some())
+            .field("input_leading", &self.input_leading.is_some())
+            .field("input_trailing", &self.input_trailing.is_some())
             .finish()
     }
 }
@@ -140,6 +144,8 @@ where
             on_select: None,
             on_highlight_change: None,
             style_override: None,
+            input_leading: None,
+            input_trailing: None,
         }
     }
 
@@ -300,6 +306,21 @@ where
         self.style_override = Some(Box::new(style_override));
         self
     }
+
+    /// Places an arbitrary element at the start of the command input row.
+    ///
+    /// When set, this replaces the default search glyph from
+    /// [`Self::show_search_icon`].
+    pub fn input_leading(mut self, leading: impl Into<Element<'a, Message>>) -> Self {
+        self.input_leading = Some(leading.into());
+        self
+    }
+
+    /// Places an arbitrary element at the end of the command input row.
+    pub fn input_trailing(mut self, trailing: impl Into<Element<'a, Message>>) -> Self {
+        self.input_trailing = Some(trailing.into());
+        self
+    }
 }
 
 impl<'a, T, Message> From<Command<'a, T, Message>> for Element<'a, Message>
@@ -329,6 +350,8 @@ where
             command.on_select,
             command.on_highlight_change,
             command.style_override,
+            command.input_leading,
+            command.input_trailing,
         )
     }
 }
