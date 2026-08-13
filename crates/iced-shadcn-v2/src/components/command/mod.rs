@@ -5,6 +5,18 @@
 //! `Dialog`) as iced builders. Filtering and highlight stepping live in
 //! [`shadcn_common`] so egui can share them. The dialog variant composes
 //! [`crate::Dialog`] with `p-0` padding and `top-1/3` placement.
+//!
+//! **Style packs:** unlike Form (identical `form.json` across packs), Command
+//! ships distinct `.cn-command*` recipes per style — radii, input chrome,
+//! item padding, separator bleed, etc. via
+//! [`shadcn_common::command_recipe`] and `theme.style_id()`.
+//!
+//! Composed parts still follow the same [`Theme`]: [`CommandDialog`] → Dialog
+//! recipe (with command radius override), loading row → [`crate::Spinner`],
+//! list rules → [`crate::Separator`], search field → Input / InputGroup
+//! builders. Picking Rhea on the theme therefore paints Rhea Command chrome
+//! *and* Rhea Dialog / Spinner / Separator / Button trigger recipes — the
+//! same composite rule as Form, plus Command’s own pack deltas.
 
 mod render;
 mod style;
@@ -83,6 +95,9 @@ where
     style_override: Option<Box<dyn Fn(CommandStyle) -> CommandStyle + 'a>>,
     input_leading: Option<Element<'a, Message>>,
     input_trailing: Option<Element<'a, Message>>,
+    /// Hit size of leading/trailing chrome controls; drives addon inset math.
+    input_adornment_size: Option<f32>,
+    input_id: Option<crate::iced_compat::widget::Id>,
 }
 
 impl<T, Message> fmt::Debug for Command<'_, T, Message>
@@ -113,6 +128,7 @@ where
             .field("style_override", &self.style_override.is_some())
             .field("input_leading", &self.input_leading.is_some())
             .field("input_trailing", &self.input_trailing.is_some())
+            .field("input_adornment_size", &self.input_adornment_size)
             .finish()
     }
 }
@@ -146,6 +162,8 @@ where
             style_override: None,
             input_leading: None,
             input_trailing: None,
+            input_adornment_size: None,
+            input_id: None,
         }
     }
 
@@ -321,6 +339,20 @@ where
         self.input_trailing = Some(trailing.into());
         self
     }
+
+    /// Sets the leading/trailing control size used for addon inset math.
+    ///
+    /// Defaults to the pack `control_height_sm` when unset.
+    pub fn input_adornment_size(mut self, size: f32) -> Self {
+        self.input_adornment_size = Some(size.max(1.0));
+        self
+    }
+
+    /// Sets the search field widget id for focus and selection operations.
+    pub fn input_id(mut self, id: impl Into<crate::iced_compat::widget::Id>) -> Self {
+        self.input_id = Some(id.into());
+        self
+    }
 }
 
 impl<'a, T, Message> From<Command<'a, T, Message>> for Element<'a, Message>
@@ -352,6 +384,8 @@ where
             command.style_override,
             command.input_leading,
             command.input_trailing,
+            command.input_adornment_size,
+            command.input_id,
         )
     }
 }

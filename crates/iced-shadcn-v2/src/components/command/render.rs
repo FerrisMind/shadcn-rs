@@ -18,7 +18,7 @@ use crate::components::separator::Separator;
 use crate::components::spinner::{Spinner, SpinnerSize};
 use crate::fonts::iced_font;
 use crate::iced_compat::advanced::renderer::Renderer as _;
-use crate::iced_compat::advanced::widget::{Tree, tree};
+use crate::iced_compat::advanced::widget::{Operation, Tree, tree};
 use crate::iced_compat::advanced::{Clipboard, Shell, Widget, layout, overlay, renderer};
 use crate::iced_compat::widget::canvas;
 use crate::iced_compat::widget::text::{self as text_style, LineHeight};
@@ -60,6 +60,8 @@ pub(super) fn build<'a, T, Message>(
     style_override: Option<Box<dyn Fn(CommandStyle) -> CommandStyle + 'a>>,
     input_leading: Option<Element<'a, Message>>,
     input_trailing: Option<Element<'a, Message>>,
+    input_adornment_size: Option<f32>,
+    input_id: Option<crate::iced_compat::widget::Id>,
 ) -> Element<'a, Message>
 where
     T: Clone + 'a,
@@ -81,6 +83,8 @@ where
         on_query_change,
         input_leading,
         input_trailing,
+        input_adornment_size,
+        input_id,
     );
 
     Element::new(CommandWidget {
@@ -259,6 +263,10 @@ where
     }
 }
 
+/// Extra outer-edge inset for chrome adornments relative to vertical pad.
+const ADORNMENT_INLINE_EXTRA_PX: f32 = 2.0;
+
+#[allow(clippy::too_many_arguments)]
 fn build_input<'a, Message: Clone + 'a>(
     theme: &'a Theme,
     query: &'a str,
@@ -269,11 +277,16 @@ fn build_input<'a, Message: Clone + 'a>(
     on_query_change: Option<Box<dyn Fn(String) -> Message + 'a>>,
     input_leading: Option<Element<'a, Message>>,
     input_trailing: Option<Element<'a, Message>>,
+    input_adornment_size: Option<f32>,
+    input_id: Option<crate::iced_compat::widget::Id>,
 ) -> Element<'a, Message> {
     let mut input = Input::new(theme)
         .value(query)
         .placeholder(placeholder.to_owned())
         .width(Length::Fill);
+    if let Some(id) = input_id {
+        input = input.id(id);
+    }
     if let Some(on_input) = on_query_change {
         input = input.on_input(on_input);
     }
@@ -283,6 +296,8 @@ fn build_input<'a, Message: Clone + 'a>(
     let radius = style.input_radius;
     let underlined = recipe.input_underline_only;
     let bordered = recipe.input_bordered;
+
+    let adornment_size = input_adornment_size.unwrap_or(theme.style.control_height_sm_px);
 
     // Keep InputGroup chrome fully transparent so command owns a single
     // surface (avoids pack-default radius stacking under command radius).
@@ -299,6 +314,11 @@ fn build_input<'a, Message: Clone + 'a>(
         group = group.push(
             InputGroupAddon::empty(theme)
                 .align(InputGroupAddonAlign::InlineStart)
+                .padding_uniform_around_child_extra_inline(
+                    adornment_size,
+                    recipe.input_height_px,
+                    ADORNMENT_INLINE_EXTRA_PX,
+                )
                 .push(leading),
         );
     } else if show_search_icon {
@@ -320,12 +340,18 @@ fn build_input<'a, Message: Clone + 'a>(
         group = group.push(
             InputGroupAddon::empty(theme)
                 .align(InputGroupAddonAlign::InlineEnd)
+                .padding_uniform_around_child_extra_inline(
+                    adornment_size,
+                    recipe.input_height_px,
+                    ADORNMENT_INLINE_EXTRA_PX,
+                )
                 .push(trailing),
         );
     }
 
     let mut pad = Padding::new(recipe.input_wrapper_pad_px);
-    if !recipe.input_wrapper_border_bottom {
+    if recipe.input_wrapper_border_bottom {
+        // Hairline is drawn below the wrapper; avoid double gap under the field.
         pad.bottom = 0.0;
     }
 
@@ -1035,6 +1061,41 @@ where
                 list_node.move_to(Point::new(pad, pad + input_size.height)),
             ],
         )
+    }
+
+    fn operate(
+        &mut self,
+        tree: &mut Tree,
+        layout: layout::Layout<'_>,
+        renderer: &Renderer,
+        operation: &mut dyn Operation,
+    ) {
+        let mut children = layout.children();
+        let input_layout = children.next().expect("input layout");
+        let list_layout = children.next().expect("list layout");
+
+        self.input.as_widget_mut().operate(
+            &mut tree.children[0],
+            input_layout,
+            renderer,
+            operation,
+        );
+
+        let (state_hi, bus, viewport_h) = {
+            let state = tree.state.downcast_ref::<State>();
+            (
+                state.highlighted,
+                Rc::clone(&state.hover_bus),
+                state.list_viewport_h,
+            )
+        };
+        let mut list = self.build_list(state_hi, bus, viewport_h);
+        list.as_widget_mut().operate(
+            &mut tree.children[1],
+            list_layout,
+            renderer,
+            operation,
+        );
     }
 
     fn update(

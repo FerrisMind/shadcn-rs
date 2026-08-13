@@ -3,6 +3,10 @@
 //! Mirrors the shadcn-svelte command demos (inline + dialog) plus the same
 //! theme controls as the button example.
 //!
+//! Command has pack-specific `.cn-command*` recipes. The Style picker also
+//! restyles composed Dialog / Button / Spinner / Separator through the shared
+//! [`Theme`] (same composite rule as Form when a host has no pack deltas).
+//!
 //! Run: `cargo run -p iced-shadcn-v2 --example command`
 
 use std::fmt;
