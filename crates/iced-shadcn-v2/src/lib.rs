@@ -300,7 +300,7 @@ pub use components::drawer::{
 pub use components::dropdown_menu::{
     DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContentStyle, DropdownMenuItem,
     DropdownMenuItemVariant, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSub,
-    dropdown_menu,
+    dropdown_menu, dropdown_menu_content_style,
 };
 pub use components::emoji_picker::{
     EmojiPicker, EmojiPickerCategory, EmojiPickerData, EmojiPickerFooter, EmojiPickerList,

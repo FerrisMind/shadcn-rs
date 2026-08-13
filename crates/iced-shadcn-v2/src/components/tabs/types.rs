@@ -223,6 +223,10 @@ pub struct TabsList<'a, Message> {
     pub(super) full_width: bool,
     pub(super) width: Length,
     pub(super) height: Length,
+    /// Overrides style-pack trigger gap when set.
+    pub(super) gap: Option<f32>,
+    /// Overrides style-pack list padding when set.
+    pub(super) list_padding: Option<f32>,
     pub(super) style_override: Option<Box<dyn Fn(container::Style) -> container::Style + 'a>>,
 }
 
@@ -240,6 +244,8 @@ impl<Message> std::fmt::Debug for TabsList<'_, Message> {
             .field("full_width", &self.full_width)
             .field("width", &self.width)
             .field("height", &self.height)
+            .field("gap", &self.gap)
+            .field("list_padding", &self.list_padding)
             .field("style_override", &self.style_override.is_some())
             .finish()
     }

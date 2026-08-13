@@ -254,6 +254,8 @@ impl<'a, Message> TabsList<'a, Message> {
             full_width: false,
             width: Length::Shrink,
             height: Length::Shrink,
+            gap: None,
+            list_padding: None,
             style_override: None,
         }
     }
@@ -334,6 +336,30 @@ impl<'a, Message> TabsList<'a, Message> {
     #[must_use = "use the returned tabs list builder"]
     pub fn height(mut self, height: impl Into<Length>) -> Self {
         self.height = height.into();
+        self
+    }
+
+    /// Overrides the gap between triggers (style-pack default otherwise).
+    #[must_use = "use the returned tabs list builder"]
+    pub fn gap(mut self, gap: impl Into<f32>) -> Self {
+        let gap = gap.into();
+        self.gap = Some(if gap.is_finite() && gap >= 0.0 {
+            gap
+        } else {
+            0.0
+        });
+        self
+    }
+
+    /// Overrides list inset padding (style-pack default otherwise).
+    #[must_use = "use the returned tabs list builder"]
+    pub fn list_padding(mut self, padding: impl Into<f32>) -> Self {
+        let padding = padding.into();
+        self.list_padding = Some(if padding.is_finite() && padding >= 0.0 {
+            padding
+        } else {
+            0.0
+        });
         self
     }
 

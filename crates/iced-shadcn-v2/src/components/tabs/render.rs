@@ -94,6 +94,7 @@ where
     } = tabs;
 
     let active = resolve_active_value(&list.triggers, &value);
+    let has_panels = !contents.is_empty();
     let panel = contents
         .into_iter()
         .find(|content| content.value == active)
@@ -110,7 +111,11 @@ where
         disabled,
     );
 
-    let content: Element<'a, Message> = if orientation.is_vertical() {
+    let content: Element<'a, Message> = if !has_panels {
+        // Chrome-style tab strips often use the list alone; skip the empty
+        // panel column so a fixed-height parent does not squeeze triggers.
+        list_element
+    } else if orientation.is_vertical() {
         row![list_element, panel]
             .spacing(spacing)
             .align_y(crate::iced_compat::alignment::Vertical::Top)
@@ -157,11 +162,20 @@ where
         full_width,
         width,
         height,
+        gap,
+        list_padding,
         style_override,
     } = list;
 
     let active = resolve_active_value(&trigger_definitions, &active);
-    let metrics = geometry::resolve_metrics(theme, size, orientation, variant);
+    let mut metrics = geometry::resolve_metrics(theme, size, orientation, variant);
+    if let Some(gap) = gap {
+        metrics.gap = gap;
+    }
+    if let Some(list_padding) = list_padding {
+        metrics.list_padding = list_padding;
+        metrics.vertical_list_padding = list_padding;
+    }
     let mut triggers = Vec::with_capacity(trigger_definitions.len());
     let mut items = Vec::with_capacity(trigger_definitions.len());
 
