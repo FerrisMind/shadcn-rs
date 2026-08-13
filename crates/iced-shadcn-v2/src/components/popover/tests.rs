@@ -205,6 +205,73 @@ fn recipe_tracks_style_pack_tokens() {
 }
 
 #[test]
+fn popover_recipe_differs_across_style_packs() {
+    // popover.json is pack-specific (unlike form.json). Rhea/Luma use
+    // rounded-3xl + shadow-lg; Vega uses rounded-md + shadow-md; Lyra is sharp.
+    use shadcn_common::ComponentRadius;
+
+    assert_eq!(popover_recipe(StyleId::Vega).radius, ComponentRadius::Md);
+    assert_eq!(popover_recipe(StyleId::Rhea).radius, ComponentRadius::S3xl);
+    assert_eq!(popover_recipe(StyleId::Lyra).radius, ComponentRadius::None);
+    assert_ne!(
+        popover_recipe(StyleId::Vega).shadow,
+        popover_recipe(StyleId::Rhea).shadow
+    );
+    assert_ne!(
+        popover_recipe(StyleId::Vega).title.size_px,
+        popover_recipe(StyleId::Rhea).title.size_px
+    );
+}
+
+#[test]
+fn popover_and_composed_parts_follow_theme_style_pack() {
+    // Popover owns its recipe; Button / Label / Input resolve through the
+    // same Theme.style_id() — composite rule when a host has no pack deltas.
+    use crate::components::button::Button;
+    use crate::components::input::Input;
+    use crate::components::label::Label;
+    use shadcn_common::{ComponentRadius, ControlSize, LabelContext};
+
+    let vega = Theme::light().with_style(StyleId::Vega);
+    let rhea = Theme::light().with_style(StyleId::Rhea);
+    let mira = Theme::light().with_style(StyleId::Mira);
+
+    assert_eq!(style::recipe(&vega).radius, ComponentRadius::Md);
+    assert_eq!(style::recipe(&rhea).radius, ComponentRadius::S3xl);
+
+    let vega_style = style::resolve_style(&vega);
+    let rhea_style = style::resolve_style(&rhea);
+    assert_ne!(vega_style.radius, rhea_style.radius);
+    assert_ne!(vega_style.shadow.blur_radius, rhea_style.shadow.blur_radius);
+
+    // Trigger / with-form parts: pack deltas live on Button / Label recipes.
+    assert_ne!(vega.style.button_type(), rhea.style.button_type());
+    assert_ne!(
+        vega.style.button_size(ControlSize::Md).height_px,
+        rhea.style.button_size(ControlSize::Md).height_px
+    );
+    // Vega/Rhea share field-label typography; Mira proves Theme drives Label.
+    assert_eq!(
+        vega.style.label(LabelContext::Field),
+        rhea.style.label(LabelContext::Field)
+    );
+    assert_ne!(
+        vega.style.label(LabelContext::Field),
+        mira.style.label(LabelContext::Field)
+    );
+
+    let trigger = Button::text("Open Popover", &rhea);
+    let _header = PopoverHeader::<()>::new(&rhea)
+        .title(PopoverTitle::text("Dimensions", &rhea))
+        .description(PopoverDescription::text("Set the dimensions.", &rhea));
+    let _label = Label::<()>::text("Width", &rhea);
+    let _input = Input::<()>::new(&rhea).value("100%");
+    let _popover: Popover<'_, ()> =
+        Popover::new(trigger, container("Body"), &rhea).align(PopoverAlign::Start);
+    assert_eq!(rhea.style_id(), StyleId::Rhea);
+}
+
+#[test]
 fn state_visibility_follows_open_and_transition() {
     let mut state = PopoverState::new(false);
     assert!(!state.is_visible());

@@ -7,6 +7,17 @@
 //! and <kbd>Esc</kbd> dismiss it. The public API lives in this module;
 //! positioning math is shared through [`shadcn_common::floating`], while
 //! widget/overlay internals live in focused private submodules.
+//!
+//! **Style packs:** unlike Form (identical `form.json` across packs), Popover
+//! ships distinct `.cn-popover-*` recipes per style — radius, padding, ring
+//! alpha, shadow, title size — via [`shadcn_common::popover_recipe`] and
+//! `theme.style_id()`.
+//!
+//! Composed parts still follow the same [`Theme`]: trigger →
+//! [`crate::Button`], with-form content → [`crate::Input`] / [`crate::Label`],
+//! header slots → title/description recipes. Picking Rhea on the theme
+//! therefore paints Rhea Popover chrome *and* Rhea Button / Input / Label
+//! recipes — the same composite rule as Form, plus Popover’s own pack deltas.
 
 mod render;
 mod style;

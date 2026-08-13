@@ -4,6 +4,10 @@
 //! with a Dimensions header, the with-form variant, and the alignment row)
 //! and adds rows for sides, dismiss behaviors, and controlled open state.
 //!
+//! Popover has pack-specific `.cn-popover-*` recipes. The Style picker also
+//! restyles composed Button / Input / Label through the shared [`Theme`]
+//! (same composite rule as Form when a host has no pack deltas).
+//!
 //! Run: `cargo run -p iced-shadcn-v2 --example popover`
 
 use std::fmt;
