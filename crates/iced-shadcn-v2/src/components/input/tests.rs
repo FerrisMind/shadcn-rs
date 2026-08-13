@@ -101,6 +101,7 @@ fn default_padding_reproduces_the_control_height() {
         shadcn_common::StyleId::Nova,
         shadcn_common::StyleId::Mira,
         shadcn_common::StyleId::Sera,
+        shadcn_common::StyleId::Rhea,
     ] {
         let theme = Theme::light().with_style(style_id);
         let text_size = style::pack_text_size(&theme);
@@ -109,6 +110,8 @@ fn default_padding_reproduces_the_control_height() {
 
         assert_eq!(height, InputSize::Default.control_height(&theme));
         assert_eq!(padding.left, padding.right);
+        // Optical nudge shifts py upward; total vertical pad is unchanged.
+        assert!(padding.bottom >= padding.top);
     }
 }
 

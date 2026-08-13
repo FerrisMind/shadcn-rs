@@ -93,6 +93,11 @@ pub(super) fn line_height_px(text_size: f32) -> f32 {
     text_size + 6.0
 }
 
+/// Optical nudge: iced centers `paragraph.min_bounds()` in the Absolute line
+/// box, and Geist (and similar UI fonts) sit slightly low in that box. Shift
+/// 1px of vertical padding upward without changing the control height.
+const VALUE_OPTICAL_NUDGE_PX: f32 = 1.0;
+
 /// Default padding recreating `.cn-input` (`px-*` from the pack, `py`
 /// derived from the fixed control height).
 pub(super) fn default_padding(
@@ -102,11 +107,12 @@ pub(super) fn default_padding(
 ) -> crate::iced_compat::Padding {
     let pad_x = super::style::pack_pad_x(theme);
     let pad_y = ((size.control_height(theme) - line_height_px(text_size)) / 2.0).max(0.0);
+    let nudge = VALUE_OPTICAL_NUDGE_PX.min(pad_y);
 
     crate::iced_compat::Padding {
-        top: pad_y,
+        top: pad_y - nudge,
         right: pad_x,
-        bottom: pad_y,
+        bottom: pad_y + nudge,
         left: pad_x,
     }
 }
