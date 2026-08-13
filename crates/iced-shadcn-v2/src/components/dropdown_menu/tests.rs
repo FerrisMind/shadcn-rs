@@ -158,3 +158,38 @@ fn dense_menu_content_height_exceeds_legacy_max_h_96() {
         "expected dense menu taller than max-h-96, got {height}"
     );
 }
+
+#[test]
+fn rhea_theme_resolves_pack_specific_dropdown_chrome() {
+    // DropdownMenu (unlike Form) has pack-specific CSS in shadcn-svelte.
+    // Selecting Rhea on Theme must change content/item radii vs Vega — apps
+    // must not hard-code those numbers; they come from the recipe.
+    let vega = Theme::dark().with_style(StyleId::Vega);
+    let rhea = Theme::dark().with_style(StyleId::Rhea);
+
+    let vega_style = dropdown_menu_content_style(&vega, false);
+    let rhea_style = dropdown_menu_content_style(&rhea, false);
+    let vega_recipe = dropdown_menu_recipe(StyleId::Vega);
+    let rhea_recipe = dropdown_menu_recipe(StyleId::Rhea);
+
+    assert_ne!(vega_recipe.item_radius, rhea_recipe.item_radius);
+    assert_ne!(vega_recipe.content_radius, rhea_recipe.content_radius);
+    assert_ne!(vega_style.item_radius, rhea_style.item_radius);
+    assert_ne!(vega_style.radius, rhea_style.radius);
+    assert!(rhea_style.item_radius > vega_style.item_radius);
+    assert!(rhea_style.radius > vega_style.radius);
+    assert_eq!(rhea_recipe.item_min_height_px, 28.0);
+    assert!(rhea_recipe.separator_muted);
+    assert!(!vega_recipe.separator_muted);
+}
+
+#[test]
+fn form_like_composites_without_pack_deltas_still_follow_theme_parts() {
+    // Sanity mirror of Form's compose rule: pack-invariant host recipe must
+    // not block StyleId from reaching composed control recipes.
+    let vega = Theme::light().with_style(StyleId::Vega);
+    let rhea = Theme::light().with_style(StyleId::Rhea);
+    assert_eq!(vega.style.form(), rhea.style.form());
+    assert_ne!(vega.style.button_type(), rhea.style.button_type());
+    assert_eq!(rhea.style_id(), StyleId::Rhea);
+}

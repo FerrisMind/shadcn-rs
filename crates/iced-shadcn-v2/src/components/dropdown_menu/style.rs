@@ -50,6 +50,15 @@ pub(super) fn recipe(theme: &Theme) -> DropdownMenuRecipe {
 }
 
 /// Resolves the content / item palette for the active theme.
+///
+/// Overlay hosts that cannot embed [`super::DropdownMenu`] (separate windows,
+/// custom chrome) should call this instead of hard-coding pack radii/pads —
+/// Rhea vs Vega deltas live in `theme.style.dropdown_menu()`.
+pub fn dropdown_menu_content_style(theme: &Theme, submenu: bool) -> DropdownMenuContentStyle {
+    resolve_content_style(theme, submenu)
+}
+
+/// Resolves the content / item palette for the active theme.
 pub(super) fn resolve_content_style(theme: &Theme, submenu: bool) -> DropdownMenuContentStyle {
     let pack = recipe(theme);
     let ring_alpha = if theme.is_dark() {

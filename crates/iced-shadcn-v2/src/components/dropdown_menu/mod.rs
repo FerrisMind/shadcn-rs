@@ -31,7 +31,7 @@ mod types;
 #[cfg(test)]
 mod tests;
 
-pub use style::DropdownMenuContentStyle;
+pub use style::{DropdownMenuContentStyle, dropdown_menu_content_style};
 pub use types::{
     DropdownMenuCheckboxItem, DropdownMenuItem, DropdownMenuItemVariant, DropdownMenuLabel,
     DropdownMenuRadioItem, DropdownMenuSub,
