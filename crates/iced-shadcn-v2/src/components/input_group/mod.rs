@@ -447,6 +447,93 @@ impl<'a, Message: 'a> InputGroupAddon<'a, Message> {
         self
     }
 
+    /// Keeps the pack's horizontal inset and clears vertical pad.
+    ///
+    /// Use when the child already owns its vertical size (chrome icon buttons
+    /// sized to the control height) so default addon `py` does not inflate the
+    /// row past the input / group height.
+    pub fn inline_padding_only(mut self) -> Self {
+        let mut pad = style::addon_padding(self.theme, self.align);
+        pad.top = 0.0;
+        pad.bottom = 0.0;
+        self.padding = Some(pad);
+        self
+    }
+
+    /// Centers `child_height` in `slot_height` with the **same** inset on the
+    /// outer edge and on top/bottom (inner edge toward the input stays 0).
+    ///
+    /// This keeps chrome adornments optically even: side gap == vertical gap.
+    pub fn padding_uniform_around_child(mut self, child_height: f32, slot_height: f32) -> Self {
+        let inset = ((slot_height - child_height).max(0.0) / 2.0).max(0.0);
+        self.padding = Some(match self.align {
+            InputGroupAddonAlign::InlineStart => crate::iced_compat::Padding {
+                top: inset,
+                right: 0.0,
+                bottom: inset,
+                left: inset,
+            },
+            InputGroupAddonAlign::InlineEnd => crate::iced_compat::Padding {
+                top: inset,
+                right: inset,
+                bottom: inset,
+                left: 0.0,
+            },
+            InputGroupAddonAlign::BlockStart => crate::iced_compat::Padding {
+                top: inset,
+                right: inset,
+                bottom: 0.0,
+                left: inset,
+            },
+            InputGroupAddonAlign::BlockEnd => crate::iced_compat::Padding {
+                top: 0.0,
+                right: inset,
+                bottom: inset,
+                left: inset,
+            },
+        });
+        self
+    }
+
+    /// Centers `child_height` in `slot_height` with equal top/bottom inset; the
+    /// outer inline edge uses that inset plus `inline_extra` (inner edge stays 0).
+    pub fn padding_uniform_around_child_extra_inline(
+        mut self,
+        child_height: f32,
+        slot_height: f32,
+        inline_extra: f32,
+    ) -> Self {
+        let inset_y = ((slot_height - child_height).max(0.0) / 2.0).max(0.0);
+        let inset_x = inset_y + inline_extra.max(0.0);
+        self.padding = Some(match self.align {
+            InputGroupAddonAlign::InlineStart => crate::iced_compat::Padding {
+                top: inset_y,
+                right: 0.0,
+                bottom: inset_y,
+                left: inset_x,
+            },
+            InputGroupAddonAlign::InlineEnd => crate::iced_compat::Padding {
+                top: inset_y,
+                right: inset_x,
+                bottom: inset_y,
+                left: 0.0,
+            },
+            InputGroupAddonAlign::BlockStart => crate::iced_compat::Padding {
+                top: inset_x,
+                right: inset_y,
+                bottom: 0.0,
+                left: inset_y,
+            },
+            InputGroupAddonAlign::BlockEnd => crate::iced_compat::Padding {
+                top: 0.0,
+                right: inset_y,
+                bottom: inset_x,
+                left: inset_y,
+            },
+        });
+        self
+    }
+
     /// Applies disabled addon text treatment independently of the root.
     pub fn disabled(mut self, disabled: bool) -> Self {
         self.disabled = disabled;

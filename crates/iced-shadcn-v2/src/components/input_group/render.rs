@@ -7,7 +7,7 @@ use crate::iced_compat::advanced::{Clipboard, Shell, Widget, overlay, renderer};
 use crate::iced_compat::alignment::{Horizontal, Vertical};
 use crate::iced_compat::widget::{column, container, row, text as iced_text, text_editor};
 use crate::iced_compat::{
-    Background, Border, Element, Event, Length, Rectangle, Size, Vector, mouse,
+    Background, Border, Element, Event, Length, Point, Rectangle, Size, Vector, mouse,
 };
 use iced_core::Renderer as _;
 
@@ -425,13 +425,18 @@ impl<Message> Widget<Message, crate::iced_compat::Theme, crate::iced_compat::Ren
         renderer: &crate::iced_compat::Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        let child_limits = limits.width(self.width).height(self.height);
-        let child =
-            self.content
-                .as_widget_mut()
-                .layout(&mut tree.children[0], renderer, &child_limits);
+        let limits = limits.width(self.width).height(self.height);
+        let child = self
+            .content
+            .as_widget_mut()
+            .layout(&mut tree.children[0], renderer, &limits);
+        let size = limits.resolve(self.width, self.height, child.size());
+        // Honor Fixed/Fill height: previously the node shrank to the child, so
+        // parents with Fixed height top-aligned the row (adornment buttons sat high).
+        let offset_y = ((size.height - child.size().height) / 2.0).max(0.0);
+        let child = child.move_to(Point::new(0.0, offset_y));
 
-        layout::Node::with_children(child.size(), vec![child])
+        layout::Node::with_children(size, vec![child])
     }
 
     fn operate(
