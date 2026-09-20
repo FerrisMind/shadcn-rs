@@ -19,6 +19,7 @@ use crate::iced_compat::{
 ///
 /// Does **not** paint the CSS ring — callers must invoke
 /// [`paint_outside_ring`] **after** drawing surface children.
+#[cfg(any(feature = "overlays", feature = "forms"))]
 pub fn fill_floating_surface(
     renderer: &mut Renderer,
     bounds: Rectangle,

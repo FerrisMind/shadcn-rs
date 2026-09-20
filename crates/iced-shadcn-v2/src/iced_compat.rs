@@ -9,12 +9,17 @@
 //! facade re-exports, so the public API stays compatible with apps that
 //! use `iced` directly.
 
+#[allow(unused_imports)] // subset varies with category features
 pub(crate) use iced_core::{
     Background, Border, Color, ContentFit, Event, Font, Length, Padding, Pixels, Point, Radians,
     Rectangle, Shadow, Size, Theme, Transformation, Vector,
 };
 
-pub(crate) use iced_core::{alignment, border, font, gradient, mouse, time, touch, window};
+#[allow(unused_imports)]
+pub(crate) use iced_core::{alignment, border, font, mouse, time, touch, window};
+
+#[cfg(feature = "syntax")]
+pub(crate) use iced_core::gradient;
 
 pub(crate) use iced_widget::Renderer;
 

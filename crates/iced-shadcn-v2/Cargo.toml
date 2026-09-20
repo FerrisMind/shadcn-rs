@@ -21,12 +21,12 @@ include = [
 ]
 
 [dependencies]
-chorale-core = { workspace = true }
+chorale-core = { workspace = true, optional = true }
 iced_core = { version = "0.14", default-features = false, features = ["advanced"] }
-iced_widget = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image"] }
+iced_widget = { version = "0.14", default-features = false, features = ["advanced", "canvas"] }
 iced_renderer = { version = "0.14", default-features = false, optional = true }
-emojis = "0.9"
-shadcn-common = { workspace = true, features = ["fonts", "syntax"] }
+emojis = { version = "0.9", optional = true }
+shadcn-common = { workspace = true }
 twill-core = { workspace = true }
 serde = { version = "1", features = ["derive"], optional = true }
 rfd = { version = "0.16", optional = true }
@@ -35,7 +35,8 @@ rfd = { version = "0.16", optional = true }
 iced = { version = "0.14", default-features = false, features = ["advanced", "canvas", "image", "wgpu", "tiny-skia", "thread-pool", "tokio", "x11", "wayland"] }
 
 [features]
-default = ["wgpu", "tiny-skia"]
+default = ["wgpu", "tiny-skia", "fonts", "core"]
+
 wgpu = ["iced_widget/wgpu"]
 tiny-skia = [
     "dep:iced_renderer",
@@ -43,5 +44,422 @@ tiny-skia = [
     "iced_renderer/x11",
     "iced_renderer/wayland",
 ]
+## Bundle TTF font faces from `shadcn-common` (`ALL_FACES`, Geist, Inter, …).
+fonts = ["shadcn-common/fonts"]
+## iced `image` widget support (pulled by `data` for Avatar).
+image = ["iced_widget/image"]
+
+## --- Category features (API grouping; no heavy crates except forms→regex / data→image) ---
+
+## Primitives: button, spinner, card, typography, scroll_area, accordion, snippet, …
+core = []
+## Inputs and form controls (includes regex validators via shadcn-common/forms).
+forms = ["core", "shadcn-common/forms"]
+## Dialogs, menus, popovers, command, combobox, pm_command, …
+overlays = ["core", "forms"]
+## Breadcrumb, tabs, sidebar, carousel, … (sidebar needs forms + overlays).
+navigation = ["core", "forms", "overlays"]
+## Table, chart, calendar, avatar, tree_view, … (includes image for Avatar).
+data = ["core", "forms", "overlays", "image"]
+## Sonner toasts.
+feedback = ["core"]
+## File drop zone (native picker is separate `rfd`).
+file-drop = ["core"]
+
+## --- Heavy / niche features ---
+
+## Password suite + zxcvbn.
+password = ["forms", "shadcn-common/password"]
+## Phone input + phonelib (auto-enables forms + overlays).
+phone = ["forms", "overlays", "shadcn-common/phone"]
+## Emoji picker + `emojis` crate.
+emoji-picker = ["forms", "overlays", "dep:emojis"]
+## Code block + tree-sitter highlighter.
+syntax = ["core", "shadcn-common/syntax"]
+## Data table + chorale-core.
+data-table = ["data", "dep:chorale-core", "shadcn-common/data-table"]
+## Native file dialogs for FileDropZone.
+rfd = ["dep:rfd", "file-drop"]
 serde = ["dep:serde", "shadcn-common/serde"]
-rfd = ["dep:rfd"]
+
+## Every category + heavy feature.
+full = [
+    "core",
+    "forms",
+    "overlays",
+    "navigation",
+    "data",
+    "feedback",
+    "file-drop",
+    "password",
+    "phone",
+    "emoji-picker",
+    "syntax",
+    "data-table",
+]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+# --- Examples (required-features = leaf category / heavy feature) ---
+
+[[example]]
+name = "accordion"
+path = "examples/accordion/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "alert"
+path = "examples/alert/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "alert_dialog"
+path = "examples/alert_dialog/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "aspect_ratio"
+path = "examples/aspect_ratio/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "avatar"
+path = "examples/avatar/main.rs"
+required-features = ["data"]
+
+[[example]]
+name = "badge"
+path = "examples/badge/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "breadcrumb"
+path = "examples/breadcrumb/main.rs"
+required-features = ["navigation"]
+
+[[example]]
+name = "button"
+path = "examples/button/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "button_group"
+path = "examples/button_group/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "calendar"
+path = "examples/calendar/main.rs"
+required-features = ["data"]
+
+[[example]]
+name = "card"
+path = "examples/card/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "carousel"
+path = "examples/carousel/main.rs"
+required-features = ["navigation"]
+
+[[example]]
+name = "chart"
+path = "examples/chart/main.rs"
+required-features = ["data"]
+
+[[example]]
+name = "checkbox"
+path = "examples/checkbox/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "code"
+path = "examples/code/main.rs"
+required-features = ["syntax"]
+
+[[example]]
+name = "collapsible"
+path = "examples/collapsible/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "combobox"
+path = "examples/combobox/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "command"
+path = "examples/command/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "context_menu"
+path = "examples/context_menu/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "copy_button"
+path = "examples/copy_button/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "data_table"
+path = "examples/data_table/main.rs"
+required-features = ["data-table"]
+
+[[example]]
+name = "date_picker"
+path = "examples/date_picker/main.rs"
+required-features = ["data"]
+
+[[example]]
+name = "dialog"
+path = "examples/dialog/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "drawer"
+path = "examples/drawer/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "dropdown_menu"
+path = "examples/dropdown_menu/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "emoji_picker"
+path = "examples/emoji_picker/main.rs"
+required-features = ["emoji-picker"]
+
+[[example]]
+name = "empty"
+path = "examples/empty/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "field"
+path = "examples/field/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "file_drop_zone"
+path = "examples/file_drop_zone/main.rs"
+required-features = ["file-drop"]
+
+[[example]]
+name = "form"
+path = "examples/form/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "hover_card"
+path = "examples/hover_card/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "input"
+path = "examples/input/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "input_group"
+path = "examples/input_group/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "input_otp"
+path = "examples/input_otp/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "item"
+path = "examples/item/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "kbd"
+path = "examples/kbd/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "label"
+path = "examples/label/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "menubar"
+path = "examples/menubar/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "meter"
+path = "examples/meter/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "native_select"
+path = "examples/native_select/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "navigation_menu"
+path = "examples/navigation_menu/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "pagination"
+path = "examples/pagination/main.rs"
+required-features = ["navigation"]
+
+[[example]]
+name = "password"
+path = "examples/password/main.rs"
+required-features = ["password"]
+
+[[example]]
+name = "phone_input"
+path = "examples/phone_input/main.rs"
+required-features = ["phone"]
+
+[[example]]
+name = "pm_command"
+path = "examples/pm_command/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "popover"
+path = "examples/popover/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "progress"
+path = "examples/progress/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "radio_group"
+path = "examples/radio_group/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "range_calendar"
+path = "examples/range_calendar/main.rs"
+required-features = ["data"]
+
+[[example]]
+name = "rename"
+path = "examples/rename/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "resizable"
+path = "examples/resizable/main.rs"
+required-features = ["data"]
+
+[[example]]
+name = "scroll_area"
+path = "examples/scroll_area/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "select"
+path = "examples/select/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "separator"
+path = "examples/separator/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "sheet"
+path = "examples/sheet/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "sidebar"
+path = "examples/sidebar/main.rs"
+required-features = ["navigation"]
+
+[[example]]
+name = "skeleton"
+path = "examples/skeleton/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "slider"
+path = "examples/slider/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "snippet"
+path = "examples/snippet/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "sonner"
+path = "examples/sonner/main.rs"
+required-features = ["feedback"]
+
+[[example]]
+name = "spinner"
+path = "examples/spinner/main.rs"
+required-features = ["core"]
+
+[[example]]
+name = "star_rating"
+path = "examples/star_rating/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "stepper"
+path = "examples/stepper/main.rs"
+required-features = ["navigation"]
+
+[[example]]
+name = "switch"
+path = "examples/switch/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "table"
+path = "examples/table/main.rs"
+required-features = ["data"]
+
+[[example]]
+name = "tabs"
+path = "examples/tabs/main.rs"
+required-features = ["navigation"]
+
+[[example]]
+name = "textarea"
+path = "examples/textarea/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "toggle"
+path = "examples/toggle/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "toggle_group"
+path = "examples/toggle_group/main.rs"
+required-features = ["forms"]
+
+[[example]]
+name = "tooltip"
+path = "examples/tooltip/main.rs"
+required-features = ["overlays"]
+
+[[example]]
+name = "tree-view"
+path = "examples/tree-view/main.rs"
+required-features = ["data"]
+
+[[example]]
+name = "typography"
+path = "examples/typography/main.rs"
+required-features = ["core"]

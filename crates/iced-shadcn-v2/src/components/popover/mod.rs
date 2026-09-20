@@ -29,6 +29,7 @@ mod tests;
 pub use style::PopoverStyle;
 
 /// Returns the style-pack radius used by a popover surface.
+#[cfg(feature = "emoji-picker")]
 pub(crate) fn surface_radius(theme: &Theme) -> f32 {
     style::surface_radius(theme)
 }

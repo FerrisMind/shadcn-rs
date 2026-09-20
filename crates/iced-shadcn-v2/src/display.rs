@@ -4,46 +4,75 @@
 //! components (`"default"`, `"icon-sm"`, `"space-between"`, …). Custom
 //! numeric values render as `{value}px`.
 
+#![allow(unused_imports)] // imports vary with cargo features
+
 use std::fmt;
 
+#[cfg(feature = "core")]
 use crate::components::alert::{AlertRadius, AlertVariant};
+#[cfg(feature = "data")]
 use crate::components::avatar::{AvatarRadius, AvatarSize};
+#[cfg(feature = "core")]
 use crate::components::badge::{BadgeRadius, BadgeVariant};
+#[cfg(feature = "core")]
 use crate::components::button::{ButtonRadius, ButtonSize, ButtonVariant};
+#[cfg(feature = "core")]
 use crate::components::card::{
     CardBorder, CardFooterAlignment, CardFooterDirection, CardRadius, CardSize,
 };
+#[cfg(feature = "forms")]
 use crate::components::checkbox::{CheckboxSize, CheckboxState, CheckboxVariant};
+#[cfg(feature = "core")]
 use crate::components::collapsible::{
     CollapsibleAlignment, CollapsibleEasing, CollapsibleIndicator, CollapsibleIndicatorPlacement,
     CollapsibleOrientation, CollapsibleState,
 };
+#[cfg(feature = "forms")]
 use crate::components::field::{FieldLegendVariant, FieldOrientation};
+#[cfg(feature = "forms")]
 use crate::components::input::{InputRadius, InputSize};
+#[cfg(feature = "forms")]
 use crate::components::input_group::{
     InputGroupAddonAlign, InputGroupButtonSize, InputGroupRadius, InputGroupTextareaResize,
 };
+#[cfg(feature = "forms")]
 use crate::components::input_otp::{InputOtpPattern, InputOtpRadius};
+#[cfg(feature = "core")]
 use crate::components::kbd::{KbdRadius, KbdSurface};
+#[cfg(feature = "core")]
 use crate::components::meter::{MeterOrientation, MeterRadius, MeterSize};
+#[cfg(feature = "core")]
 use crate::components::progress::{
     ProgressOrientation, ProgressRadius, ProgressSize, ProgressVariant,
 };
+#[cfg(feature = "forms")]
 use crate::components::radio_group::{RadioGroupOrientation, RadioGroupRadius, RadioGroupSize};
+#[cfg(feature = "core")]
 use crate::components::scroll_area::{ScrollAreaAnchor, ScrollAreaOrientation, ScrollAreaRadius};
+#[cfg(feature = "core")]
 use crate::components::separator::SeparatorOrientation;
+#[cfg(feature = "core")]
 use crate::components::skeleton::{SkeletonAnimation, SkeletonFill, SkeletonRadius, SkeletonShape};
+#[cfg(feature = "forms")]
 use crate::components::slider::{SliderOrientation, SliderRadius};
+#[cfg(feature = "core")]
 use crate::components::spinner::{SpinnerSize, SpinnerVariant};
+#[cfg(feature = "forms")]
 use crate::components::star_rating::{StarRatingOrientation, StarRatingSize};
+#[cfg(feature = "forms")]
 use crate::components::switch::{SwitchRadius, SwitchSize};
+#[cfg(feature = "navigation")]
 use crate::components::tabs::{
     TabsActivationMode, TabsHover, TabsJustify, TabsListLoop, TabsListVariant, TabsOrientation,
     TabsSize, TabsWrap,
 };
+#[cfg(feature = "forms")]
 use crate::components::toggle::{ToggleRadius, ToggleSize, ToggleVariant};
+#[cfg(feature = "forms")]
 use crate::components::toggle_group::{ToggleGroupOrientation, ToggleGroupType};
+#[cfg(feature = "overlays")]
 use crate::components::tooltip::{TooltipAlign, TooltipSide};
+#[cfg(feature = "core")]
 use crate::components::typography::TypographyVariant;
 
 /// Implements [`fmt::Display`] for unit-variant enums with fixed token text.
@@ -74,6 +103,7 @@ macro_rules! impl_display_custom_px {
     )+};
 }
 
+#[cfg(feature = "core")]
 impl_display! {
     AlertVariant { Default => "default", Destructive => "destructive" }
     BadgeVariant {
@@ -104,12 +134,6 @@ impl_display! {
         Start => "start", Center => "center", End => "end",
         SpaceBetween => "space-between",
     }
-    CheckboxState {
-        Unchecked => "unchecked", Checked => "checked",
-        Indeterminate => "indeterminate",
-    }
-    CheckboxVariant { Surface => "surface", Classic => "classic", Soft => "soft" }
-    CheckboxSize { Xs => "xs", Sm => "sm", Md => "md", Lg => "lg" }
     CollapsibleState { Closed => "closed", Open => "open" }
     CollapsibleOrientation { Vertical => "vertical", Horizontal => "horizontal" }
     CollapsibleAlignment { Start => "start", Center => "center", End => "end" }
@@ -118,6 +142,48 @@ impl_display! {
     CollapsibleEasing {
         Linear => "linear", EaseOut => "ease-out", EaseInOut => "ease-in-out",
     }
+    KbdSurface {
+        Default => "default", Tooltip => "tooltip", InputGroup => "input-group",
+    }
+    KbdRadius {
+        None => "none", Small => "small", Medium => "medium",
+        Large => "large", Full => "full",
+    }
+    ProgressVariant {
+        Default => "default", Classic => "classic",
+        Surface => "surface", Soft => "soft",
+    }
+    ProgressOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    MeterOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    ScrollAreaOrientation {
+        Vertical => "vertical", Horizontal => "horizontal", Both => "both",
+    }
+    ScrollAreaAnchor { Start => "start", End => "end" }
+    SeparatorOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+    SkeletonAnimation { Pulse => "pulse", Static => "static" }
+    SpinnerVariant {
+        LegacyLucide => "legacy-lucide", AiLoaderIcon => "ai-loader-icon",
+        Circular => "circular", Classic => "classic", Pulse => "pulse",
+        PulseDot => "pulse-dot", Dots => "dots", Typing => "typing",
+        Wave => "wave", Bars => "bars", Terminal => "terminal",
+        TextBlink => "text-blink", TextShimmer => "text-shimmer",
+        LoadingDots => "loading-dots",
+    }
+    TypographyVariant {
+        H1 => "h1", H2 => "h2", H3 => "h3", H4 => "h4", P => "p",
+        Blockquote => "blockquote", InlineCode => "inline-code",
+        Lead => "lead", Large => "large", Small => "small", Muted => "muted",
+    }
+}
+
+#[cfg(feature = "forms")]
+impl_display! {
+    CheckboxState {
+        Unchecked => "unchecked", Checked => "checked",
+        Indeterminate => "indeterminate",
+    }
+    CheckboxVariant { Surface => "surface", Classic => "classic", Soft => "soft" }
+    CheckboxSize { Xs => "xs", Sm => "sm", Md => "md", Lg => "lg" }
     FieldOrientation {
         Vertical => "vertical", Horizontal => "horizontal", Responsive => "responsive",
     }
@@ -149,36 +215,9 @@ impl_display! {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
     }
-    KbdSurface {
-        Default => "default", Tooltip => "tooltip", InputGroup => "input-group",
-    }
-    KbdRadius {
-        None => "none", Small => "small", Medium => "medium",
-        Large => "large", Full => "full",
-    }
-    ProgressVariant {
-        Default => "default", Classic => "classic",
-        Surface => "surface", Soft => "soft",
-    }
-    ProgressOrientation { Horizontal => "horizontal", Vertical => "vertical" }
-    MeterOrientation { Horizontal => "horizontal", Vertical => "vertical" }
     RadioGroupOrientation { Vertical => "vertical", Horizontal => "horizontal" }
-    ScrollAreaOrientation {
-        Vertical => "vertical", Horizontal => "horizontal", Both => "both",
-    }
-    ScrollAreaAnchor { Start => "start", End => "end" }
-    SeparatorOrientation { Horizontal => "horizontal", Vertical => "vertical" }
-    SkeletonAnimation { Pulse => "pulse", Static => "static" }
     SliderOrientation { Horizontal => "horizontal", Vertical => "vertical" }
     StarRatingOrientation { Horizontal => "horizontal", Vertical => "vertical" }
-    SpinnerVariant {
-        LegacyLucide => "legacy-lucide", AiLoaderIcon => "ai-loader-icon",
-        Circular => "circular", Classic => "classic", Pulse => "pulse",
-        PulseDot => "pulse-dot", Dots => "dots", Typing => "typing",
-        Wave => "wave", Bars => "bars", Terminal => "terminal",
-        TextBlink => "text-blink", TextShimmer => "text-shimmer",
-        LoadingDots => "loading-dots",
-    }
     ToggleVariant { Default => "default", Outline => "outline" }
     ToggleSize { Sm => "sm", Default => "default", Lg => "lg" }
     ToggleRadius {
@@ -187,8 +226,16 @@ impl_display! {
     }
     ToggleGroupType { Single => "single", Multiple => "multiple" }
     ToggleGroupOrientation { Horizontal => "horizontal", Vertical => "vertical" }
+}
+
+#[cfg(feature = "overlays")]
+impl_display! {
     TooltipSide { Top => "top", Right => "right", Bottom => "bottom", Left => "left" }
     TooltipAlign { Start => "start", Center => "center", End => "end" }
+}
+
+#[cfg(feature = "navigation")]
+impl_display! {
     TabsActivationMode { Automatic => "automatic", Manual => "manual" }
     TabsHover { None => "none", Subtle => "subtle", Soft => "soft" }
     TabsJustify { Start => "start", Center => "center", End => "end" }
@@ -197,20 +244,11 @@ impl_display! {
     TabsOrientation { Horizontal => "horizontal", Vertical => "vertical" }
     TabsSize { Sm => "sm", Default => "default", Lg => "lg" }
     TabsWrap { NoWrap => "no-wrap", Wrap => "wrap", WrapReverse => "wrap-reverse" }
-    TypographyVariant {
-        H1 => "h1", H2 => "h2", H3 => "h3", H4 => "h4", P => "p",
-        Blockquote => "blockquote", InlineCode => "inline-code",
-        Lead => "lead", Large => "large", Small => "small", Muted => "muted",
-    }
 }
 
+#[cfg(feature = "core")]
 impl_display_custom_px! {
     AlertRadius {
-        Theme => "theme", None => "none", Small => "small", Medium => "medium",
-        Large => "large", Xl => "xl", Full => "full",
-    }
-    AvatarSize { Sm => "sm", Default => "default", Lg => "lg" }
-    AvatarRadius {
         Theme => "theme", None => "none", Small => "small", Medium => "medium",
         Large => "large", Xl => "xl", Full => "full",
     }
@@ -228,11 +266,6 @@ impl_display_custom_px! {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
     }
-    RadioGroupSize { Sm => "sm", Default => "default", Lg => "lg" }
-    RadioGroupRadius {
-        None => "none", Small => "small", Medium => "medium",
-        Large => "large", Full => "full",
-    }
     ScrollAreaRadius {
         Theme => "theme", None => "none", Small => "small", Medium => "medium",
         Large => "large", Xl => "xl", Full => "full",
@@ -241,11 +274,29 @@ impl_display_custom_px! {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
     }
+    SpinnerSize { Xs => "xs", Sm => "sm", Default => "default", Lg => "lg", Xl => "xl" }
+}
+
+#[cfg(feature = "data")]
+impl_display_custom_px! {
+    AvatarSize { Sm => "sm", Default => "default", Lg => "lg" }
+    AvatarRadius {
+        Theme => "theme", None => "none", Small => "small", Medium => "medium",
+        Large => "large", Xl => "xl", Full => "full",
+    }
+}
+
+#[cfg(feature = "forms")]
+impl_display_custom_px! {
+    RadioGroupSize { Sm => "sm", Default => "default", Lg => "lg" }
+    RadioGroupRadius {
+        None => "none", Small => "small", Medium => "medium",
+        Large => "large", Full => "full",
+    }
     SliderRadius {
         None => "none", Small => "small", Medium => "medium",
         Large => "large", Full => "full",
     }
-    SpinnerSize { Xs => "xs", Sm => "sm", Default => "default", Lg => "lg", Xl => "xl" }
     StarRatingSize { Sm => "sm", Default => "default", Md => "md", Lg => "lg", Xl => "xl" }
     SwitchSize { Sm => "sm", Default => "default" }
     SwitchRadius {
@@ -254,6 +305,7 @@ impl_display_custom_px! {
     }
 }
 
+#[cfg(feature = "core")]
 impl fmt::Display for SkeletonShape {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -263,6 +315,7 @@ impl fmt::Display for SkeletonShape {
     }
 }
 
+#[cfg(feature = "core")]
 impl fmt::Display for SkeletonFill {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -276,7 +329,7 @@ impl fmt::Display for SkeletonFill {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "core", feature = "forms", feature = "overlays", feature = "data"))]
 mod tests {
     use super::*;
 

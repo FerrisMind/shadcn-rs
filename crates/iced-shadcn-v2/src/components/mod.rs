@@ -2,76 +2,165 @@
 //!
 //! Each component owns its public builder API and keeps implementation details
 //!—geometry, rendering, styles, errors, and tests—inside its own submodule.
+//!
+//! Modules are gated by category / heavy cargo features (see crate root).
 
+// --- core ---
+#[cfg(feature = "core")]
 pub mod accordion;
+#[cfg(feature = "core")]
 pub mod alert;
-pub mod alert_dialog;
+#[cfg(feature = "core")]
 pub mod aspect_ratio;
-pub mod avatar;
+#[cfg(feature = "core")]
 pub mod badge;
-pub mod breadcrumb;
+#[cfg(feature = "core")]
 pub mod button;
+#[cfg(feature = "core")]
 pub mod button_group;
-pub mod calendar;
+#[cfg(feature = "core")]
 pub mod card;
-pub mod carousel;
-pub mod chart;
-pub mod checkbox;
-pub mod code;
+#[cfg(feature = "core")]
 pub mod collapsible;
-pub mod combobox;
-pub mod command;
-pub mod context_menu;
+#[cfg(feature = "core")]
 pub mod copy_button;
-pub mod data_table;
-pub mod date_picker;
-pub mod dialog;
-pub mod drawer;
-pub mod dropdown_menu;
-pub mod emoji_picker;
+#[cfg(feature = "core")]
 pub mod empty;
-pub mod field;
-pub mod file_drop_zone;
-pub mod form;
-pub mod hover_card;
-pub mod input;
-pub mod input_group;
-pub mod input_otp;
+#[cfg(feature = "core")]
 pub mod item;
+#[cfg(feature = "core")]
 pub mod kbd;
+#[cfg(feature = "core")]
 pub mod label;
-pub mod menubar;
+#[cfg(feature = "core")]
 pub mod meter;
-pub mod native_select;
-pub mod navigation_menu;
-pub mod pagination;
-pub mod password;
-pub mod phone_input;
-pub mod pm_command;
-pub mod popover;
+#[cfg(feature = "core")]
 pub mod progress;
-pub mod radio_group;
-pub mod range_calendar;
-pub mod rename;
-pub mod resizable;
+#[cfg(feature = "core")]
 pub mod scroll_area;
-pub mod select;
+#[cfg(feature = "core")]
 pub mod separator;
-pub mod sheet;
-pub mod sidebar;
+#[cfg(feature = "core")]
 pub mod skeleton;
-pub mod slider;
+#[cfg(feature = "core")]
 pub mod snippet;
-pub mod sonner;
+#[cfg(feature = "core")]
 pub mod spinner;
-pub mod star_rating;
-pub mod stepper;
-pub mod switch;
-pub mod table;
-pub mod tabs;
-pub mod textarea;
-pub mod toggle;
-pub mod toggle_group;
-pub mod tooltip;
-pub mod tree_view;
+#[cfg(feature = "core")]
 pub mod typography;
+
+// --- forms ---
+#[cfg(feature = "forms")]
+pub mod checkbox;
+#[cfg(feature = "forms")]
+pub mod field;
+#[cfg(feature = "forms")]
+pub mod form;
+#[cfg(feature = "forms")]
+pub mod input;
+#[cfg(feature = "forms")]
+pub mod input_group;
+#[cfg(feature = "forms")]
+pub mod input_otp;
+#[cfg(feature = "forms")]
+pub mod native_select;
+#[cfg(feature = "forms")]
+pub mod radio_group;
+#[cfg(feature = "forms")]
+pub mod rename;
+#[cfg(feature = "forms")]
+pub mod select;
+#[cfg(feature = "forms")]
+pub mod slider;
+#[cfg(feature = "forms")]
+pub mod star_rating;
+#[cfg(feature = "forms")]
+pub mod switch;
+#[cfg(feature = "forms")]
+pub mod textarea;
+#[cfg(feature = "forms")]
+pub mod toggle;
+#[cfg(feature = "forms")]
+pub mod toggle_group;
+
+// --- overlays ---
+#[cfg(feature = "overlays")]
+pub mod alert_dialog;
+#[cfg(feature = "overlays")]
+pub mod combobox;
+#[cfg(feature = "overlays")]
+pub mod command;
+#[cfg(feature = "overlays")]
+pub mod context_menu;
+#[cfg(feature = "overlays")]
+pub mod dialog;
+#[cfg(feature = "overlays")]
+pub mod drawer;
+#[cfg(feature = "overlays")]
+pub mod dropdown_menu;
+#[cfg(feature = "overlays")]
+pub mod hover_card;
+#[cfg(feature = "overlays")]
+pub mod menubar;
+#[cfg(feature = "overlays")]
+pub mod navigation_menu;
+#[cfg(feature = "overlays")]
+pub mod pm_command;
+#[cfg(feature = "overlays")]
+pub mod popover;
+#[cfg(feature = "overlays")]
+pub mod sheet;
+#[cfg(feature = "overlays")]
+pub mod tooltip;
+
+// --- navigation ---
+#[cfg(feature = "navigation")]
+pub mod breadcrumb;
+#[cfg(feature = "navigation")]
+pub mod carousel;
+#[cfg(feature = "navigation")]
+pub mod pagination;
+#[cfg(feature = "navigation")]
+pub mod sidebar;
+#[cfg(feature = "navigation")]
+pub mod stepper;
+#[cfg(feature = "navigation")]
+pub mod tabs;
+
+// --- data ---
+#[cfg(feature = "data")]
+pub mod avatar;
+#[cfg(feature = "data")]
+pub mod calendar;
+#[cfg(feature = "data")]
+pub mod chart;
+#[cfg(feature = "data")]
+pub mod date_picker;
+#[cfg(feature = "data")]
+pub mod range_calendar;
+#[cfg(feature = "data")]
+pub mod resizable;
+#[cfg(feature = "data")]
+pub mod table;
+#[cfg(feature = "data")]
+pub mod tree_view;
+
+// --- feedback ---
+#[cfg(feature = "feedback")]
+pub mod sonner;
+
+// --- file-drop ---
+#[cfg(feature = "file-drop")]
+pub mod file_drop_zone;
+
+// --- heavy ---
+#[cfg(feature = "syntax")]
+pub mod code;
+#[cfg(feature = "password")]
+pub mod password;
+#[cfg(feature = "phone")]
+pub mod phone_input;
+#[cfg(feature = "emoji-picker")]
+pub mod emoji_picker;
+#[cfg(feature = "data-table")]
+pub mod data_table;
