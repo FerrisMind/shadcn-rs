@@ -21,10 +21,10 @@ include = [
 ]
 
 [dependencies]
-chorale-core = { workspace = true }
+chorale-core = { workspace = true, optional = true }
 twill-core = { workspace = true }
 ## Dropbox zxcvbn password strength estimator (shared by Password).
-zxcvbn = { workspace = true }
+zxcvbn = { workspace = true, optional = true }
 ## Optional, only for the `serde` feature.
 serde = { version = "1", features = ["derive"], optional = true }
 ## Optional tree-sitter grammars, only for the `syntax` feature.
@@ -38,13 +38,22 @@ tree-sitter-json = { workspace = true, optional = true }
 tree-sitter-rust = { workspace = true, optional = true }
 tree-sitter-svelte-next = { workspace = true, optional = true }
 tree-sitter-typescript = { workspace = true, optional = true }
-regex = "1.13.1"
-phonelib = "2.0.0"
+## Regex-backed form validators (`email`, `pattern`); enabled by `forms`.
+regex = { version = "1.13.1", optional = true }
+phonelib = { version = "2.0.0", optional = true }
 
 [features]
 default = []
 ## Bundle TTF font faces (Geist, Inter, Instrument Serif, JetBrains Mono).
 fonts = []
+## Regex form validators (`email`, `pattern`). Forwarded by iced-shadcn-v2 `forms`.
+forms = ["dep:regex"]
+## Password strength state + zxcvbn estimator.
+password = ["dep:zxcvbn"]
+## Phone parsing / country table via phonelib.
+phone = ["dep:phonelib"]
+## Chorale-backed data-table labels/helpers.
+data-table = ["dep:chorale-core"]
 ## Enable the tree-sitter-based syntax highlighter shared by the egui and
 ## iced renderers (shadcn-common::syntax / shadcn-common::highlight).
 syntax = [
@@ -63,7 +72,11 @@ syntax = [
 ## iced-shadcn-v2 forwards its own `serde` feature here.
 serde = ["dep:serde"]
 
-[dev-dependencies]
+[[test]]
+name = "form"
+path = "tests/form.rs"
+required-features = ["forms"]
 
 [package.metadata.docs.rs]
 rustdoc-args = ["--cfg", "docsrs"]
+all-features = true

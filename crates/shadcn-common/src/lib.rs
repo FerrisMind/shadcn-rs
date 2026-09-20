@@ -14,6 +14,7 @@ pub mod collection_navigation;
 pub mod color;
 pub mod color_space;
 pub mod command;
+#[cfg(feature = "data-table")]
 pub mod data_table;
 pub mod date_picker;
 pub mod date_time;
@@ -29,7 +30,9 @@ pub mod interaction_keys;
 pub mod meter;
 pub mod navigation_menu;
 pub mod pagination;
+#[cfg(feature = "password")]
 pub mod password;
+#[cfg(feature = "phone")]
 pub mod phone_input;
 pub mod presence;
 pub mod radius;
@@ -108,8 +111,10 @@ pub use floating::{
 };
 pub use form::{
     FieldConstraints, FieldValue, FormFieldIds, FormFieldState, FormState, ValidationMode,
-    Validator, compose, email, max_length, min_length, none, pattern, required,
+    Validator, compose, max_length, min_length, none, required,
 };
+#[cfg(feature = "forms")]
+pub use form::{email, pattern};
 #[cfg(feature = "syntax")]
 pub use highlight::highlight_code;
 pub use icons::{IconName, IconSet};
@@ -127,10 +132,12 @@ pub use pagination::{
     DEFAULT_BOUNDARY_COUNT, DEFAULT_SIBLING_COUNT, PageContext, PaginationItem, page_items,
     total_pages,
 };
+#[cfg(feature = "password")]
 pub use password::{
     PasswordAction, PasswordScore, PasswordState, PasswordStrength, estimate_password_strength,
     password_reduce,
 };
+#[cfg(feature = "phone")]
 pub use phone_input::{
     CountryCode, DetailedPhoneValue, PhoneCountry, PhoneInputError, PhoneInputOptions,
     apply_country_change, apply_input_change, auto_placeholder, default_country_order, flag_emoji,

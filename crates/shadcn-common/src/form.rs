@@ -8,6 +8,7 @@
 use std::collections::HashMap;
 use std::fmt;
 
+#[cfg(feature = "forms")]
 use regex::Regex;
 
 /// A value that can be validated by the shared form helpers.
@@ -666,6 +667,9 @@ pub fn max_length(maximum: usize, message: impl Into<String>) -> Validator {
 /// Empty optional values pass, matching browser constraint-validation
 /// semantics. An invalid expression is treated as a validation failure rather
 /// than causing a panic.
+///
+/// Requires the `forms` feature (regex).
+#[cfg(feature = "forms")]
 #[must_use]
 pub fn pattern(expression: &str, message: impl Into<String>) -> Validator {
     let message = message.into();
@@ -684,6 +688,9 @@ pub fn pattern(expression: &str, message: impl Into<String>) -> Validator {
 }
 
 /// Returns a validator for a conventional email address.
+///
+/// Requires the `forms` feature (regex).
+#[cfg(feature = "forms")]
 #[must_use]
 pub fn email(message: impl Into<String>) -> Validator {
     pattern(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", message)
