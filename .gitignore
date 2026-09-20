@@ -7,6 +7,9 @@
 **/dist-egui
 **/dist-iced
 
+# Local feature-gate benchmarks (lean vs full consumers + targets)
+/_feature_bench/
+
 # Cargo
 /Cargo.lock
 /.kiro/
