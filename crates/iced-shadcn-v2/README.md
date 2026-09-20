@@ -61,15 +61,48 @@ with native `iced` types.
   - `theme::palette` — semantic colors and OKLCH-to-iced conversion.
   - `theme::tokens` — theme mode, style, base, accent, radius, and semantic APIs.
   - `theme::typography` — body, heading, and font-pack selection APIs.
-- `fonts` — font-face exports and the iced font adapter.
+- `fonts` — font-face exports (`ALL_FACES`, TTF bytes; feature `fonts`,
+  on by default) and the always-available iced font adapter (`iced_font`).
 
-The root `accordion`, `alert`, `aspect_ratio`, `avatar`, `badge`, `breadcrumb`, `button`, `card`, `checkbox`,
-`collapsible`, `data_table`, `field`, `input`, `input_group`, `item`, `kbd`, `label`, `pagination`, `progress`,
-`radio_group`, `scroll_area`, `separator`, `skeleton`, `slider`, `sonner`, `spinner`, `switch`, `table`,
-  `tabs`, `toggle`, `toggle_group`, and `typography` modules are compatibility re-exports of
-`components`, so existing
-v2 imports remain valid while new code can use the feature-oriented
-`iced_shadcn_v2::components::*` paths.
+## Feature flags
+
+Default: `wgpu`, `tiny-skia`, `fonts`, `core` (Button and other primitives).
+
+### Categories
+
+| Feature | Enables (summary) | Auto-deps |
+| --- | --- | --- |
+| `core` | button, spinner, card, typography, scroll_area, accordion, snippet, … | — |
+| `forms` | input, select, form, checkbox, … + **regex** validators | `core`, `shadcn-common/forms` |
+| `overlays` | dialog, popover, command, combobox, menus, pm_command, … | `core`, `forms` |
+| `navigation` | tabs, sidebar, breadcrumb, carousel, … | `core`, `forms`, `overlays` (sidebar) |
+| `data` | table, chart, calendar, avatar, tree_view, … + **image** | `core`, `forms`, `overlays`, `image` |
+| `feedback` | sonner | `core` |
+| `file-drop` | file drop zone | `core` |
+
+### Heavy / niche (not pulled by categories alone)
+
+| Feature | Crate / module | Auto-deps |
+| --- | --- | --- |
+| `password` | password + zxcvbn | `forms` |
+| `phone` | phone_input + phonelib | `forms`, `overlays` |
+| `emoji-picker` | emoji_picker + `emojis` | `forms`, `overlays` |
+| `syntax` | `Code` + tree-sitter | `core` |
+| `data-table` | data_table + chorale | `data` |
+| `rfd` | native file picker | `file-drop` |
+| `full` | everything above | — |
+
+Lean example:
+
+```toml
+iced-shadcn-v2 = { version = "0.5", default-features = false, features = ["tiny-skia", "fonts", "core"] }
+```
+
+Migration for existing apps that imported many components: `features = ["full"]`.
+
+`Input` does **not** pull zxcvbn; `Dialog` does **not** pull phonelib; `Snippet` does **not** pull tree-sitter; `FileDropZone` does **not** pull emojis.
+
+The root module re-exports mirror `components::*` when the matching feature is on.
 
 ## Theming
 
