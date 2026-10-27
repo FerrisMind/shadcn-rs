@@ -26,6 +26,16 @@
 - Two public API styles: **props-first** (`*Props` / free functions) and **builder-first** (fluent `Component::new(…).variant(…)` chains).
 - Theming and style packs in `shadcn-common` are built on [`twill`](https://github.com/FerrisMind/twill).
 
+## Ecosystem
+
+| Project | Role | Links |
+| --- | --- | --- |
+| **shadcn-rs** (this repo) | shadcn/ui-style component kits for egui and iced | [GitHub](https://github.com/FerrisMind/shadcn-rs) · [iced-shadcn](https://crates.io/crates/iced-shadcn) |
+| [twill](https://github.com/FerrisMind/twill) | Type-safe styling tokens and `Style` composition (Tailwind-inspired) | [GitHub](https://github.com/FerrisMind/twill) · [crates.io](https://crates.io/crates/twill) |
+| [enchant](https://github.com/FerrisMind/enchant) | Premium interaction layer for iced (effects, motion, marketing widgets) | [GitHub](https://github.com/FerrisMind/enchant) · [crates.io](https://crates.io/crates/enchant-iced) |
+
+`shadcn-common` theming sits on Twill; `enchant-iced` builds premium iced effects on top of `iced-shadcn`.
+
 ## Crates
 - `egui-shadcn` — egui components, **props-first** API (some thin builder wrappers on top of props; see `crates/egui-shadcn/README.md`).
 - `iced-shadcn` — iced components, **v1 props-first** API (see `crates/iced-shadcn/README.md`).
