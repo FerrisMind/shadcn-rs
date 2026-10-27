@@ -1,8 +1,8 @@
 [package]
 name = "iced-shadcn-v2"
-# Own semver: new crate (post v0.5.0 tag, never on crates.io). Not the
-# workspace 0.5 line shared by iced-shadcn / egui-shadcn / shadcn-common.
-version = "0.1.0"
+# Own field (not workspace=true) so v2 can diverge later; number matches the
+# current monorepo generation — v2 already outscopes iced-shadcn 0.5 by volume.
+version = "0.5.0"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
