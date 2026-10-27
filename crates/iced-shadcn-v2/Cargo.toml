@@ -14,9 +14,10 @@ documentation = "https://docs.rs/iced-shadcn-v2"
 keywords = ["iced", "ui", "components", "shadcn", "radix"]
 categories = ["gui", "visualization", "rendering::graphics-api"]
 
+# Ship library sources only — examples/tests stay in the git repo for local
+# `cargo run --example` / `cargo test`, not on crates.io.
 include = [
     "src/**/*",
-    "examples/**/*",
     "Cargo.toml",
     "/README.md",
     "LICENSE*",
