@@ -1,6 +1,8 @@
 [package]
 name = "iced-shadcn-v2"
-version.workspace = true
+# Own semver: new crate (post v0.5.0 tag, never on crates.io). Not the
+# workspace 0.5 line shared by iced-shadcn / egui-shadcn / shadcn-common.
+version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true

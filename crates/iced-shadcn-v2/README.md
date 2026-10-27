@@ -95,7 +95,7 @@ Default: `wgpu`, `tiny-skia`, `fonts`, `core` (Button and other primitives).
 Lean example:
 
 ```toml
-iced-shadcn-v2 = { version = "0.5", default-features = false, features = ["tiny-skia", "fonts", "core"] }
+iced-shadcn-v2 = { version = "0.1", default-features = false, features = ["tiny-skia", "fonts", "core"] }
 ```
 
 Migration for existing apps that imported many components: `features = ["full"]`.
