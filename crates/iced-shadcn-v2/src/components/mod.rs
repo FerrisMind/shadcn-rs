@@ -156,11 +156,11 @@ pub mod file_drop_zone;
 // --- heavy ---
 #[cfg(feature = "syntax")]
 pub mod code;
+#[cfg(feature = "data-table")]
+pub mod data_table;
+#[cfg(feature = "emoji-picker")]
+pub mod emoji_picker;
 #[cfg(feature = "password")]
 pub mod password;
 #[cfg(feature = "phone")]
 pub mod phone_input;
-#[cfg(feature = "emoji-picker")]
-pub mod emoji_picker;
-#[cfg(feature = "data-table")]
-pub mod data_table;

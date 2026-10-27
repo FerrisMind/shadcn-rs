@@ -1090,12 +1090,8 @@ where
             )
         };
         let mut list = self.build_list(state_hi, bus, viewport_h);
-        list.as_widget_mut().operate(
-            &mut tree.children[1],
-            list_layout,
-            renderer,
-            operation,
-        );
+        list.as_widget_mut()
+            .operate(&mut tree.children[1], list_layout, renderer, operation);
     }
 
     fn update(

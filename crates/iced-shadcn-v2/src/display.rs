@@ -329,7 +329,13 @@ impl fmt::Display for SkeletonFill {
     }
 }
 
-#[cfg(all(test, feature = "core", feature = "forms", feature = "overlays", feature = "data"))]
+#[cfg(all(
+    test,
+    feature = "core",
+    feature = "forms",
+    feature = "overlays",
+    feature = "data"
+))]
 mod tests {
     use super::*;
 
